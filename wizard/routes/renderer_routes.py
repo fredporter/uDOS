@@ -21,6 +21,7 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 from core.services.permission_handler import get_permission_handler
+from core.services.time_utils import utc_from_timestamp, utc_now_iso_z
 from core.services.unified_config_loader import get_config
 from core.tools.contract_validator import (
     validate_theme_pack,
@@ -90,7 +91,7 @@ def _load_json(path: Path) -> dict[str, Any] | None:
 def _datetime_from_stat(path: Path) -> str | None:
     try:
         mtime = path.stat().st_mtime
-        return datetime.utcfromtimestamp(mtime).isoformat() + "Z"
+        return utc_from_timestamp(mtime).isoformat().replace("+00:00", "Z")
     except OSError:
         return None
 
@@ -113,11 +114,7 @@ def _site_stats(theme_name: str) -> dict[str, Any]:
             last_modified = max(last_modified or 0, mtime)
         except OSError:
             continue
-    last_modified_iso = (
-        datetime.utcfromtimestamp(last_modified).isoformat() + "Z"
-        if last_modified
-        else None
-    )
+    last_modified_iso = utc_from_timestamp(last_modified).isoformat().replace("+00:00", "Z") if last_modified else None
     return {
         "files": file_count,
         "totalSize": total_size,
@@ -280,7 +277,7 @@ def _invoke_renderer(theme: str, mission_id: str | None = None) -> dict[str, Any
     if mission_id:
         env["MISSION_ID"] = mission_id
 
-    started_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
+    started_at = utc_now_iso_z()
     result = subprocess.run(
         ["node", str(cli_path)], capture_output=True, text=True, env=env
     )
@@ -296,7 +293,7 @@ def _invoke_renderer(theme: str, mission_id: str | None = None) -> dict[str, Any
             "runner": "renderer-cli",
             "theme": theme,
             "started_at": started_at,
-            "completed_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+            "completed_at": utc_now_iso_z(),
             "error": result.stderr.strip(),
         }
         _write_mission_output(error_report)
@@ -312,9 +309,7 @@ def _invoke_renderer(theme: str, mission_id: str | None = None) -> dict[str, Any
 
     # Write success report to 06_RUNS
     result_payload["started_at"] = started_at
-    result_payload["completed_at"] = (
-        datetime.now(UTC).isoformat().replace("+00:00", "Z")
-    )
+    result_payload["completed_at"] = utc_now_iso_z()
     _write_mission_output(result_payload)
 
     return result_payload
@@ -540,7 +535,7 @@ def create_renderer_routes(auth_guard=None) -> APIRouter:
             "started_at": result.get("started_at"),
             "completed_at": result.get("completed_at"),
             "mission_output_path": f"06_RUNS/{real_mission_id}/{job_id}.json",
-            "submitted_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+            "submitted_at": utc_now_iso_z(),
         }
 
     return router

@@ -28,6 +28,8 @@ def create_workflow_routes(auth_guard: AuthGuard = None) -> APIRouter:
         name: str
         description: Optional[str] = None
         tasks: list[str] = []
+        template_id: Optional[str] = None
+        workflow_id: Optional[str] = None
 
     class TemplateDuplicateRequest(BaseModel):
         target_name: Optional[str] = None
@@ -47,6 +49,8 @@ def create_workflow_routes(auth_guard: AuthGuard = None) -> APIRouter:
                 name=workflow.name,
                 description=workflow.description,
                 task_ids=workflow.tasks,
+                template_id=workflow.template_id,
+                workflow_id=workflow.workflow_id,
             )
         except Exception as exc:
             raise HTTPException(status_code=400, detail=str(exc))
@@ -56,7 +60,7 @@ def create_workflow_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if auth_guard:
             await auth_guard(request)
         try:
-            return manager.get_workflows()
+            return manager.list_runtime_workflows()
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc))
 
@@ -65,29 +69,7 @@ def create_workflow_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if auth_guard:
             await auth_guard(request)
         try:
-            projects = manager.list_projects()
-            all_tasks = []
-            for project in projects:
-                tasks = manager.get_project_tasks(project["id"])
-                for task in tasks:
-                    task["project_id"] = project["id"]
-                    task["project_name"] = project.get("name")
-                all_tasks.extend(tasks)
-
-            status_counts = {}
-            for task in all_tasks:
-                status = task.get("status") or "unknown"
-                status_counts[status] = status_counts.get(status, 0) + 1
-
-            return {
-                "projects": projects,
-                "tasks": all_tasks,
-                "summary": {
-                    "projects": len(projects),
-                    "tasks": len(all_tasks),
-                    "by_status": status_counts,
-                },
-            }
+            return manager.get_runtime_dashboard()
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc))
 
@@ -97,9 +79,9 @@ def create_workflow_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if auth_guard:
             await auth_guard(request)
         try:
-            workflows = manager.get_workflows()
+            workflows = manager.list_runtime_workflows()
             return {
-                "workflows": workflows,
+                "workflows": workflows.get("workflows", []),
                 "scheduler": {
                     "stats": scheduler.get_stats(),
                     "queue": scheduler.get_scheduled_queue(limit=limit),
@@ -170,7 +152,7 @@ def create_workflow_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if auth_guard:
             await auth_guard(request)
         try:
-            return manager.get_workflow(workflow_id)
+            return manager.get_runtime_workflow(workflow_id)
         except Exception as exc:
             raise HTTPException(status_code=404, detail=str(exc))
 
@@ -179,7 +161,7 @@ def create_workflow_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if auth_guard:
             await auth_guard(request)
         try:
-            return manager.run_workflow(workflow_id)
+            return manager.run_runtime_workflow(workflow_id)
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc))
 
@@ -188,7 +170,7 @@ def create_workflow_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if auth_guard:
             await auth_guard(request)
         try:
-            return manager.get_workflow_status(workflow_id)
+            return manager.get_runtime_workflow_status(workflow_id)
         except Exception as exc:
             raise HTTPException(status_code=404, detail=str(exc))
 

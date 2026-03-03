@@ -1,163 +1,92 @@
-"""AI Profile scaffold service for local Ollama prompt standards and skills."""
+"""v1.5 logic-assist prompt profile service."""
 
 from __future__ import annotations
 
-import json
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
-from wizard.services.path_utils import get_memory_dir, get_repo_root
-
-
-def _template_path() -> Path:
-    return get_repo_root() / "wizard" / "config" / "templates" / "ai_profile_template.json"
+from core.services.template_workspace_service import get_template_workspace_service
+from wizard.services.logic_assist_profile import load_logic_assist_profile
+from wizard.services.path_utils import get_repo_root
 
 
-def _profile_path() -> Path:
-    return get_memory_dir() / "wizard" / "ai-profile.json"
+def _instructions_fields() -> dict[str, str]:
+    workspace = get_template_workspace_service(get_repo_root())
+    return workspace.read_fields("instructions", "logic-assist")
 
 
-def _knowledge_library_path() -> Path:
-    return get_repo_root() / "knowledge" / "local" / "library.json"
-
-
-def _read_json(path: Path) -> Dict[str, Any]:
-    if not path.exists():
-        return {}
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-        return data if isinstance(data, dict) else {}
-    except Exception:
-        return {}
-
-
-def _write_json(path: Path, payload: Dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-
-
-def _merge_dict(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
-    out = dict(base)
-    for key, value in (override or {}).items():
-        if isinstance(value, dict) and isinstance(out.get(key), dict):
-            out[key] = _merge_dict(out[key], value)
-        else:
-            out[key] = value
-    return out
-
-
-def load_template() -> Dict[str, Any]:
-    template = _read_json(_template_path())
-    if template:
-        return template
+def load_profile() -> dict[str, Any]:
+    profile = load_logic_assist_profile()
+    instructions = _instructions_fields()
     return {
-        "schema_version": "1.3",
-        "profile_name": "uDOS Local AI Profile",
-        "standards": [],
-        "mission_objectives": [],
-        "local_ollama": {},
-        "custom_instructions": {"global": [], "general": [], "coding": []},
-        "local_skills": [],
-        "user_quests": [],
-        "knowledge_library": [],
+        "schema_version": profile.schema_version,
+        "profile_name": "uDOS v1.5 Logic Assist Profile",
+        "local_runtime": profile.local_runtime,
+        "local_role": profile.local_role,
+        "local_model_name": profile.local_model_name,
+        "local_context_window": profile.local_context_window,
+        "network_primary_provider": profile.network_primary_provider,
+        "instructions": instructions,
     }
 
 
-def load_profile() -> Dict[str, Any]:
-    template = load_template()
-    saved = _read_json(_profile_path())
-    profile = _merge_dict(template, saved)
-    profile.setdefault("updated_at", datetime.now(timezone.utc).isoformat())
+def render_system_prompt(mode: str = "general") -> str:
+    profile = load_logic_assist_profile()
+    instructions = _instructions_fields()
+    lines = [
+        "uDOS v1.5 Logic Assist",
+        "You are an advisory-only local assist layer.",
+        f"Mode: {mode}",
+        f"Local runtime: {profile.local_runtime}",
+        f"Role: {profile.local_role}",
+        f"Prompt style: {profile.local_prompt_style}",
+        "Execution authority belongs to uLogic.",
+        "Never claim authority over execution, persistence, or network routing.",
+        "Prefer structured Markdown output with explicit next steps and evidence notes.",
+    ]
+
+    doctrine = instructions.get("doctrine")
+    if doctrine:
+        lines.append(f"Doctrine: {doctrine}")
+    lines.append(
+        f"Execution authority: {instructions.get('execution_authority', 'ulogic')}"
+    )
+    lines.append(
+        f"Network authority: {instructions.get('network_authority', 'wizard_only')}"
+    )
+    if mode == "coding":
+        lines.append("For code assistance, explain reasoning and keep changes auditable.")
+    return "\n".join(lines)
+
+
+def load_template() -> dict[str, Any]:
+    profile = load_profile()
+    return {
+        **profile,
+        "quests": [],
+        "skills": [],
+        "knowledge": [],
+    }
+
+
+def save_profile(payload: dict[str, Any]) -> dict[str, Any]:
+    current = load_template()
+    current.update(payload or {})
+    return current
+
+
+def add_quest(quest: dict[str, Any]) -> dict[str, Any]:
+    profile = load_template()
+    profile["quests"] = [*(profile.get("quests") or []), quest]
     return profile
 
 
-def save_profile(profile: Dict[str, Any]) -> Dict[str, Any]:
-    current = load_profile()
-    merged = _merge_dict(current, profile or {})
-    merged["updated_at"] = datetime.now(timezone.utc).isoformat()
-    _write_json(_profile_path(), merged)
-    return merged
+def add_skill(skill: dict[str, Any]) -> dict[str, Any]:
+    profile = load_template()
+    profile["skills"] = [*(profile.get("skills") or []), skill]
+    return profile
 
 
-def _append_unique_dict(items: List[Dict[str, Any]], entry: Dict[str, Any], key: str = "id") -> List[Dict[str, Any]]:
-    if not isinstance(entry, dict):
-        return items
-    entry_id = str(entry.get(key) or "").strip()
-    if entry_id:
-        items = [item for item in items if str(item.get(key) or "") != entry_id]
-    items.append(entry)
-    return items
-
-
-def add_quest(quest: Dict[str, Any]) -> Dict[str, Any]:
-    profile = load_profile()
-    quests = profile.get("user_quests")
-    if not isinstance(quests, list):
-        quests = []
-    profile["user_quests"] = _append_unique_dict(quests, quest)
-    return save_profile(profile)
-
-
-def add_skill(skill: Dict[str, Any]) -> Dict[str, Any]:
-    profile = load_profile()
-    skills = profile.get("local_skills")
-    if not isinstance(skills, list):
-        skills = []
-    profile["local_skills"] = _append_unique_dict(skills, skill)
-    return save_profile(profile)
-
-
-def add_knowledge_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
-    profile = load_profile()
-    entries = profile.get("knowledge_library")
-    if not isinstance(entries, list):
-        entries = []
-    updated_entries = _append_unique_dict(entries, entry)
-    profile["knowledge_library"] = updated_entries
-    saved = save_profile(profile)
-
-    _write_json(_knowledge_library_path(), {"entries": updated_entries, "updated_at": saved.get("updated_at")})
-    return saved
-
-
-def render_system_prompt(mode: str = "general") -> str:
-    profile = load_profile()
-    mode_key = "coding" if mode == "coding" else "general"
-
-    standards = profile.get("standards") or []
-    missions = profile.get("mission_objectives") or []
-    custom = profile.get("custom_instructions") or {}
-    global_instructions = custom.get("global") or []
-    mode_instructions = custom.get(mode_key) or []
-    skills = [s for s in (profile.get("local_skills") or []) if s.get("enabled", True)]
-
-    lines: List[str] = [
-        "uDOS Mission Profile",
-        "Follow these operating standards and mission objectives.",
-    ]
-
-    if standards:
-        lines.append("Standards:")
-        lines.extend([f"- {item}" for item in standards if item])
-
-    if missions:
-        lines.append("Mission Objectives:")
-        lines.extend([f"- {item}" for item in missions if item])
-
-    if global_instructions:
-        lines.append("Global Instructions:")
-        lines.extend([f"- {item}" for item in global_instructions if item])
-
-    if mode_instructions:
-        lines.append(f"{mode_key.title()} Instructions:")
-        lines.extend([f"- {item}" for item in mode_instructions if item])
-
-    if skills:
-        lines.append("Local Skills:")
-        for skill in skills:
-            name = skill.get("name") or skill.get("id") or "skill"
-            instruction = skill.get("instructions") or ""
-            lines.append(f"- {name}: {instruction}".strip())
-
-    return "\n".join(lines)
+def add_knowledge_entry(entry: dict[str, Any]) -> dict[str, Any]:
+    profile = load_template()
+    profile["knowledge"] = [*(profile.get("knowledge") or []), entry]
+    return profile

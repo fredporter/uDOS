@@ -24,11 +24,11 @@ Repository Structure:
 import json
 import hashlib
 import re
-from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 from dataclasses import dataclass, asdict, field
 
+from core.services.time_utils import utc_now_iso_z
 from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
 
@@ -153,7 +153,7 @@ class PluginRepository:
         if self.init_error:
             logger.error("[PLUGIN] Skipping index save due to init error: %s", self.init_error)
             return
-        self._index.updated_at = datetime.now().isoformat()
+        self._index.updated_at = utc_now_iso_z()
         self.index_path.write_text(json.dumps(self._index.to_dict(), indent=2))
 
     def list_plugins(

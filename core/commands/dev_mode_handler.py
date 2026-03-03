@@ -85,13 +85,13 @@ class DevModeHandler(BaseCommandHandler):
                 output = "\n".join(
                     [
                         OutputToolkit.banner("DEV MODE"),
-                        "Dev submodule not present (/dev missing).",
-                        "Hint: Clone github.com/fredporter/uDOS-dev.",
+                        "Dev workspace not present (`@dev` at /dev).",
+                        "Hint: restore the tracked /dev framework payload.",
                     ]
                 )
                 return {
                     "status": "error",
-                    "message": "Dev submodule missing",
+                    "message": "Dev workspace missing",
                     "output": output,
                 }
             marker_paths = [
@@ -103,8 +103,12 @@ class DevModeHandler(BaseCommandHandler):
                 dev_root / "completed.json",
                 dev_root / "extension.json",
                 dev_root / "docs" / "README.md",
-                dev_root / "docs" / "templates",
                 dev_root / "docs" / "DEV-MODE-POLICY.md",
+                dev_root / "docs" / "specs" / "DEV-WORKSPACE-SPEC.md",
+                dev_root / "docs" / "howto" / "GETTING-STARTED.md",
+                dev_root / "docs" / "howto" / "VIBE-Setup-Guide.md",
+                dev_root / "docs" / "features" / "GITHUB-INTEGRATION.md",
+                dev_root / "goblin" / "README.md",
             ]
             if not all(path.exists() for path in marker_paths):
                 output = "\n".join(
@@ -227,7 +231,7 @@ class DevModeHandler(BaseCommandHandler):
             if response["status_code"] == 412:
                 return self._dev_templates_guard() or {
                     "status": "error",
-                    "message": "Dev submodule missing",
+                    "message": "Dev workspace missing",
                 }
             if response["status_code"] == 409:
                 result = response.get("json", {})
@@ -300,7 +304,7 @@ class DevModeHandler(BaseCommandHandler):
             if response["status_code"] == 412:
                 return self._dev_templates_guard() or {
                     "status": "error",
-                    "message": "Dev submodule missing",
+                    "message": "Dev workspace missing",
                 }
             result = response.get("json", {})
             if response["status_code"] >= 400:
@@ -358,7 +362,7 @@ class DevModeHandler(BaseCommandHandler):
             if response["status_code"] == 412:
                 return self._dev_templates_guard() or {
                     "status": "error",
-                    "message": "Dev submodule missing",
+                    "message": "Dev workspace missing",
                 }
             result = response.get("json", {})
             if response["status_code"] >= 400:
@@ -441,7 +445,7 @@ class DevModeHandler(BaseCommandHandler):
             if response["status_code"] == 412:
                 return self._dev_templates_guard() or {
                     "status": "error",
-                    "message": "Dev submodule missing",
+                    "message": "Dev workspace missing",
                 }
             if response["status_code"] == 409:
                 result = response.get("json", {})
@@ -505,7 +509,7 @@ class DevModeHandler(BaseCommandHandler):
             if response["status_code"] == 412:
                 return self._dev_templates_guard() or {
                     "status": "error",
-                    "message": "Dev submodule missing",
+                    "message": "Dev workspace missing",
                 }
             if response["status_code"] == 409:
                 result = response.get("json", {})
@@ -567,7 +571,7 @@ class DevModeHandler(BaseCommandHandler):
             if response["status_code"] == 412:
                 return self._dev_templates_guard() or {
                     "status": "error",
-                    "message": "Dev submodule missing",
+                    "message": "Dev workspace missing",
                 }
             if response["status_code"] == 409:
                 result = response.get("json", {})
@@ -647,7 +651,7 @@ class DevModeHandler(BaseCommandHandler):
             if response["status_code"] == 412:
                 return self._dev_templates_guard() or {
                     "status": "error",
-                    "message": "Dev submodule missing",
+                    "message": "Dev workspace missing",
                 }
             if response["status_code"] == 409:
                 result = response.get("json", {})

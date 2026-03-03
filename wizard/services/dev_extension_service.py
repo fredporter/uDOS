@@ -35,6 +35,11 @@ class DevExtensionService:
         "extension.json",
         "docs/README.md",
         "docs/DEV-MODE-POLICY.md",
+        "docs/specs/DEV-WORKSPACE-SPEC.md",
+        "docs/howto/GETTING-STARTED.md",
+        "docs/howto/VIBE-Setup-Guide.md",
+        "docs/features/GITHUB-INTEGRATION.md",
+        "goblin/README.md",
     )
     LOCAL_ONLY_DIRS: tuple[str, ...] = ("files", "relecs", "dev-work", "testing")
 
@@ -85,6 +90,7 @@ class DevExtensionService:
         }
         manifest = self._read_extension_manifest()
         return {
+            "workspace_alias": "@dev",
             "dev_root": str(self.dev_root),
             "dev_root_present": self.dev_root.exists(),
             "framework_manifest_path": str(self.extension_manifest_path),
@@ -94,6 +100,7 @@ class DevExtensionService:
             "missing_files": missing_files,
             "framework_ready": self.dev_root.exists() and not missing_files,
             "local_only_dirs": ignored,
+            "tracked_sync_paths": ["docs", "goblin"],
             "remote_framework_only": True,
         }
 
@@ -110,7 +117,7 @@ class DevExtensionService:
 
     def ensure_framework(self) -> Optional[str]:
         if not self.dev_root.exists():
-            return "Dev extension workspace missing at /dev."
+            return "Dev extension workspace missing at /dev (`@dev`)."
         status = self.framework_status()
         if not status["framework_manifest_present"]:
             return "Dev extension manifest missing (/dev/extension.json)."
@@ -137,6 +144,7 @@ class DevExtensionService:
     def status(self) -> dict[str, Any]:
         config = self._wizard_config()
         return {
+            "workspace_alias": "@dev",
             "profile_enabled": self._profile_enabled(),
             "permissions": self._permission_status(),
             "framework": self.framework_status(),
@@ -156,6 +164,7 @@ class DevExtensionService:
         gh_ready = shutil.which("gh") is not None
         gh_auth = self._gh_auth_status() if gh_ready else {"available": False, "authenticated": False, "detail": "gh CLI not found"}
         return {
+            "workspace_alias": "@dev",
             "profile_enabled": self._profile_enabled(),
             "permissions": self._permission_status(),
             "active": self.dev_mode_service.active,

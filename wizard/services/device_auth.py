@@ -25,6 +25,7 @@ from dataclasses import dataclass, asdict, field
 from enum import Enum
 import threading
 
+from core.services.time_utils import utc_now, utc_now_iso_z
 from wizard.services.logging_api import get_logger
 
 logger = get_logger("wizard", category="device-auth", name="device-auth")
@@ -148,7 +149,7 @@ class DeviceAuthService:
         try:
             data = {
                 "devices": [d.to_dict() for d in self.devices.values()],
-                "updated_at": datetime.now().isoformat(),
+                "updated_at": utc_now_iso_z(),
             }
             with open(DEVICES_FILE, "w") as f:
                 json.dump(data, f, indent=2)
@@ -182,7 +183,7 @@ class DeviceAuthService:
                 "code": code,
                 "wizard": wizard_address or "localhost:8080",
                 "expires": (
-                    datetime.now() + timedelta(minutes=ttl_minutes)
+                    utc_now() + timedelta(minutes=ttl_minutes)
                 ).isoformat(),
             }
         )
@@ -190,7 +191,7 @@ class DeviceAuthService:
         request = PairingRequest(
             code=f"{code[:4]} {code[4:]}",  # Format: XXXX XXXX
             qr_data=qr_data,
-            expires_at=datetime.now() + timedelta(minutes=ttl_minutes),
+            expires_at=utc_now() + timedelta(minutes=ttl_minutes),
         )
 
         self.pairing_requests[code] = request
@@ -230,7 +231,7 @@ class DeviceAuthService:
             return None
 
         # Check expiration
-        if datetime.now() > request.expires_at:
+        if utc_now() > request.expires_at:
             logger.warning("[WIZ] Expired pairing code: %s****", code[:4])
             del self.pairing_requests[code]
             return None
@@ -242,8 +243,8 @@ class DeviceAuthService:
             device_type=device_type,
             trust_level=TrustLevel.STANDARD,
             status=DeviceStatus.ONLINE,
-            paired_at=datetime.now().isoformat(),
-            last_seen=datetime.now().isoformat(),
+            paired_at=utc_now_iso_z(),
+            last_seen=utc_now_iso_z(),
             public_key=public_key,
         )
 
@@ -287,14 +288,14 @@ class DeviceAuthService:
         device = self.devices.get(device_id)
         if device:
             device.status = status
-            device.last_seen = datetime.now().isoformat()
+            device.last_seen = utc_now_iso_z()
             self._save_devices()
 
     def update_device_sync(self, device_id: str, sync_version: int):
         """Update device sync version after successful sync."""
         device = self.devices.get(device_id)
         if device:
-            device.last_sync = datetime.now().isoformat()
+            device.last_sync = utc_now_iso_z()
             device.sync_version = sync_version
             self._save_devices()
 
@@ -329,7 +330,7 @@ class DeviceAuthService:
 
         # STUB: proper token validation
         # For now, just check device exists and update last_seen
-        device.last_seen = datetime.now().isoformat()
+        device.last_seen = utc_now_iso_z()
         device.status = DeviceStatus.ONLINE
 
         return True

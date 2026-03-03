@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import contextvars
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 import json
 import os
 from pathlib import Path
@@ -20,8 +20,10 @@ from typing import Any
 
 from core.services.id_utils import generate_runtime_id
 from core.services.path_service import get_repo_root
+from core.services.time_utils import utc_day_string, utc_filename_timestamp, utc_now, utc_now_iso, utc_now_iso_z
 
-LOG_SCHEMA_ID = "udos-log-v1.3"
+LOG_SCHEMA_ID = "udos-log-v1.5"
+LOG_RUNTIME_VERSION = "v1.5"
 
 _CORR_ID: contextvars.ContextVar[str | None] = contextvars.ContextVar(
     "udos_corr_id", default=None
@@ -76,7 +78,7 @@ class LogTags:
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return utc_now_iso()
 
 
 def _mono_ms() -> int:
@@ -205,7 +207,7 @@ class FileSink:
         self.root = root
         self.component = component
         self.name = name
-        self._date = datetime.now().date()
+        self._date = utc_now().date()
         self._path = self._build_path()
         self._file = None
         self._lock = threading.Lock()
@@ -217,7 +219,7 @@ class FileSink:
         return directory / f"{self.name}-{date_str}.jsonl"
 
     def _ensure_open(self) -> None:
-        now = datetime.now().date()
+        now = utc_now().date()
         if self._file is None or now != self._date:
             if self._file:
                 try:
@@ -274,7 +276,7 @@ class LogManager:
         if path is None:
             crash_dir = self.config.root / "crash"
             crash_dir.mkdir(parents=True, exist_ok=True)
-            filename = f"crash-{datetime.now().strftime('%Y-%m-%d-%H%M%S')}-{self.session_id}.jsonl"
+            filename = f"crash-{utc_filename_timestamp()}-{self.session_id}.jsonl"
             path = crash_dir / filename
         with open(path, "w", encoding="utf-8") as handle:
             for entry in self._ring:
@@ -327,6 +329,23 @@ class LogManager:
         count = len(self._ring)
         self._ring = []
         return count
+
+    def health(self) -> dict[str, Any]:
+        return {
+            "schema": LOG_SCHEMA_ID,
+            "runtime_version": LOG_RUNTIME_VERSION,
+            "session_id": self.session_id,
+            "root": str(self.config.root),
+            "dest": self.config.dest,
+            "format": self.config.format,
+            "level": self.config.level,
+            "redact": self.config.redact,
+            "payloads": self.config.payloads,
+            "ring_size": self._ring_size,
+            "ring_entries": len(self._ring),
+            "sinks": len(self._sinks),
+            "timestamp": utc_now_iso_z(),
+        }
 
 
 class Logger:
@@ -559,6 +578,59 @@ def get_corr_id() -> str | None:
     return _CORR_ID.get()
 
 
+def get_logs_root() -> Path:
+    root = _default_log_root()
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
+def get_log_stats(root: Path | None = None) -> dict[str, Any]:
+    log_root = root or get_logs_root()
+    stats: dict[str, Any] = {
+        "schema": LOG_SCHEMA_ID,
+        "runtime_version": LOG_RUNTIME_VERSION,
+        "generated_at": utc_now_iso_z(),
+        "root": str(log_root),
+        "total_files": 0,
+        "total_size_mb": 0.0,
+        "latest_file": None,
+        "by_component": {},
+    }
+    latest_mtime = -1.0
+    component_latest: dict[str, float] = {}
+
+    for path in log_root.rglob("*.jsonl"):
+        try:
+            stat = path.stat()
+        except OSError:
+            continue
+        stats["total_files"] += 1
+        size_mb = stat.st_size / (1024 * 1024)
+        stats["total_size_mb"] += size_mb
+        component = path.parent.name
+        component_stats = stats["by_component"].setdefault(
+            component,
+            {"count": 0, "size_mb": 0.0, "latest_file": None},
+        )
+        component_stats["count"] += 1
+        component_stats["size_mb"] += size_mb
+        if stat.st_mtime > latest_mtime:
+            latest_mtime = stat.st_mtime
+            stats["latest_file"] = str(path)
+        if stat.st_mtime > component_latest.get(component, -1.0):
+            component_latest[component] = stat.st_mtime
+            component_stats["latest_file"] = str(path)
+
+    stats["total_size_mb"] = round(stats["total_size_mb"], 2)
+    for component_stats in stats["by_component"].values():
+        component_stats["size_mb"] = round(component_stats["size_mb"], 2)
+    return stats
+
+
+def get_logging_health() -> dict[str, Any]:
+    return get_log_manager().health()
+
+
 class DevTrace:
     """Development trace logger for detailed command flow and timing."""
 
@@ -567,7 +639,7 @@ class DevTrace:
         self.enabled = enabled
         self.spans: list = []
         self.decisions: list = []
-        self.start_time = datetime.now()
+        self.start_time = time.monotonic()
         self.logger = get_logger("core", category=f"dev-trace-{category}", name="trace")
 
     def span(self, name: str, metadata: dict[str, Any] | None = None):
@@ -580,7 +652,7 @@ class DevTrace:
             return
 
         entry = {
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": utc_now_iso(),
             "level": level,
             "message": message,
             "metadata": metadata or {},
@@ -596,14 +668,16 @@ class DevTrace:
             self.name = name
             self.metadata = metadata or {}
             self.start = None
+            self.start_mono = None
             self.duration = None
 
         def __enter__(self):
-            self.start = datetime.now()
+            self.start = utc_now()
+            self.start_mono = time.monotonic()
             return self
 
         def __exit__(self, exc_type, exc_val, exc_tb):
-            self.duration = (datetime.now() - self.start).total_seconds()
+            self.duration = time.monotonic() - self.start_mono
             span_entry = {
                 "name": self.name,
                 "start": self.start.isoformat(),
@@ -627,7 +701,7 @@ class DevTrace:
             pass
 
     def summary(self) -> dict[str, Any]:
-        total_duration = (datetime.now() - self.start_time).total_seconds()
+        total_duration = time.monotonic() - self.start_time
         return {
             "category": self.category,
             "total_duration_ms": total_duration * 1000,
@@ -644,7 +718,7 @@ class DevTrace:
         if filepath is None:
             log_dir = _default_log_root()
             log_dir.mkdir(parents=True, exist_ok=True)
-            date_str = datetime.now().strftime("%Y-%m-%d")
+            date_str = utc_day_string()
             filepath = log_dir / f"dev-trace-{self.category}-{date_str}.jsonl"
 
         summary = self.summary()

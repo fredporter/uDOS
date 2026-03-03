@@ -100,13 +100,13 @@ class DependencyWarningMonitor:
         "notopensslwarning": (
             "urllib3/OpenSSL mismatch detected.",
             "Install Python 3.11+ (python.org package, Homebrew, or pyenv) so the ssl"
-            " module links against OpenSSL 3.x, recreate venv, then run REPAIR"
+            " module links against OpenSSL 3.x, rebuild `/.venv`, then run REPAIR"
             " --upgrade.",
         ),
         "urllib3 v2 only supports openssl": (
             "urllib3 requires OpenSSL 1.1.1+ but LibreSSL is in use.",
             "Install a modern Python build with OpenSSL 3.x (brew install python@3.11"
-            " or download from python.org) and recreate the virtualenv.",
+            " or download from python.org) and rebuild `/.venv`.",
         ),
     }
 
@@ -288,7 +288,7 @@ def _check_python_version() -> list[DependencyIssue]:
                 message=f"Python {current} detected (minimum supported {target}).",
                 resolution=(
                     "Install Python 3.11+ via python.org installer, Homebrew (brew install"
-                    " python@3.11), or pyenv, then recreate the venv and rerun REPAIR --upgrade."
+                    " python@3.11), or pyenv, then rebuild `/.venv` and rerun REPAIR --upgrade."
                 ),
             )
         )
@@ -319,7 +319,7 @@ def _check_ssl_version() -> list[DependencyIssue]:
                 message=f"LibreSSL detected ({version_text.strip()}); urllib3 v2 requires OpenSSL 1.1.1+.",
                 resolution=(
                     "Install Python built against OpenSSL 3.x (python.org, Homebrew python@3.11,"
-                    " or pyenv), recreate venv, and run REPAIR --upgrade."
+                    " or pyenv), rebuild `/.venv`, and run REPAIR --upgrade."
                 ),
             )
         )

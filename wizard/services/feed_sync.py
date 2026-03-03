@@ -22,7 +22,7 @@ Date: 2026-01-06
 
 import json
 import hashlib
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Dict, Any, Optional, List, Set
 from dataclasses import dataclass, asdict, field
 from enum import Enum
@@ -30,6 +30,7 @@ from pathlib import Path
 import threading
 import asyncio
 
+from core.services.time_utils import parse_utc_datetime, utc_now, utc_now_iso_z
 from wizard.services.logging_api import get_logger
 
 logger = get_logger("feed-sync")
@@ -182,7 +183,7 @@ class FeedSyncService:
             data = {
                 "items": [item.to_dict() for item in self.items.values()],
                 "sync_states": [state.to_dict() for state in self.sync_states.values()],
-                "updated_at": datetime.now().isoformat(),
+                "updated_at": utc_now_iso_z(),
             }
             state_file.write_text(json.dumps(data, indent=2))
         except Exception as e:
@@ -258,12 +259,12 @@ class FeedSyncService:
             items = [i for i in items if i.timestamp > since]
 
         # Filter expired items
-        now = datetime.now()
+        now = utc_now()
         items = [
             i
             for i in items
             if i.ttl_hours == 0
-            or datetime.fromisoformat(i.timestamp) + timedelta(hours=i.ttl_hours) > now
+            or parse_utc_datetime(i.timestamp) + timedelta(hours=i.ttl_hours) > now
         ]
 
         # Sort by timestamp (newest first)
@@ -325,7 +326,7 @@ class FeedSyncService:
 
             # Update sync state
             for ft in FeedType:
-                self.sync_states[ft].last_sync = datetime.now().isoformat()
+                self.sync_states[ft].last_sync = utc_now_iso_z()
                 self.sync_states[ft].sync_version = sync.global_version
 
             self._save_state()
@@ -401,7 +402,7 @@ class FeedSyncService:
             feed_type=FeedType.NOTIFICATIONS,
             title=title,
             content=content,
-            timestamp=datetime.now().isoformat(),
+            timestamp=utc_now_iso_z(),
             priority=(
                 SyncPriority(priority)
                 if priority in [p.value for p in SyncPriority]
@@ -427,7 +428,7 @@ class FeedSyncService:
             feed_type=FeedType.KNOWLEDGE,
             title=f"📚 {title}",
             content=summary,
-            timestamp=datetime.now().isoformat(),
+            timestamp=utc_now_iso_z(),
             priority=SyncPriority.NORMAL,
             ttl_hours=0,  # Permanent
             metadata={"path": path, "type": "update"},

@@ -1,6 +1,6 @@
 # Wizard Configuration Management
 
-Private configuration files for API keys, secrets, and system settings.
+Private local configuration for Wizard settings, secret storage, and v1.5 logic-assist policy.
 **Local machine only - never committed to git.**
 
 ## 🎛️ Managing Configs
@@ -13,7 +13,7 @@ Open [http://localhost:8765/config](http://localhost:8765/config) to:
 - Edit API keys in a secure, user-friendly interface
 - See example/template formats
 - Save changes locally
-- Manage the `venv`, secret store, and plugin installers from one All-In-One view
+- Manage the shared `/.venv`, secret store, and plugin installers from one All-In-One view
 
 ### REST API
 
@@ -22,28 +22,21 @@ Open [http://localhost:8765/config](http://localhost:8765/config) to:
 curl http://localhost:8765/api/config/files
 
 # Get a config (loads example if missing)
-curl http://localhost:8765/api/config/assistant_keys
+curl http://localhost:8765/api/config/files
 
-# Save a config
-curl -X POST http://localhost:8765/api/config/assistant_keys \
-  -H "Content-Type: application/json" \
-  -d '{"content": {...}}'
-
-# View example/template
-curl http://localhost:8765/api/config/assistant_keys/example
-
-# Reset to example/template
-curl -X POST http://localhost:8765/api/config/assistant_keys/reset
+# Get Wizard settings
+curl http://localhost:8765/api/config/wizard
 ```
 
 ## 📋 Configuration Files
 
 ### Available Configs
 
-- `assistant_keys.json` — AI provider credentials (Mistral, OpenRouter, Ollama)
+- `wizard.json` — server settings and policies
 - `github_keys.json` — GitHub token and webhooks
 - `oauth_providers.json` — OAuth provider configs
-- `wizard.json` — Server settings and policies
+- `memory/bank/typo-workspace/user/settings/logic-assist.md` — active logic-assist provider and budget policy
+- `wizard/secrets.tomb` — encrypted local secret store
 
 ### File Locations (wizard.json)
 
@@ -56,8 +49,8 @@ The `file_locations` section controls where Wizard stores local data:
 
 ### Templates in Public Repo
 
-- `*_keys.example.json` — Full working example with all required fields
-- `*_keys.template.json` — Minimal template for getting started
+- `wizard/config/*.template.json` — template payloads where still active
+- `core/framework/seed/bank/typo-workspace/settings/logic-assist.md` — canonical logic-assist settings template
 
 ## 🔐 Security
 
@@ -71,27 +64,20 @@ The `file_locations` section controls where Wizard stores local data:
 ## 🚀 Quick Start
 
 1. Open [http://localhost:8765/config](http://localhost:8765/config)
-2. Select a configuration (e.g., "AI Provider Keys")
+2. Select a configuration or settings surface
 3. Click "📋 View Example" to see the format
-4. Get your API key from the provider
+4. Add required secrets through the Wizard secret store
 5. Edit and save locally
 6. Integration is immediately available
 
-## Legacy: Manual File Copy
+## Manual Editing
 
-Before using the dashboard, you could manually copy templates:
-
-```bash
-cp wizard/config/ai_keys.example.json wizard/config/ai_keys.json
-nano wizard/config/ai_keys.json
-```
-
-**This still works**, but the dashboard is easier.
+Only edit local files directly when you intentionally need file-based recovery or automation.
 
 ## Status Check
 
 ```bash
-python wizard/config/check_config_status.py
+uv run python wizard/config/check_config_status.py
 ```
 
 ## 🔑 GitHub SSH Keys

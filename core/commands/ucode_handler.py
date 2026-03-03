@@ -18,6 +18,7 @@ from typing import Any
 
 from core.commands.base import BaseCommandHandler
 from core.services.error_contract import CommandError
+from core.services.knowledge_artifact_service import get_knowledge_artifact_service
 from core.services.offline_assets_service import resolve_offline_assets_contract
 from core.services.operator_mode_service import get_operator_mode_service
 from core.services.release_profile_service import get_release_profile_service
@@ -31,6 +32,16 @@ from core.services.python_runtime_contract import (
     CANONICAL_ENV_MANAGER,
     CANONICAL_PYTHON_VERSION,
     detect_python_runtime_status,
+)
+from core.ulogic import (
+    ResearchRequest,
+    enrich_document,
+    generate_artifact,
+    normalize_research_input,
+    validate_project_record,
+    validate_task_record,
+    validate_wizard_budget_record,
+    validate_workflow_record,
 )
 
 
@@ -68,6 +79,7 @@ class UcodeHandler(BaseCommandHandler):
         self.bundles_root = self.ucode_root / "bundles"
         self.bundle_manifest_path = self.bundles_root / "offline-content-bundle.json"
         self.bundle_signing_key_path = self.bundles_root / "bundle-signing.key"
+        self.knowledge_root = self.repo_root / "memory" / "bank" / "knowledge" / "user"
         self.metrics_root = self.ucode_root / "metrics"
         self.metrics_events_path = self.metrics_root / "usage-events.jsonl"
         self.metrics_summary_path = self.metrics_root / "usage-summary.json"
@@ -76,6 +88,7 @@ class UcodeHandler(BaseCommandHandler):
         self.operator_service = get_operator_mode_service()
         self.seed_template_service = get_seed_template_service(self.repo_root)
         self.system_capability_service = get_system_capability_service(self.repo_root)
+        self.knowledge_service = get_knowledge_artifact_service(self.repo_root)
 
     def handle(
         self, command: str, params: list[str], grid: Any = None, parser: Any = None
@@ -109,6 +122,8 @@ class UcodeHandler(BaseCommandHandler):
                 result = self._handle_env(params[1:])
             elif action == "template":
                 result = self._handle_template(params[1:])
+            elif action == "deliverable":
+                result = self._handle_deliverable(params[1:])
             elif action == "profile":
                 result = self._handle_profile(params[1:])
             elif action == "operator":
@@ -117,12 +132,18 @@ class UcodeHandler(BaseCommandHandler):
                 result = self._handle_extension(params[1:])
             elif action == "package":
                 result = self._handle_package(params[1:])
+            elif action == "research":
+                result = self._handle_research_pipeline("research", params[1:])
+            elif action == "enrich":
+                result = self._handle_research_pipeline("enrich", params[1:])
+            elif action == "generate":
+                result = self._handle_research_pipeline("generate", params[1:])
             elif action == "repair":
                 result = self._handle_rebaseline_repair(params[1:])
             else:
                 raise CommandError(
                     code="ERR_COMMAND_INVALID_ARG",
-                    message="Syntax: UCODE <DEMO|SYSTEM|DOCS|CAPABILITIES|PLUGIN|METRICS|UPDATE|ENV|TEMPLATE|PROFILE|OPERATOR|EXTENSION|PACKAGE|REPAIR> ...",
+                    message="Syntax: UCODE <DEMO|SYSTEM|DOCS|CAPABILITIES|PLUGIN|METRICS|UPDATE|ENV|TEMPLATE|DELIVERABLE|PROFILE|OPERATOR|EXTENSION|PACKAGE|RESEARCH|ENRICH|GENERATE|REPAIR> ...",
                     recovery_hint="Run UCODE for command help",
                     level="INFO",
                 )
@@ -140,6 +161,7 @@ class UcodeHandler(BaseCommandHandler):
         self.docs_root.mkdir(parents=True, exist_ok=True)
         self.plugins_root.mkdir(parents=True, exist_ok=True)
         self.bundles_root.mkdir(parents=True, exist_ok=True)
+        self.knowledge_root.mkdir(parents=True, exist_ok=True)
         self.metrics_root.mkdir(parents=True, exist_ok=True)
         self._ensure_plugins_manifest()
         self._ensure_metrics_summary()
@@ -160,10 +182,14 @@ class UcodeHandler(BaseCommandHandler):
             "  UCODE UPDATE",
             "  UCODE ENV [key=value ...]",
             "  UCODE TEMPLATE <LIST|READ|DUPLICATE> ...",
+            "  UCODE DELIVERABLE VALIDATE <PROJECT|TASK|WORKFLOW|BUDGET> <json|@path>",
             "  UCODE PROFILE <LIST|SHOW|INSTALL|ENABLE|DISABLE|VERIFY> [profile]",
             "  UCODE OPERATOR <STATUS|PLAN <prompt>|QUEUE>",
             "  UCODE EXTENSION <LIST|VERIFY> [extension]",
             "  UCODE PACKAGE <LIST|VERIFY> [group]",
+            "  UCODE RESEARCH <LIST|READ <note>|IMPORT <WORKFLOW|BINDER> <id> <note> [action]|TIDY|CLEAN|<source_type> <source_ref> <topic...>>",
+            "  UCODE ENRICH <LIST|READ <note>|TIDY|CLEAN|<source_type> <source_ref> <topic...>>",
+            "  UCODE GENERATE <LIST|READ <note>|TIDY|CLEAN|<source_type> <source_ref> <topic...>>",
             "  UCODE REPAIR STATUS",
         ]
         return {
@@ -883,6 +909,310 @@ class UcodeHandler(BaseCommandHandler):
             recovery_hint="Run `UCODE TEMPLATE LIST`",
             level="INFO",
         )
+
+    def _handle_deliverable(self, params: list[str]) -> dict[str, Any]:
+        if len(params) < 3 or params[0].lower() != "validate":
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Syntax: UCODE DELIVERABLE VALIDATE <PROJECT|TASK|WORKFLOW|BUDGET> <json|@path>",
+                recovery_hint="Use inline JSON or @/absolute/or/relative/path.json",
+                level="INFO",
+            )
+
+        target = params[1].strip().lower()
+        payload = self._load_json_payload_arg(params[2])
+        validators = {
+            "project": validate_project_record,
+            "task": validate_task_record,
+            "workflow": validate_workflow_record,
+            "budget": validate_wizard_budget_record,
+        }
+        validator = validators.get(target)
+        if not validator:
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message=f"Unknown deliverable target: {target}",
+                recovery_hint="Use PROJECT, TASK, WORKFLOW, or BUDGET",
+                level="INFO",
+            )
+
+        result = validator(payload)
+        lines = [
+            f"Deliverable: {target}",
+            f"Schema: {result.schema_name}",
+            f"Valid: {'yes' if result.ok else 'no'}",
+        ]
+        if result.errors:
+            lines.append("Errors:")
+            lines.extend(f"- {error}" for error in result.errors)
+        return {
+            "status": "success" if result.ok else "warning",
+            "validation": asdict(result),
+            "output": "\n".join(lines),
+        }
+
+    def _handle_research_pipeline(
+        self, action: str, params: list[str]
+    ) -> dict[str, Any]:
+        if params and params[0].lower() == "list":
+            return self._list_knowledge_outputs(action)
+
+        if params and params[0].lower() == "read":
+            if len(params) < 2:
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message=f"Syntax: UCODE {action.upper()} READ <note_id>",
+                    recovery_hint=f"Run `UCODE {action.upper()} LIST`",
+                    level="INFO",
+                )
+            return self._read_knowledge_output(action, params[1])
+
+        if params and params[0].lower() == "tidy":
+            moved, archive_root = self.knowledge_service.tidy_action(action)
+            return {
+                "status": "success",
+                "moved": moved,
+                "archive_root": str(archive_root),
+                "output": "\n".join(
+                    [
+                        f"{action.title()} tidy complete",
+                        f"Moved: {moved}",
+                        f"Archive: {archive_root}",
+                    ]
+                ),
+            }
+
+        if params and params[0].lower() == "clean":
+            moved, archive_root = self.knowledge_service.clean_action(action)
+            return {
+                "status": "success",
+                "moved": moved,
+                "archive_root": str(archive_root),
+                "output": "\n".join(
+                    [
+                        f"{action.title()} clean complete",
+                        f"Moved: {moved}",
+                        f"Archive: {archive_root}",
+                    ]
+                ),
+            }
+
+        if params and params[0].lower() == "import":
+            if len(params) < 4:
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message=f"Syntax: UCODE {action.upper()} IMPORT <WORKFLOW|BINDER> <id> <note_id> [artifact_action]",
+                    recovery_hint=f"Run `UCODE {action.upper()} LIST`",
+                    level="INFO",
+                )
+            target_kind = params[1].lower()
+            target_id = params[2]
+            note_id = params[3]
+            artifact_action = params[4].lower() if len(params) > 4 else action
+            if target_kind == "workflow":
+                imported = self.knowledge_service.import_into_workflow(
+                    workflow_id=target_id,
+                    action=artifact_action,
+                    note_name=note_id,
+                )
+            elif target_kind == "binder":
+                from core.services.vibe_binder_service import get_binder_service
+
+                binder_result = get_binder_service().import_research_artifact(
+                    target_id,
+                    note_id,
+                    action=artifact_action,
+                )
+                if binder_result.get("status") != "success":
+                    return binder_result
+                imported = binder_result["imported"]
+            else:
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message=f"Unknown import target: {target_kind}",
+                    recovery_hint="Use WORKFLOW or BINDER",
+                    level="INFO",
+                )
+            return {
+                "status": "success",
+                "imported": imported,
+                "output": "\n".join(
+                    [
+                        f"Imported {artifact_action}: {imported['note_id']}",
+                        f"Target: {target_kind} {target_id}",
+                        f"Imported copy: {imported['target_path']}",
+                        f"Processed snapshot: {imported['processed_snapshot']}",
+                    ]
+                ),
+            }
+
+        if len(params) < 3:
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message=f"Syntax: UCODE {action.upper()} <LIST|READ <note>|<source_type> <source_ref> <topic...>>",
+                recovery_hint="Example: UCODE RESEARCH api benchmark://latest local assist costs",
+                level="INFO",
+            )
+
+        source_type = params[0].strip().lower()
+        source_ref = params[1].strip()
+        topic = " ".join(params[2:]).strip()
+        request = ResearchRequest(
+            topic=topic,
+            source_type=source_type,
+            source_ref=source_ref,
+            project_id="udos-v1-5",
+        )
+        document = normalize_research_input(
+            request,
+            title=topic.title(),
+            body=topic,
+            metadata={"command_action": action},
+        )
+
+        if action == "research":
+            markdown = document.to_markdown()
+            saved_path = self._write_knowledge_output(
+                action="research",
+                name=document.uid,
+                content=markdown,
+            )
+            return {
+                "status": "success",
+                "document": {
+                    "uid": document.uid,
+                    "title": document.title,
+                    "source_type": document.source_type,
+                    "source_ref": document.source_ref,
+                    "frontmatter": document.frontmatter,
+                },
+                "saved_path": str(saved_path),
+                "output": markdown + f"\nSaved: {saved_path}\n",
+            }
+
+        enriched = enrich_document(
+            document,
+            active_projects=["udos-v1-5"],
+            active_binders=["research", "dev"],
+        )
+        if action == "enrich":
+            enrich_path = self._write_knowledge_output(
+                action="enrich",
+                name=document.uid,
+                content="\n".join(lines := [
+                    f"# ENRICH: {document.title}",
+                    "",
+                    f"Summary: {enriched.summary or '(empty)'}",
+                    f"Related projects: {', '.join(enriched.related_projects) or '(none)'}",
+                    f"Related binders: {', '.join(enriched.related_binders) or '(none)'}",
+                    f"Suggested tasks: {', '.join(enriched.suggested_tasks) or '(none)'}",
+                ]) + "\n",
+            )
+            return {
+                "status": "success",
+                "enriched": {
+                    "summary": enriched.summary,
+                    "related_projects": list(enriched.related_projects),
+                    "related_binders": list(enriched.related_binders),
+                    "suggested_tasks": list(enriched.suggested_tasks),
+                },
+                "saved_path": str(enrich_path),
+                "output": "\n".join(
+                    [
+                        f"Enriched: {document.title}",
+                        f"Summary: {enriched.summary or '(empty)'}",
+                        f"Related projects: {', '.join(enriched.related_projects) or '(none)'}",
+                        f"Related binders: {', '.join(enriched.related_binders) or '(none)'}",
+                        f"Suggested tasks: {', '.join(enriched.suggested_tasks) or '(none)'}",
+                        f"Saved: {enrich_path}",
+                    ]
+                ),
+            }
+
+        artifact = generate_artifact(enriched, artifact_kind="guide")
+        generate_path = self._write_knowledge_output(
+            action="generate",
+            name=document.uid,
+            content=artifact.markdown,
+        )
+        return {
+            "status": "success",
+            "artifact": {
+                "kind": artifact.artifact_kind,
+                "title": artifact.title,
+            },
+            "saved_path": str(generate_path),
+            "output": artifact.markdown + f"\nSaved: {generate_path}\n",
+        }
+
+    def _load_json_payload_arg(self, raw_arg: str) -> dict[str, Any]:
+        payload_ref = raw_arg.strip()
+        if payload_ref.startswith("@"):
+            path = Path(payload_ref[1:])
+            if not path.is_absolute():
+                path = self.repo_root / path
+            if not path.exists():
+                raise CommandError(
+                    code="ERR_RESOURCE_NOT_FOUND",
+                    message=f"JSON payload file not found: {path}",
+                    recovery_hint="Pass a valid @path or inline JSON object",
+                    level="INFO",
+                )
+            payload_text = path.read_text(encoding="utf-8")
+        else:
+            payload_text = payload_ref
+
+        try:
+            payload = json.loads(payload_text)
+        except json.JSONDecodeError as exc:
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message=f"Invalid JSON payload: {exc}",
+                recovery_hint='Use inline JSON like \'{"workflow_id":"wf-1","steps":[...]}\'',
+                level="INFO",
+            ) from exc
+
+        if not isinstance(payload, dict):
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Deliverable payload must be a JSON object",
+                recovery_hint="Pass a JSON object, not a list or scalar",
+                level="INFO",
+            )
+        return payload
+
+    def _write_knowledge_output(self, *, action: str, name: str, content: str) -> Path:
+        return self.knowledge_service.save(action=action, note_id=name, content=content)
+
+    def _list_knowledge_outputs(self, action: str) -> dict[str, Any]:
+        files = self.knowledge_service.list(action)
+        lines = [f"{action.title()} artifacts:"]
+        if not files:
+            lines.append("(none)")
+        else:
+            lines.extend(f"- {name}" for name in files)
+        return {
+            "status": "success",
+            "artifacts": files,
+            "output": "\n".join(lines),
+        }
+
+    def _read_knowledge_output(self, action: str, note_name: str) -> dict[str, Any]:
+        try:
+            record = self.knowledge_service.read(action, note_name)
+        except FileNotFoundError:
+            raise CommandError(
+                code="ERR_RESOURCE_NOT_FOUND",
+                message=f"{action.title()} artifact not found: {note_name}",
+                recovery_hint=f"Run `UCODE {action.upper()} LIST`",
+                level="INFO",
+            )
+        content = record.path.read_text(encoding="utf-8")
+        return {
+            "status": "success",
+            "artifact_path": str(record.path),
+            "output": content,
+        }
 
     def _handle_profile(self, params: list[str]) -> dict[str, Any]:
         action = params[0].lower() if params else "list"

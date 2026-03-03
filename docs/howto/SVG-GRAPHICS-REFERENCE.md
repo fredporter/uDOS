@@ -1,64 +1,48 @@
 # SVG Graphics Reference
 
-Updated: 2026-03-03
+Updated: 2026-03-04
 Status: active how-to reference
 
-## Scope
+## Runtime Model
 
-Detailed reference for:
-- SVG generation architecture
-- supported styles
-- prompt design
-- integration patterns
-- validation
-- performance and caching
-- troubleshooting
-
-## Generation Model
-
-The SVG path may use:
-- local Ollama-backed generation for speed and zero marginal cost
-- cloud-backed generation for higher-quality output
+SVG generation in v1.5 follows the same assist contract as the rest of uDOS:
+- local-first when possible
+- Wizard-managed provider routing when cloud use is justified
+- Markdown/file workflows remain the system of record
 
 ## Supported Styles
 
-Supported styles:
-- minimalist
-- technical
-- artistic
-- cartoon
+- `minimalist`
+- `technical`
+- `artistic`
+- `cartoon`
 
-## Integration
+## Storage Rules
 
-Primary integration points:
-- Wizard graphics service
-- markdown and docs workflows
-- command or workflow automation that stores generated SVG artifacts
+- Keep generated SVG with the owning workflow, mission, or knowledge artifact.
+- Prefer Markdown-linked assets over hidden runtime-only output.
+- Treat generated SVG like other open-box user artifacts: portable, inspectable, and replaceable.
 
-## Quality and Validation
+## Validation Rules
 
-Check:
+Check for:
 - valid SVG structure
-- safe and bounded dimensions
-- style consistency
-- renderability in downstream docs or GUIs
+- bounded dimensions
+- no unsafe external references
+- renderability in docs and Wizard UI
 
-## Performance
+## Performance Rules
 
-Optimize with:
-- caching repeated diagrams
-- batching repeated generations
-- local-first generation where acceptable
+- use local generation for routine diagrams
+- cache repeatable outputs
+- reserve cloud generation for higher-value assets
 
 ## Troubleshooting
 
-Common issues:
-- invalid SVG output
-- slow cloud response
-- safety filter refusal
+- invalid SVG: tighten the prompt and specify shape limits
+- low-quality layout: switch to `technical` style or use Wizard-managed cloud routing
+- missing runtime: verify the standard runtime or Dev extension setup
 
-## Canonical Front Door
+## Start Here
 
-Start with:
 - [SVG Graphics Quickstart](/Users/fredbook/Code/uDOS/docs/howto/SVG-GRAPHICS-QUICKSTART.md)
-

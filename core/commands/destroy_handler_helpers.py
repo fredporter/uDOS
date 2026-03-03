@@ -8,7 +8,6 @@ import json
 import os
 import shutil
 import uuid
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 from core.services.destructive_ops import (
@@ -16,6 +15,7 @@ from core.services.destructive_ops import (
     remove_path,
     resolve_vault_root as resolve_vault_root_shared,
 )
+from core.services.time_utils import utc_day_string, utc_filename_timestamp, utc_now_iso
 
 
 def destroy_menu_options() -> List[Dict[str, Any]]:
@@ -143,7 +143,12 @@ def build_destroy_help_text(formatted_options: str) -> str:
 ╚════════════════════════════════════════╝
 
 DESTROY is the system cleanup and reset command. It safely removes
-user data, archives memory, and optionally reinitializes the system.
+runtime state, archives mutable data, and optionally reinitializes the system.
+
+v1.5 open-box rule:
+  • Markdown/data libraries are split from runtime code
+  • uDOS can be reinstalled while user data persists
+  • DESTROY/RESTORE exists to make that separation operational
 
 SYNTAX:
   DESTROY              Show menu with numbered options
@@ -181,6 +186,7 @@ SAFETY:
 
 RECOVERY:
   • If you compost, see .compost/<date>/trash/ for your data
+  • BACKUP/RESTORE and UNDO work with the same open-box data split
   • Users can be recreated: USER create [name] [role]
   • Config can be restored from git or .compost
   • Use STORY tui-setup to reconfigure
@@ -279,7 +285,7 @@ def reset_wizard_keystore(repo_root: Path) -> List[str]:
 
     archive_root = repo_root / ".compost" / "wizard-reset"
     archive_root.mkdir(exist_ok=True)
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+    timestamp = utc_filename_timestamp()
     backup_path = archive_root / f"secrets.tomb.backup.{timestamp}"
     try:
         shutil.move(str(tomb_path), str(backup_path))
@@ -303,14 +309,14 @@ def archive_memory_to_compost(
 
     archive_root = repo_root / ".compost"
     archive_root.mkdir(exist_ok=True)
-    date_folder = datetime.now().strftime("%Y-%m-%d")
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+    date_folder = utc_day_string()
+    timestamp = utc_filename_timestamp()
     compost_dir = archive_root / date_folder / "trash" / timestamp
     compost_dir.mkdir(parents=True, exist_ok=True)
 
     metadata_file = compost_dir / metadata_filename
     metadata = {
-        "archived_at": datetime.now().isoformat(),
+        "archived_at": utc_now_iso(),
         "archived_by": user_name,
         "action": action,
         "reason": reason,

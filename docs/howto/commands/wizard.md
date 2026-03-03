@@ -36,7 +36,7 @@ WIZARD PROV GENSECRET
 WIZARD INTEG status
 WIZARD INTEG github
 WIZARD INTEG mistral
-WIZARD INTEG ollama
+WIZARD INTEG gpt4all
 ```
 
 ## Full Wizard-side Checks

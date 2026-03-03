@@ -7,6 +7,7 @@ Expose a minimal, allowlisted uCODE command dispatch endpoint for Vibe/MCP.
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -32,19 +33,20 @@ from wizard.routes.ucode_dispatch_utils import (
 )
 from wizard.routes.ucode_meta_routes import create_ucode_meta_routes
 from wizard.routes.ucode_ok_dispatch_core import dispatch_ok_command
-from wizard.routes.ucode_ok_mode_utils import (
-    get_ok_cloud_status as _get_ok_cloud_status,
-    get_ok_context_window as _get_ok_context_window,
-    get_ok_default_model as _get_ok_default_model,
-    get_ok_default_models as _get_ok_default_models,
-    get_ok_local_status as _get_ok_local_status,
+from wizard.routes.ucode_logic_mode_utils import (
+    get_logic_context_window as _get_logic_context_window,
+    get_logic_default_model as _get_logic_default_model,
+    get_logic_default_models as _get_logic_default_models,
+    get_logic_local_status as _get_logic_local_status,
+    get_logic_network_status as _get_logic_network_status,
     is_dev_mode_active as _is_dev_mode_active,
-    load_ai_modes_config as _load_ai_modes_config,
-    ok_auto_fallback_enabled as _ok_auto_fallback_enabled,
-    resolve_ok_model as _resolve_ok_model,
-    write_ok_modes_config as _write_ok_modes_config,
+    load_logic_modes_config as _load_logic_modes_config,
+    logic_auto_fallback_enabled as _logic_auto_fallback_enabled,
+    resolve_logic_model as _resolve_logic_model,
+    write_logic_default_model as _write_logic_default_model,
+    write_logic_modes_config as _write_logic_modes_config,
 )
-from wizard.routes.ucode_ok_routes import create_ucode_ok_routes
+from wizard.routes.ucode_logic_routes import create_ucode_logic_routes
 from wizard.routes.ucode_ok_stream_dispatch import dispatch_ok_stream_command
 from wizard.routes.ucode_route_utils import shell_safe
 from wizard.routes.ucode_setup_story_utils import load_setup_story as _load_setup_story
@@ -117,7 +119,8 @@ def create_ucode_routes(auth_guard=None):
 
     def _run_ok_local(prompt: str, model: str | None = None) -> str:
         from wizard.services.ai_profile_service import render_system_prompt
-        from wizard.services.vibe_service import VibeConfig, VibeService
+        from wizard.services.local_model_gpt4all import GPT4AllLocalAssist
+        from wizard.services.logic_assist_profile import load_logic_assist_profile
 
         prompt_upper = (prompt or "").strip().upper()
         mode = (
@@ -129,12 +132,13 @@ def create_ucode_routes(auth_guard=None):
             )
             else "general"
         )
-
-        config = VibeConfig(model=model or _get_ok_default_model())
-        vibe = VibeService(config=config)
-        return vibe.generate(
-            prompt, system=render_system_prompt(mode), format="markdown"
-        )
+        profile = load_logic_assist_profile()
+        if model:
+            payload = profile.to_dict()
+            payload["local_model_name"] = model
+            profile = profile.__class__(**payload)
+        local_assist = GPT4AllLocalAssist(profile, Path(__file__).resolve().parents[2])
+        return local_assist.generate(prompt, system=render_system_prompt(mode))
 
     def _ok_cloud_available() -> bool:
         from wizard.services.cloud_provider_executor import get_cloud_availability
@@ -142,40 +146,21 @@ def create_ucode_routes(auth_guard=None):
         return get_cloud_availability()["ready"]
 
     def _run_ok_local_stream(prompt: str, model: str):
-        from wizard.services.ai_profile_service import render_system_prompt
-        from wizard.services.vibe_service import VibeConfig, VibeService
-
-        prompt_upper = (prompt or "").strip().upper()
-        mode = (
-            "coding"
-            if (
-                prompt_upper.startswith("EXPLAIN THIS CODE FROM")
-                or prompt_upper.startswith("PROPOSE A UNIFIED DIFF")
-                or prompt_upper.startswith("DRAFT A PATCH")
-            )
-            else "general"
-        )
-
-        config = VibeConfig(model=model)
-        vibe = VibeService(config=config)
-        return vibe.generate(
-            prompt, system=render_system_prompt(mode), format="markdown", stream=True
-        )
+        raise RuntimeError("Streaming local assist is unavailable in the v1.5 GPT4All lane")
 
     router.include_router(
-        create_ucode_ok_routes(
+        create_ucode_logic_routes(
             logger=logger,
-            ok_history=ok_history,
-            get_ok_local_status=_get_ok_local_status,
-            get_ok_cloud_status=_get_ok_cloud_status,
-            get_ok_context_window=_get_ok_context_window,
-            get_ok_default_models=_get_ok_default_models,
-            get_ok_default_model=_get_ok_default_model,
+            logic_history=ok_history,
+            get_logic_local_status=_get_logic_local_status,
+            get_logic_network_status=_get_logic_network_status,
+            get_logic_context_window=_get_logic_context_window,
+            get_logic_default_models=_get_logic_default_models,
+            get_logic_default_model=_get_logic_default_model,
             is_dev_mode_active=_is_dev_mode_active,
-            ok_auto_fallback_enabled=_ok_auto_fallback_enabled,
-            load_ai_modes_config=_load_ai_modes_config,
-            write_ok_modes_config=_write_ok_modes_config,
-            run_ok_cloud=_run_ok_cloud,
+            logic_auto_fallback_enabled=_logic_auto_fallback_enabled,
+            write_logic_default_model=_write_logic_default_model,
+            run_logic_network=_run_ok_cloud,
         )
     )
 
@@ -231,16 +216,16 @@ def create_ucode_routes(auth_guard=None):
             logger=logger,
             ok_history=ok_history,
             ok_model=payload.ok_model,
-            load_ai_modes_config=_load_ai_modes_config,
-            write_ok_modes_config=_write_ok_modes_config,
-            ok_auto_fallback_enabled=_ok_auto_fallback_enabled,
-            get_ok_default_model=_get_ok_default_model,
+            load_ai_modes_config=_load_logic_modes_config,
+            write_ok_modes_config=_write_logic_modes_config,
+            ok_auto_fallback_enabled=_logic_auto_fallback_enabled,
+            get_ok_default_model=_get_logic_default_model,
             run_ok_local=_run_ok_local,
             run_ok_cloud=_run_ok_cloud,
             ok_cloud_available=_ok_cloud_available,
             record_ok_output=_record_ok_output,
             is_dev_mode_active=_is_dev_mode_active,
-            resolve_ok_model=_resolve_ok_model,
+            resolve_ok_model=_resolve_logic_model,
         )
         if ok_response is not None:
             return ok_response
@@ -279,8 +264,8 @@ def create_ucode_routes(auth_guard=None):
             dispatch_core=_dispatch_core,
             dispatch_ok_stream_command=dispatch_ok_stream_command,
             is_dev_mode_active=_is_dev_mode_active,
-            resolve_ok_model=_resolve_ok_model,
-            ok_auto_fallback_enabled=_ok_auto_fallback_enabled,
+            resolve_ok_model=_resolve_logic_model,
+            ok_auto_fallback_enabled=_logic_auto_fallback_enabled,
             run_ok_local_stream=_run_ok_local_stream,
             run_ok_cloud=_run_ok_cloud,
             ok_cloud_available=_ok_cloud_available,

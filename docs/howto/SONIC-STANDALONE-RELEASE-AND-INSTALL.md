@@ -1,13 +1,22 @@
 # Sonic Standalone Release and Install Guide
 
-This guide defines the public release/install flow for Sonic Screwdriver as a
-standalone utility.
+This guide is the canonical v1.5 release/install path for Sonic as a standalone utility.
 
 For v1.5, this standalone lane may be used to ship:
 
 - Sonic by itself
 - `uHOME` by itself through Sonic-provisioned bundles or images
 - a combined Sonic + `uHOME` deployment image
+
+## v1.5 Runtime Contract
+
+Sonic now ships with an open-box split:
+
+- seeded global catalog: `memory/sonic/seed/sonic-devices.seed.db`
+- local user overlay: `memory/sonic/user/sonic-devices.user.db`
+- compatibility mirror: `memory/sonic/sonic-devices.db`
+
+The distributed seed remains read-only for users. Local device records and current-machine bootstrap state live in the user overlay. Device entries may point to Obsidian-style Markdown templates for settings, installers, containers, and drivers.
 
 ## Release Artifacts
 
@@ -81,6 +90,27 @@ bash sonic/scripts/sonic-stick.sh --manifest sonic/config/sonic-manifest.json
 python3 core/sonic_cli.py plan --usb-device /dev/sdX --dry-run
 bash sonic/scripts/sonic-stick.sh --manifest sonic/config/sonic-manifest.json --dry-run
 ```
+
+## Seeded Catalog And Bootstrap Evidence
+
+Release proof for v1.5 should show:
+
+1. seed catalog rebuild succeeds from `sonic/datasets/sonic-devices.sql`
+2. current-machine bootstrap succeeds through `SONIC BOOTSTRAP` or `POST /api/sonic/bootstrap/current`
+3. merged device reads show both seed and user records
+4. device template refs resolve to the seeded Markdown template set
+
+## Open-Box Restore Evidence
+
+Standalone Sonic release evidence is not complete until reinstall proof exists:
+
+1. back up `memory/`
+2. remove or replace runtime code
+3. reinstall Sonic/uDOS runtime
+4. restore `memory/`
+5. confirm the local Sonic user overlay still merges with the rebuilt seed catalog
+
+This is the same v1.5 `DESTROY`/`RESTORE` rule used across the main runtime.
 
 ## Public Distribution Notes
 

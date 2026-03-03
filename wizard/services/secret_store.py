@@ -1,15 +1,4 @@
-"""Wizard Secret Store
-===================
-
-Encrypted secret storage for the Wizard server using a tomb-style blob.
-- Encrypted at rest (Fernet / cryptography). If cryptography is missing, the
-  store refuses to load.
-- Keys provided via env (`WIZARD_KEY`) or explicit argument.
-- Decrypts into memory-only structures; no plaintext persisted.
-
-This module intentionally avoids OS keychain/keyring. Unlock failures keep
-sensitive routes disabled until the operator provides a valid key.
-"""
+"""Wizard secret store for the v1.5 runtime."""
 
 from __future__ import annotations
 
@@ -159,7 +148,11 @@ class SecretStore:
         if not self._fernet:
             raise SecretStoreError("Store is locked; cannot persist")
         tomb = self.config.tomb_path
-        payload = {"version": 1, "secrets": [asdict(v) for v in self._cache.values()]}
+        payload = {
+            "version": 2,
+            "schema": "udos-secret-store-v1.5",
+            "secrets": [asdict(v) for v in self._cache.values()],
+        }
         encrypted = self._fernet.encrypt(json.dumps(payload).encode("utf-8"))
         tomb.parent.mkdir(parents=True, exist_ok=True)
         with open(tomb, "wb") as fh:
@@ -177,6 +170,13 @@ class SecretStore:
         self._ensure_loaded()
         return self._cache.get(key_id)
 
+    def get_value(self, key_id: str, default: str | None = None) -> str | None:
+        self._ensure_loaded()
+        entry = self._cache.get(key_id)
+        if entry is None:
+            return default
+        return entry.value
+
     def set_entry(
         self,
         key_id: str,
@@ -190,7 +190,7 @@ class SecretStore:
             provider=provider,
             value=value,
             created_at=datetime.now(UTC).isoformat(),
-            metadata=metadata or {},
+            metadata={"schema": "udos-secret-store-v1.5", **(metadata or {})},
         )
         self._cache[key_id] = entry
         self._persist()

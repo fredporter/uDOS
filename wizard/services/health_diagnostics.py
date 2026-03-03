@@ -47,11 +47,20 @@ def _wizard_python() -> str:
     return sys.executable
 
 
-def _run_cmd(cmd: list[str], cwd: Path | None = None, timeout: int = 60) -> Tuple[int, str, str]:
+def _run_cmd(
+    cmd: list[str],
+    cwd: Path | None = None,
+    timeout: int = 60,
+    env_overrides: Dict[str, str] | None = None,
+) -> Tuple[int, str, str]:
     try:
+        env = os.environ.copy()
+        if env_overrides:
+            env.update(env_overrides)
         proc = subprocess.Popen(
             cmd,
             cwd=str(cwd) if cwd else None,
+            env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
@@ -62,11 +71,11 @@ def _run_cmd(cmd: list[str], cwd: Path | None = None, timeout: int = 60) -> Tupl
 
 
 def check_venv() -> Dict[str, Any]:
-    """Detect active Python venv even if VIRTUAL_ENV is unset.
+    """Detect active Python runtime even if VIRTUAL_ENV is unset.
 
     Healthy if either:
     - VIRTUAL_ENV points to an existing directory, or
-    - Current Python executable is inside the resolved Wizard venv
+    - Current Python executable is inside the resolved Wizard runtime path
     """
     venv_env = os.environ.get("VIRTUAL_ENV")
     venv_dir = _wizard_venv_dir()
@@ -78,14 +87,14 @@ def check_venv() -> Dict[str, Any]:
     ok = env_ok or path_ok
     if ok:
         if env_ok:
-            msg = f"VENV active via env: {venv_env}"
+            msg = f"Python runtime active via env: {venv_env}"
         else:
-            msg = f"VENV active via python: {exe}"
+            msg = f"Python runtime active via python: {exe}"
     else:
-        msg = "Python virtualenv not active"
+        msg = "Python runtime not active"
 
     return {
-        "name": "python_venv",
+        "name": "python_runtime",
         "status": "healthy" if ok else "unhealthy",
         "message": msg,
     }
@@ -93,23 +102,17 @@ def check_venv() -> Dict[str, Any]:
 
 def check_requirements() -> Dict[str, Any]:
     root = _repo_root()
-    req = _wizard_requirements()
-    if not req.exists():
-        return {
-            "name": "python_requirements",
-            "status": "degraded",
-            "message": f"{req.name} missing",
-        }
     code, out, err = _run_cmd(
-        [_wizard_python(), "-m", "pip", "install", "-r", str(req), "--quiet"],
+        ["uv", "sync", "--extra", "udos-wizard", "--dev"],
         cwd=root,
         timeout=300,
+        env_overrides={"UV_PROJECT_ENVIRONMENT": ".venv"},
     )
     ok = code == 0
     return {
         "name": "python_requirements",
         "status": "healthy" if ok else "unhealthy",
-        "message": "Dependencies installed" if ok else f"pip install failed: {err.strip()[:120]}",
+        "message": "Dependencies installed" if ok else f"uv sync failed: {err.strip()[:120]}",
     }
 
 
@@ -127,7 +130,7 @@ def check_fastapi() -> Dict[str, Any]:
         return {
             "name": "fastapi",
             "status": "unhealthy",
-            "message": f"FastAPI/uvicorn missing: {str(e)}. Run: pip install -r wizard/requirements.txt",
+            "message": f"FastAPI/uvicorn missing: {str(e)}. Run: UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard --dev",
         }
 
 
@@ -148,7 +151,11 @@ def check_wizard_config() -> Dict[str, Any]:
                 "status": "degraded",
                 "message": f"Missing keys: {', '.join(missing)}",
             }
-        return {"name": "wizard_config", "status": "healthy", "message": "Wizard config OK"}
+        return {
+            "name": "wizard_config",
+            "status": "healthy",
+            "message": "Wizard config OK (logic-assist + networking policy present)",
+        }
     except Exception as e:
         return {"name": "wizard_config", "status": "unhealthy", "message": f"Invalid JSON: {e}"}
 
@@ -229,7 +236,7 @@ def run_all() -> Dict[str, Any]:
 def attempt_safe_repair() -> Dict[str, Any]:
     """
     Perform safe, offline-first repair actions:
-    - Ensure venv packages are installed
+    - Ensure shared `/.venv` packages are installed
     - Update/initialize git submodules
     Returns a dict with action results.
     """
@@ -238,9 +245,10 @@ def attempt_safe_repair() -> Dict[str, Any]:
 
     # pip install
     code, _, err = _run_cmd(
-        [_wizard_python(), "-m", "pip", "install", "-r", str(_wizard_requirements())],
+        ["uv", "sync", "--extra", "udos-wizard", "--dev"],
         cwd=root,
         timeout=600,
+        env_overrides={"UV_PROJECT_ENVIRONMENT": ".venv"},
     )
     results["pip_install"] = {"ok": code == 0, "error": err.strip()[:160]}
 

@@ -1,20 +1,20 @@
-# OK Service
+# Logic Assist Service
 
-Wizard OK Gateway (local Vibe).
-
-## UI Contract
-
-See `ok-ui.md` for the OK (local Vibe) UI data model.
+Wizard exposes the v1.5 logic-assist runtime: GPT4All local advisory output plus Wizard-only network escalation and budget control.
 
 ## Defaults
 
-OK model defaults live in `core/config/ok_modes.json` under `modes.ofvibe.default_models` with `core` and `dev` profiles. The UI reads these via `GET /api/ucode/ok/status` (returned as `ok.default_models`).
+Active settings live in [logic-assist.md](/Users/fredbook/Code/uDOS/core/framework/seed/bank/typo-workspace/settings/logic-assist.md) and the user override at [logic-assist.md](/Users/fredbook/Code/uDOS/memory/bank/typo-workspace/user/settings/logic-assist.md).
 
 ## Routes
 
-- `GET /api/ai/health`
-- `GET /api/ai/config`
-- `GET /api/ai/context`
-- `GET /api/ai/suggest-next`
-- `POST /api/ai/analyze-logs?log_type=error`
-- `POST /api/ai/explain-code`
+- `GET /api/logic/health`
+- `GET /api/logic/config`
+- `GET /api/logic/status`
+- `GET /api/logic/models`
+- `POST /api/logic/complete`
+- `POST /api/logic/explain-code`
+- `GET /api/ucode/logic/status`
+- `GET /api/ucode/logic/history`
+- `POST /api/ucode/logic/model`
+- `POST /api/ucode/logic/network`

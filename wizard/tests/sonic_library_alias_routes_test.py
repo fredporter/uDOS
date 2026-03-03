@@ -69,44 +69,14 @@ def _client(monkeypatch):
     return TestClient(app), manager
 
 
-def test_sonic_library_routes_resolve_alias(monkeypatch):
+def test_sonic_library_alias_is_retired_by_default(monkeypatch):
     monkeypatch.delenv("UDOS_SONIC_ENABLE_LIBRARY_ALIAS", raising=False)
     client, manager = _client(monkeypatch)
-
-    status_res = client.get("/api/library/integration/sonic")
-    assert status_res.status_code == 200
-    assert status_res.json()["integration"]["name"] == "sonic-screwdriver"
-
-    install_res = client.post("/api/library/integration/sonic/install")
-    assert install_res.status_code == 200
-    assert install_res.json()["result"]["plugin_name"] == "sonic-screwdriver"
-
-    enable_res = client.post("/api/library/integration/sonic/enable")
-    assert enable_res.status_code == 200
-    assert enable_res.json()["result"]["plugin_name"] == "sonic-screwdriver"
-
-    disable_res = client.post("/api/library/integration/sonic/disable")
-    assert disable_res.status_code == 200
-    assert disable_res.json()["result"]["plugin_name"] == "sonic-screwdriver"
-
-    uninstall_res = client.delete("/api/library/integration/sonic")
-    assert uninstall_res.status_code == 200
-    assert uninstall_res.json()["result"]["plugin_name"] == "sonic-screwdriver"
-
-    assert manager.last_action_name == "sonic-screwdriver"
-
-    alias_status = client.get("/api/library/aliases/status")
-    assert alias_status.status_code == 200
-    assert alias_status.json()["sonic_library_alias_enabled"] is True
-
-
-def test_sonic_library_alias_routes_retired_mode(monkeypatch):
-    monkeypatch.setenv("UDOS_SONIC_ENABLE_LIBRARY_ALIAS", "0")
-    client, _manager = _client(monkeypatch)
 
     alias_status = client.get("/api/library/aliases/status")
     assert alias_status.status_code == 200
     assert alias_status.json()["sonic_library_alias_enabled"] is False
+    assert alias_status.json()["status"] == "retired"
 
     status_res = client.get("/api/library/integration/sonic")
     assert status_res.status_code == 410
@@ -117,3 +87,18 @@ def test_sonic_library_alias_routes_retired_mode(monkeypatch):
     canonical = client.get("/api/library/integration/sonic-screwdriver")
     assert canonical.status_code == 200
     assert canonical.json()["integration"]["name"] == "sonic-screwdriver"
+    assert manager.last_action_name is None
+
+
+def test_sonic_library_alias_can_be_reenabled(monkeypatch):
+    monkeypatch.setenv("UDOS_SONIC_ENABLE_LIBRARY_ALIAS", "1")
+    client, _manager = _client(monkeypatch)
+
+    alias_status = client.get("/api/library/aliases/status")
+    assert alias_status.status_code == 200
+    assert alias_status.json()["sonic_library_alias_enabled"] is True
+    assert alias_status.json()["status"] == "compatibility_override"
+
+    status_res = client.get("/api/library/integration/sonic")
+    assert status_res.status_code == 200
+    assert status_res.json()["integration"]["name"] == "sonic-screwdriver"

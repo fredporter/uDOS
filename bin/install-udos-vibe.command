@@ -1,5 +1,5 @@
 #!/bin/bash
-# uDOS-vibe macOS Launcher
+# uDOS v1.5 macOS Installer Launcher
 # Double-click this file on macOS to run the installer
 
 # Get the directory where this script lives

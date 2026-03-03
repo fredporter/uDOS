@@ -1,13 +1,12 @@
 # uDOS Wizard Pinned Dependencies (lockfile)
 #
 # Source of truth: pyproject.toml (+ Wizard runtime policy)
-# This file is kept for compatibility with venv-based installs and Docker builds.
+# This file is kept for compatibility with legacy pip installs and Docker builds.
 #
 # Preferred installation methods:
-#   pip install -e .             # Core only
-#   pip install -e ".[wizard]"   # With Wizard Server
-#   pip install -e ".[full]"     # All features
-#   pip install -e ".[dev]"      # Development tools
+#   UV_PROJECT_ENVIRONMENT=.venv uv sync                     # Core/runtime baseline
+#   UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos        # Standard ucode runtime
+#   UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard --dev
 #
 # To regenerate this lockfile:
 #   pip-compile pyproject.toml -o wizard/requirements.txt

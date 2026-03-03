@@ -82,9 +82,9 @@ def create_ucode_meta_routes(
             }
             commands.append({**base, "allowed": True, "requirements": requirements})
 
-        ok_meta = registry_map.get("OK")
-        if ok_meta:
-            commands.append({**ok_meta, "allowed": True})
+        logic_meta = registry_map.get("LOGIC")
+        if logic_meta:
+            commands.append({**logic_meta, "allowed": True})
         return {"status": "ok", "commands": commands}
 
     @router.get("/hotkeys")

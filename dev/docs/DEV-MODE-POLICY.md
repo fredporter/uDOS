@@ -1,51 +1,101 @@
 # Dev Mode Policy
 
+Updated: 2026-03-04
+
 ## Scope
-Dev mode is gated by the installed `/dev/` extension framework, the `dev` certified profile, and admin role permissions.
-Related: logging policy and diagnostics scaffolding lives in [docs/LOGGING-API-v1.3.md](docs/LOGGING-API-v1.3.md).
 
-## Rules
-- `/dev/` is the versioned Dev Mode extension scaffold and distro template root.
-- Dev mode is only available when `/dev/` exists and contains the Dev extension framework.
-- Dev mode is restricted to users with both `admin` and `dev_mode` permissions.
-- Dev mode is entered implicitly through the active Dev extension lane and related contributor tooling.
-- Wizard GUI owns install, uninstall, activation, deactivation, and status.
-- The live runtime remains TUI/Dev tooling based for v1.5; `/dev` does not host a separate server.
-- If `/dev/` is missing or the user is not `admin`, dev mode must be unavailable and return a friendly soft-failure reason.
-- Local mutable working data must stay separate from the versioned `/dev/` template truth.
+Dev Mode is the permission-gated contributor lane for the v1.5 `@dev` workspace.
 
-## Policy Contract (Gate)
-Dev mode is gated in both Wizard APIs and uCODE clients.
+- Workspace alias: `@dev`
+- Framework root: `/dev`
+- Runtime owner: `wizard`
+- Contributor TUI/tooling lane: `vibe`
+- Standard runtime: `ucode`
 
-- **Admin-only**: all `/api/dev/*` calls require a valid `X-Admin-Token` and an admin user role.
-- **/dev required**: `/api/dev/status`, `/api/dev/health`, `/api/dev/activate`, `/api/dev/restart`, `/api/dev/clear`, `/api/dev/logs` require `/dev` + the Dev extension framework files to exist.
-- **Deactivate exception**: `/api/dev/deactivate` is allowed even if `/dev` is missing so a stale activated state can be cleared safely.
+`/dev` carries the tracked framework payload and workspace contract. It does not own runtime logic.
 
-### Expected Failure Modes
-- `403` — not admin / missing admin token → return a friendly “admin required” message.
-- `412` — `/dev` missing or templates absent → return a friendly “dev submodule missing” message.
+## Required Gates
 
-## System Boundaries (Context)
-- `core` (uCODE runtime) is the base runtime.
-- `wizard` is the brand for connected services (networking, GUI, etc.).
-- Both are public OSS and included in github.com/fredporter/uDOS.
-- Core can run without Wizard (limited). Wizard cannot run without Core.
-- Most extensions/addons require both Core + Wizard.
+Dev Mode is available only when all of the following are true:
 
-## Empire & Plugins (Context)
-- Empire should soft-fail when missing or unsupported and remain isolated from personal/user features.
-- External services/addons should be cloned (not forked/modified), credited, and updated via pulls.
-- uDOS should containerize and overlay UI without modifying upstream repos.
+- the `dev` certified profile is enabled
+- the user has both `admin` and `dev_mode` permissions
+- `/dev` contains the required tracked framework files
+- Wizard has activated the Dev extension lane
 
-## Rationale
-## Local-Only Working Areas
+## Required Tracked Payload
 
-The following working directories are local-only and not part of the canonical template contract:
+The `@dev` workspace must ship with:
 
-- `/dev/files`
-- `/dev/relecs`
-- `/dev/dev-work`
-- `/dev/testing`
+- `README.md`
+- `AGENTS.md`
+- `DEVLOG.md`
+- `project.json`
+- `tasks.md`
+- `completed.json`
+- `extension.json`
+- `docs/README.md`
+- `docs/DEV-MODE-POLICY.md`
+- `docs/specs/DEV-WORKSPACE-SPEC.md`
+- `docs/howto/GETTING-STARTED.md`
+- `docs/howto/VIBE-Setup-Guide.md`
+- `docs/features/GITHUB-INTEGRATION.md`
+- `goblin/README.md`
 
-## Rationale
-The `/dev/` scaffold provides the framework, templates, governance, and contributor task surfaces for Dev Mode across core, Wizard, extensions, and plugins. It is the explicit gate for permissioned contributor capabilities and keeps local working data separate from the versioned distro template.
+## Sync Policy
+
+Only the versioned framework payload is intended for public sync from `/dev`:
+
+- `/dev` governance files
+- `dev/docs/`
+- `dev/goblin/`
+
+The following paths are explicitly local-only and must stay out of public sync:
+
+- `dev/files/`
+- `dev/relecs/`
+- `dev/dev-work/`
+- `dev/testing/`
+
+## API Contract
+
+Wizard exposes the Dev Mode control plane through `/api/dev/*`.
+
+Core lifecycle endpoints:
+
+- `GET /api/dev/status`
+- `GET /api/dev/health`
+- `POST /api/dev/activate`
+- `POST /api/dev/deactivate`
+- `POST /api/dev/restart`
+- `POST /api/dev/clear`
+- `GET /api/dev/logs`
+
+Contributor workspace endpoints:
+
+- `GET /api/dev/scripts`
+- `POST /api/dev/scripts/run`
+- `GET /api/dev/tests`
+- `POST /api/dev/tests/run`
+
+GitHub endpoints:
+
+- `GET /api/dev/github/status`
+- `GET /api/dev/github/pat-status`
+- `POST /api/dev/github/pat`
+- `DELETE /api/dev/github/pat`
+- `GET /api/dev/webhook/github-secret-status`
+- `POST /api/dev/webhook/github-secret`
+
+## Failure Modes
+
+- `403`: admin or Dev Mode permission missing
+- `409`: Dev Mode is installed but inactive
+- `412`: `/dev` is missing or the tracked framework payload is incomplete
+
+## Workspace Rules
+
+- Use `@dev` for contributor docs, Goblin fixtures, and Dev Mode templates.
+- Use root `docs/` only for runtime, operator, feature, and public product documentation.
+- Use `dev/goblin/` as the distributable dev scaffold and testing-server layer.
+- Do not store runtime state, secrets, or personal scratch work in the tracked `@dev` payload.

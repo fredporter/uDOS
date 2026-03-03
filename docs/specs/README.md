@@ -13,7 +13,7 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 - `docs/specs/PORT-REGISTRY.md` — shared port ownership
 - `docs/specs/PLUGIN-MANIFEST-SPEC.md` — extension/plugin manifest
 - `docs/specs/GHOST-MODE-POLICY.md` — ghost mode policy
-- `docs/specs/DEV-Mode-Spec.md` — development mode behavior
+- `dev/docs/specs/DEV-WORKSPACE-SPEC.md` — `@dev` workspace and Dev Mode behavior
 - `docs/specs/GAMEPLAY-LENS-SKIN-PROGRESSION-v1.4.8.md` — unified progression contract for PLAY LENS and SKIN
 - `docs/specs/3DWORLD-EXTENSION-SPEC-v1.5.0.md` — containerized 3D world extension contract (draft lane toward v1.5)
 - `docs/specs/WORKFLOW-SCHEDULER-v1.5.md` — core workflow scheduler contract for v1.5

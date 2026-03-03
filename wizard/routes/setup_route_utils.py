@@ -3,22 +3,20 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Sequence
 
 from fastapi import HTTPException, Request
 
 from core.locations import LocationService
+from core.services.time_utils import render_utc_as_local
 from wizard.services.path_utils import get_repo_root
 
 
 def get_system_timezone_info() -> Dict[str, str]:
-    now = datetime.now().astimezone()
-    tzinfo = now.tzinfo or timezone.utc
-    tz_name = getattr(tzinfo, "key", None) or tzinfo.tzname(now) or "UTC"
+    rendered = render_utc_as_local()
     return {
-        "timezone": tz_name,
-        "local_time": now.strftime("%Y-%m-%d %H:%M"),
+        "timezone": rendered["timezone"],
+        "local_time": rendered["local_display"],
     }
 
 

@@ -112,6 +112,35 @@ class EmpireExtensionService:
                 payload[key] = self._decode_json_value(payload[key])
         return payload
 
+    def _extract_review_emails(self, document: dict[str, Any], related_events: list[dict[str, Any]]) -> list[str]:
+        emails: set[str] = set()
+        metadata = document.get("metadata")
+        if isinstance(metadata, dict):
+            provider_metadata = metadata.get("provider_metadata")
+            if isinstance(provider_metadata, dict):
+                participants = provider_metadata.get("participants")
+                if isinstance(participants, list):
+                    for value in participants:
+                        if isinstance(value, str) and "@" in value:
+                            emails.add(value.strip().lower())
+        for event in related_events:
+            event_metadata = event.get("metadata")
+            if not isinstance(event_metadata, dict):
+                continue
+            organizer = event_metadata.get("organizer")
+            if isinstance(organizer, dict):
+                email = organizer.get("email")
+                if isinstance(email, str) and "@" in email:
+                    emails.add(email.strip().lower())
+            attendees = event_metadata.get("attendees")
+            if isinstance(attendees, list):
+                for attendee in attendees:
+                    if isinstance(attendee, dict):
+                        email = attendee.get("email")
+                        if isinstance(email, str) and "@" in email:
+                            emails.add(email.strip().lower())
+        return sorted(emails)
+
     def _oauth_connection_status(self) -> dict[str, Any]:
         try:
             from wizard.services.oauth_manager import get_oauth_manager, OAuthProvider
@@ -233,34 +262,228 @@ class EmpireExtensionService:
         self.ensure_import_path()
         return importlib.import_module(name)
 
-    def load_overview(self) -> dict[str, Any]:
+    def _resolve_db_path(self, scope: str = "master", binder_id: str | None = None) -> Path:
+        if scope == "master":
+            return self.db_path
+        from wizard.services.empire_scope_service import get_empire_scope_service
+
+        resolved = get_empire_scope_service().resolve(scope=scope, binder_id=binder_id)
+        return Path(resolved["db_path"])
+
+    def load_overview(self, *, scope: str = "master", binder_id: str | None = None) -> dict[str, Any]:
         self.mappings_root.mkdir(parents=True, exist_ok=True)
         if not self.extension_installed():
             return {"counts": {}, "events": []}
         overview = self._import_module("empire.services.overview_service")
-        return overview.load_overview(self.db_path)
+        return overview.load_overview(self._resolve_db_path(scope=scope, binder_id=binder_id))
 
-    def _query(self, sql: str, params: tuple[Any, ...] = ()) -> list[dict[str, Any]]:
-        if not self.db_path.exists():
+    def _query(
+        self,
+        sql: str,
+        params: tuple[Any, ...] = (),
+        *,
+        scope: str = "master",
+        binder_id: str | None = None,
+    ) -> list[dict[str, Any]]:
+        db_path = self._resolve_db_path(scope=scope, binder_id=binder_id)
+        if not db_path.exists():
             return []
-        with sqlite3.connect(str(self.db_path)) as conn:
+        with sqlite3.connect(str(db_path)) as conn:
             conn.row_factory = sqlite3.Row
             rows = conn.execute(sql, params).fetchall()
         return [self._normalize_row_payload(dict(row)) for row in rows]
 
-    def list_records(self, limit: int = 50) -> list[dict[str, Any]]:
+    def list_records(self, limit: int = 50, *, scope: str = "master", binder_id: str | None = None) -> list[dict[str, Any]]:
         return self._query(
             """
             SELECT record_id, email, firstname, lastname, company, jobtitle,
-                   phone, city, state, country, lastmodifieddate
+                   phone, city, state, country, lastmodifieddate, raw_json
             FROM records
             ORDER BY lastmodifieddate DESC
             LIMIT ?
             """,
             (limit,),
+            scope=scope,
+            binder_id=binder_id,
         )
 
-    def list_companies(self, limit: int = 50) -> list[dict[str, Any]]:
+    def get_record(self, record_id: str, *, scope: str = "master", binder_id: str | None = None) -> dict[str, Any] | None:
+        rows = self._query(
+            """
+            SELECT record_id, email, firstname, lastname, company, jobtitle,
+                   phone, city, state, country, lastmodifieddate, raw_json
+            FROM records
+            WHERE record_id = ?
+            LIMIT 1
+            """,
+            (record_id,),
+            scope=scope,
+            binder_id=binder_id,
+        )
+        return rows[0] if rows else None
+
+    def find_record_merge_candidates(self, record_id: str, *, limit: int = 10) -> dict[str, Any]:
+        record = self.get_record(record_id, scope="master")
+        if not record:
+            raise ValueError(f"Unknown master record: {record_id}")
+
+        candidate_rows: list[dict[str, Any]] = []
+        seen_ids: set[str] = {record_id}
+        email = str(record.get("email") or "").strip().lower()
+        lastname = str(record.get("lastname") or "").strip()
+        company = str(record.get("company") or "").strip()
+
+        if email:
+            rows = self._query(
+                """
+                SELECT record_id, email, firstname, lastname, company, jobtitle,
+                       phone, city, state, country, lastmodifieddate, raw_json
+                FROM records
+                WHERE lower(email) = ? AND record_id != ?
+                ORDER BY lastmodifieddate DESC
+                LIMIT ?
+                """,
+                (email, record_id, limit),
+                scope="master",
+            )
+            for row in rows:
+                row["match_reason"] = "email"
+                candidate_rows.append(row)
+                seen_ids.add(str(row["record_id"]))
+
+        if lastname and company and len(candidate_rows) < limit:
+            rows = self._query(
+                """
+                SELECT record_id, email, firstname, lastname, company, jobtitle,
+                       phone, city, state, country, lastmodifieddate, raw_json
+                FROM records
+                WHERE lastname = ? AND lower(company) = lower(?) AND record_id != ?
+                ORDER BY lastmodifieddate DESC
+                LIMIT ?
+                """,
+                (lastname, company, record_id, limit),
+                scope="master",
+            )
+            for row in rows:
+                candidate_id = str(row["record_id"])
+                if candidate_id in seen_ids:
+                    continue
+                row["match_reason"] = "name_org"
+                candidate_rows.append(row)
+                seen_ids.add(candidate_id)
+
+        return {
+            "record": record,
+            "candidates": candidate_rows[:limit],
+            "summary": {
+                "candidate_count": len(candidate_rows[:limit]),
+            },
+        }
+
+    def merge_records(self, *, target_record_id: str, source_record_id: str) -> dict[str, Any]:
+        if target_record_id == source_record_id:
+            raise ValueError("source_record_id must differ from target_record_id")
+        target = self.get_record(target_record_id, scope="master")
+        source = self.get_record(source_record_id, scope="master")
+        if not target:
+            raise ValueError(f"Unknown master target record: {target_record_id}")
+        if not source:
+            raise ValueError(f"Unknown master source record: {source_record_id}")
+
+        def _merged_value(primary: Any, secondary: Any) -> Any:
+            return primary if primary not in (None, "") else secondary
+
+        target_raw = target.get("raw_json") if isinstance(target.get("raw_json"), dict) else {}
+        source_raw = source.get("raw_json") if isinstance(source.get("raw_json"), dict) else {}
+        merged_raw = dict(source_raw)
+        merged_raw.update({key: value for key, value in target_raw.items() if value not in (None, "", [])})
+
+        ingestion = self._import_module("empire.services.ingestion_service")
+        merged_at = ingestion._utc_now()
+        merge_metadata = json.dumps(
+            {
+                "source_record_id": source_record_id,
+                "target_record_id": target_record_id,
+                "source_email": source.get("email"),
+                "target_email": target.get("email"),
+            }
+        )
+
+        with sqlite3.connect(str(self.db_path)) as conn:
+            conn.execute(
+                """
+                UPDATE records
+                SET email = ?,
+                    firstname = ?,
+                    lastname = ?,
+                    phone = ?,
+                    jobtitle = ?,
+                    company = ?,
+                    city = ?,
+                    state = ?,
+                    country = ?,
+                    raw_json = ?,
+                    lastmodifieddate = ?
+                WHERE record_id = ?
+                """,
+                (
+                    _merged_value(target.get("email"), source.get("email")),
+                    _merged_value(target.get("firstname"), source.get("firstname")),
+                    _merged_value(target.get("lastname"), source.get("lastname")),
+                    _merged_value(target.get("phone"), source.get("phone")),
+                    _merged_value(target.get("jobtitle"), source.get("jobtitle")),
+                    _merged_value(target.get("company"), source.get("company")),
+                    _merged_value(target.get("city"), source.get("city")),
+                    _merged_value(target.get("state"), source.get("state")),
+                    _merged_value(target.get("country"), source.get("country")),
+                    json.dumps(merged_raw, ensure_ascii=False),
+                    merged_at,
+                    target_record_id,
+                ),
+            )
+            conn.execute(
+                "UPDATE tasks SET record_id = ? WHERE record_id = ?",
+                (target_record_id, source_record_id),
+            )
+            conn.execute(
+                "UPDATE events SET record_id = ? WHERE record_id = ?",
+                (target_record_id, source_record_id),
+            )
+            company_rows = conn.execute(
+                "SELECT company_id FROM contact_companies WHERE record_id = ?",
+                (source_record_id,),
+            ).fetchall()
+            for (company_id,) in company_rows:
+                conn.execute(
+                    "INSERT OR IGNORE INTO contact_companies (record_id, company_id, created_at) VALUES (?, ?, datetime('now'))",
+                    (target_record_id, company_id),
+                )
+            conn.execute("DELETE FROM contact_companies WHERE record_id = ?", (source_record_id,))
+            conn.execute(
+                """
+                INSERT INTO events (event_id, record_id, event_type, occurred_at, subject, notes, metadata)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    __import__("uuid").uuid4().hex,
+                    target_record_id,
+                    "record.merge",
+                    merged_at,
+                    "Merged duplicate contact into canonical record",
+                    source_record_id,
+                    merge_metadata,
+                ),
+            )
+            conn.execute("DELETE FROM records WHERE record_id = ?", (source_record_id,))
+
+        return {
+            "status": "merged",
+            "target_record_id": target_record_id,
+            "source_record_id": source_record_id,
+            "target_record": self.get_record(target_record_id, scope="master"),
+        }
+
+    def list_companies(self, limit: int = 50, *, scope: str = "master", binder_id: str | None = None) -> list[dict[str, Any]]:
         return self._query(
             """
             SELECT company_id, name, domain, phone, city, state, country, source
@@ -269,20 +492,25 @@ class EmpireExtensionService:
             LIMIT ?
             """,
             (limit,),
+            scope=scope,
+            binder_id=binder_id,
         )
 
-    def list_tasks(self, limit: int = 50) -> list[dict[str, Any]]:
+    def list_tasks(self, limit: int = 50, *, scope: str = "master", binder_id: str | None = None) -> list[dict[str, Any]]:
         return self._query(
             """
-            SELECT task_id, title, category, source, source_ref, created_at, status, notes, record_id
+            SELECT task_id, title, category, task_type, source, source_ref, created_at,
+                   due_hint, status, review_status, notes, metadata, record_id
             FROM tasks
             ORDER BY created_at DESC
             LIMIT ?
             """,
             (limit,),
+            scope=scope,
+            binder_id=binder_id,
         )
 
-    def list_events(self, limit: int = 50) -> list[dict[str, Any]]:
+    def list_events(self, limit: int = 50, *, scope: str = "master", binder_id: str | None = None) -> list[dict[str, Any]]:
         return self._query(
             """
             SELECT event_id, record_id, event_type, occurred_at, subject, notes
@@ -291,9 +519,11 @@ class EmpireExtensionService:
             LIMIT ?
             """,
             (limit,),
+            scope=scope,
+            binder_id=binder_id,
         )
 
-    def list_sources(self, limit: int = 50) -> list[dict[str, Any]]:
+    def list_sources(self, limit: int = 50, *, scope: str = "master", binder_id: str | None = None) -> list[dict[str, Any]]:
         return self._query(
             """
             SELECT source_id, source_key, label, created_at
@@ -302,21 +532,29 @@ class EmpireExtensionService:
             LIMIT ?
             """,
             (limit,),
+            scope=scope,
+            binder_id=binder_id,
         )
 
     def list_templates(self) -> list[dict[str, str]]:
         self.mappings_root.mkdir(parents=True, exist_ok=True)
+        (self.templates_root / "webhooks").mkdir(parents=True, exist_ok=True)
         self.workflows_root.mkdir(parents=True, exist_ok=True)
         items: list[dict[str, str]] = []
         for root, kind in (
             (self.mappings_root, "mapping"),
+            (self.templates_root / "webhooks", "webhook"),
             (self.workflows_root, "workflow"),
             (self.templates_root, "template"),
         ):
             if not root.exists():
                 continue
             for path in sorted(root.rglob("*.md")):
-                if root == self.templates_root and path.is_relative_to(self.mappings_root):
+                if root == self.templates_root and (
+                    path.is_relative_to(self.mappings_root)
+                    or path.is_relative_to(self.templates_root / "webhooks")
+                    or path.is_relative_to(self.workflows_root)
+                ):
                     continue
                 items.append(
                     {
@@ -327,37 +565,223 @@ class EmpireExtensionService:
                 )
         return items
 
-    def list_documents(self, limit: int = 100) -> list[dict[str, Any]]:
+    def list_documents(self, limit: int = 100, *, scope: str = "master", binder_id: str | None = None) -> list[dict[str, Any]]:
         storage = self._import_module("empire.services.storage")
-        return [self._normalize_row_payload(row) for row in storage.list_documents(self.db_path, limit=limit)]
+        db_path = self._resolve_db_path(scope=scope, binder_id=binder_id)
+        return [self._normalize_row_payload(row) for row in storage.list_documents(db_path, limit=limit)]
 
-    def get_document(self, document_id: str) -> dict[str, Any] | None:
+    def get_document(self, document_id: str, *, scope: str = "master", binder_id: str | None = None) -> dict[str, Any] | None:
         storage = self._import_module("empire.services.storage")
-        payload = storage.get_document(document_id, db_path=self.db_path)
+        payload = storage.get_document(document_id, db_path=self._resolve_db_path(scope=scope, binder_id=binder_id))
         return self._normalize_row_payload(payload) if payload else None
 
-    def list_import_jobs(self, limit: int = 100) -> list[dict[str, Any]]:
+    def get_document_review_bundle(
+        self,
+        document_id: str,
+        *,
+        scope: str = "master",
+        binder_id: str | None = None,
+    ) -> dict[str, Any] | None:
+        document = self.get_document(document_id, scope=scope, binder_id=binder_id)
+        if not document:
+            return None
+        source_path = str(document.get("source_path") or "")
+        related_events = self._query(
+            """
+            SELECT event_id, record_id, event_type, occurred_at, subject, notes, metadata
+            FROM events
+            WHERE notes = ? OR notes = ?
+            ORDER BY occurred_at DESC
+            LIMIT 20
+            """,
+            (source_path, document_id),
+            scope=scope,
+            binder_id=binder_id,
+        )
+        event_ids = [str(event["event_id"]) for event in related_events if event.get("event_id")]
+        related_tasks: list[dict[str, Any]] = []
+        if event_ids:
+            placeholders = ", ".join("?" for _ in event_ids)
+            related_tasks.extend(
+                self._query(
+                    f"""
+                    SELECT task_id, title, category, task_type, source, source_ref, created_at,
+                           due_hint, status, review_status, notes, metadata, record_id
+                    FROM tasks
+                    WHERE source_ref IN ({placeholders})
+                    ORDER BY created_at DESC
+                    LIMIT 25
+                    """,
+                    tuple(event_ids),
+                    scope=scope,
+                    binder_id=binder_id,
+                )
+            )
+        related_tasks.extend(
+            self._query(
+                """
+                SELECT task_id, title, category, task_type, source, source_ref, created_at,
+                       due_hint, status, review_status, notes, metadata, record_id
+                FROM tasks
+                WHERE source_ref = ? OR source = ?
+                ORDER BY created_at DESC
+                LIMIT 25
+                """,
+                (document_id, f"document:{document_id}"),
+                scope=scope,
+                binder_id=binder_id,
+            )
+        )
+        deduped_tasks: list[dict[str, Any]] = []
+        seen_task_ids: set[str] = set()
+        for task in related_tasks:
+            task_id = str(task.get("task_id") or "")
+            if task_id and task_id not in seen_task_ids:
+                deduped_tasks.append(task)
+                seen_task_ids.add(task_id)
+
+        review_emails = self._extract_review_emails(document, related_events)
+        related_records: list[dict[str, Any]] = []
+        if review_emails:
+            placeholders = ", ".join("?" for _ in review_emails)
+            related_records = self._query(
+                f"""
+                SELECT record_id, email, firstname, lastname, company, jobtitle,
+                       phone, city, state, country, lastmodifieddate
+                FROM records
+                WHERE lower(email) IN ({placeholders})
+                ORDER BY lastmodifieddate DESC
+                LIMIT 25
+                """,
+                tuple(review_emails),
+                scope=scope,
+                binder_id=binder_id,
+            )
+
+        return {
+            "document": document,
+            "records": related_records,
+            "events": related_events,
+            "tasks": deduped_tasks,
+            "summary": {
+                "record_count": len(related_records),
+                "event_count": len(related_events),
+                "task_count": len(deduped_tasks),
+                "emails": review_emails,
+            },
+        }
+
+    def promote_record_to_master(self, record_id: str, *, binder_id: str | None) -> dict[str, Any]:
+        if not binder_id:
+            raise ValueError("binder_id required to promote a binder record")
+        source_record = self.get_record(record_id, scope="binder", binder_id=binder_id)
+        if not source_record:
+            raise ValueError(f"Unknown binder record: {record_id}")
+
+        normalization = self._import_module("empire.services.normalization_service")
         storage = self._import_module("empire.services.storage")
-        return [self._normalize_row_payload(row) for row in storage.list_import_jobs(self.db_path, limit=limit)]
+        source_name = " ".join(
+            part for part in [source_record.get("firstname"), source_record.get("lastname")] if part
+        ).strip()
+        payload = {
+            "name": source_name or source_record.get("email") or record_id,
+            "organization": source_record.get("company"),
+            "role": source_record.get("jobtitle"),
+            "email": source_record.get("email"),
+            "phone": source_record.get("phone"),
+        }
+        raw_json = source_record.get("raw_json")
+        if isinstance(raw_json, dict):
+            payload.update(
+                {
+                    key: value
+                    for key, value in raw_json.items()
+                    if key not in payload and value not in (None, "", [])
+                }
+            )
+        normalized = normalization.normalize_payload("binder_promote", payload)
+        target_record_id = storage.upsert_record(normalized, db_path=self.db_path)
+
+        ingestion = self._import_module("empire.services.ingestion_service")
+        promoted_at = ingestion._utc_now()
+        promotion_metadata = json.dumps(
+            {
+                "source_scope": "binder",
+                "binder_id": binder_id,
+                "source_record_id": record_id,
+                "target_record_id": target_record_id,
+            }
+        )
+        binder_db_path = self._resolve_db_path(scope="binder", binder_id=binder_id)
+        storage.record_event(
+            record_id=record_id,
+            event_type="record.promote_to_master",
+            occurred_at=promoted_at,
+            subject=f"Promoted {source_name or source_record.get('email') or record_id} to master",
+            notes=record_id,
+            metadata=promotion_metadata,
+            db_path=binder_db_path,
+        )
+        storage.record_event(
+            record_id=target_record_id,
+            event_type="record.promoted_from_binder",
+            occurred_at=promoted_at,
+            subject=f"Promoted binder record from {binder_id}",
+            notes=record_id,
+            metadata=promotion_metadata,
+            db_path=self.db_path,
+        )
+        target_record = self.get_record(target_record_id, scope="master")
+        return {
+            "status": "promoted",
+            "source_scope": "binder",
+            "binder_id": binder_id,
+            "source_record_id": record_id,
+            "target_record_id": target_record_id,
+            "target_record": target_record,
+        }
+
+    def get_task(self, task_id: str, *, scope: str = "master", binder_id: str | None = None) -> dict[str, Any] | None:
+        rows = self._query(
+            """
+            SELECT task_id, title, category, task_type, source, source_ref, created_at,
+                   due_hint, status, review_status, notes, metadata, record_id
+            FROM tasks
+            WHERE task_id = ?
+            LIMIT 1
+            """,
+            (task_id,),
+            scope=scope,
+            binder_id=binder_id,
+        )
+        return rows[0] if rows else None
+
+    def list_import_jobs(self, limit: int = 100, *, scope: str = "master", binder_id: str | None = None) -> list[dict[str, Any]]:
+        storage = self._import_module("empire.services.storage")
+        db_path = self._resolve_db_path(scope=scope, binder_id=binder_id)
+        return [self._normalize_row_payload(row) for row in storage.list_import_jobs(db_path, limit=limit)]
 
     def list_connector_jobs(
         self,
         *,
         connector: str | None = None,
         limit: int = 25,
+        scope: str = "master",
+        binder_id: str | None = None,
     ) -> list[dict[str, Any]]:
         storage = self._import_module("empire.services.storage")
-        jobs = storage.list_sync_jobs(self.db_path, limit=limit, connector=connector)
+        db_path = self._resolve_db_path(scope=scope, binder_id=binder_id)
+        jobs = storage.list_sync_jobs(db_path, limit=limit, connector=connector)
         return [self._normalize_row_payload(row) for row in jobs]
 
-    def get_sync_job(self, sync_job_id: str) -> dict[str, Any] | None:
+    def get_sync_job(self, sync_job_id: str, *, scope: str = "master", binder_id: str | None = None) -> dict[str, Any] | None:
         storage = self._import_module("empire.services.storage")
-        payload = storage.get_sync_job(sync_job_id, self.db_path)
+        payload = storage.get_sync_job(sync_job_id, self._resolve_db_path(scope=scope, binder_id=binder_id))
         return self._normalize_row_payload(payload) if payload else None
 
-    def get_import_job(self, job_id: str) -> dict[str, Any] | None:
+    def get_import_job(self, job_id: str, *, scope: str = "master", binder_id: str | None = None) -> dict[str, Any] | None:
         storage = self._import_module("empire.services.storage")
-        payload = storage.get_import_job(job_id, self.db_path)
+        payload = storage.get_import_job(job_id, self._resolve_db_path(scope=scope, binder_id=binder_id))
         return self._normalize_row_payload(payload) if payload else None
 
     def list_webhook_mappings(self, limit: int = 100) -> list[dict[str, Any]]:
@@ -380,6 +804,11 @@ class EmpireExtensionService:
             self._normalize_row_payload(row)
             for row in storage.list_webhook_deliveries(self.db_path, limit=limit, mapping_id=mapping_id)
         ]
+
+    def get_webhook_delivery(self, delivery_id: str) -> dict[str, Any] | None:
+        storage = self._import_module("empire.services.storage")
+        payload = storage.get_webhook_delivery(delivery_id, self.db_path)
+        return self._normalize_row_payload(payload) if payload else None
 
     def read_template(self, relative_path: str) -> dict[str, str]:
         self.mappings_root.mkdir(parents=True, exist_ok=True)
@@ -414,8 +843,20 @@ class EmpireExtensionService:
         return {
             "google": {
                 "mode": "live",
+                "release_scope": "v1.5-live",
+                "readiness": "working",
                 "configured": google_configured,
                 "status": google_oauth.get("status", "not_available"),
+                "status_detail": "Wizard-managed OAuth, Gmail intake, Calendar intake, and Places enhancement are active for v1.5.",
+                "action_required": (
+                    "refresh_token"
+                    if google_oauth.get("status") == "expired"
+                    else "connect_account"
+                    if google_oauth.get("status") == "pending_auth"
+                    else "configure_oauth"
+                    if google_oauth.get("status") == "not_configured"
+                    else None
+                ),
                 "oauth_available": google_oauth.get("available", False),
                 "connected": google_oauth.get("status") == "connected",
                 "user": google_oauth.get("user"),
@@ -423,6 +864,11 @@ class EmpireExtensionService:
                 "scopes": google_oauth.get("scopes", []),
                 "expires_at": google_oauth.get("expires_at"),
                 "user_info": google_oauth.get("user_info", {}),
+                "setup_requirements": [
+                    "Wizard Google OAuth available",
+                    "Google credentials or token path configured",
+                    "Optional Places API key for enhancement",
+                ],
                 "actions": {
                     "connect_url": "/api/oauth/connect/google",
                     "disconnect_url": "/api/oauth/disconnect/google",
@@ -431,30 +877,65 @@ class EmpireExtensionService:
             },
             "icloud": {
                 "mode": "scaffold",
+                "release_scope": "v1.5-deferred",
+                "readiness": "scaffolded",
                 "configured": False,
                 "status": "scaffolded",
+                "status_detail": "Provider lane is defined, but live sync is deferred from the v1.5 stable scope.",
+                "setup_requirements": [
+                    "Provider auth contract",
+                    "Account token storage",
+                    "Calendar and mail adapter implementation",
+                ],
+                "next_step": "Deferred for v1.5 stable. Keep as documented scaffold only.",
             },
             "outlook": {
                 "mode": "scaffold",
+                "release_scope": "v1.5-deferred",
+                "readiness": "scaffolded",
                 "configured": False,
                 "status": "scaffolded",
+                "status_detail": "Provider lane is defined, but live sync is deferred from the v1.5 stable scope.",
+                "setup_requirements": [
+                    "Microsoft auth contract",
+                    "Mailbox and calendar adapter implementation",
+                    "Refresh-token lifecycle handling",
+                ],
+                "next_step": "Deferred for v1.5 stable. Keep as documented scaffold only.",
             },
             "hubspot": {
                 "mode": "live",
+                "release_scope": "v1.5-live",
+                "readiness": "working" if secrets.get("hubspot_private_app_token") else "config_required",
                 "configured": bool(secrets.get("hubspot_private_app_token")),
                 "status": "configured" if secrets.get("hubspot_private_app_token") else "not_configured",
+                "status_detail": "HubSpot contact and company sync is in the stable v1.5 connector set.",
+                "setup_requirements": [
+                    "HubSpot private app token",
+                    "Empire mapping template",
+                    "Optional webhook endpoint secret for inbound flows",
+                ],
                 "actions": {
                     "configure_hint": "extensions/empire/config/empire_secrets.json",
                 },
             },
             "linkedin": {
                 "mode": "scaffold",
+                "release_scope": "v1.5-deferred",
+                "readiness": "scaffolded",
                 "configured": False,
                 "status": "scaffolded",
+                "status_detail": "Enhancement target fields exist, but live provider access is deferred behind compliance and provider gating.",
+                "setup_requirements": [
+                    "Provider access policy decision",
+                    "Mapped profile enrichment adapter",
+                    "Operator review and provenance policy",
+                ],
+                "next_step": "Deferred for v1.5 stable. Keep as enhancement scaffold only.",
             },
         }
 
-    def connector_catalog(self) -> dict[str, Any]:
+    def connector_catalog(self, *, scope: str = "master", binder_id: str | None = None) -> dict[str, Any]:
         accounts = self.account_status()
         return {
             "connectors": {
@@ -474,7 +955,7 @@ class EmpireExtensionService:
                             "params": {"query": "coffee roaster", "location": "", "radius_meters": 3000},
                         },
                     ],
-                    "recent_jobs": self.list_connector_jobs(connector="google", limit=6),
+                    "recent_jobs": self.list_connector_jobs(connector="google", limit=6, scope=scope, binder_id=binder_id),
                 },
                 "hubspot": {
                     "state": "live" if accounts["hubspot"]["configured"] else "pending",
@@ -486,7 +967,7 @@ class EmpireExtensionService:
                             "params": {"limit": 25, "max_pages": 1},
                         }
                     ],
-                    "recent_jobs": self.list_connector_jobs(connector="hubspot", limit=6),
+                    "recent_jobs": self.list_connector_jobs(connector="hubspot", limit=6, scope=scope, binder_id=binder_id),
                 },
                 "icloud": {
                     "state": "scaffold",

@@ -85,7 +85,7 @@ class _Enums:
             return value
 
 
-def test_sonic_plugin_alias_routes(monkeypatch):
+def test_sonic_plugin_alias_routes_are_retired_by_default(monkeypatch):
     monkeypatch.delenv("UDOS_SONIC_ENABLE_LEGACY_ALIASES", raising=False)
     sync = _Sync()
 
@@ -107,49 +107,33 @@ def test_sonic_plugin_alias_routes(monkeypatch):
     assert contract_res.status_code == 200
     assert "ok" in contract_res.json()
     assert client.get("/api/sonic/devices", params={"uefi_native": "works", "windows10_boot": "wtg", "media_mode": "htpc"}).status_code == 200
-    assert client.post("/api/sonic/rescan").status_code == 200
-    assert sync.last_force is False
-    assert client.post("/api/sonic/rescan").json()["deprecated_alias"]["canonical"] == "/api/sonic/sync/rebuild?force=false"
+    canonical_status = client.get("/api/sonic/sync/status")
+    assert canonical_status.status_code == 200
+    assert canonical_status.json()["db_exists"] is True
 
-    assert client.post("/api/sonic/rebuild").status_code == 200
-    assert sync.last_force is True
-    assert client.post("/api/sonic/rebuild").json()["deprecated_alias"]["canonical"] == "/api/sonic/sync/rebuild?force=true"
+    canonical_rebuild = client.post("/api/sonic/sync/rebuild")
+    assert canonical_rebuild.status_code == 200
+    assert canonical_rebuild.json()["status"] == "ok"
 
-    assert client.post("/api/sonic/sync").status_code == 200
-    assert sync.last_force is False
-    assert client.post("/api/sonic/sync").json()["deprecated_alias"]["canonical"] == "/api/sonic/sync/rebuild?force=false"
-
-    export_res = client.get("/api/sonic/export")
-    assert export_res.status_code == 200
-    assert export_res.json()["status"] == "ok"
-    assert export_res.json()["deprecated_alias"]["canonical"] == "/api/sonic/sync/export"
-
-    db_status = client.get("/api/sonic/db/status")
-    assert db_status.status_code == 200
-    assert db_status.json()["db_exists"] is True
-    assert db_status.json()["seed_db_path"] == "/tmp/seed.db"
-    assert db_status.json()["deprecated_alias"]["canonical"] == "/api/sonic/sync/status"
+    alias = client.post("/api/sonic/rescan")
+    assert alias.status_code == 410
+    detail = alias.json()["detail"]
+    assert detail["alias"] == "/api/sonic/rescan"
+    assert detail["canonical"] == "/api/sonic/sync/rebuild?force=false"
 
     bootstrap = client.post("/api/sonic/bootstrap/current")
     assert bootstrap.status_code == 200
     assert bootstrap.json()["device_id"] == "local-test"
     assert sync.bootstrap_calls == 1
 
-    db_rebuild = client.post("/api/sonic/db/rebuild")
-    assert db_rebuild.status_code == 200
-    assert db_rebuild.json()["deprecated_alias"]["canonical"] == "/api/sonic/sync/rebuild"
-
-    db_export = client.get("/api/sonic/db/export")
-    assert db_export.status_code == 200
-    assert db_export.json()["deprecated_alias"]["canonical"] == "/api/sonic/sync/export"
-
     alias_status = client.get("/api/sonic/aliases/status")
     assert alias_status.status_code == 200
-    assert alias_status.json()["legacy_aliases_enabled"] is True
+    assert alias_status.json()["legacy_aliases_enabled"] is False
+    assert alias_status.json()["status"] == "retired"
 
 
-def test_sonic_plugin_alias_routes_retired_mode(monkeypatch):
-    monkeypatch.setenv("UDOS_SONIC_ENABLE_LEGACY_ALIASES", "0")
+def test_sonic_plugin_alias_routes_can_be_reenabled(monkeypatch):
+    monkeypatch.setenv("UDOS_SONIC_ENABLE_LEGACY_ALIASES", "1")
     sync = _Sync()
 
     monkeypatch.setattr(
@@ -163,16 +147,11 @@ def test_sonic_plugin_alias_routes_retired_mode(monkeypatch):
     app.include_router(sonic_routes.create_sonic_plugin_routes(auth_guard=None))
     client = TestClient(app)
 
-    canonical = client.post("/api/sonic/sync/rebuild")
-    assert canonical.status_code == 200
-    assert canonical.json()["status"] == "ok"
-
     alias = client.post("/api/sonic/rescan")
-    assert alias.status_code == 410
-    detail = alias.json()["detail"]
-    assert detail["alias"] == "/api/sonic/rescan"
-    assert detail["canonical"] == "/api/sonic/sync/rebuild?force=false"
+    assert alias.status_code == 200
+    assert alias.json()["deprecated_alias"]["canonical"] == "/api/sonic/sync/rebuild?force=false"
 
     alias_status = client.get("/api/sonic/aliases/status")
     assert alias_status.status_code == 200
-    assert alias_status.json()["legacy_aliases_enabled"] is False
+    assert alias_status.json()["legacy_aliases_enabled"] is True
+    assert alias_status.json()["status"] == "compatibility_override"

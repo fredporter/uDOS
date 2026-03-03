@@ -4,6 +4,9 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from dataclasses import asdict, replace
 
+from core.services.knowledge_artifact_service import get_knowledge_artifact_service
+from core.ulogic.deliverables import validate_workflow_record
+
 from .artifacts import WorkflowArtifactStore
 from .contracts import PhaseRuntimeState, WorkflowRuntimeState, WorkflowSpec
 from .parser import WorkflowTemplateParser
@@ -23,6 +26,7 @@ class WorkflowScheduler:
         self.parser = WorkflowTemplateParser()
         self.store = WorkflowArtifactStore(self.workflow_root)
         self.engine = PhaseEngine(vault_root=self.workflow_root, prompt_root=self.prompt_root)
+        self.knowledge_artifacts = get_knowledge_artifact_service(repo_root)
 
     def list_templates(self) -> list[str]:
         if not self.template_root.exists():
@@ -48,6 +52,7 @@ class WorkflowScheduler:
         spec = self.parser.parse(workflow_id=workflow_id, markdown=rendered, source_path=template_path)
         if project:
             spec = replace(spec, project=project)
+        self._validate_spec_contract(spec)
         self.store.ensure_workflow_dir(workflow_id)
         self.store.write_spec(spec, rendered)
         self.store.write_state(self._initial_state(spec))
@@ -64,6 +69,7 @@ class WorkflowScheduler:
         spec = self.parser.parse(workflow_id=workflow_id, markdown=markdown, source_path=source_path)
         if project:
             spec = replace(spec, project=project)
+        self._validate_spec_contract(spec)
         self.store.ensure_workflow_dir(workflow_id)
         self.store.write_spec(spec, markdown)
         self.store.write_state(self._initial_state(spec))
@@ -89,7 +95,7 @@ class WorkflowScheduler:
             )
         from .contracts import WorkflowSpec
 
-        return WorkflowSpec(
+        spec = WorkflowSpec(
             workflow_id=payload["workflow_id"],
             template_id=payload.get("template_id", ""),
             project=payload.get("project", payload["workflow_id"]),
@@ -102,6 +108,8 @@ class WorkflowScheduler:
             created_at_iso=payload.get("created_at_iso", ""),
             source_path=payload.get("source_path"),
         )
+        self._validate_spec_contract(spec)
+        return spec
 
     def load_state(self, workflow_id: str) -> WorkflowRuntimeState:
         payload = self.store.read_json(workflow_id, "state.json")
@@ -206,6 +214,26 @@ class WorkflowScheduler:
         state = self.load_state(workflow_id)
         return {"spec": asdict(spec), "state": asdict(state)}
 
+    def import_research_artifact(
+        self,
+        workflow_id: str,
+        note_id: str,
+        *,
+        action: str = "research",
+    ) -> dict[str, str]:
+        imported = self.knowledge_artifacts.import_into_workflow(
+            workflow_id=workflow_id,
+            action=action,
+            note_name=note_id,
+        )
+        meta_path = self.store.workflow_dir(workflow_id) / "meta" / "research-imports.json"
+        payload = []
+        if meta_path.exists():
+            payload = self.store.read_json(workflow_id, "meta/research-imports.json").get("imports", [])
+        payload.append(imported)
+        self.store.write_json(workflow_id, "meta/research-imports.json", {"imports": payload})
+        return imported
+
     def _initial_state(self, spec: WorkflowSpec) -> WorkflowRuntimeState:
         now = _now_iso()
         phases = [
@@ -245,3 +273,27 @@ class WorkflowScheduler:
 
     def _next_window(self, hours: int) -> str:
         return (datetime.now(timezone.utc) + timedelta(hours=hours)).isoformat()
+
+    def _validate_spec_contract(self, spec: WorkflowSpec) -> None:
+        if not spec.phases:
+            raise ValueError(
+                "Workflow deliverable contract failed: $.steps must contain at least one step"
+            )
+        result = validate_workflow_record(self._deliverable_payload(spec))
+        if not result.ok:
+            raise ValueError(
+                "Workflow deliverable contract failed: " + "; ".join(result.errors)
+            )
+
+    def _deliverable_payload(self, spec: WorkflowSpec) -> dict[str, object]:
+        return {
+            "workflow_id": spec.workflow_id,
+            "steps": [
+                {
+                    "step_id": phase.name,
+                    "action": phase.prompt_name,
+                    "requires_online": phase.provider_hint.needs_web,
+                }
+                for phase in spec.phases
+            ],
+        }

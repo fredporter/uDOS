@@ -63,8 +63,8 @@ export async function updateUCodeKeymap(token, payload) {
   return res.json();
 }
 
-export async function fetchOkStatus(token) {
-  const res = await apiFetch("/api/ucode/ok/status", {
+export async function fetchLogicStatus(token) {
+  const res = await apiFetch("/api/ucode/logic/status", {
     headers: buildAuthHeaders(token),
   });
   if (!res.ok) {
@@ -74,8 +74,8 @@ export async function fetchOkStatus(token) {
   return res.json();
 }
 
-export async function fetchOkHistory(token) {
-  const res = await apiFetch("/api/ucode/ok/history", {
+export async function fetchLogicHistory(token) {
+  const res = await apiFetch("/api/ucode/logic/history", {
     headers: buildAuthHeaders(token),
   });
   if (!res.ok) {
@@ -85,8 +85,8 @@ export async function fetchOkHistory(token) {
   return res.json();
 }
 
-export async function setOkDefaultModel(token, model, profile) {
-  const res = await apiFetch("/api/ucode/ok/model", {
+export async function setLogicDefaultModel(token, model, profile) {
+  const res = await apiFetch("/api/ucode/logic/model", {
     method: "POST",
     headers: jsonHeaders(token),
     body: JSON.stringify({ model, profile }),
@@ -220,4 +220,56 @@ export async function fetchMonitoringDiagnostics(token) {
 export async function fetchWizardHealth() {
   const res = await apiFetch("/health");
   return res.ok;
+}
+
+export async function fetchTemplateFamilies(token) {
+  const res = await apiFetch("/api/ucode/templates", {
+    headers: buildAuthHeaders(token),
+  });
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(detail || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function fetchTemplateFamily(family, token) {
+  const res = await apiFetch(`/api/ucode/templates/${encodeURIComponent(family)}`, {
+    headers: buildAuthHeaders(token),
+  });
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(detail || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function readTemplate(family, templateName, token) {
+  const res = await apiFetch(
+    `/api/ucode/templates/${encodeURIComponent(family)}/${encodeURIComponent(templateName)}`,
+    {
+      headers: buildAuthHeaders(token),
+    }
+  );
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(detail || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function duplicateTemplate(family, templateName, targetName = "", token) {
+  const res = await apiFetch(
+    `/api/ucode/templates/${encodeURIComponent(family)}/${encodeURIComponent(templateName)}/duplicate`,
+    {
+      method: "POST",
+      headers: jsonHeaders(token),
+      body: JSON.stringify({ target_name: targetName || null }),
+    }
+  );
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(detail || `HTTP ${res.status}`);
+  }
+  return res.json();
 }

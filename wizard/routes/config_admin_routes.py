@@ -12,6 +12,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import FileResponse
 
 from core.services.unified_config_loader import get_config
+from core.services.time_utils import utc_from_timestamp, utc_now_iso_z
 from wizard.services.deploy_mode import is_managed_mode
 from wizard.services.admin_secret_contract import (
     collect_admin_secret_contract,
@@ -108,7 +109,7 @@ def create_admin_token_routes() -> APIRouter:
                 key_id=key_id,
                 provider="wizard_admin",
                 value=token,
-                created_at=datetime.now(UTC).isoformat(),
+                created_at=utc_now_iso_z(),
                 metadata={"source": "wizard-dashboard"},
             )
             store.set(entry)
@@ -197,8 +198,7 @@ def create_public_export_routes() -> APIRouter:
                         "filename": export_file.name,
                         "path": str(export_file),
                         "size": stat.st_size,
-                        "modified": datetime.fromtimestamp(stat.st_mtime).isoformat()
-                        + "Z",
+                        "modified": utc_from_timestamp(stat.st_mtime).isoformat().replace("+00:00", "Z"),
                     })
                 except Exception:
                     pass

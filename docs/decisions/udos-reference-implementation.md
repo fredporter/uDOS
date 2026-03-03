@@ -56,3 +56,9 @@ Main responsibilities:
 - send run requests
 - stream and render block/progress events
 - exit cleanly
+
+Current repo anchor:
+
+- Go frontend: `tui/cmd/udos-tui/main.go`
+- protocol bridge: `core/tui/protocol_bridge.py`
+- launcher: `bin/udos-tui`

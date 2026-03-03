@@ -29,10 +29,11 @@ import time
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Callable
 from dataclasses import dataclass, field, asdict
-from datetime import datetime, timedelta
+from datetime import timedelta
 from enum import Enum
 from urllib.parse import urlencode, parse_qs, urlparse
 
+from core.services.time_utils import utc_now_iso_z
 from wizard.services.logging_api import get_logger
 from core.services.integration_registry import get_oauth_provider_definitions
 
@@ -277,7 +278,7 @@ class OAuthConnectionManager:
         """Save tokens to encrypted storage."""
         data = {
             "version": "1.0.0",
-            "updated_at": datetime.now().isoformat(),
+            "updated_at": utc_now_iso_z(),
             "tokens": {
                 provider.value: token.to_dict()
                 for provider, token in self._tokens.items()

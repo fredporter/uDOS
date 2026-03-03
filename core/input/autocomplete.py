@@ -81,9 +81,9 @@ class AutocompleteService:
                     "UPDATE",
                 ],
             },
-            "OK": {
-                "description": "Local Vibe helpers",
-                "options": ["LOCAL", "EXPLAIN", "DIFF", "PATCH", "ROUTE", "VIBE", "FALLBACK"],
+            "LOGIC": {
+                "description": "v1.5 logic-assist helpers",
+                "options": ["LOCAL", "EXPLAIN", "DIFF", "PATCH", "ROUTE", "NETWORK", "FALLBACK"],
             },
             "SCHEDULER": {
                 "description": "Manage scheduled tasks",

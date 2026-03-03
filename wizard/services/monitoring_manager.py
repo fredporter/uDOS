@@ -17,10 +17,12 @@ from enum import Enum
 from collections import defaultdict
 
 from core.services.health_training import read_last_summary
+from core.services.time_utils import parse_utc_datetime, utc_day_string, utc_now, utc_now_iso_z
 from wizard.services.deploy_mode import is_managed_mode
 from wizard.services.logging_api import get_logger
 from wizard.services.notification_history_service import NotificationHistoryService
 import os
+from wizard.services.path_utils import get_logs_dir
 from wizard.services.plugin_registry import get_registry
 from wizard.services.store import get_wizard_store
 from wizard.services.task_scheduler import TaskScheduler
@@ -168,7 +170,7 @@ class MonitoringManager:
             check_interval: Health check interval in seconds
             alert_callbacks: Optional callback functions for alerts
         """
-        self.data_dir = data_dir or Path("memory/logs/monitoring")
+        self.data_dir = data_dir or (get_logs_dir() / "monitoring")
         self._managed = is_managed_mode()
         self.store = get_wizard_store()
         if not self._managed:
@@ -260,7 +262,7 @@ class MonitoringManager:
                 service=service,
                 status=status.value if isinstance(status, HealthStatus) else status,
                 response_time_ms=round(response_time, 2),
-                timestamp=datetime.now().isoformat(),
+                timestamp=utc_now_iso_z(),
                 message=message,
                 metadata=metadata,
             )
@@ -286,7 +288,7 @@ class MonitoringManager:
                 service=service,
                 status=HealthStatus.UNHEALTHY.value,
                 response_time_ms=round(response_time, 2),
-                timestamp=datetime.now().isoformat(),
+                timestamp=utc_now_iso_z(),
                 message=str(exc),
                 metadata=None,
             )
@@ -337,7 +339,7 @@ class MonitoringManager:
                 service="goblin",
                 status=HealthStatus.HEALTHY.value,
                 response_time_ms=0,
-                timestamp=datetime.now().isoformat(),
+                timestamp=utc_now_iso_z(),
                 message="Legacy Dev extension endpoint monitoring disabled",
                 metadata={"disabled": True, "historical_surface": True},
             )
@@ -398,13 +400,13 @@ class MonitoringManager:
         if not value:
             return None
         try:
-            return datetime.fromisoformat(value.replace("Z", "+00:00"))
+            return parse_utc_datetime(value)
         except ValueError:
             return None
 
     def get_automation_status(self) -> Dict[str, Dict[str, Any]]:
         settings = self.store.get_scheduler_settings()
-        now = datetime.now().astimezone()
+        now = utc_now()
         status: Dict[str, Dict[str, Any]] = {}
         for job_name, grace_minutes in AUTOMATION_WINDOWS_MINUTES.items():
             payload = settings.get(self._heartbeat_key(job_name)) or {}
@@ -417,7 +419,7 @@ class MonitoringManager:
             if last_success_at is None:
                 overdue = True
             else:
-                overdue = (now - last_success_at.astimezone()).total_seconds() > (grace_minutes * 60)
+                overdue = (now - last_success_at).total_seconds() > (grace_minutes * 60)
             status[job_name] = {
                 "job": job_name,
                 "grace_minutes": grace_minutes,
@@ -647,7 +649,7 @@ class MonitoringManager:
             type=type.value,
             severity=severity.value,
             message=message,
-            timestamp=datetime.now().isoformat(),
+            timestamp=utc_now_iso_z(),
             service=service,
             metadata=metadata,
         )
@@ -776,9 +778,9 @@ class MonitoringManager:
             service=service,
             limit=limit,
             remaining=remaining,
-            reset_at=reset_at.isoformat(),
+            reset_at=reset_at.astimezone(utc_now().tzinfo).isoformat().replace("+00:00", "Z"),
             usage_percent=round(usage_percent, 2),
-            timestamp=datetime.now().isoformat(),
+            timestamp=utc_now_iso_z(),
         )
 
         self.rate_limits[service] = status
@@ -838,8 +840,8 @@ class MonitoringManager:
         self.cost_history[service].append(cost)
 
         # Calculate totals
-        today = datetime.now().date()
-        month_start = datetime(today.year, today.month, 1).date()
+        today = utc_now().date()
+        month_start = datetime(today.year, today.month, 1, tzinfo=utc_now().tzinfo).date()
 
         cost_today = sum(self.cost_history[service])  # Simplified for now
         cost_month = cost_today  # Simplified for now
@@ -855,7 +857,7 @@ class MonitoringManager:
             budget_monthly=budget_monthly,
             usage_percent_daily=round(usage_daily, 2),
             usage_percent_monthly=round(usage_monthly, 2),
-            timestamp=datetime.now().isoformat(),
+            timestamp=utc_now_iso_z(),
         )
 
         self.cost_metrics[service] = metrics
@@ -928,7 +930,7 @@ class MonitoringManager:
         """
         entry = AuditLogEntry(
             id=f"audit-{int(time.time() * 1000)}",
-            timestamp=datetime.now().isoformat(),
+            timestamp=utc_now_iso_z(),
             operation=operation,
             service=service,
             user=user,
@@ -1005,7 +1007,7 @@ class MonitoringManager:
         payload = settings.get(heartbeat_key) or {}
         if not isinstance(payload, dict):
             payload = {}
-        now_iso = datetime.now().isoformat()
+        now_iso = utc_now_iso_z()
         payload.update(
             {
                 "last_run_at": now_iso,
@@ -1062,7 +1064,7 @@ class MonitoringManager:
         if self._managed:
             return
         # Save to dated file
-        today = datetime.now().strftime("%Y-%m-%d")
+        today = utc_day_string()
         audit_file = self.data_dir / f"audit-{today}.json"
 
         with open(audit_file, "w") as f:
@@ -1095,7 +1097,7 @@ class MonitoringManager:
             "audit_log": [
                 e.to_dict() for e in self.audit_entries[-1000:]
             ],  # Last 1000 entries
-            "exported_at": datetime.now().isoformat(),
+            "exported_at": utc_now_iso_z(),
         }
 
         with open(filepath, "w") as f:

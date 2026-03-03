@@ -226,6 +226,9 @@ def test_ucode_profile_lifecycle(monkeypatch, tmp_path):
 
 def test_ucode_template_list_read_and_duplicate(monkeypatch, tmp_path):
     handler = _handler_with_home(monkeypatch, tmp_path)
+    handler.seed_template_service.workspace_root = (
+        tmp_path / "memory" / "bank" / "templates"
+    )
 
     listed = handler.handle("UCODE", ["TEMPLATE", "LIST"])
     assert listed["status"] == "success"
@@ -252,7 +255,7 @@ def test_ucode_template_list_read_and_duplicate(monkeypatch, tmp_path):
             "DUPLICATE",
             "submissions",
             "DEVICE-SUBMISSION-template",
-            "my-device-template",
+            f"my-device-template-{tmp_path.name}",
         ],
     )
     assert duplicated["status"] == "success"
@@ -273,6 +276,70 @@ def test_ucode_operator_status_and_plan(monkeypatch, tmp_path):
     assert plan["status"] == "success"
     assert "Intent: profiles" in plan["output"]
     assert "UCODE PROFILE INSTALL creator" in plan["output"]
+
+
+def test_ucode_deliverable_validate_workflow(monkeypatch, tmp_path):
+    handler = _handler_with_home(monkeypatch, tmp_path)
+    result = handler.handle(
+        "UCODE",
+        [
+            "DELIVERABLE",
+            "VALIDATE",
+            "WORKFLOW",
+            '{"workflow_id":"wf-001","steps":[{"step_id":"outline","action":"draft"}]}',
+        ],
+    )
+    assert result["status"] == "success"
+    assert "Valid: yes" in result["output"]
+
+
+def test_ucode_research_enrich_generate_entrypoints(monkeypatch, tmp_path):
+    handler = _handler_with_home(monkeypatch, tmp_path)
+    handler.knowledge_service.knowledge_root = tmp_path / "memory" / "bank" / "knowledge" / "user"
+    handler.knowledge_service.workflow_root = tmp_path / "memory" / "vault" / "workflows"
+    handler.knowledge_service.binder_root = tmp_path / "memory" / "vault" / "@binders"
+
+    research = handler.handle(
+        "UCODE",
+        ["RESEARCH", "api", "benchmark://latest", "local", "assist", "budget"],
+    )
+    assert research["status"] == "success"
+    assert 'source_type: "api"' in research["output"]
+    assert Path(research["saved_path"]).exists()
+
+    enrich = handler.handle(
+        "UCODE",
+        ["ENRICH", "api", "benchmark://latest", "compare", "budget", "setup"],
+    )
+    assert enrich["status"] == "success"
+    assert "Suggested tasks:" in enrich["output"]
+    assert Path(enrich["saved_path"]).exists()
+
+    generate = handler.handle(
+        "UCODE",
+        ["GENERATE", "api", "benchmark://latest", "release", "migration", "guide"],
+    )
+    assert generate["status"] == "success"
+    assert "## Summary" in generate["output"]
+    assert Path(generate["saved_path"]).exists()
+
+    research_list = handler.handle("UCODE", ["RESEARCH", "LIST"])
+    assert research_list["status"] == "success"
+    assert Path(research["saved_path"]).name in research_list["output"]
+
+    research_read = handler.handle(
+        "UCODE",
+        ["RESEARCH", "READ", Path(research["saved_path"]).stem],
+    )
+    assert research_read["status"] == "success"
+    assert 'source_type: "api"' in research_read["output"]
+
+    junk = handler.knowledge_service.knowledge_root / "research" / "junk.tmp"
+    junk.parent.mkdir(parents=True, exist_ok=True)
+    junk.write_text("junk", encoding="utf-8")
+    tidy = handler.handle("UCODE", ["RESEARCH", "TIDY"])
+    assert tidy["status"] == "success"
+    assert "Moved:" in tidy["output"]
 
 
 def test_ucode_extension_and_package_views(monkeypatch, tmp_path):

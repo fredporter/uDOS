@@ -142,3 +142,27 @@ Plan a note
         assert spec.project == "project-lane"
     finally:
         _cleanup(workflow_id)
+
+
+def test_workflow_scheduler_rejects_invalid_deliverable_contract() -> None:
+    workflow_id = "wf-invalid-contract"
+    _cleanup(workflow_id)
+    scheduler = WorkflowScheduler(Path(get_repo_root()))
+
+    markdown = """# WORKFLOW: invalid-workflow
+
+## Goal
+Invalid workflow
+
+## Phases
+"""
+
+    try:
+        try:
+            scheduler.create_workflow_from_markdown(workflow_id, markdown)
+        except ValueError as exc:
+            assert "Workflow deliverable contract failed" in str(exc)
+        else:
+            raise AssertionError("Expected deliverable validation failure")
+    finally:
+        _cleanup(workflow_id)

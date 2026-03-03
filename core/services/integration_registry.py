@@ -7,16 +7,16 @@ from typing import Any, Dict
 
 
 PUBLIC_PROVIDER_DEFINITIONS: Dict[str, Dict[str, Any]] = {
-    "ollama": {
-        "name": "Ollama",
-        "description": "Local AI models (Mistral, Llama, etc.)",
+    "gpt4all": {
+        "name": "GPT4All",
+        "description": "Local logic-assist runtime",
         "type": "local",
-        "automation": "full",
+        "automation": "manual",
         "cli_required": False,
         "install_cmd": None,
-        "setup_cmd": "bin/setup_wizard.sh --auto --no-browser",
-        "check_cmd": "curl -s http://localhost:11434/api/tags",
-        "config_file": "assistant_keys.json",
+        "setup_cmd": "./bin/ucode SETUP logic",
+        "check_cmd": None,
+        "config_file": "memory/bank/typo-workspace/user/settings/logic-assist.md",
     },
     "github": {
         "name": "GitHub",
@@ -37,7 +37,7 @@ PUBLIC_PROVIDER_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "automation": "manual",
         "cli_required": False,
         "web_url": "https://platform.openai.com/api-keys",
-        "config_file": "assistant_keys.json",
+        "config_file": "memory/bank/typo-workspace/user/settings/logic-assist.md",
         "config_key": "OPENAI_API_KEY",
     },
     "anthropic": {
@@ -47,7 +47,7 @@ PUBLIC_PROVIDER_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "automation": "manual",
         "cli_required": False,
         "web_url": "https://console.anthropic.com/settings/keys",
-        "config_file": "assistant_keys.json",
+        "config_file": "memory/bank/typo-workspace/user/settings/logic-assist.md",
         "config_key": "ANTHROPIC_API_KEY",
     },
     "mistral": {
@@ -57,7 +57,7 @@ PUBLIC_PROVIDER_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "automation": "manual",
         "cli_required": False,
         "web_url": "https://console.mistral.ai/api-keys",
-        "config_file": "assistant_keys.json",
+        "config_file": "memory/bank/typo-workspace/user/settings/logic-assist.md",
         "config_key": "MISTRAL_API_KEY",
     },
     "openrouter": {
@@ -67,7 +67,7 @@ PUBLIC_PROVIDER_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "automation": "manual",
         "cli_required": False,
         "web_url": "https://openrouter.ai/keys",
-        "config_file": "assistant_keys.json",
+        "config_file": "memory/bank/typo-workspace/user/settings/logic-assist.md",
         "config_key": "OPENROUTER_API_KEY",
     },
     "nounproject": {
@@ -77,7 +77,7 @@ PUBLIC_PROVIDER_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "automation": "manual",
         "cli_required": False,
         "web_url": "https://thenounproject.com/account/api",
-        "config_file": "assistant_keys.json",
+        "config_file": "memory/bank/typo-workspace/user/settings/logic-assist.md",
         "config_key": "NOUNPROJECT_API_KEY",
     },
     "gemini": {
@@ -87,7 +87,7 @@ PUBLIC_PROVIDER_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "automation": "manual",
         "cli_required": False,
         "web_url": "https://makersuite.google.com/app/apikey",
-        "config_file": "assistant_keys.json",
+        "config_file": "memory/bank/typo-workspace/user/settings/logic-assist.md",
         "config_key": "GEMINI_API_KEY",
     },
 }
@@ -134,7 +134,9 @@ WIZARD_SECRET_SYNC_MAP: Dict[str, Dict[str, Any]] = {
     "github_webhook_secret": {"providers": ["github"], "toggles": ["github_push_enabled"]},
     "mistral_api_key": {"providers": ["mistral"], "toggles": ["ok_gateway_enabled"]},
     "openrouter_api_key": {"providers": ["openrouter"], "toggles": ["ok_gateway_enabled"]},
-    "ollama_api_key": {"providers": ["ollama"], "toggles": ["ok_gateway_enabled"]},
+    "openai_api_key": {"providers": ["openai"], "toggles": ["ok_gateway_enabled"]},
+    "anthropic_api_key": {"providers": ["anthropic"], "toggles": ["ok_gateway_enabled"]},
+    "gemini_api_key": {"providers": ["gemini"], "toggles": ["ok_gateway_enabled"]},
     "nounproject_api_key": {"providers": ["nounproject"], "toggles": []},
     "nounproject_api_secret": {"providers": ["nounproject"], "toggles": []},
 }
@@ -146,7 +148,6 @@ ASSISTANT_CONFIG_KEY_MAP: Dict[str, str] = {
     "MISTRAL_API_KEY": "mistral",
     "OPENROUTER_API_KEY": "openrouter",
     "GEMINI_API_KEY": "gemini",
-    "OLLAMA_HOST": "ollama",
 }
 
 

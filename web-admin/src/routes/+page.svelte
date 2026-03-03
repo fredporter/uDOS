@@ -1,14 +1,30 @@
 <script context="module" lang="ts">
   import { getAnchors, getPlaces, getFileTags } from "$lib/services/spatialService";
   import { getThemes, getSiteSummary, getMissions, getContributions } from "$lib/services/rendererService";
-  import { getOpsSession, getOpsSummary, getOpsHealth, getOpsWorkflows } from "$lib/services/opsService";
+  import {
+    getOpsAutomationAlerts,
+    getOpsAutomationOverview,
+    getOpsConfigStatus,
+    getOpsLogFiles,
+    getOpsPlanningJobs,
+    getOpsPlanningTemplateFamily,
+    getOpsPlanningWorkflows,
+    getOpsReleaseOverview,
+    getOpsSession,
+    getOpsSwitchboard,
+  } from "$lib/services/opsService";
 
   export async function load({ fetch }) {
     const [
       sessionRes,
-      summaryRes,
-      healthRes,
-      workflowRes,
+      switchboardRes,
+      planningJobsRes,
+      planningWorkflowsRes,
+      automationRes,
+      alertsRes,
+      configRes,
+      releasesRes,
+      logsRes,
       anchorRes,
       placeRes,
       tagRes,
@@ -18,9 +34,14 @@
       contributionRes,
     ] = await Promise.all([
       getOpsSession(fetch),
-      getOpsSummary(fetch),
-      getOpsHealth(fetch),
-      getOpsWorkflows(fetch),
+      getOpsSwitchboard(fetch),
+      getOpsPlanningJobs(fetch, { limit: 500 }),
+      getOpsPlanningWorkflows(fetch, { limit: 500 }),
+      getOpsAutomationOverview(fetch),
+      getOpsAutomationAlerts(fetch, { limit: 200 }),
+      getOpsConfigStatus(fetch),
+      getOpsReleaseOverview(fetch),
+      getOpsLogFiles(fetch),
       getAnchors(fetch),
       getPlaces(fetch),
       getFileTags(fetch),
@@ -30,11 +51,25 @@
       getContributions(fetch),
     ]);
 
+    const templateFamilies = (planningJobsRes?.template_families ?? []) as Array<string>;
+    const templateCatalogEntries = await Promise.all(
+      templateFamilies.map(async (family) => {
+        const payload = await getOpsPlanningTemplateFamily(fetch, family);
+        return [family, payload?.templates ?? []] as const;
+      }),
+    );
+
     return {
       session: sessionRes,
-      summary: summaryRes,
-      opsHealth: healthRes,
-      workflows: workflowRes?.workflows ?? [],
+      switchboard: switchboardRes?.switchboard ?? {},
+      planning: planningJobsRes,
+      workflows: planningWorkflowsRes?.workflows ?? [],
+      automation: automationRes,
+      alerts: alertsRes?.alerts ?? [],
+      config: configRes,
+      releases: releasesRes?.releases ?? {},
+      logs: logsRes,
+      templateCatalog: Object.fromEntries(templateCatalogEntries),
       anchors: anchorRes?.anchors ?? [],
       places: placeRes?.places ?? [],
       fileTags: tagRes?.file_tags ?? [],
@@ -54,14 +89,15 @@
 
 <script lang="ts">
   import {
-    acknowledgeOpsAlert,
-    approveOpsWorkflow,
-    escalateOpsWorkflow,
-    previewDeferredOpsJobs,
-    retryDeferredOpsJobs,
-    retryQueuedOpsJob,
-    resolveOpsAlert,
-    updateOpsSettings,
+    acknowledgeAutomationAlert,
+    approvePlanningWorkflow,
+    createOpsPlanningJob,
+    escalatePlanningWorkflow,
+    previewDeferredPlanningJobs,
+    resolveAutomationAlert,
+    retryDeferredPlanningJobs,
+    retryQueuedPlanningJob,
+    updateOpsConfigSettings,
   } from "$lib/services/opsService";
   import ThemePicker from "$lib/components/ThemePicker.svelte";
   import MissionQueue from "$lib/components/MissionQueue.svelte";
@@ -73,12 +109,29 @@
 
   export let data;
 
-  const summary = data.summary ?? {};
+  const switchboard = data.switchboard ?? {};
+  const planning = data.planning ?? {};
+  const automation = data.automation ?? {};
+  const alerts = data.alerts ?? [];
+  const config = data.config ?? {};
+  const releases = data.releases ?? {};
+  const logs = data.logs ?? {};
+  const templateCatalog = data.templateCatalog ?? {};
+  const workflowPayload = data.workflows ?? [];
   const session = data.session ?? { authenticated: false };
-  const jobs = summary.jobs ?? {};
-  const health = summary.health ?? {};
-  const runtime = summary.runtime ?? {};
+  const jobs = planning.jobs ?? {};
+  const health = automation.health ?? {};
+  const runtime = planning.runtime ?? automation.runtime ?? {};
   const serverTime = (runtime.server_time ?? {}) as Record<string, unknown>;
+  const visibleSections = ((switchboard.sections ?? []) as Array<Record<string, unknown>>).filter(
+    (item) => Boolean(item.enabled),
+  );
+  const permissionGrid = (switchboard.permission_grid ?? []) as Array<Record<string, unknown>>;
+  const capabilities = new Set(
+    ((switchboard.capabilities ?? []) as Array<unknown>)
+      .map((value) => String(value ?? "").trim())
+      .filter(Boolean),
+  );
   const maintenancePolicyReasons = [
     "network_unavailable",
     "api_budget_exhausted",
@@ -87,14 +140,13 @@
     "waiting_for_workflow_phase",
     "waiting_for_workflow_state",
   ];
-  let alertItems = (data.opsHealth?.alerts ?? []) as Array<Record<string, unknown>>;
-  const automation = summary.automation ?? {};
+  let alertItems = alerts as Array<Record<string, unknown>>;
   const automationStatus = Object.values(automation.status ?? {}) as Array<Record<string, unknown>>;
   let recentAutomationRuns = (automation.recent_runs ?? []) as Array<Record<string, unknown>>;
   const apiBudget = jobs.stats?.api_budget ?? {};
   let deferReasonCounts = (jobs.stats?.defer_reasons ?? {}) as Record<string, number>;
   const queueItems = (jobs.queue ?? []) as Array<Record<string, unknown>>;
-  let workflowStates = (data.workflows ?? []) as Array<Record<string, unknown>>;
+  let workflowStates = workflowPayload as Array<Record<string, unknown>>;
   let workflowQueueItems = queueItems.filter((item) => item.kind === "workflow_phase");
   let taskQueueItems = queueItems.filter((item) => item.kind !== "workflow_phase");
   let deferredPreview = [] as Array<Record<string, unknown>>;
@@ -110,6 +162,22 @@
   let planningProjectFilter = "all";
   let planningWindowFilter = "all";
   let planningDeferReasonFilter = "all";
+  const releaseOverview = releases ?? {};
+  const logFiles = (logs.logs ?? []) as Array<Record<string, unknown>>;
+  const templateFamilies = (planning.template_families ?? []) as Array<string>;
+  let activeTemplateFamily = String(templateFamilies[0] ?? "workflows");
+  let activeOpsMode = String(
+    switchboard.default_section ??
+      (((visibleSections[0] ?? {}) as Record<string, unknown>).id ?? "planning"),
+  );
+  let createJobState = "";
+  let createJobForm = {
+    name: "",
+    schedule: "daily",
+    project: "",
+    window: "",
+    source_path: "",
+  };
   let schedulerSettings = {
     max_tasks_per_tick: Number(jobs.settings?.max_tasks_per_tick ?? 2),
     tick_seconds: Number(jobs.settings?.tick_seconds ?? 60),
@@ -188,6 +256,126 @@
     },
   };
   let settingsState = "";
+
+  function hasCapability(capability: string): boolean {
+    return capabilities.has(capability);
+  }
+
+  function availableMode(mode: string): boolean {
+    return visibleSections.some((section) => String(section.id ?? "") === mode);
+  }
+
+  function modeLabel(mode: string): string {
+    const section = visibleSections.find((item) => String(item.id ?? "") === mode);
+    return String(section?.label ?? mode);
+  }
+
+  function selectOpsMode(mode: string) {
+    if (!availableMode(mode)) {
+      return;
+    }
+    activeOpsMode = mode;
+  }
+
+  function modeActive(mode: string): boolean {
+    return activeOpsMode === mode;
+  }
+
+  function configStatusRows(): Array<{ key: string; value: string }> {
+    const status = (config.status ?? {}) as Record<string, unknown>;
+    return Object.entries(status)
+      .slice(0, 8)
+      .map(([key, value]) => ({
+        key,
+        value: typeof value === "object" ? JSON.stringify(value) : String(value ?? ""),
+      }));
+  }
+
+  function managedContractRows(): Array<{ key: string; value: boolean }> {
+    const contract = (config.managed_contract ?? {}) as Record<string, unknown>;
+    return Object.entries(contract).map(([key, value]) => ({
+      key,
+      value: Boolean(value),
+    }));
+  }
+
+  function logTailCount(logEntry: Record<string, unknown>): number {
+    const tail = logEntry.tail ?? [];
+    return Array.isArray(tail) ? tail.length : 0;
+  }
+
+  function logTailPreview(logEntry: Record<string, unknown>): string {
+    const tail = logEntry.tail ?? [];
+    if (!Array.isArray(tail) || tail.length === 0) {
+      return "No tail available";
+    }
+    return String(tail[tail.length - 1] ?? "");
+  }
+
+  function templateEntriesForActiveFamily(): Array<unknown> {
+    return (templateCatalog[activeTemplateFamily] ?? []) as Array<unknown>;
+  }
+
+  function selectTemplateFamily(family: string) {
+    activeTemplateFamily = family;
+  }
+
+  async function createPlanningJob() {
+    createJobState = "Saving...";
+    const payload =
+      String(createJobForm.source_path ?? "").trim()
+        ? {
+            source_path: String(createJobForm.source_path ?? "").trim(),
+          }
+        : {
+            name: String(createJobForm.name ?? "").trim(),
+            schedule: String(createJobForm.schedule ?? "daily").trim() || "daily",
+            project: String(createJobForm.project ?? "").trim() || undefined,
+            window: String(createJobForm.window ?? "").trim() || undefined,
+          };
+    const response = await createOpsPlanningJob(fetch, payload);
+    if (!response) {
+      createJobState = "Create failed";
+      return;
+    }
+    createJobState = response.source_path
+      ? `Imported ${response.created?.length ?? 0} jobs`
+      : `Created ${response.created?.length ?? 0} job`;
+    createJobForm = {
+      name: "",
+      schedule: "daily",
+      project: "",
+      window: "",
+      source_path: "",
+    };
+  }
+
+  function templateEntryLabel(entry: unknown): string {
+    if (typeof entry === "string") {
+      return entry;
+    }
+    if (entry && typeof entry === "object") {
+      return String((entry as Record<string, unknown>).name ?? "template");
+    }
+    return "template";
+  }
+
+  function templateEntryPath(entry: unknown): string {
+    if (entry && typeof entry === "object") {
+      return String((entry as Record<string, unknown>).path ?? "");
+    }
+    return "";
+  }
+
+  $: if (!availableMode(activeOpsMode)) {
+    activeOpsMode = String(
+      switchboard.default_section ??
+        (((visibleSections[0] ?? {}) as Record<string, unknown>).id ?? "planning"),
+    );
+  }
+  $: if (!templateFamilies.includes(activeTemplateFamily)) {
+    activeTemplateFamily = String(templateFamilies[0] ?? "workflows");
+  }
 
   $: maintenanceRuns = recentAutomationRuns.filter((item) =>
     ["automation:maintenance", "automation:maintenance_preview"].includes(String(item.operation ?? "")),
@@ -742,7 +930,7 @@
         },
       },
     };
-    const response = await updateOpsSettings(fetch, payload);
+    const response = await updateOpsConfigSettings(fetch, payload);
     if (!response?.settings) {
       settingsState = "Save failed";
       return;
@@ -942,7 +1130,7 @@
   }
 
   async function acknowledgeAlert(alertId: string) {
-    const response = await acknowledgeOpsAlert(fetch, alertId);
+    const response = await acknowledgeAutomationAlert(fetch, alertId);
     if (!response?.success) {
       return;
     }
@@ -952,7 +1140,7 @@
   }
 
   async function resolveAlert(alertId: string) {
-    const response = await resolveOpsAlert(fetch, alertId);
+    const response = await resolveAutomationAlert(fetch, alertId);
     if (!response?.success) {
       return;
     }
@@ -962,7 +1150,7 @@
   }
 
   async function retryQueueItem(queueId: number) {
-    const response = await retryQueuedOpsJob(fetch, queueId);
+    const response = await retryQueuedPlanningJob(fetch, queueId);
     if (!response?.success || !response.queue_item) {
       return;
     }
@@ -981,7 +1169,7 @@
   }
 
   async function retryDeferredItems(reason?: string) {
-    const response = await retryDeferredOpsJobs(fetch, {
+    const response = await retryDeferredPlanningJobs(fetch, {
       reason,
       limit: workflowQueueItems.length + taskQueueItems.length || 50,
     });
@@ -1010,7 +1198,7 @@
   }
 
   async function previewDeferredItems(reason?: string) {
-    const response = await previewDeferredOpsJobs(fetch, {
+    const response = await previewDeferredPlanningJobs(fetch, {
       reason,
       limit: workflowQueueItems.length + taskQueueItems.length || 20,
     });
@@ -1019,7 +1207,7 @@
   }
 
   async function approveWorkflow(workflowId: string) {
-    const response = await approveOpsWorkflow(fetch, workflowId);
+    const response = await approvePlanningWorkflow(fetch, workflowId);
     if (!response?.success) {
       return;
     }
@@ -1033,7 +1221,7 @@
   }
 
   async function escalateWorkflow(workflowId: string) {
-    const response = await escalateOpsWorkflow(fetch, workflowId);
+    const response = await escalatePlanningWorkflow(fetch, workflowId);
     if (!response?.success) {
       return;
     }
@@ -1064,11 +1252,60 @@
     <div class="status-card">
       <div><strong>Deploy mode</strong><span>{data.session?.deploy_mode ?? "local"}</span></div>
       <div><strong>Session</strong><span>{session.authenticated ? "Authenticated" : "Not signed in"}</span></div>
-      <div><strong>Role</strong><span>{data.session?.session?.role ?? "guest"}</span></div>
+      <div><strong>Role</strong><span>{String(switchboard.role_name ?? data.session?.session?.role ?? "guest")}</span></div>
       <div><strong>Health</strong><span>{health.status ?? "unknown"}</span></div>
       <div><strong>Wizard time</strong><span>{serverTimeZoneLabel()}</span></div>
     </div>
   </header>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <p class="eyebrow">Control</p>
+        <h2>Role switchboard</h2>
+      </div>
+      <span class="muted">{visibleSections.length} active sections</span>
+    </div>
+    <div class="reason-chips">
+      {#if visibleSections.length}
+        {#each visibleSections as section}
+          <span class="reason-chip">{String(section.label ?? section.id ?? "section")}</span>
+        {/each}
+      {:else}
+        <span class="muted">No sections enabled for this role.</span>
+      {/if}
+    </div>
+    {#if visibleSections.length}
+      <div class="mode-switcher">
+        {#each visibleSections as section}
+          <button
+            class:active-mode={modeActive(String(section.id ?? ""))}
+            on:click={() => selectOpsMode(String(section.id ?? ""))}
+            type="button"
+          >
+            {String(section.label ?? section.id ?? "section")}
+          </button>
+        {/each}
+      </div>
+    {/if}
+    {#if permissionGrid.length}
+      <div class="permission-grid">
+        <div class="permission-grid-head">Capability</div>
+        <div class="permission-grid-head">Observer</div>
+        <div class="permission-grid-head">Operator</div>
+        <div class="permission-grid-head">Administrator</div>
+        {#each permissionGrid as item}
+          <div class="permission-grid-label">
+            <strong>{String(item.label ?? item.capability ?? "")}</strong>
+            <span>{String(item.section ?? "")}</span>
+          </div>
+          <div class:permission-on={Boolean(item.guest)} class="permission-cell">{item.guest ? "Yes" : "No"}</div>
+          <div class:permission-on={Boolean(item.operator)} class="permission-cell">{item.operator ? "Yes" : "No"}</div>
+          <div class:permission-on={Boolean(item.admin)} class="permission-cell">{item.admin ? "Yes" : "No"}</div>
+        {/each}
+      </div>
+    {/if}
+  </section>
 
   <section class="stats">
     <article>
@@ -1081,11 +1318,11 @@
     </article>
     <article>
       <h2>Workflow templates</h2>
-      <p>{(summary.workflow_templates ?? []).length}</p>
+      <p>{(planning.workflow_templates ?? []).length}</p>
     </article>
     <article>
       <h2>Workflow runs</h2>
-      <p>{(summary.workflow_runs ?? []).length}</p>
+      <p>{(planning.workflow_runs ?? []).length}</p>
     </article>
     <article>
       <h2>API budget</h2>
@@ -1094,6 +1331,8 @@
   </section>
 
   <section class="ops-grid">
+    {#if modeActive("automation") && hasCapability("view_automation")}
+    {#if hasCapability("manage_settings")}
     <article class="panel">
       <div class="panel-head">
         <div>
@@ -1128,6 +1367,7 @@
         {/if}
       </div>
     </article>
+    {/if}
 
     <article class="panel">
       <div class="panel-head">
@@ -1236,7 +1476,9 @@
         {/if}
       </div>
     </article>
+    {/if}
 
+    {#if modeActive("config") && hasCapability("manage_settings")}
     <article class="panel">
       <div class="panel-head">
         <div>
@@ -1404,7 +1646,9 @@
         <button type="submit">Save scheduler settings</button>
       </form>
     </article>
+    {/if}
 
+    {#if modeActive("planning") && hasCapability("view_planning")}
     <article class="panel queue-panel">
       <div class="panel-head">
         <div>
@@ -1510,6 +1754,87 @@
       </div>
     </article>
 
+    {#if hasCapability("create_jobs")}
+    <article class="panel queue-panel">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Planning</p>
+          <h2>Job intake</h2>
+        </div>
+        <span class="muted">{createJobState || "Ready"}</span>
+      </div>
+      <form class="settings-form" on:submit|preventDefault={createPlanningJob}>
+        <label>
+          <span>Job name</span>
+          <input bind:value={createJobForm.name} placeholder="Nightly project sweep" type="text" />
+        </label>
+        <label>
+          <span>Schedule</span>
+          <input bind:value={createJobForm.schedule} placeholder="daily" type="text" />
+        </label>
+        <label>
+          <span>Project</span>
+          <input bind:value={createJobForm.project} placeholder="project-name" type="text" />
+        </label>
+        <label>
+          <span>Window</span>
+          <input bind:value={createJobForm.window} placeholder="off_peak" type="text" />
+        </label>
+        <label>
+          <span>Markdown source import</span>
+          <input bind:value={createJobForm.source_path} placeholder="memory/vault/tasks.md" type="text" />
+        </label>
+        <button type="submit">Create or import job</button>
+      </form>
+    </article>
+    {/if}
+
+    <article class="panel queue-panel">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Planning</p>
+          <h2>Template browser</h2>
+        </div>
+        <span class="muted">{templateFamilies.length} families</span>
+      </div>
+      <div class="reason-chips">
+        {#if templateFamilies.length}
+          {#each templateFamilies as family}
+            <button
+              class:active-mode={activeTemplateFamily === family}
+              class="reason-chip reason-chip-button"
+              on:click={() => selectTemplateFamily(family)}
+              type="button"
+            >
+              {family}
+            </button>
+          {/each}
+        {:else}
+          <span class="muted">No template families available.</span>
+        {/if}
+      </div>
+      <div class="run-list">
+        {#if templateEntriesForActiveFamily().length}
+          {#each templateEntriesForActiveFamily() as entry}
+            <div class="run-item">
+              <div class="automation-name">
+                <strong>{templateEntryLabel(entry)}</strong>
+                <span>{activeTemplateFamily}</span>
+              </div>
+              {#if templateEntryPath(entry)}
+                <div class="automation-meta">
+                  <span>Path</span>
+                  <span>{templateEntryPath(entry)}</span>
+                </div>
+              {/if}
+            </div>
+          {/each}
+        {:else}
+          <p class="empty-state">No templates returned for {activeTemplateFamily}.</p>
+        {/if}
+      </div>
+    </article>
+
     <article class="panel queue-panel">
       <div class="panel-head">
         <div>
@@ -1528,21 +1853,21 @@
         {/if}
       </div>
       <div class="alert-actions">
-        <button disabled={!workflowQueueItems.some((item) => item.defer_reason)} on:click={() => retryDeferredItems()} type="button">
+        <button disabled={!hasCapability("retry_queue") || !workflowQueueItems.some((item) => item.defer_reason)} on:click={() => retryDeferredItems()} type="button">
           Retry all deferred
         </button>
-        <button disabled={!workflowQueueItems.some((item) => item.defer_reason)} on:click={() => previewDeferredItems()} type="button">
+        <button disabled={!hasCapability("retry_queue") || !workflowQueueItems.some((item) => item.defer_reason)} on:click={() => previewDeferredItems()} type="button">
           Preview deferred
         </button>
         <button
-          disabled={!workflowQueueItems.some((item) => item.defer_reason === "waiting_for_workflow_state")}
+          disabled={!hasCapability("retry_queue") || !workflowQueueItems.some((item) => item.defer_reason === "waiting_for_workflow_state")}
           on:click={() => retryDeferredItems("waiting_for_workflow_state")}
           type="button"
         >
           Retry waiting states
         </button>
         <button
-          disabled={!workflowQueueItems.some((item) => item.defer_reason === "waiting_for_workflow_state")}
+          disabled={!hasCapability("retry_queue") || !workflowQueueItems.some((item) => item.defer_reason === "waiting_for_workflow_state")}
           on:click={() => previewDeferredItems("waiting_for_workflow_state")}
           type="button"
         >
@@ -1574,7 +1899,7 @@
                 <span>{formatServerTimestamp(item.last_deferred_at)}</span>
               </div>
               <div class="alert-actions">
-                <button disabled={!item.defer_reason} on:click={() => retryQueueItem(Number(item.id))} type="button">
+                <button disabled={!hasCapability("retry_queue") || !item.defer_reason} on:click={() => retryQueueItem(Number(item.id))} type="button">
                   Retry now
                 </button>
               </div>
@@ -1604,21 +1929,21 @@
         {/if}
       </div>
       <div class="alert-actions">
-        <button disabled={!taskQueueItems.some((item) => item.defer_reason)} on:click={() => retryDeferredItems()} type="button">
+        <button disabled={!hasCapability("retry_queue") || !taskQueueItems.some((item) => item.defer_reason)} on:click={() => retryDeferredItems()} type="button">
           Retry all deferred
         </button>
-        <button disabled={!taskQueueItems.some((item) => item.defer_reason)} on:click={() => previewDeferredItems()} type="button">
+        <button disabled={!hasCapability("retry_queue") || !taskQueueItems.some((item) => item.defer_reason)} on:click={() => previewDeferredItems()} type="button">
           Preview deferred
         </button>
         <button
-          disabled={!taskQueueItems.some((item) => item.defer_reason === "network_unavailable")}
+          disabled={!hasCapability("retry_queue") || !taskQueueItems.some((item) => item.defer_reason === "network_unavailable")}
           on:click={() => retryDeferredItems("network_unavailable")}
           type="button"
         >
           Retry network waits
         </button>
         <button
-          disabled={!taskQueueItems.some((item) => item.defer_reason === "network_unavailable")}
+          disabled={!hasCapability("retry_queue") || !taskQueueItems.some((item) => item.defer_reason === "network_unavailable")}
           on:click={() => previewDeferredItems("network_unavailable")}
           type="button"
         >
@@ -1650,7 +1975,7 @@
                 <span>{formatServerTimestamp(item.last_deferred_at)}</span>
               </div>
               <div class="alert-actions">
-                <button disabled={!item.defer_reason} on:click={() => retryQueueItem(Number(item.id))} type="button">
+                <button disabled={!hasCapability("retry_queue") || !item.defer_reason} on:click={() => retryQueueItem(Number(item.id))} type="button">
                   Retry now
                 </button>
               </div>
@@ -1693,7 +2018,9 @@
         {/if}
       </div>
     </article>
+    {/if}
 
+    {#if modeActive("automation") && hasCapability("view_automation")}
     <article class="panel">
       <div class="panel-head">
         <div>
@@ -1719,10 +2046,10 @@
                 <span>{formatServerTimestamp(item.timestamp)}</span>
               </div>
               <div class="alert-actions">
-                <button disabled={Boolean(item.acknowledged)} on:click={() => acknowledgeAlert(String(item.id))} type="button">
+                <button disabled={!hasCapability("manage_alerts") || Boolean(item.acknowledged)} on:click={() => acknowledgeAlert(String(item.id))} type="button">
                   Acknowledge
                 </button>
-                <button disabled={Boolean(item.resolved)} on:click={() => resolveAlert(String(item.id))} type="button">
+                <button disabled={!hasCapability("manage_alerts") || Boolean(item.resolved)} on:click={() => resolveAlert(String(item.id))} type="button">
                   Resolve
                 </button>
               </div>
@@ -1733,7 +2060,109 @@
         {/if}
       </div>
     </article>
+    {/if}
 
+    {#if modeActive("config") && hasCapability("view_config")}
+    <article class="panel">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Config</p>
+          <h2>Managed config</h2>
+        </div>
+        <span class="muted">{managedContractRows().length} env checks</span>
+      </div>
+      <div class="run-list">
+        <div class="run-item">
+          <div class="automation-name">
+            <strong>Deploy mode</strong>
+            <span>{String(config.deploy_mode ?? data.session?.deploy_mode ?? "local")}</span>
+          </div>
+          <div class="automation-meta">
+            <span>Server timezone</span>
+            <span>{String(serverTime.label ?? "UTC")}</span>
+          </div>
+        </div>
+        {#each managedContractRows() as item}
+          <div class="automation-meta">
+            <span>{item.key}</span>
+            <span>{item.value ? "Configured" : "Missing"}</span>
+          </div>
+        {/each}
+        {#each configStatusRows() as item}
+          <div class="automation-meta">
+            <span>{item.key}</span>
+            <span>{item.value}</span>
+          </div>
+        {/each}
+      </div>
+    </article>
+    {/if}
+
+    {#if modeActive("releases") && hasCapability("view_releases")}
+    <article class="panel">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Releases</p>
+          <h2>Release surface</h2>
+        </div>
+        <span class="muted">{(releaseOverview.workflows ?? []).length} workflows</span>
+      </div>
+      <div class="run-list">
+        <div class="run-item">
+          <div class="automation-name">
+            <strong>Render blueprint</strong>
+            <span>{releaseOverview.render_blueprint_present ? "Present" : "Missing"}</span>
+          </div>
+        </div>
+        {#if (releaseOverview.workflows ?? []).length}
+          {#each (releaseOverview.workflows ?? []) as workflow}
+            <div class="automation-meta">
+              <span>Workflow</span>
+              <span>{String(workflow ?? "")}</span>
+            </div>
+          {/each}
+        {:else}
+          <p class="empty-state">No release workflows detected.</p>
+        {/if}
+      </div>
+    </article>
+    {/if}
+
+    {#if modeActive("logs") && hasCapability("view_logs")}
+    <article class="panel">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Logs</p>
+          <h2>Logs</h2>
+        </div>
+        <span class="muted">{logFiles.length} files</span>
+      </div>
+      <div class="run-list">
+        {#if logFiles.length}
+          {#each logFiles.slice(0, 8) as logEntry}
+            <div class="run-item">
+              <div class="automation-name">
+                <strong>{String(logEntry.name ?? "log")}</strong>
+                <span>{formatServerTimestamp(logEntry.updated_at)}</span>
+              </div>
+              <div class="automation-meta">
+                <span>Tail lines</span>
+                <span>{logTailCount(logEntry)}</span>
+              </div>
+              <div class="automation-meta">
+                <span>Latest entry</span>
+                <span>{logTailPreview(logEntry)}</span>
+              </div>
+            </div>
+          {/each}
+        {:else}
+          <p class="empty-state">No log files available for this role.</p>
+        {/if}
+      </div>
+    </article>
+    {/if}
+
+    {#if modeActive("planning") && hasCapability("view_planning")}
     <article class="panel">
       <div class="panel-head">
         <div>
@@ -1760,14 +2189,14 @@
               </div>
               <div class="alert-actions">
                 <button
-                  disabled={String(workflowState(workflow).status ?? "") !== "awaiting_approval"}
+                  disabled={!hasCapability("manage_workflows") || String(workflowState(workflow).status ?? "") !== "awaiting_approval"}
                   on:click={() => approveWorkflow(String(workflowSpec(workflow).workflow_id ?? ""))}
                   type="button"
                 >
                   Approve
                 </button>
                 <button
-                  disabled={!currentWorkflowPhase(workflow).name}
+                  disabled={!hasCapability("manage_workflows") || !currentWorkflowPhase(workflow).name}
                   on:click={() => escalateWorkflow(String(workflowSpec(workflow).workflow_id ?? ""))}
                   type="button"
                 >
@@ -1781,6 +2210,7 @@
         {/if}
       </div>
     </article>
+    {/if}
   </section>
 
   <ThemePicker themes={data.themes} />
@@ -1861,6 +2291,77 @@
     margin: 0.5rem 0 0;
     font-size: 1.4rem;
     color: #f8fafc;
+  }
+
+  .mode-switcher {
+    display: flex;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    margin-top: 0.85rem;
+  }
+
+  .mode-switcher button {
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.55);
+    color: #cbd5e1;
+    padding: 0.45rem 0.8rem;
+    cursor: pointer;
+  }
+
+  .mode-switcher button.active-mode {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.9), rgba(37, 99, 235, 0.9));
+    color: #f8fafc;
+    border-color: rgba(56, 189, 248, 0.75);
+  }
+
+  .permission-grid {
+    display: grid;
+    grid-template-columns: minmax(220px, 1.7fr) repeat(3, minmax(84px, 0.6fr));
+    gap: 0.35rem;
+    margin-top: 1rem;
+    align-items: stretch;
+  }
+
+  .permission-grid-head,
+  .permission-grid-label,
+  .permission-cell {
+    padding: 0.6rem 0.7rem;
+    border-radius: 0.65rem;
+    background: rgba(2, 6, 23, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+  }
+
+  .permission-grid-head {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .permission-grid-label {
+    display: grid;
+    gap: 0.2rem;
+    color: #e2e8f0;
+  }
+
+  .permission-grid-label span {
+    color: #94a3b8;
+    font-size: 0.82rem;
+  }
+
+  .permission-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-weight: 600;
+  }
+
+  .permission-cell.permission-on {
+    color: #dcfce7;
+    background: rgba(20, 83, 45, 0.35);
+    border-color: rgba(74, 222, 128, 0.25);
   }
 
   .two-column {
@@ -2109,6 +2610,10 @@
 
   @media (max-width: 800px) {
     .hero {
+      grid-template-columns: 1fr;
+    }
+
+    .permission-grid {
       grid-template-columns: 1fr;
     }
   }

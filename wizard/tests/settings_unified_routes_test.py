@@ -8,7 +8,7 @@ import wizard.routes.settings_unified as routes
 
 class _Venv:
     def model_dump(self):
-        return {"exists": True, "path": "/tmp/venv"}
+        return {"exists": True, "path": "/tmp/.venv"}
 
 
 class _WorkspaceSvc:

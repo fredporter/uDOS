@@ -580,17 +580,28 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
 
     @router.get("/dev/scaffold")
     async def dev_scaffold_status():
-        root = (repo_root or Path(__file__).resolve().parent.parent.parent) / "dev" / "goblin"
+        root = (repo_root or Path(__file__).resolve().parent.parent.parent) / "dev"
         if not root.exists():
-            raise HTTPException(status_code=404, detail="/dev/goblin scaffold not found")
+            raise HTTPException(status_code=404, detail="/dev extension scaffold not found")
         required = {
-            "scripts": (root / "scripts").exists(),
-            "tests": (root / "tests").exists(),
-            "wizard_sandbox": (root / "wizard-sandbox").exists(),
+            "agents": (root / "AGENTS.md").exists(),
+            "devlog": (root / "DEVLOG.md").exists(),
+            "project": (root / "project.json").exists(),
+            "tasks": (root / "tasks.md").exists(),
+            "completed": (root / "completed.json").exists(),
+            "extension_manifest": (root / "extension.json").exists(),
+        }
+        local_workdirs = {
+            "files": (root / "files").exists(),
+            "relecs": (root / "relecs").exists(),
+            "dev_work": (root / "dev-work").exists(),
+            "testing": (root / "testing").exists(),
         }
         return {
             "root": str(root),
+            "mode": "dev-extension-scaffold",
             "required": required,
+            "local_workdirs": local_workdirs,
             "ready": all(required.values()),
         }
 

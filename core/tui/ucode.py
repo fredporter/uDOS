@@ -100,6 +100,8 @@ from core.services.todo_service import (
 )
 from core.services.unified_config_loader import get_config
 from core.services.viewport_service import ViewportService
+from core.ulogic.contracts import IntentFrame
+from core.ulogic.parser import parse_primary_input
 from core.tui.advanced_form_handler import AdvancedFormField
 from core.tui.dispatcher import CommandDispatcher
 from core.tui.fkey_handler import FKeyHandler
@@ -322,19 +324,18 @@ class UCODE:
 
         # Command registry (maps commands to methods)
         self.commands = {
-            "LOCAL": self._cmd_ok_local,
-            "EXPLAIN": self._cmd_ok_explain,
-            "DIFF": self._cmd_ok_diff,
-            "PATCH": self._cmd_ok_patch,
-            "ROUTE": self._cmd_ok_route,
-            "PULL": self._cmd_ok_pull,
-            "FALLBACK": self._cmd_ok_fallback,
+            "LOCAL": self._cmd_logic_local,
+            "EXPLAIN": self._cmd_logic_explain,
+            "DIFF": self._cmd_logic_diff,
+            "PATCH": self._cmd_logic_patch,
+            "ROUTE": self._cmd_logic_route,
+            "FALLBACK": self._cmd_logic_fallback,
             "EXIT": self._cmd_exit,
         }
         self.ucode_command_set.add("OPERATOR")
         if self._dev_mode_active():
             self.ucode_command_set.update(self.commands.keys())
-            self.ucode_command_set.add("OK")
+            self.ucode_command_set.add("LOGIC")
         # Conditional commands
         # WIZARD command now handled by dispatcher (WizardHandler)
 
@@ -346,9 +347,9 @@ class UCODE:
         self.hot_reload_mgr = None
         self.hot_reload_stats: dict[str, Any] | None = None
         self.previous_health_log: dict[str, Any] | None = None
-        self.ok_local_outputs: list[dict[str, Any]] = []
-        self.ok_local_counter = 0
-        self.ok_local_limit = 50
+        self.logic_local_outputs: list[dict[str, Any]] = []
+        self.logic_local_counter = 0
+        self.logic_local_limit = 50
         self._setup_health_monitoring()
         self.system_script_runner = SystemScriptRunner()
         self.memory_test_scheduler: MemoryTestScheduler | None = None
@@ -423,24 +424,10 @@ class UCODE:
             self.logger.warning(f"[LOCAL] System seed check failed: {e}")
 
     def _register_providers(self) -> None:
-        """Register available providers with registry (v1.4.6)."""
+        """Register available providers with the routing registry."""
         import asyncio
         from vibe.core.provider_engine import ProviderType
-        from wizard.services.adapters import MistralAdapter, OllamaAdapter
-
-        # Try registering Ollama (local)
-        try:
-            ollama = OllamaAdapter()
-            if asyncio.run(ollama.is_available()):
-                self.provider_registry.register_provider(
-                    ProviderType.OLLAMA,
-                    endpoint="http://127.0.0.1:11434",
-                    default_model="devstral-small-2",
-                    priority=0,  # Highest priority (local-first)
-                )
-                self.logger.info("[v1.4.6] Registered Ollama provider")
-        except Exception as exc:
-            self.logger.warning(f"[v1.4.6] Failed to register Ollama: {exc}")
+        from wizard.services.adapters import MistralAdapter
 
         # Try registering Mistral (cloud)
         try:
@@ -551,7 +538,7 @@ class UCODE:
           2. Shell validation (safety checks)
           3. Dev extension skill routing
           4. Non-dev local operator fallback
-          5. Dev-only OK fallback
+          5. Dev-only logic fallback
 
         Returns:
             Dict with status, message, and routed result
@@ -614,18 +601,18 @@ class UCODE:
             return self._execute_shell_command(user_input)
 
         elif result.status == "fallback_ok":
-            # Fallback to OK (language model) system
-            self.logger.debug(f"Falling back to OK: {user_input}")
-            self._run_ok_request(
+            # Fallback to logic-assist system
+            self.logger.debug(f"Falling back to LOGIC: {user_input}")
+            self._run_logic_request(
                 user_input,
                 mode="LOCAL",
                 use_cloud=(self._get_dev_mode_primary_provider() == "cloud"),
             )
             return {
                 "status": "success",
-                "command": "OK",
+                "command": "LOGIC",
                 "message": result.message,
-                "dispatch_reason": "vibe_fallback_ok",
+                "dispatch_reason": "logic_fallback",
             }
 
         else:
@@ -633,18 +620,278 @@ class UCODE:
             if result.status == "error":
                 return {"status": "error", "message": result.message}
 
-            # Fallback to OK as ultimate fallback
-            self._run_ok_request(
+            # Fallback to logic-assist as ultimate fallback
+            self._run_logic_request(
                 user_input,
                 mode="LOCAL",
                 use_cloud=(self._get_dev_mode_primary_provider() == "cloud"),
             )
             return {
                 "status": "success",
-                "command": "OK",
+                "command": "LOGIC",
                 "message": result.message,
                 "dispatch_reason": "final_fallback",
             }
+
+    def _record_routing_event(
+        self, frame: IntentFrame, route: str, command_text: str | None = None
+    ) -> None:
+        detail = f"{frame.input_class}:{frame.intent}"
+        if command_text:
+            detail += f" -> {command_text}"
+        self.logger.info(
+            f"[ROUTE] {route} {detail}",
+            extra={
+                "route": route,
+                "input_class": frame.input_class,
+                "intent": frame.intent,
+                "command_text": command_text,
+                "confidence": frame.confidence,
+                "source": frame.source,
+            },
+        )
+
+    def _with_route_metadata(
+        self,
+        result: dict[str, Any],
+        frame: IntentFrame,
+        route: str,
+        command_text: str | None = None,
+    ) -> dict[str, Any]:
+        routed = dict(result)
+        routed["routing"] = {
+            "route": route,
+            "input_class": frame.input_class,
+            "intent": frame.intent,
+            "confidence": frame.confidence,
+            "source": frame.source,
+            "command_text": command_text,
+        }
+        return routed
+
+    def _dispatch_text_command(
+        self, command_text: str, frame: IntentFrame, route: str
+    ) -> dict[str, Any]:
+        self._record_routing_event(frame, route, command_text)
+        result = self.dispatcher.dispatch(
+            command_text,
+            parser=self.prompt,
+            game_state=self.state,
+        )
+        return self._with_route_metadata(result, frame, route, command_text)
+
+    def _route_workflow_frame(self, frame: IntentFrame) -> dict[str, Any]:
+        slots = frame.slots
+        intent = frame.intent
+        workflow_id = str(slots.get("workflow_id", "")).strip()
+        template_id = str(slots.get("template_id", "")).strip()
+
+        if intent == "workflow.list":
+            return self._dispatch_text_command(
+                "WORKFLOW LIST TEMPLATES", frame, "dispatch.workflow"
+            )
+        if intent == "workflow.status" and workflow_id:
+            return self._dispatch_text_command(
+                f"WORKFLOW STATUS {workflow_id}", frame, "dispatch.workflow"
+            )
+        if intent == "workflow.run" and workflow_id:
+            return self._dispatch_text_command(
+                f"WORKFLOW RUN {workflow_id}", frame, "dispatch.workflow"
+            )
+        if intent == "workflow.approve" and workflow_id:
+            return self._dispatch_text_command(
+                f"WORKFLOW APPROVE {workflow_id}", frame, "dispatch.workflow"
+            )
+        if intent == "workflow.escalate" and workflow_id:
+            return self._dispatch_text_command(
+                f"WORKFLOW ESCALATE {workflow_id}", frame, "dispatch.workflow"
+            )
+        if intent == "workflow.new" and template_id and workflow_id:
+            return self._dispatch_text_command(
+                f"WORKFLOW NEW {template_id} {workflow_id}",
+                frame,
+                "dispatch.workflow",
+            )
+
+        self._record_routing_event(frame, "dispatch.guidance")
+        return self._with_route_metadata(
+            self._route_to_operator(
+                "Create a workflow runbook plan for: "
+                f"{template_id or workflow_id or frame.intent}"
+            ),
+            frame,
+            "dispatch.guidance",
+        )
+
+    @staticmethod
+    def _template_family_aliases() -> dict[str, str]:
+        return {
+            "workflow": "workflows",
+            "workflows": "workflows",
+            "mission": "missions",
+            "missions": "missions",
+            "capture": "captures",
+            "captures": "captures",
+            "submission": "submissions",
+            "submissions": "submissions",
+        }
+
+    def _parse_template_reference(
+        self, raw_ref: str
+    ) -> tuple[str | None, str | None]:
+        normalized = raw_ref.strip().strip("/")
+        if not normalized:
+            return None, None
+        parts = [part for part in normalized.split("/") if part]
+        if len(parts) >= 2:
+            family = self._template_family_aliases().get(parts[0].lower())
+            template_name = parts[-1]
+            return family, template_name
+
+        token = parts[0]
+        family = self._template_family_aliases().get(token.lower())
+        if family:
+            return family, None
+
+        lower = token.lower()
+        if "workflow" in lower:
+            return "workflows", token
+        if "mission" in lower:
+            return "missions", token
+        if "capture" in lower:
+            return "captures", token
+        if "submission" in lower or "device" in lower:
+            return "submissions", token
+        return None, token
+
+    def _knowledge_text_command(
+        self, action: str, text: str, frame: IntentFrame
+    ) -> dict[str, Any]:
+        command_text = f"UCODE {action} prompt shell://input {text.strip()}".strip()
+        return self._dispatch_text_command(
+            command_text,
+            frame,
+            "dispatch.knowledge",
+        )
+
+    def _route_knowledge_frame(self, frame: IntentFrame) -> dict[str, Any]:
+        slots = frame.slots
+        intent = frame.intent
+        if intent == "knowledge.browse":
+            knowledge_path = str(slots.get("knowledge_path", "")).strip()
+            family, template_name = self._parse_template_reference(knowledge_path)
+            if family and template_name:
+                return self._dispatch_text_command(
+                    f"UCODE TEMPLATE READ {family} {template_name}",
+                    frame,
+                    "dispatch.knowledge",
+                )
+            if family:
+                return self._dispatch_text_command(
+                    f"UCODE TEMPLATE LIST {family}",
+                    frame,
+                    "dispatch.knowledge",
+                )
+            return self._dispatch_text_command(
+                "UCODE TEMPLATE LIST",
+                frame,
+                "dispatch.knowledge",
+            )
+
+        if intent == "knowledge.duplicate":
+            source_path = str(slots.get("source_path", "")).strip()
+            target_path = str(slots.get("target_path", "")).strip()
+            family, template_name = self._parse_template_reference(source_path)
+            target_name = Path(target_path).name if target_path else ""
+            if family and template_name and target_name:
+                return self._dispatch_text_command(
+                    f"UCODE TEMPLATE DUPLICATE {family} {template_name} {target_name}",
+                    frame,
+                    "dispatch.knowledge",
+                )
+            self._record_routing_event(frame, "dispatch.guidance")
+            return self._with_route_metadata(
+                self._route_to_operator(
+                    f"Plan a template duplication for {source_path} into {target_path}"
+                ),
+                frame,
+                "dispatch.guidance",
+            )
+
+        if intent == "knowledge.capture":
+            return self._knowledge_text_command(
+                "ENRICH", str(slots.get("text", "")).strip(), frame
+            )
+        if intent == "knowledge.research":
+            return self._knowledge_text_command(
+                "RESEARCH", str(slots.get("text", "")).strip(), frame
+            )
+        if intent == "knowledge.generate":
+            return self._knowledge_text_command(
+                "GENERATE", str(slots.get("text", "")).strip(), frame
+            )
+
+        self._record_routing_event(frame, "dispatch.guidance")
+        return self._with_route_metadata(
+            self._route_to_operator(str(slots.get("text", frame.intent))),
+            frame,
+            "dispatch.guidance",
+        )
+
+    def _route_guidance_frame(self, frame: IntentFrame) -> dict[str, Any]:
+        prompt = str(frame.slots.get("text", "")).strip() or frame.intent
+        self._record_routing_event(frame, "dispatch.guidance")
+        return self._with_route_metadata(
+            self._route_to_operator(prompt),
+            frame,
+            "dispatch.guidance",
+        )
+
+    def _route_frame(self, frame: IntentFrame) -> dict[str, Any]:
+        outcome = frame.routing_outcome()
+        if outcome.route == "dispatch.command":
+            command_text = str(frame.slots.get("command_text", "")).strip()
+            if not command_text:
+                return {
+                    "status": "error",
+                    "message": "Command frame missing command text",
+                    "routing": {
+                        "route": "dispatch.reject",
+                        "input_class": frame.input_class,
+                        "intent": frame.intent,
+                        "confidence": frame.confidence,
+                        "source": frame.source,
+                        "command_text": None,
+                    },
+                }
+            cmd, confidence = self._match_ucode_command(command_text)
+            if cmd and confidence >= 0.8:
+                rest = ""
+                parts = command_text.strip().split(None, 1)
+                if len(parts) > 1:
+                    rest = parts[1]
+                self._record_routing_event(frame, outcome.route, command_text)
+                result = self._execute_ucode_command(cmd, rest)
+                return self._with_route_metadata(result, frame, outcome.route, command_text)
+            return self._dispatch_text_command(command_text, frame, outcome.route)
+        if outcome.route == "dispatch.workflow":
+            return self._route_workflow_frame(frame)
+        if outcome.route == "dispatch.knowledge":
+            return self._route_knowledge_frame(frame)
+        if outcome.route == "dispatch.guidance":
+            return self._route_guidance_frame(frame)
+        return {
+            "status": "error",
+            "message": "Unable to route input",
+            "routing": {
+                "route": "dispatch.reject",
+                "input_class": frame.input_class,
+                "intent": frame.intent,
+                "confidence": frame.confidence,
+                "source": frame.source,
+                "command_text": None,
+            },
+        }
 
     def _route_input(self, user_input: str) -> dict[str, Any]:
         """Route input based on operator/dev prefixes or slash mode.
@@ -667,14 +914,19 @@ class UCODE:
         if lowered == "operator" or lowered.startswith("operator "):
             return self._handle_operator_prefix(user_input)
 
-        if lowered == "ok" or lowered.startswith("ok "):
-            return self._handle_ok_prefix(user_input)
+        if lowered == "logic" or lowered.startswith("logic "):
+            return self._handle_logic_prefix(user_input)
 
         # Mode 2: Slash mode
         if user_input.startswith("/"):
             return self._handle_slash_input(user_input)
 
-        # Mode 3: Three-stage dispatch chain with Dev extension Vibe routing
+        # Mode 3: v1.5 deterministic input contract
+        frame = parse_primary_input(user_input)
+        if frame and (frame.input_class != "guidance" or not self._dev_mode_active()):
+            return self._route_frame(frame)
+
+        # Mode 4: Dev extension routing / provider fallback
         return self._dispatch_with_vibe(user_input)
 
     def _dev_mode_active(self) -> bool:
@@ -745,20 +997,21 @@ class UCODE:
             ),
         }
 
-    def _handle_ok_prefix(self, user_input: str) -> dict[str, Any]:
+    def _handle_logic_prefix(self, user_input: str) -> dict[str, Any]:
         parts = user_input.split(None, 1)
         normalized = parts[1].strip() if len(parts) > 1 else ""
+        prefix = parts[0].upper() if parts else "LOGIC"
 
         if not normalized:
             return (
-                self._legacy_dev_only_response("OK")
+                self._legacy_dev_only_response(prefix)
                 if not self._dev_mode_active()
-                else {"status": "error", "message": "Operator prompt required"}
+                else {"status": "error", "message": "Logic prompt required"}
             )
 
-        ok_parts = normalized.split(None, 1)
-        cmd_name = ok_parts[0].upper()
-        args = ok_parts[1] if len(ok_parts) > 1 else ""
+        logic_parts = normalized.split(None, 1)
+        cmd_name = logic_parts[0].upper()
+        args = logic_parts[1] if len(logic_parts) > 1 else ""
 
         if not self._dev_mode_active():
             if cmd_name in {"LOCAL", "ROUTE"}:
@@ -768,37 +1021,34 @@ class UCODE:
                     "status": "warning",
                     "message": "Standard runtime setup is operator-first",
                     "output": (
-                        "Legacy `OK SETUP` is retired in standard runtime.\n"
+                        "Legacy `LOGIC SETUP` shorthand is retired in standard runtime.\n"
                         "Use: SETUP\n"
                         "Then: UCODE PROFILE LIST\n"
                         "And: UCODE OPERATOR STATUS"
                     ),
                 }
-            return self._legacy_dev_only_response(f"OK {cmd_name}")
+            return self._legacy_dev_only_response(f"{prefix} {cmd_name}")
 
         use_cloud = self._get_dev_mode_primary_provider() == "cloud"
         if cmd_name == "CLOUD":
             use_cloud = True
             normalized = args
-            ok_parts = normalized.split(None, 1)
-            cmd_name = ok_parts[0].upper() if ok_parts and ok_parts[0] else ""
-            args = ok_parts[1] if len(ok_parts) > 1 else ""
+            logic_parts = normalized.split(None, 1)
+            cmd_name = logic_parts[0].upper() if logic_parts and logic_parts[0] else ""
+            args = logic_parts[1] if len(logic_parts) > 1 else ""
         if cmd_name == "SETUP":
             self._run_dev_mode_setup()
-            return {"status": "success", "command": "OK SETUP"}
+            return {"status": "success", "command": "LOGIC SETUP"}
         if cmd_name in {"LOCAL", "EXPLAIN", "DIFF", "PATCH", "ROUTE"}:
             if use_cloud and cmd_name in {"EXPLAIN", "DIFF", "PATCH"} and "--cloud" not in args:
                 args = f"{args} --cloud".strip()
             self.commands[cmd_name](args)
             return {"status": "success", "command": cmd_name}
-        if cmd_name == "PULL":
-            self.commands[cmd_name](args)
-            return {"status": "success", "command": cmd_name}
         if cmd_name == "FALLBACK":
-            self._cmd_ok_fallback(args)
+            self._cmd_logic_fallback(args)
             return {"status": "success", "command": cmd_name}
-        self._run_ok_request(normalized, mode="LOCAL", use_cloud=use_cloud)
-        return {"status": "success", "command": "OK"}
+        self._run_logic_request(normalized, mode="LOCAL", use_cloud=use_cloud)
+        return {"status": "success", "command": "LOGIC"}
 
     def _validate_shell_safety(self, command: str) -> bool:
         """Validate shell command safety (v1.4.6).
@@ -900,7 +1150,7 @@ class UCODE:
             return {"allowed": True}
 
     def _route_to_provider(self, prompt: str) -> dict[str, Any]:
-        """Route natural language input to OK Provider (v1.4.6).
+        """Route natural language input to the logic-assist provider lane.
 
         Uses ProviderRegistry for capability-based selection.
         Normalises response before any execution.
@@ -918,10 +1168,10 @@ class UCODE:
             self.logger.warning(
                 "[v1.4.6] Provider engine not available, using legacy routing"
             )
-            self._run_ok_request(
+            self._run_logic_request(
                 prompt, mode="LOCAL", use_cloud=(self._get_dev_mode_primary_provider() == "cloud")
             )
-            return {"status": "success", "command": "OK"}
+            return {"status": "success", "command": "LOGIC"}
 
         # Determine task mode (code, conversation, etc.)
         mode = self._infer_task_mode(prompt)
@@ -935,7 +1185,7 @@ class UCODE:
             return {"status": "error", "message": f"No provider available: {exc}"}
 
         # Call provider
-        self._ui_line(f"OK → {provider_type.value} ({model})", level="info")
+        self._ui_line(f"LOGIC → {provider_type.value} ({model})", level="info")
 
         result = asyncio.run(
             self.provider_engine.call_provider(
@@ -958,7 +1208,7 @@ class UCODE:
             }
 
         # Display response
-        self.renderer.stream_text(result.normalised.text, prefix="ok> ")
+        self.renderer.stream_text(result.normalised.text, prefix="logic> ")
 
         # Check for extracted ucode commands (but DO NOT auto-execute)
         if result.normalised.contains_ucode:
@@ -970,7 +1220,7 @@ class UCODE:
 
         return {
             "status": "success",
-            "command": "OK",
+            "command": "LOGIC",
             "response": result.normalised.text,
             "provider": provider_type.value,
             "model": model,
@@ -979,7 +1229,7 @@ class UCODE:
     def _infer_task_mode(self, prompt: str) -> str:
         """Infer task mode from prompt (v1.4.6).
 
-        Simple heuristics for now. Future: Use OK Model for classification.
+        Simple heuristics for now. Future: use the logic-assist model for classification.
 
         Args:
             prompt: User prompt
@@ -1123,7 +1373,7 @@ class UCODE:
                                 "EXIT",
                                 "?EXIT",
                                 "? EXIT",
-                                "OK EXIT",
+                                "LOGIC EXIT",
                                 "OPERATOR EXIT",
                             ):
                                 self.running = False
@@ -1953,59 +2203,9 @@ class UCODE:
         )
         return fallback.rstrip("/")
 
-    def _fetch_ollama_models(self, endpoint: str) -> dict[str, Any]:
-        """Fetch available models from Ollama (loopback-only)."""
-        safe_endpoint = self._resolve_loopback_url(
-            endpoint, fallback="http://127.0.0.1:11434", context="OLLAMA_HOST"
-        )
-        try:
-            resp = http_get(f"{safe_endpoint}/api/tags", timeout=5)
-            if resp.get("status_code") != 200:
-                return {"reachable": False, "models": [], "endpoint": safe_endpoint}
-            payload = resp.get("json") or {}
-            names = [m.get("name") for m in payload.get("models", []) if m.get("name")]
-            return {"reachable": True, "models": names, "endpoint": safe_endpoint}
-        except HTTPError:
-            return {"reachable": False, "models": [], "endpoint": safe_endpoint}
-
     @staticmethod
     def _normalize_model_names(models: list[str]) -> list[str]:
         return [m.strip() for m in models if m and str(m).strip()]
-
-    def _get_dev_mode_local_status(self) -> dict[str, Any]:
-        """Return local provider status for Dev Mode helper checks.
-
-        Uses centralized AIProviderHandler for unified provider status.
-        Eliminates duplicate status checking code.
-        """
-        from core.services.ai_provider_handler import get_ai_provider_handler
-
-        try:
-            handler = get_ai_provider_handler()
-            status = handler.check_local_provider()
-
-            # Apply loopback-only policy to endpoint (security boundary)
-            raw_endpoint = status.details.get("endpoint", "http://127.0.0.1:11434")
-            endpoint = self._resolve_loopback_url(
-                raw_endpoint, fallback="http://127.0.0.1:11434", context="OLLAMA_HOST"
-            )
-
-            # Adapt ProviderStatus to expected dict format for backwards compatibility
-            return {
-                "ready": status.is_available,
-                "issues": [status.issue] if status.issue else [],
-                "model": status.default_model,
-                "ollama_endpoint": endpoint,
-            }
-        except Exception as exc:
-            self.logger.warning(f"[Provider] Failed to get local status: {exc}")
-            # Fallback to safe defaults
-            return {
-                "ready": False,
-                "issues": [str(exc)],
-                "model": None,
-                "ollama_endpoint": "http://127.0.0.1:11434",
-            }
 
     def _wizard_headers(self) -> dict[str, str]:
         """Authorization headers for Wizard API."""
@@ -2024,10 +2224,8 @@ class UCODE:
         """Return whether startup should prompt to run Dev Mode setup."""
         from core.services.unified_config_loader import get_bool_config
 
-        return get_bool_config("UDOS_PROMPT_SETUP_VIBE")
+        return get_bool_config("UDOS_PROMPT_SETUP_DEV")
 
-    # NOTE: _get_ok_cloud_status() removed 2025-02-24 — use AIProviderHandler.check_cloud_provider() instead
-    # See: core/services/ai_provider_handler.py
     def _init_operator_prompt_context(self) -> None:
         """Expose operator/dev helper status to the prompt toolbar."""
         try:
@@ -2038,7 +2236,7 @@ class UCODE:
                 self.prompt.ok_model = "operator"
                 self.prompt.ok_context_window = 0
         except Exception as exc:
-            self.logger.debug(f"[OK] Failed to set prompt context: {exc}")
+            self.logger.debug(f"[LOGIC] Failed to set prompt context: {exc}")
 
     def _show_operator_startup_sequence(self) -> dict[str, Any]:
         """Show standard operator summary, with Dev extension status when active."""
@@ -2077,11 +2275,11 @@ class UCODE:
         cloud_status_obj = handler.check_cloud_provider()
 
         # Adapt new ProviderStatus to old dict format for compatibility
-        ok_status = {
+        logic_status = {
             "ready": local_status.is_available,
             "issue": local_status.issue,
             "model": local_status.default_model,
-            "ollama_endpoint": local_status.details.get(
+            "local_endpoint": local_status.details.get(
                 "endpoint", "http://127.0.0.1:11434"
             ),
         }
@@ -2091,40 +2289,34 @@ class UCODE:
             "skip": not cloud_status_obj.is_configured,
         }
 
-        model = ok_status.get("model") or self._get_dev_mode_default_model()
+        model = logic_status.get("model") or self._get_dev_mode_default_model()
         fallback_model = self._get_dev_mode_fallback_model()
         ctx = self._get_dev_mode_context_window()
-        local_issue = ok_status.get("issue") or None
-        endpoint = ok_status.get("ollama_endpoint", "http://127.0.0.1:11434")
+        local_issue = logic_status.get("issue") or None
+        endpoint = logic_status.get("local_endpoint", "http://127.0.0.1:11434")
 
         lines = []
-        if ok_status.get("ready"):
-            lines.append(f"✅ Vibe/Ollama healthy ({model}, ctx {ctx}, timeout 30s)")
-            lines.append(f"   Endpoint: {endpoint}")
+        if logic_status.get("ready"):
+            lines.append(f"✅ Logic Assist local lane ready ({model}, ctx {ctx}, timeout 30s)")
+            lines.append(f"   Local endpoint: {endpoint}")
             if fallback_model:
                 lines.append(f"   Fallback: {fallback_model} (lightweight open-source)")
         else:
             issue = local_issue or "setup required"
-            lines.append(f"⚠️ Dev extension tooling needs setup: {issue} ({model}, ctx {ctx})")
+            lines.append(f"⚠️ Logic Assist contributor lane needs setup: {issue} ({model}, ctx {ctx})")
             if issue in {
                 "setup required",
-                "ollama down",
+                "local runtime down",
                 "missing model",
                 "vibe-cli missing",
             }:
-                lines.append("Tip: SETUP (operator/dev onboarding)")
+                lines.append("Tip: SETUP dev")
             if issue == "missing model":
-                lines.append(f"Tip: OK PULL {model} (auto-pull if missing)")
-                if fallback_model:
-                    lines.append(
-                        f"Tip: OK PULL {fallback_model}  # lightweight fallback (auto-pull)"
-                    )
-            if issue == "ollama not running":
-                lines.append("Tip: REPAIR ollama (auto-restart)")
+                lines.append("Tip: place the configured GPT4All model file in the logic-assist model directory")
             if issue == "port blocked":
                 lines.append("Tip: REPAIR port (auto-fix config)")
             if issue == "model corrupted":
-                lines.append("Tip: REPAIR model (auto-pull)")
+                lines.append("Tip: restore or replace the local model file")
             lines.append("Tip: RUN HEALTH/REPAIR to auto-fix all issues")
         if cloud_status.get("skip"):
             lines.append("Tip: WIZARD start")
@@ -2136,9 +2328,9 @@ class UCODE:
             lines.append(
                 "Tip: REPAIR cloud (check API quota, switch key, use local, or auto-retry)"
             )
-        lines.append("Tip: OK EXPLAIN <file> | OK LOCAL")
+        lines.append("Tip: LOGIC EXPLAIN <file> | LOGIC LOCAL")
 
-        print(self._theme_text("\nDev Helper"))
+        print(self._theme_text("\nLogic Assist"))
         route, source = self._provider_route_details()
         self.renderer.stream_text(
             f"Provider route: {route} (source: {source})", prefix="dev> "
@@ -2146,7 +2338,7 @@ class UCODE:
         self.renderer.stream_text("\n".join(lines), prefix="dev> ")
         print("")
         return {
-            "local_ready": bool(ok_status.get("ready")),
+            "local_ready": bool(logic_status.get("ready")),
             "local_issue": local_issue,
             "cloud_ready": bool(cloud_status.get("ready")),
             "cloud_skip": bool(cloud_status.get("skip")),
@@ -2161,10 +2353,6 @@ class UCODE:
         if issues:
             return f"  ⚠️ {label}: " + ", ".join(issues)
         return f"  ⚠️ {label}: setup required"
-
-    # NOTE: _fetch_ollama_models(), _normalize_model_names(), and _get_dev_mode_local_status()
-    # removed 2025-02-24 — use AIProviderHandler.check_local_provider() instead
-    # See: core/services/ai_provider_handler.py
 
     def _setup_health_monitoring(self) -> None:
         """Initialize Self-Healer diagnostics + Hot Reload stats for automation."""
@@ -2356,11 +2544,11 @@ class UCODE:
         help_text: str = None,
         context: str = None,
     ) -> bool:
-        """Ask a standardized [Yes|No|OK] question.
+        """Ask a standardized confirmation question.
 
         Prompt format with 2-line context display:
           ╭─ Context or current state
-          ╰─ [Yes|No|OK]
+          ╰─ [Yes|No|Confirm]
           Question? [YES]
 
         Accepts:
@@ -2572,7 +2760,7 @@ class UCODE:
                         self._sync_mistral_secret(mistral_key)
                     self._sync_local_user(enriched_data)
                     self.ghost_mode = self._is_ghost_user()
-                    # Defer OK setup until after Wizard sync/local save.
+                    # Defer logic-assist setup until after Wizard sync/local save.
                     # Mistral key is now part of .env boundary (optional)
                     try:
                         from core.services.user_service import is_ghost_identity
@@ -3169,7 +3357,7 @@ class UCODE:
                         stdout, stderr = proc.stdout, proc.stderr
 
                         if proc.returncode == 0:
-                            print("   OK TypeScript runtime built successfully.")
+                            print("   TypeScript runtime built successfully.")
                             self.logger.info("[SETUP] TS runtime auto-built")
                             time.sleep(0.2)
                         else:
@@ -3289,7 +3477,7 @@ class UCODE:
             print(self._theme_text(line))
         print()
 
-    def _record_ok_output(
+    def _record_logic_output(
         self,
         prompt: str,
         response: str,
@@ -3298,10 +3486,10 @@ class UCODE:
         mode: str,
         file_path: str | None = None,
     ) -> dict[str, Any]:
-        """Store OK local output and emit a unified log entry."""
-        self.ok_local_counter += 1
+        """Store logic-assist local output and emit a unified log entry."""
+        self.logic_local_counter += 1
         entry = {
-            "id": self.ok_local_counter,
+            "id": self.logic_local_counter,
             "timestamp": datetime.now().isoformat(),
             "prompt": prompt,
             "response": response,
@@ -3310,17 +3498,17 @@ class UCODE:
             "mode": mode,
             "file_path": file_path,
         }
-        self.ok_local_outputs.append(entry)
-        if len(self.ok_local_outputs) > self.ok_local_limit:
-            self.ok_local_outputs = self.ok_local_outputs[-self.ok_local_limit :]
+        self.logic_local_outputs.append(entry)
+        if len(self.logic_local_outputs) > self.logic_local_limit:
+            self.logic_local_outputs = self.logic_local_outputs[-self.logic_local_limit :]
 
         try:
-            ok_logger = get_logger("core", category="ok-local-output", name="ucode")
+            logic_logger = get_logger("core", category="logic-local-output", name="ucode")
             preview = (response or "").strip().splitlines()
-            ok_logger.event(
+            logic_logger.event(
                 "info",
-                "ok.local.output",
-                f"OK {mode} output stored",
+                "logic.local.output",
+                f"LOGIC {mode} output stored",
                 ctx={
                     "mode": mode,
                     "model": model,
@@ -3335,8 +3523,8 @@ class UCODE:
 
         return entry
 
-    def _format_ok_output_summary(self, entry: dict[str, Any]) -> str:
-        """Return a collapsed summary line for an OK output entry."""
+    def _format_logic_output_summary(self, entry: dict[str, Any]) -> str:
+        """Return a collapsed summary line for a logic-assist output entry."""
         prompt = (entry.get("prompt") or "").replace("\n", " ").strip()
         response = (entry.get("response") or "").strip().splitlines()
         preview = " ".join(response[:2]).strip()
@@ -3349,13 +3537,13 @@ class UCODE:
             f"{entry.get('model')} ({entry.get('source')})\n"
             f"  Prompt: {prompt}\n"
             f"  Preview: {preview or '(no output)'}\n"
-            f"  Tip: OK LOCAL SHOW {entry.get('id')}"
+            f"  Tip: LOGIC LOCAL SHOW {entry.get('id')}"
         )
 
-    def _format_ok_output_full(self, entry: dict[str, Any]) -> str:
-        """Return full output text for an OK output entry."""
+    def _format_logic_output_full(self, entry: dict[str, Any]) -> str:
+        """Return full output text for a logic-assist output entry."""
         header = [
-            "═══ OK LOCAL OUTPUT ═══",
+            "═══ LOGIC LOCAL OUTPUT ═══",
             f"ID: {entry.get('id')}",
             f"Time: {entry.get('timestamp')}",
             f"Model: {entry.get('model')} ({entry.get('source')})",
@@ -3370,28 +3558,28 @@ class UCODE:
         header.append(entry.get("response") or "")
         return "\n".join(header)
 
-    def _cmd_ok_local(self, args: str) -> None:
-        """Show stored OK local outputs."""
+    def _cmd_logic_local(self, args: str) -> None:
+        """Show stored logic-assist local outputs."""
         tokens = args.strip().split()
         if not tokens:
             limit = 5
-            entries = self.ok_local_outputs[-limit:]
+            entries = self.logic_local_outputs[-limit:]
         elif tokens[0].upper() in ("SHOW", "OPEN"):
             if len(tokens) < 2 or not tokens[1].isdigit():
-                print(self._theme_text("Usage: OK LOCAL SHOW <id>"))
+                print(self._theme_text("Usage: LOGIC LOCAL SHOW <id>"))
                 return
             entry_id = int(tokens[1])
             entry = next(
-                (e for e in self.ok_local_outputs if e["id"] == entry_id), None
+                (e for e in self.logic_local_outputs if e["id"] == entry_id), None
             )
             if not entry:
-                print(self._theme_text(f"No OK output with id {entry_id}"))
+                print(self._theme_text(f"No logic output with id {entry_id}"))
                 return
-            print(self._theme_text(self._format_ok_output_full(entry)))
+            print(self._theme_text(self._format_logic_output_full(entry)))
             return
         elif tokens[0].upper() == "CLEAR":
-            self.ok_local_outputs = []
-            print(self._theme_text("OK local output log cleared."))
+            self.logic_local_outputs = []
+            print(self._theme_text("Logic local output log cleared."))
             return
         else:
             try:
@@ -3399,37 +3587,37 @@ class UCODE:
             except ValueError:
                 print(
                     self._theme_text(
-                        "Usage: OK LOCAL [N] | OK LOCAL SHOW <id> | OK LOCAL CLEAR"
+                        "Usage: LOGIC LOCAL [N] | LOGIC LOCAL SHOW <id> | LOGIC LOCAL CLEAR"
                     )
                 )
                 return
-            entries = self.ok_local_outputs[-limit:]
+            entries = self.logic_local_outputs[-limit:]
 
         if not entries:
-            print(self._theme_text("No OK local outputs yet."))
+            print(self._theme_text("No logic local outputs yet."))
             return
-        print(self._theme_text("\n═══ OK LOCAL OUTPUTS ═══\n"))
+        print(self._theme_text("\n═══ LOGIC LOCAL OUTPUTS ═══\n"))
         for entry in entries:
-            print(self._theme_text(self._format_ok_output_summary(entry)))
+            print(self._theme_text(self._format_logic_output_summary(entry)))
             print(self._theme_text(""))
 
-    def _cmd_ok_fallback(self, args: str) -> None:
-        """Configure OK auto-fallback mode."""
+    def _cmd_logic_fallback(self, args: str) -> None:
+        """Configure logic-assist auto-fallback mode."""
         token = args.strip().lower()
         if token in {"on", "true", "yes"}:
             self._set_dev_mode_auto_fallback(True)
-            print(self._theme_text("OK fallback set to auto (on)."))
+            print(self._theme_text("Logic fallback set to auto (on)."))
             return
         if token in {"off", "false", "no"}:
             self._set_dev_mode_auto_fallback(False)
-            print(self._theme_text("OK fallback set to manual (off)."))
+            print(self._theme_text("Logic fallback set to manual (off)."))
             return
         current = "on" if self._dev_mode_auto_fallback_enabled() else "off"
-        print(self._theme_text("Usage: OK FALLBACK on|off"))
+        print(self._theme_text("Usage: LOGIC FALLBACK on|off"))
         print(self._theme_text(f"Current: {current}"))
 
-    def _parse_ok_file_args(self, args: str) -> dict[str, Any]:
-        """Parse OK command args for file + optional range + cloud flag."""
+    def _parse_logic_file_args(self, args: str) -> dict[str, Any]:
+        """Parse LOGIC command args for file + optional range + cloud flag."""
         tokens = args.strip().split()
         use_cloud = False
         clean_tokens: list[str] = []
@@ -3470,9 +3658,9 @@ class UCODE:
             "use_cloud": use_cloud,
         }
 
-    def _run_ok_cloud(self, prompt: str) -> dict[str, Any]:
-        """Run a cloud AI request via Wizard server."""
-        url = f"{self._wizard_base_url()}/api/ucode/ok/cloud"
+    def _run_logic_cloud(self, prompt: str) -> dict[str, Any]:
+        """Run a logic-assist cloud request via Wizard server."""
+        url = f"{self._wizard_base_url()}/api/ucode/logic/cloud"
         payload = {"prompt": prompt, "mode": "conversation", "workspace": "core"}
         quota_message = (
             "⚠️ Cloud quota exceeded (429 Too Many Requests). "
@@ -3527,8 +3715,8 @@ class UCODE:
             "model": "wizard-cloud-error",
         }
 
-    def _run_ok_local(self, prompt: str, model: str | None = None) -> str:
-        """Run a local Vibe request via Ollama."""
+    def _run_logic_local(self, prompt: str, model: str | None = None) -> str:
+        """Run the local logic-assist request through the contributor lane."""
         from core.services.provider_registry import (
             ProviderNotAvailableError,
             ProviderType,
@@ -3538,7 +3726,7 @@ class UCODE:
         try:
             vibe_provider = get_provider(ProviderType.VIBE_SERVICE)
         except ProviderNotAvailableError as exc:
-            raise RuntimeError("Local Vibe provider not available") from exc
+            raise RuntimeError("Local logic-assist provider not available") from exc
 
         target_model = model or self._get_dev_mode_default_model()
 
@@ -3565,7 +3753,7 @@ class UCODE:
             fallback_model = self._get_dev_mode_fallback_model()
             if fallback_model and fallback_model != target_model:
                 self.logger.warning(
-                    f"[OK] Primary model {target_model} failed, trying fallback {fallback_model}: {exc}"
+                    f"[LOGIC] Primary model {target_model} failed, trying fallback {fallback_model}: {exc}"
                 )
                 try:
                     if callable(vibe_provider):
@@ -3577,7 +3765,7 @@ class UCODE:
                     return generate_with_timeout(vibe, prompt, timeout=30)
                 except Exception as fallback_exc:
                     self.logger.error(
-                        f"[OK] Fallback model {fallback_model} also failed: {fallback_exc}"
+                        f"[LOGIC] Fallback model {fallback_model} also failed: {fallback_exc}"
                     )
                     return f"❌ Both primary and fallback models failed: {exc} / {fallback_exc}"
             return f"❌ Model generation failed: {exc}"
@@ -3619,14 +3807,14 @@ class UCODE:
         self.renderer.set_mood(previous_mood, pace=0.7, blink=True)
         return result
 
-    def _run_ok_request(
+    def _run_logic_request(
         self,
         prompt: str,
         mode: str,
         file_path: str | None = None,
         use_cloud: bool = False,
     ) -> None:
-        """Execute OK request with optional cloud fallback."""
+        """Execute a logic-assist request with optional cloud fallback."""
         model = self._get_dev_mode_default_model()
         source = "local"
         response = None
@@ -3639,25 +3827,25 @@ class UCODE:
 
         if use_cloud:
             try:
-                print(self._theme_text("OK → Cloud (Mistral)"))
-                self._ui_line("OK cloud request...", level="info")
-                cloud_result = self._run_ok_cloud(prompt)
+                print(self._theme_text("LOGIC → Cloud (Wizard)"))
+                self._ui_line("Logic cloud request...", level="info")
+                cloud_result = self._run_logic_cloud(prompt)
                 response = cloud_result.get("response")
                 model = cloud_result.get("model") or model
                 source = "cloud"
             except Exception as exc:
                 print(
                     self._theme_text(
-                        f"⚠️  Cloud failed ({exc}). Falling back to Vibe (offline)."
+                        f"⚠️  Cloud failed ({exc}). Falling back to local logic assist."
                     )
                 )
                 response = None
 
         if response is None:
-            print(self._theme_text(f"OK → Vibe ({model}, local)"))
+            print(self._theme_text(f"LOGIC → Local ({model})"))
             try:
-                self._ui_line("OK local request...", level="info")
-                response = self._run_ok_local(prompt, model=model)
+                self._ui_line("Logic local request...", level="info")
+                response = self._run_logic_local(prompt, model=model)
             except Exception as exc:
                 should_try_cloud = (
                     auto_fallback and not use_cloud
@@ -3665,24 +3853,24 @@ class UCODE:
                 if should_try_cloud:
                     try:
                         print(
-                            self._theme_text("⚠️  Local failed. Trying cloud (Mistral).")
+                            self._theme_text("⚠️  Local failed. Trying Wizard cloud review.")
                         )
-                        self._ui_line("OK fallback cloud request...", level="info")
-                        cloud_result = self._run_ok_cloud(prompt)
+                        self._ui_line("Logic fallback cloud request...", level="info")
+                        cloud_result = self._run_logic_cloud(prompt)
                         response = cloud_result.get("response")
                         model = cloud_result.get("model") or model
                         source = "cloud"
                     except Exception as cloud_exc:
-                        print(self._theme_text(f"❌ Vibe local failed: {exc}"))
+                        print(self._theme_text(f"❌ Logic local failed: {exc}"))
                         print(
                             self._theme_text(f"❌ Cloud fallback failed: {cloud_exc}")
                         )
                         return
                 else:
-                    print(self._theme_text(f"❌ Vibe local failed: {exc}"))
+                    print(self._theme_text(f"❌ Logic local failed: {exc}"))
                     return
 
-        entry = self._record_ok_output(
+        entry = self._record_logic_output(
             prompt=prompt,
             response=response,
             model=model,
@@ -3691,7 +3879,7 @@ class UCODE:
             file_path=str(file_path) if file_path else None,
         )
         print(self._theme_text(""))
-        self.renderer.stream_text(entry.get("response") or "", prefix="ok> ")
+        self.renderer.stream_text(entry.get("response") or "", prefix="logic> ")
 
         if (
             not use_cloud
@@ -3701,12 +3889,12 @@ class UCODE:
         ):
             if self._needs_cloud_sanity_check(entry.get("response") or ""):
                 try:
-                    print(self._theme_text("\nOK → Cloud sanity check"))
-                    self._ui_line("OK cloud sanity check...", level="info")
-                    cloud_result = self._run_ok_cloud(prompt)
+                    print(self._theme_text("\nLOGIC → Cloud sanity check"))
+                    self._ui_line("Logic cloud sanity check...", level="info")
+                    cloud_result = self._run_logic_cloud(prompt)
                     cloud_response = cloud_result.get("response") or ""
                     if cloud_response:
-                        self.renderer.stream_text(cloud_response, prefix="ok-check> ")
+                        self.renderer.stream_text(cloud_response, prefix="logic-check> ")
                 except Exception as exc:
                     print(self._theme_text(f"⚠️  Cloud sanity check failed: {exc}"))
 
@@ -3737,7 +3925,7 @@ class UCODE:
         return any(phrase in lowered for phrase in uncertain_phrases)
 
     def _run_dev_mode_setup(self) -> None:
-        """Install local Dev Mode helper stack (ollama, vibe, models) if possible."""
+        """Install local Dev Mode helper stack for the logic-assist contributor lane."""
         print("")
         self._ui_line("SETUP: Installing Dev Mode helpers", level="milestone")
         gate_open = bool(gate_status().get("gate_open"))
@@ -3756,17 +3944,17 @@ class UCODE:
                 print("")
                 return
         try:
-            from core.services.ok_setup import run_ok_setup
+            from core.services.logic_assist_setup import run_logic_assist_setup
 
-            with bootstrap_download_gate(opened_by="core.tui.ok_setup"):
+            with bootstrap_download_gate(opened_by="core.tui.logic_setup"):
                 self._ui_line("Web gate open for setup downloads", level="info")
                 result = self._run_with_progress(
                     "installation",
-                    "Dev Mode helper installation",
-                    lambda: run_ok_setup(
+                    "Logic assist contributor installation",
+                    lambda: run_logic_assist_setup(
                         self.repo_root, log=lambda msg: print(self._theme_text(msg))
                     ),
-                    spinner_label="⏳ Installing Dev Mode helpers",
+                    spinner_label="⏳ Installing Logic Assist contributor tooling",
                 )
             self.dev_mode_config = self._load_dev_mode_config()
             for warning in result.get("warnings", []):
@@ -3789,11 +3977,11 @@ class UCODE:
         except Exception as exc:
             print(self._theme_text(f"⚠️  Dev Mode setup skipped: {exc}"))
 
-    def _cmd_ok_explain(self, args: str) -> None:
-        """OK EXPLAIN <file> [start end] [--cloud]."""
-        parsed = self._parse_ok_file_args(args)
+    def _cmd_logic_explain(self, args: str) -> None:
+        """LOGIC EXPLAIN <file> [start end] [--cloud]."""
+        parsed = self._parse_logic_file_args(args)
         if parsed.get("error"):
-            print(self._theme_text("Usage: OK EXPLAIN <file> [start end] [--cloud]"))
+            print(self._theme_text("Usage: LOGIC EXPLAIN <file> [start end] [--cloud]"))
             return
         path = parsed["path"]
         if not path.exists():
@@ -3808,15 +3996,15 @@ class UCODE:
             f"```python\n{content}\n```\n\n"
             "Provide: 1) purpose, 2) key logic, 3) risks or follow-ups."
         )
-        self._run_ok_request(
+        self._run_logic_request(
             prompt, mode="EXPLAIN", file_path=path, use_cloud=parsed.get("use_cloud")
         )
 
-    def _cmd_ok_diff(self, args: str) -> None:
-        """OK DIFF <file> [start end] [--cloud]."""
-        parsed = self._parse_ok_file_args(args)
+    def _cmd_logic_diff(self, args: str) -> None:
+        """LOGIC DIFF <file> [start end] [--cloud]."""
+        parsed = self._parse_logic_file_args(args)
         if parsed.get("error"):
-            print(self._theme_text("Usage: OK DIFF <file> [start end] [--cloud]"))
+            print(self._theme_text("Usage: LOGIC DIFF <file> [start end] [--cloud]"))
             return
         path = parsed["path"]
         if not path.exists():
@@ -3831,15 +4019,15 @@ class UCODE:
             f"```python\n{content}\n```\n\n"
             "Return a unified diff only (no commentary)."
         )
-        self._run_ok_request(
+        self._run_logic_request(
             prompt, mode="DIFF", file_path=path, use_cloud=parsed.get("use_cloud")
         )
 
-    def _cmd_ok_patch(self, args: str) -> None:
-        """OK PATCH <file> [start end] [--cloud]."""
-        parsed = self._parse_ok_file_args(args)
+    def _cmd_logic_patch(self, args: str) -> None:
+        """LOGIC PATCH <file> [start end] [--cloud]."""
+        parsed = self._parse_logic_file_args(args)
         if parsed.get("error"):
-            print(self._theme_text("Usage: OK PATCH <file> [start end] [--cloud]"))
+            print(self._theme_text("Usage: LOGIC PATCH <file> [start end] [--cloud]"))
             return
         path = parsed["path"]
         if not path.exists():
@@ -3854,74 +4042,17 @@ class UCODE:
             f"```python\n{content}\n```\n\n"
             "Return a unified diff only."
         )
-        self._run_ok_request(
+        self._run_logic_request(
             prompt, mode="PATCH", file_path=path, use_cloud=parsed.get("use_cloud")
         )
 
-    def _cmd_ok_pull(self, args: str) -> None:
-        """OK PULL <model>."""
-        import json
-        from pathlib import Path
-        import shutil
-
-        model = (args or "").strip()
-        if not model:
-            print(self._theme_text("Usage: OK PULL <model>"))
-            return
-        if not shutil.which("ollama"):
-            self._ui_line(
-                "Ollama not found. Install first via SETUP or SETUP dev.",
-                level="warn",
-            )
-            return
-        try:
-            self._ui_line(f"Pulling Ollama model: {model}", level="step")
-            from core.services.ok_setup import pull_ollama_model
-
-            result = self._run_with_progress(
-                "download",
-                f"Model download ({model})",
-                lambda: pull_ollama_model(
-                    model, log=lambda msg: print(self._theme_text(msg))
-                ),
-                spinner_label=f"⏳ Downloading {model}",
-            )
-            if result.get("success") != "true":
-                self._ui_line(
-                    f"OK PULL failed: {result.get('error', 'unknown error')}",
-                    level="error",
-                )
-                return
-            # Update ok_modes.json so the model appears in routing lists.
-            try:
-                config_path = Path(self.repo_root) / "core" / "config" / "ok_modes.json"
-                config = {"modes": {}}
-                if config_path.exists():
-                    config = json.loads(config_path.read_text())
-                modes = config.setdefault("modes", {})
-                ofvibe = modes.setdefault("ofvibe", {})
-                models = ofvibe.setdefault("models", [])
-                names = {m.get("name") for m in models if isinstance(m, dict)}
-                pulled_name = result.get("name") or model
-                if pulled_name not in names:
-                    models.append({"name": pulled_name, "availability": ["core"]})
-                    config_path.write_text(json.dumps(config, indent=2))
-            except Exception as exc:
-                self._ui_line(
-                    f"OK PULL: could not update ok_modes.json: {exc}", level="warn"
-                )
-            self._ui_line("OK PULL complete", level="ok")
-            print("")
-        except Exception as exc:
-            self._ui_line(f"OK PULL failed: {exc}", level="error")
-
-    def _cmd_ok_route(self, args: str) -> None:
-        """OK ROUTE <prompt> [--dry-run]."""
+    def _cmd_logic_route(self, args: str) -> None:
+        """LOGIC ROUTE <prompt> [--dry-run]."""
         from core.services.ok_router import plan_route
 
         raw = args.strip()
         if not raw:
-            print(self._theme_text("Usage: OK ROUTE <prompt> [--dry-run]"))
+            print(self._theme_text("Usage: LOGIC ROUTE <prompt> [--dry-run]"))
             return
         tokens = raw.split()
         dry_run = False
@@ -3933,14 +4064,14 @@ class UCODE:
             cleaned.append(token)
         prompt = " ".join(cleaned).strip()
         if not prompt:
-            print(self._theme_text("Usage: OK ROUTE <prompt> [--dry-run]"))
+            print(self._theme_text("Usage: LOGIC ROUTE <prompt> [--dry-run]"))
             return
 
         plan = plan_route(prompt)
         plan_dict = plan.to_dict()
 
         lines = [
-            "═══ OK ROUTE PLAN ═══",
+            "═══ LOGIC ROUTE PLAN ═══",
             f"Intent: {plan_dict.get('intent')}",
             f"Target: {plan_dict.get('target')}",
             f"Risk: {plan_dict.get('risk_level')}",
@@ -4092,14 +4223,14 @@ class UCODE:
         """Enter Wizard interactive console."""
         try:
             print("  Launching Wizard interactive console...")
-            venv_activate = self.repo_root / "venv" / "bin" / "activate"
-
-            if venv_activate.exists():
-                cmd = f"source {venv_activate} && python wizard/wizard_tui.py"
-            else:
-                cmd = "python wizard/wizard_tui.py"
-
-            subprocess.run(cmd, shell=True, cwd=str(self.repo_root))
+            env = dict(os.environ)
+            env.setdefault("UV_PROJECT_ENVIRONMENT", ".venv")
+            subprocess.run(
+                ["uv", "run", "python", "wizard/wizard_tui.py"],
+                cwd=str(self.repo_root),
+                env=env,
+                check=False,
+            )
 
         except Exception as e:
             self.logger.error(f"Failed to launch Wizard console: {e}")
@@ -4112,10 +4243,10 @@ class UCODE:
             # Map page names to API endpoints
             page_map = {
                 "status": "/health",
-                "ai": "/api/ai/status",
+                "logic": "/api/logic/status",
                 "services": "/api/status",
                 "devices": "/api/devices",
-                "quota": "/api/ai/quota",
+                "quota": "/api/logic/status",
                 "logs": "/api/logs",
             }
 

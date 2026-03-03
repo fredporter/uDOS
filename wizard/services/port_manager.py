@@ -38,6 +38,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime, timedelta
 
+from core.services.time_utils import parse_utc_datetime, utc_now, utc_now_iso_z
 from wizard.services.logging_api import get_logger as _get_logger
 
 _log = _get_logger("wizard", category="port-manager")
@@ -176,7 +177,7 @@ class ManagedProcess:
             "cpu_percent": round(self.cpu_percent, 1),
             "memory_mb": round(self.memory_mb, 1),
             "status": self.status,
-            "uptime_seconds": (datetime.now() - self.started_at).total_seconds(),
+            "uptime_seconds": (utc_now() - self.started_at).total_seconds(),
         }
 
 
@@ -212,7 +213,7 @@ class BackgroundOperation:
             "pid": self.pid,
             "error": self.error,
             "resource_impact": self.resource_impact,
-            "uptime_seconds": (datetime.now() - self.started_at).total_seconds(),
+            "uptime_seconds": (utc_now() - self.started_at).total_seconds(),
         }
 
     def _estimate_eta(self) -> Optional[float]:
@@ -222,7 +223,7 @@ class BackgroundOperation:
         if not self.downloaded_mb:
             return None
 
-        elapsed = (datetime.now() - self.started_at).total_seconds()
+        elapsed = (utc_now() - self.started_at).total_seconds()
         if elapsed < 1:
             return None
 
@@ -350,7 +351,7 @@ class PortManager:
                     data = json.load(f)
                 for entry in data.get("events", [])[-self.MAX_EVENT_LOG:]:
                     self.event_log.append(ProcessEvent(
-                        timestamp=datetime.fromisoformat(entry["timestamp"]),
+                        timestamp=parse_utc_datetime(entry["timestamp"]),
                         service_name=entry["service_name"],
                         event_type=entry["event_type"],
                         details=entry.get("details", ""),
@@ -365,7 +366,7 @@ class PortManager:
         event_log_path = self.config_path.parent / "port_manager_events.json"
         try:
             data = {
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": utc_now_iso_z(),
                 "events": [e.to_dict() for e in self.event_log[-self.MAX_EVENT_LOG:]],
             }
             with open(event_log_path, "w") as f:
@@ -377,7 +378,7 @@ class PortManager:
         """Log a process event."""
         with self._lock:
             event = ProcessEvent(
-                timestamp=datetime.now(),
+                timestamp=utc_now(),
                 service_name=service_name,
                 event_type=event_type,
                 details=details,
@@ -407,7 +408,7 @@ class PortManager:
             active_ports = sum(1 for s in self.services.values() if s.status == ServiceStatus.RUNNING)
 
             return ResourceSnapshot(
-                timestamp=datetime.now(),
+                timestamp=utc_now(),
                 cpu_percent=cpu,
                 memory_percent=mem.percent,
                 memory_used_mb=mem.used / (1024 * 1024),
@@ -420,7 +421,7 @@ class PortManager:
             )
         except Exception:
             return ResourceSnapshot(
-                timestamp=datetime.now(),
+                timestamp=utc_now(),
                 cpu_percent=0.0,
                 memory_percent=0.0,
                 memory_used_mb=0.0,
@@ -455,7 +456,7 @@ class PortManager:
     def get_resource_history(self, minutes: int = 30) -> List[Dict]:
         """Get resource history for the last N minutes."""
         with self._lock:
-            cutoff = datetime.now() - timedelta(minutes=minutes)
+            cutoff = utc_now() - timedelta(minutes=minutes)
             return [r.to_dict() for r in self.resource_history if r.timestamp >= cutoff]
 
     def start_service(self, service_name: str, wait_for_ready: bool = True, timeout: int = 30) -> Dict[str, Any]:
@@ -492,7 +493,7 @@ class PortManager:
                 service_name=service_name,
                 pid=process.pid,
                 port=service.port,
-                started_at=datetime.now(),
+                started_at=utc_now(),
                 cmd=service.startup_cmd,
                 working_dir=str(repo_root),
             )
@@ -619,7 +620,7 @@ class PortManager:
 
         return {
             "version": self.VERSION,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": utc_now_iso_z(),
             "resources": snapshot.to_dict(),
             "services": services_by_status,
             "conflicts": [{"service": name, "port": self.services[name].port, "occupant": occ}
@@ -639,7 +640,7 @@ class PortManager:
         try:
             self.config_path.parent.mkdir(parents=True, exist_ok=True)
             data = {
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": utc_now_iso_z(),
                 "services": [s.to_dict() for s in self.services.values()],
             }
             with open(self.config_path, "w") as f:
@@ -705,7 +706,7 @@ class PortManager:
             else:
                 service.status = ServiceStatus.PORT_CONFLICT
 
-        service.last_check = datetime.now()
+        service.last_check = utc_now()
         return service.status
 
     def check_all_services(self) -> Dict[str, ServiceStatus]:
@@ -961,8 +962,8 @@ class PortManager:
             operation_type=operation_type,
             description=description,
             status=OperationStatus.IN_PROGRESS,
-            started_at=datetime.now(),
-            updated_at=datetime.now(),
+            started_at=utc_now(),
+            updated_at=utc_now(),
             total_size_mb=total_size_mb,
             pid=pid,
         )
@@ -999,7 +1000,7 @@ class PortManager:
                     op.error = error
                 if resource_impact is not None:
                     op.resource_impact = resource_impact
-                op.updated_at = datetime.now()
+                op.updated_at = utc_now()
             return op
 
     def complete_operation(self, operation_id: str, error: str = None):
@@ -1010,7 +1011,7 @@ class PortManager:
                 op.status = OperationStatus.FAILED if error else OperationStatus.COMPLETED
                 op.progress = 100.0 if not error else op.progress
                 op.error = error
-                op.updated_at = datetime.now()
+                op.updated_at = utc_now()
                 self.log_event(
                     op.operation_type,
                     "operation_completed",

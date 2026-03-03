@@ -9,12 +9,12 @@ diagnostics, and log access.
 from __future__ import annotations
 
 from collections import deque
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Optional, Dict, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
+from core.services.time_utils import render_utc_as_local, utc_from_timestamp, utc_now_iso_z
 from wizard.services.logging_api import get_log_stats, get_logs_root
 from wizard.services.monitoring_manager import MonitoringManager, AlertSeverity, AlertType
 from wizard.services.path_utils import get_logs_dir, get_repo_root
@@ -56,7 +56,8 @@ def create_monitoring_routes(auth_guard: Optional[Callable] = None) -> APIRouter
         monitoring = _get_monitoring_manager()
         monitoring.run_default_checks()
         return {
-            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            "timestamp": utc_now_iso_z(),
+            "server_time": render_utc_as_local(),
             "health": monitoring.get_health_summary(),
         }
 
@@ -66,7 +67,8 @@ def create_monitoring_routes(auth_guard: Optional[Callable] = None) -> APIRouter
         monitoring.run_default_checks()
         system_service = get_system_info_service(get_repo_root())
         return {
-            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            "timestamp": utc_now_iso_z(),
+            "server_time": render_utc_as_local(),
             "health": monitoring.get_health_summary(),
             "system": {
                 "os": system_service.get_os_info().to_dict(),
@@ -88,8 +90,7 @@ def create_monitoring_routes(auth_guard: Optional[Callable] = None) -> APIRouter
                         "name": str(log_path.relative_to(log_dir)),
                         "component": log_path.parent.name,
                         "size_bytes": stat.st_size,
-                        "updated_at": datetime.utcfromtimestamp(stat.st_mtime).isoformat()
-                        + "Z",
+                        "updated_at": utc_from_timestamp(stat.st_mtime).isoformat().replace("+00:00", "Z"),
                     }
                 )
             except FileNotFoundError:

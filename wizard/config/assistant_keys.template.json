@@ -1,13 +1,11 @@
 {
-  "_comment": "API keys for uDOS Wizard Server - NEVER commit with real keys!",
-  "_instructions": "Copy this file to ai_keys.json and fill in your keys",
-  
-  "GEMINI_API_KEY": "",
+  "_comment": "Legacy migration reference only. Active v1.5 logic-assist provider settings live in memory/bank/typo-workspace/user/settings/logic-assist.md and secrets.tomb.",
+  "_instructions": "Use Wizard settings or UCODE TEMPLATE/SET flows for active configuration.",
+  "MISTRAL_API_KEY": "",
+  "OPENROUTER_API_KEY": "",
   "OPENAI_API_KEY": "",
-  "OPENAI_API_ENDPOINT": "https://api.openai.com/v1",
   "ANTHROPIC_API_KEY": "",
-  "OLLAMA_HOST": "http://localhost:11434",
-  
+  "GEMINI_API_KEY": "",
   "NOUNPROJECT_API_KEY": "",
   "NOUNPROJECT_API_SECRET": ""
 }

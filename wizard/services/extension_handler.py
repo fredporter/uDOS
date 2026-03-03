@@ -18,10 +18,10 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List, Callable
 from dataclasses import dataclass, asdict
 from enum import Enum
-from datetime import datetime
 from abc import ABC, abstractmethod
 
 from core.services.release_profile_service import get_release_profile_service
+from core.services.time_utils import utc_now_iso_z
 from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
 
@@ -367,7 +367,7 @@ class ExtensionHandler:
         if not ext.instance.enabled:
             return {"error": f"Extension disabled: {extension_name}"}
         
-        ext.instance.last_activity = datetime.now().isoformat()
+        ext.instance.last_activity = utc_now_iso_z()
         return await ext.execute(command, **kwargs)
     
     async def shutdown_all(self) -> None:

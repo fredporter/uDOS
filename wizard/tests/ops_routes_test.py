@@ -38,16 +38,22 @@ def test_ops_session_and_releases_routes(tmp_path, monkeypatch):
     assert session_res.status_code == 200
     assert session_res.json()["authenticated"] is True
 
-    releases_res = client.get("/api/ops/releases")
+    switchboard_res = client.get("/api/ops/switchboard")
+    assert switchboard_res.status_code == 200
+    assert switchboard_res.json()["switchboard"]["role"] == "admin"
+    assert "view_logs" in switchboard_res.json()["switchboard"]["capabilities"]
+
+    releases_res = client.get("/api/ops/releases/overview")
     assert releases_res.status_code == 200
-    assert "workflows" in releases_res.json()
+    assert "releases" in releases_res.json()
+    assert "workflows" in releases_res.json()["releases"]
 
 
 def test_ops_jobs_and_config_status_routes(tmp_path, monkeypatch):
     client = TestClient(_build_app(tmp_path, monkeypatch))
 
     create_res = client.post(
-        "/api/ops/jobs",
+        "/api/ops/planning/jobs",
         json={
             "name": "Nightly workflow window",
             "schedule": "daily",
@@ -66,7 +72,7 @@ def test_ops_jobs_and_config_status_routes(tmp_path, monkeypatch):
     scheduler = TaskScheduler()
     scheduler.schedule_task(job_id, datetime.now())
 
-    jobs_res = client.get("/api/ops/jobs")
+    jobs_res = client.get("/api/ops/planning/jobs")
     assert jobs_res.status_code == 200
     assert "runtime" in jobs_res.json()
     assert "server_time" in jobs_res.json()["runtime"]
@@ -78,7 +84,7 @@ def test_ops_jobs_and_config_status_routes(tmp_path, monkeypatch):
 
     queue_item = next(item for item in jobs_res.json()["queue"] if item["task_id"] == job_id)
     queue_id = queue_item["id"]
-    retry_res = client.post(f"/api/ops/jobs/queue/{queue_id}/retry")
+    retry_res = client.post(f"/api/ops/planning/queue/{queue_id}/retry")
     assert retry_res.status_code == 200
     assert retry_res.json()["success"] is True
     assert retry_res.json()["queue_item"]["defer_reason"] is None
@@ -86,40 +92,43 @@ def test_ops_jobs_and_config_status_routes(tmp_path, monkeypatch):
 
     scheduler.release_queue_item(queue_id, reason="network_unavailable", backoff_seconds=300)
 
-    preview_res = client.get("/api/ops/jobs/deferred-preview?reason=network_unavailable&limit=5")
+    preview_res = client.get("/api/ops/planning/deferred/preview?reason=network_unavailable&limit=5")
     assert preview_res.status_code == 200
     assert preview_res.json()["count"] == 1
     assert preview_res.json()["queue_items"][0]["id"] == queue_id
 
-    bulk_retry_res = client.post("/api/ops/jobs/retry-deferred?reason=network_unavailable&limit=5")
+    bulk_retry_res = client.post("/api/ops/planning/deferred/retry?reason=network_unavailable&limit=5")
     assert bulk_retry_res.status_code == 200
     assert bulk_retry_res.json()["success"] is True
     assert bulk_retry_res.json()["count"] == 1
     assert bulk_retry_res.json()["queue_items"][0]["defer_reason"] is None
 
-    summary_res = client.get("/api/ops/summary")
-    assert summary_res.status_code == 200
-    assert "automation" in summary_res.json()
-    assert "recent_runs" in summary_res.json()["automation"]
-    assert "status" in summary_res.json()["automation"]
-    assert "runtime" in summary_res.json()
-    assert "server_time" in summary_res.json()["runtime"]
-    assert "local_time" in summary_res.json()["runtime"]["server_time"]
-    assert "offset" in summary_res.json()["runtime"]["server_time"]
-    assert "template_families" in summary_res.json()
-    assert "workflow_templates" in summary_res.json()
+    planning_res = client.get("/api/ops/planning/overview")
+    assert planning_res.status_code == 200
+    assert "planning" in planning_res.json()
+    assert "items" in planning_res.json()["planning"]
+    assert "filters" in planning_res.json()["planning"]
+    assert "workflow_states" in planning_res.json()
+    assert "runtime" in planning_res.json()
+    assert "server_time" in planning_res.json()["runtime"]
+    assert "local_time" in planning_res.json()["runtime"]["server_time"]
+    assert "offset" in planning_res.json()["runtime"]["server_time"]
+    assert "template_families" in planning_res.json()
+    assert "workflow_templates" in planning_res.json()
 
-    health_res = client.get("/api/ops/health")
-    assert health_res.status_code == 200
-    assert "runtime" in health_res.json()
-    assert "server_time" in health_res.json()["runtime"]
+    automation_res = client.get("/api/ops/automation/overview")
+    assert automation_res.status_code == 200
+    assert "runtime" in automation_res.json()
+    assert "server_time" in automation_res.json()["runtime"]
+    assert "alerts" in automation_res.json()
+    assert "status" in automation_res.json()
 
-    settings_res = client.post("/api/ops/settings", json={"api_budget_daily": 12, "off_peak_start_hour": 19})
+    settings_res = client.post("/api/ops/config/settings", json={"api_budget_daily": 12, "off_peak_start_hour": 19})
     assert settings_res.status_code == 200
     assert settings_res.json()["settings"]["api_budget_daily"] == 12
 
     backoff_res = client.post(
-        "/api/ops/settings",
+        "/api/ops/config/settings",
         json={
             "backoff_policy": {
                 "resource_pressure": {"base_minutes": 5, "max_minutes": 45},
@@ -132,7 +141,7 @@ def test_ops_jobs_and_config_status_routes(tmp_path, monkeypatch):
     assert backoff_res.json()["settings"]["backoff_policy"]["resource_pressure"]["max_minutes"] == 45
 
     maintenance_policy_res = client.post(
-        "/api/ops/settings",
+        "/api/ops/config/settings",
         json={
             "maintenance_retry_dry_run": True,
             "auto_retry_deferred_policy": {
@@ -146,7 +155,7 @@ def test_ops_jobs_and_config_status_routes(tmp_path, monkeypatch):
     assert maintenance_policy_res.json()["settings"]["auto_retry_deferred_policy"]["network_unavailable"]["limit"] == 3
 
     invalid_policy_res = client.post(
-        "/api/ops/settings",
+        "/api/ops/config/settings",
         json={
             "auto_retry_deferred_policy": {
                 "network_unavailable": {"enabled": True, "limit": -1, "dry_run": False},
@@ -157,7 +166,7 @@ def test_ops_jobs_and_config_status_routes(tmp_path, monkeypatch):
     assert "invalid limit" in invalid_policy_res.json()["detail"].lower()
 
     invalid_window_res = client.post(
-        "/api/ops/settings",
+        "/api/ops/config/settings",
         json={
             "auto_retry_deferred_policy": {
                 "network_unavailable": {"enabled": True, "limit": 1, "dry_run": False, "window": "bad-window"},
@@ -167,14 +176,18 @@ def test_ops_jobs_and_config_status_routes(tmp_path, monkeypatch):
     assert invalid_window_res.status_code == 400
     assert "invalid window" in invalid_window_res.json()["detail"].lower()
 
-    config_res = client.get("/api/ops/config-status")
+    alerts_res = client.get("/api/ops/alerts?limit=10")
+    assert alerts_res.status_code == 200
+    assert "alerts" in alerts_res.json()
+
+    config_res = client.get("/api/ops/config/status")
     assert config_res.status_code == 200
     assert "managed_contract" in config_res.json()
 
-    templates_res = client.get("/api/ops/templates")
+    templates_res = client.get("/api/ops/planning/templates")
     assert templates_res.status_code == 200
     assert "families" in templates_res.json()
 
-    workflow_templates_res = client.get("/api/ops/templates/workflows")
+    workflow_templates_res = client.get("/api/ops/planning/templates/workflows")
     assert workflow_templates_res.status_code == 200
     assert "templates" in workflow_templates_res.json()

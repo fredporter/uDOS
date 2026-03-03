@@ -21,7 +21,12 @@ from typing import Any
 from core.services.unified_config_loader import get_bool_config, get_config
 from core.tui.output import OutputToolkit
 from core.tui.stdout_guard import atomic_stdout_write
-from core.tui.ui_elements import format_table
+from core.tui.ui_elements import (
+    format_hint_bar,
+    format_key_value_panel,
+    format_panel,
+    format_table,
+)
 
 
 class GridRenderer:
@@ -76,6 +81,11 @@ class GridRenderer:
 
     def _render_success(self, result: dict[str, Any]) -> str:
         """Format successful response"""
+        if "routing" in result:
+            routed = self._render_routed_success(result)
+            if routed:
+                return routed
+
         output = f"{self.GREEN}✓{self.RESET} {result.get('message', 'Success')}\n"
 
         # Add command-specific output
@@ -96,6 +106,126 @@ class GridRenderer:
             output += result["text"] + "\n"
 
         return output
+
+    def _render_routed_success(self, result: dict[str, Any]) -> str:
+        routing = result.get("routing") or {}
+        route = str(routing.get("route") or "dispatch.unknown")
+        intent = str(routing.get("intent") or "unknown")
+        input_class = str(routing.get("input_class") or "unknown")
+        command_text = routing.get("command_text")
+
+        sections: list[str] = [
+            format_key_value_panel(
+                "UCODE ROUTE",
+                [
+                    ("class", input_class),
+                    ("intent", intent),
+                    ("route", route),
+                    ("confidence", f"{float(routing.get('confidence') or 0.0):.2f}"),
+                    ("source", str(routing.get("source") or "unknown")),
+                ],
+                footer=(
+                    [format_hint_bar([f"command: {command_text}"])]
+                    if command_text
+                    else None
+                ),
+            )
+        ]
+
+        workflow_block = self._render_workflow_state_block(result)
+        if workflow_block:
+            sections.append(workflow_block)
+
+        operator_block = self._render_operator_plan_block(result)
+        if operator_block:
+            sections.append(operator_block)
+
+        knowledge_block = self._render_knowledge_block(result)
+        if knowledge_block:
+            sections.append(knowledge_block)
+
+        output_text = str(result.get("output") or "").strip()
+        if output_text:
+            sections.append(format_panel("OUTPUT", output_text.splitlines()))
+
+        return "\n\n".join(section for section in sections if section)
+
+    def _render_workflow_state_block(self, result: dict[str, Any]) -> str:
+        workflow_payload = result.get("workflow")
+        workflow_id = result.get("workflow_id")
+        if not workflow_payload and not workflow_id and "state" not in result:
+            return ""
+
+        if isinstance(workflow_payload, dict) and "state" in workflow_payload:
+            state = workflow_payload.get("state") or {}
+            summary_rows = [
+                ("workflow", str(workflow_id or workflow_payload.get("workflow_id") or "n/a")),
+                ("status", str(state.get("status") or result.get("state") or "unknown")),
+                ("current phase", str((state.get("phases") or [{}])[state.get("current_phase_index", 0)].get("name", "n/a")) if state.get("phases") else "n/a"),
+                ("next window", str(state.get("next_run_at") or "n/a")),
+                ("tokens", str(state.get("total_tokens", 0))),
+                ("budget usd", f"{float(state.get('total_cost_usd', 0.0)):.2f}"),
+            ]
+            return format_key_value_panel("WORKFLOW STATE", summary_rows)
+
+        if workflow_id or "state" in result:
+            return format_key_value_panel(
+                "WORKFLOW STATE",
+                [
+                    ("workflow", str(workflow_id or "n/a")),
+                    ("status", str(result.get("state") or "unknown")),
+                ],
+            )
+        return ""
+
+    def _render_operator_plan_block(self, result: dict[str, Any]) -> str:
+        plan = result.get("operator_plan")
+        if not isinstance(plan, dict):
+            return ""
+
+        lines = [
+            f"summary: {plan.get('summary', '')}",
+        ]
+        intent = plan.get("intent") or {}
+        if intent:
+            lines.append(
+                f"intent: {intent.get('label', 'unknown')} ({float(intent.get('confidence', 0.0)):.2f})"
+            )
+            if intent.get("reason"):
+                lines.append(f"reason: {intent.get('reason')}")
+
+        actions = plan.get("actions") or []
+        if actions:
+            lines.append("")
+            lines.append("actions:")
+            lines.extend(
+                f"- {item.get('command', 'n/a')} :: {item.get('description', '')}"
+                for item in actions
+            )
+
+        return format_panel("OPERATOR PLAN", lines)
+
+    def _render_knowledge_block(self, result: dict[str, Any]) -> str:
+        lines: list[str] = []
+        if result.get("saved_path"):
+            lines.append(f"saved: {result['saved_path']}")
+        if result.get("artifact_path"):
+            lines.append(f"artifact: {result['artifact_path']}")
+        imported = result.get("imported")
+        if isinstance(imported, dict):
+            lines.append(f"note: {imported.get('note_id', 'n/a')}")
+            lines.append(f"target: {imported.get('target_path', 'n/a')}")
+            lines.append(f"processed: {imported.get('processed_snapshot', 'n/a')}")
+        duplicate = result.get("duplicate")
+        if isinstance(duplicate, dict):
+            lines.append(f"template copy: {duplicate.get('target_name', 'n/a')}")
+            lines.append(f"duplicate path: {duplicate.get('path', 'n/a')}")
+        templates = result.get("templates")
+        if isinstance(templates, list):
+            lines.append(f"templates: {len(templates)}")
+        if not lines:
+            return ""
+        return format_panel("KNOWLEDGE ARTIFACTS", lines)
 
     def _render_error(self, result: dict[str, Any]) -> str:
         """Format error response"""

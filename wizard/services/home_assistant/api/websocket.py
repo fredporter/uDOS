@@ -244,6 +244,6 @@ class WebSocketManager:
 
 def _get_timestamp() -> str:
     """Get ISO format timestamp."""
-    from datetime import datetime
+    from core.services.time_utils import utc_now_iso_z
 
-    return datetime.now().isoformat()
+    return utc_now_iso_z()

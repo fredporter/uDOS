@@ -6,6 +6,10 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 export UV_PROJECT_ENVIRONMENT="${UV_PROJECT_ENVIRONMENT:-.venv}"
 
+if [[ $# -eq 0 && -t 0 && -t 1 && -x "${REPO_ROOT}/tui/bin/udos-tui" ]]; then
+  exec "${REPO_ROOT}/bin/udos-tui"
+fi
+
 if [[ "${1:-}" == "ts" ]]; then
   shift
   echo "Node runtime not detected. Falling back to core mode."

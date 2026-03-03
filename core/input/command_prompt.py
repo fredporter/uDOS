@@ -288,7 +288,7 @@ class ContextualCommandPrompt(EnhancedPrompt):
         if not tokens:
             suggestions = self.registry.get_suggestions("", limit=5)
             line1 = self._format_suggestions_line(suggestions, prefix_symbol, label="Commands")
-            line2 = f"  ↳ DEV: {dev_state}  |  Tip: Use '?' or 'OK', '/' for commands"
+            line2 = f"  ↳ DEV: {dev_state}  |  Tip: Use '?' or 'LOGIC', '/' for commands"
             return [_format_line(line1), _format_line(line2)]
 
         cmd_token = tokens[0].lstrip(":/")
@@ -308,13 +308,13 @@ class ContextualCommandPrompt(EnhancedPrompt):
                 line2 = self._format_tip_line(stripped)
             return [_format_line(line1), _format_line(line2)]
 
-        if cmd_key == "OK":
-            options = ["LOCAL", "EXPLAIN", "DIFF", "PATCH", "ROUTE", "VIBE", "FALLBACK"]
+        if cmd_key == "LOGIC":
+            options = ["LOCAL", "EXPLAIN", "DIFF", "PATCH", "ROUTE", "NETWORK", "FALLBACK"]
             opt_preview = ", ".join(options[:4])
             if len(options) > 4:
                 opt_preview += f" (+{len(options) - 4} more)"
-            line1 = f"  ⎔ OK: {opt_preview}"
-            line2 = f"  ↳ Local Vibe ({ok_model}, ctx {ok_ctx})"
+            line1 = f"  ⎔ LOGIC: {opt_preview}"
+            line2 = f"  ↳ Local GPT4All ({ok_model}, ctx {ok_ctx})"
             return [_format_line(line1), _format_line(line2)]
 
         # Otherwise, show options/next hints for the chosen command
@@ -357,7 +357,7 @@ class ContextualCommandPrompt(EnhancedPrompt):
             "  ↳ Tip: Use ↑/↓ for history, → to accept suggestions",
             "  ↳ Tip: Press Tab to open the command selector",
             "  ↳ Tip: Add --help to see command options",
-            "  ↳ Tip: Prefix OK for local Vibe (e.g., OK EXPLAIN)",
+            "  ↳ Tip: Prefix LOGIC for local assist (e.g., LOGIC EXPLAIN)",
             "  ↳ Tip: Try HELP <command> for full docs",
         ]
         idx = (len(prefix) + sum(ord(c) for c in prefix)) % len(tips) if prefix else 0
@@ -573,21 +573,21 @@ def create_default_registry() -> CommandRegistry:
     )
 
     registry.register(
-        name="OK",
-        help_text="Local Vibe helpers (EXPLAIN, DIFF, PATCH, LOCAL)",
-        syntax="OK <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|PULL|FALLBACK> [args]",
+        name="LOGIC",
+        help_text="v1.5 logic-assist helpers (EXPLAIN, DIFF, PATCH, LOCAL)",
+        syntax="LOGIC <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|NETWORK|FALLBACK> [args]",
         options=[
             "LOCAL: Show recent local outputs",
             "EXPLAIN: Summarize code in a file",
             "DIFF: Propose a diff for a file",
             "PATCH: Draft a patch with preview",
             "ROUTE: Rule-based NL routing",
-            "PULL: Download an Ollama model by name",
-            "FALLBACK: Toggle auto-fallback (on|off)",
+            "NETWORK: Send the prompt through Wizard network routing",
+            "FALLBACK: Toggle network fallback (on|off)",
         ],
-        examples=["OK PULL mistral-small2", "OK ROUTE show scheduler logs", "OK EXPLAIN core/tui/ucode.py"],
+        examples=["LOGIC NETWORK summarize backlog", "LOGIC ROUTE show scheduler logs", "LOGIC EXPLAIN core/tui/ucode.py"],
         icon="•",
-        category="AI",
+        category="Logic",
     )
 
     registry.register(

@@ -9,7 +9,6 @@ Handles:
 
 from __future__ import annotations
 
-from datetime import datetime
 import os
 import sys
 import termios
@@ -23,6 +22,7 @@ from core.input.confirmation_utils import (
     parse_confirmation,
 )
 from core.services.logging_api import get_logger
+from core.services.time_utils import render_utc_as_local
 from core.services.unified_config_loader import get_bool_config
 from core.tui.form_fields import FieldType, TUIFormRenderer
 from core.utils.tty import interactive_tty_status
@@ -512,10 +512,10 @@ class SimpleFallbackFormHandler:
                 value = input(prompt).strip() or default
                 data[name] = value
             elif ftype == "datetime_approve":
-                now = datetime.now().astimezone()
-                date_str = now.strftime("%Y-%m-%d")
-                time_str = now.strftime("%H:%M:%S")
-                tz = now.tzname() or str(now.tzinfo) or "UTC"
+                rendered = render_utc_as_local()
+                date_str = rendered["local_date"]
+                time_str = rendered["local_clock"]
+                tz = rendered["timezone"]
                 default_choice = normalize_default("ok", "ok")
                 prompt = (
                     f"\n{label} (Detected {date_str} {time_str} {tz})\n"

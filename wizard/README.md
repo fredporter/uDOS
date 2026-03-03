@@ -5,7 +5,7 @@ Wizard owns:
 - permissions + sharing scopes
 - contribution intake/review/merge
 - scheduler (off-peak windows)
-- ai-router policy (local Ollama pool + online fallback)
+- logic-assist routing policy (local GPT4All advisory lane + Wizard-managed network escalation)
 - audit logs and snapshots
 
 ## Documentation Flow

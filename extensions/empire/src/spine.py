@@ -1,4 +1,4 @@
-"""Empire spine entrypoint (private extension)."""
+"""Empire spine entrypoint for the official bundled extension."""
 
 from __future__ import annotations
 
@@ -20,3 +20,13 @@ def bootstrap() -> EmpireStatus:
         message="Empire extension initialized.",
         services={},
     )
+
+
+def initialize() -> dict[str, Any]:
+    """Compatibility wrapper for the official extension contract."""
+    status = bootstrap()
+    return {
+        "available": status.available,
+        "message": status.message,
+        "services": status.services,
+    }

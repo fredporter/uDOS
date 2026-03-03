@@ -22,6 +22,7 @@ class TreeStructureService:
         "node_modules",
         ".cache",
         ".tmp",
+        ".venv",
         "venv",
     }
 
@@ -33,6 +34,7 @@ class TreeStructureService:
         "node_modules",
         ".cache",
         ".tmp",
+        ".venv",
         "venv",
     }
 

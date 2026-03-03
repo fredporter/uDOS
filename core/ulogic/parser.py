@@ -97,6 +97,18 @@ _PATTERNS: list[tuple[re.Pattern[str], str, str, callable]] = [
         "knowledge.capture",
         lambda match, text: {"text": text.strip()},
     ),
+    (
+        re.compile(r"\b(?:research|investigate|ingest)\b", re.IGNORECASE),
+        "knowledge",
+        "knowledge.research",
+        lambda match, text: {"text": text.strip()},
+    ),
+    (
+        re.compile(r"\b(?:generate|publish|compose)\b", re.IGNORECASE),
+        "knowledge",
+        "knowledge.generate",
+        lambda match, text: {"text": text.strip()},
+    ),
 ]
 
 

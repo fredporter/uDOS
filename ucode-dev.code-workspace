@@ -3,6 +3,18 @@
     {
       "name": "uDOS",
       "path": "."
+    },
+    {
+      "name": "@dev",
+      "path": "dev"
+    },
+    {
+      "name": "@docs",
+      "path": "dev/docs"
+    },
+    {
+      "name": "@goblin",
+      "path": "dev/goblin"
     }
   ],
   "settings": {
@@ -20,7 +32,11 @@
     "search.exclude": {
       "**/.venv": true,
       "**/__pycache__": true,
-      "**/node_modules": true
+      "**/node_modules": true,
+      "dev/files": true,
+      "dev/relecs": true,
+      "dev/dev-work": true,
+      "dev/testing": true
     },
     "python.defaultInterpreterPath": "${workspaceFolder:uDOS}/.venv/bin/python",
     "python.terminal.executeInFileDir": true,
@@ -47,6 +63,8 @@
       "PATH": "${workspaceFolder:uDOS}/.venv/bin:${env:PATH}",
       "PYTHONPATH": "${workspaceFolder:uDOS}",
       "UDOS_ROOT": "${workspaceFolder:uDOS}",
+      "UDOS_DEV_ROOT": "${workspaceFolder:uDOS}/dev",
+      "UDOS_DEV_GOBLIN_ROOT": "${workspaceFolder:uDOS}/dev/goblin",
       "UDOS_WIZARD_PORT_FILE": "${workspaceFolder:uDOS}/.wizard-port",
       "VAULT_ROOT": "/Users/fredbook/Documents/vault-md",
       "PAGER": "cat",
@@ -73,7 +91,7 @@
     "version": "2.0.0",
     "tasks": [
       {
-        "label": "uDOS: Vibe Status",
+        "label": "uDOS: @dev Vibe Status",
         "type": "shell",
         "command": "/bin/bash",
         "args": [
@@ -89,7 +107,7 @@
         "problemMatcher": []
       },
       {
-        "label": "uDOS: Run Tests",
+        "label": "uDOS: @dev Run Tests",
         "type": "shell",
         "command": "/bin/bash",
         "args": [
@@ -105,7 +123,7 @@
         "problemMatcher": []
       },
       {
-        "label": "uDOS: Lint",
+        "label": "uDOS: @dev Lint",
         "type": "shell",
         "command": "/bin/bash",
         "args": [
@@ -121,7 +139,7 @@
         "problemMatcher": []
       },
       {
-        "label": "uDOS: Health Check",
+        "label": "uDOS: @dev Health Check",
         "type": "shell",
         "command": "/bin/bash",
         "args": [
@@ -137,7 +155,7 @@
         "problemMatcher": []
       },
       {
-        "label": "uDOS: Tail Logs",
+        "label": "uDOS: @dev Tail Logs",
         "type": "shell",
         "command": "/bin/bash",
         "args": [

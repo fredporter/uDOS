@@ -1,0 +1,22 @@
+# Logic Assist Settings Template
+
+- owner: wizard
+- runtime: logic-assist-v1.5
+- local_runtime: gpt4all
+- local_role: advisory_only
+- local_model_name: mistral-7b-instruct-v0.2.Q4_0.gguf
+- local_model_path: memory/models/gpt4all
+- local_context_window: 8192
+- local_prompt_style: markdown_runbook
+- network_enabled: true
+- network_primary_provider: mistral
+- network_tier0_provider: openrouter
+- network_tier1_provider: mistral
+- network_tier2_provider: openai
+- daily_limit_usd: 10.0
+- tier0_daily_limit_usd: 2.0
+- tier1_daily_limit_usd: 4.0
+- tier2_daily_limit_usd: 4.0
+- auto_defer_when_exceeded: true
+- response_cache_enabled: true
+- schema_version: udos-logic-assist-v1.5

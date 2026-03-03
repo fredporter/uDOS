@@ -1,4 +1,4 @@
-"""Streamed OK command dispatch helpers for uCODE routes."""
+"""Streamed logic-assist command dispatch helpers for uCODE routes."""
 
 from __future__ import annotations
 
@@ -7,9 +7,9 @@ from typing import Any, Callable, Dict, List, Optional
 from fastapi import HTTPException
 
 from wizard.routes.ucode_command_utils import (
-    OK_CODING_MODES,
-    parse_ok_command,
-    prepare_ok_coding_request,
+    LOGIC_CODING_MODES,
+    parse_logic_command,
+    prepare_logic_coding_request,
 )
 from wizard.routes.ucode_ok_execution import run_ok_stream_with_fallback
 
@@ -28,20 +28,20 @@ def dispatch_ok_stream_command(
     ok_cloud_available: Callable[[], bool],
     record_ok_output: Callable[..., Dict[str, Any]],
 ) -> Optional[Dict[str, Any]]:
-    parsed = parse_ok_command(command)
+    parsed = parse_logic_command(command)
     if parsed is None:
         return None
 
     working_command = parsed.command
-    if parsed.ok_mode not in OK_CODING_MODES:
+    if parsed.logic_mode not in LOGIC_CODING_MODES:
         return None
-    coding_request = prepare_ok_coding_request(
+    coding_request = prepare_logic_coding_request(
         parsed=parsed,
         is_dev_mode_active=is_dev_mode_active,
         logger=logger,
         corr_id=corr_id,
-        rejected_log_message="OK stream rejected",
-        missing_file_log_message="OK stream file missing",
+        rejected_log_message="Logic stream rejected",
+        missing_file_log_message="Logic stream file missing",
     )
     ok_mode = coding_request.mode
     path = coding_request.path
@@ -72,7 +72,7 @@ def dispatch_ok_stream_command(
         "command": working_command,
         "result": {
             "status": "success",
-            "message": f"OK {ok_mode} complete",
+            "message": f"LOGIC {ok_mode} complete",
             "output": response_text,
         },
         "ok": entry,

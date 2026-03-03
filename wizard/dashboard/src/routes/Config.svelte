@@ -55,7 +55,7 @@
   let selfHealError = "";
   let selfHealSeeding = false;
   let selfHealPulling = false;
-  let selfHealOkSetup = false;
+  let selfHealLogicSetup = false;
   let setupStoryStatus = "";
   let setupStoryError = "";
   let pullProgress = 0;
@@ -73,7 +73,7 @@
   let operationsError = "";
   let networkingSettings = {
     web_proxy_enabled: true,
-    ok_gateway_enabled: true,
+    logic_assist_enabled: true,
     plugin_repo_enabled: true,
     github_push_enabled: true,
   };
@@ -210,11 +210,12 @@
   function buildUcodeCommands(status) {
     if (!status) return [];
     const cmds = [];
-    if (!status.ollama?.running) {
-      cmds.push("INSTALL VIBE");
+    if (!status.logic_assist?.package_available || !status.vibe_cli?.installed) {
+      cmds.push("SETUP dev");
     }
-    const missing = status.ollama?.missing_models || [];
-    missing.forEach((model) => cmds.push(`OK PULL ${model}`));
+    if (status.logic_assist?.model_present === false) {
+      cmds.push("LOGIC LOCAL");
+    }
     if (!status.nounproject?.configured) {
       cmds.push("uCODE SET: NOUNPROJECT_API_KEY / NOUNPROJECT_API_SECRET");
     } else if (status.nounproject?.auth_ok === false) {
@@ -238,64 +239,11 @@
     }
   }
 
-  async function pullOllamaModels() {
-    if (!selfHealStatus?.ollama) {
-      await runSelfHealStatus();
+  async function prepareLogicAssistModel() {
+    pushSelfHealLog("Local GPT4All model files are managed directly in the configured model directory.");
+    if (selfHealStatus?.logic_assist?.model_path) {
+      pushSelfHealLog(`Expected model path: ${selfHealStatus.logic_assist.model_path}`);
     }
-    const missing = selfHealStatus?.ollama?.missing_models || [];
-    if (!missing.length) {
-      pushSelfHealLog("No missing Ollama models detected.");
-      return;
-    }
-    selfHealPulling = true;
-    selfHealError = "";
-    pullProgress = 0;
-
-    for (const model of missing) {
-      pushSelfHealLog(`Pulling Ollama model: ${model}`);
-      try {
-        const res = await fetch(`/api/self-heal/ollama/pull`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", ...authHeaders() },
-          body: JSON.stringify({ model }),
-        });
-
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value);
-          const lines = chunk.split("\n");
-
-          for (const line of lines) {
-            if (line.startsWith("data: ")) {
-              try {
-                const data = JSON.parse(line.slice(6));
-                pullProgress = data.progress || 0;
-                pullStatus = data.message || "";
-                if (data.message) pushSelfHealLog(data.message);
-                if (data.error) {
-                  selfHealError = data.error;
-                  pushSelfHealLog(`Pull failed for ${model}: ${data.error}`);
-                }
-              } catch (e) {
-                // Skip invalid JSON
-              }
-            }
-          }
-        }
-      } catch (err) {
-        selfHealError = err.message || String(err);
-        pushSelfHealLog(`Pull failed for ${model}: ${selfHealError}`);
-        break;
-      }
-    }
-    await runSelfHealStatus();
-    selfHealPulling = false;
-    pullProgress = 0;
   }
 
   async function seedNounProjectIcons() {
@@ -351,14 +299,14 @@
     }
   }
 
-  async function runOkSetup() {
-    selfHealOkSetup = true;
+  async function runLogicAssistSetup() {
+    selfHealLogicSetup = true;
     selfHealError = "";
     okSetupProgress = 0;
-    pushSelfHealLog("Running INSTALL VIBE (OK SETUP backend)...");
+    pushSelfHealLog("Running logic-assist contributor setup...");
 
     try {
-      const res = await fetch("/api/self-heal/ok-setup", {
+      const res = await fetch("/api/self-heal/logic-assist/setup", {
         method: "POST",
         headers: authHeaders(),
       });
@@ -382,7 +330,7 @@
               if (data.message) pushSelfHealLog(data.message);
               if (data.error) {
                 selfHealError = data.error;
-                pushSelfHealLog(`INSTALL VIBE failed: ${data.error}`);
+                pushSelfHealLog(`Logic-assist setup failed: ${data.error}`);
               }
               if (data.status === "complete") {
                 pushSelfHealLog(`✅ Setup completed (${data.steps_count || 0} steps, ${data.warnings_count || 0} warnings)`);
@@ -396,9 +344,9 @@
       }
     } catch (err) {
       selfHealError = err.message || String(err);
-      pushSelfHealLog(`INSTALL VIBE failed: ${selfHealError}`);
+      pushSelfHealLog(`Logic-assist setup failed: ${selfHealError}`);
     } finally {
-      selfHealOkSetup = false;
+      selfHealLogicSetup = false;
       okSetupProgress = 0;
     }
     await runSelfHealStatus();
@@ -427,11 +375,11 @@
 
   // Configuration files available
   const configFiles = {
-    assistant_keys: {
-      id: "assistant_keys",
-      label: "Assistant Keys",
+    logic_assist: {
+      id: "logic_assist",
+      label: "Logic Assist",
       description:
-        "Default AI routing (Ollama + OpenRouter) and optional provider keys",
+        "Markdown-backed GPT4All and network escalation settings",
     },
     oauth: {
       id: "oauth",
@@ -448,13 +396,13 @@
   const wizardToggleFields = [
     {
       key: "ok_gateway_enabled",
-      label: "OK Gateway",
-      description: "Enable routing to local/cloud AI providers via Wizard",
+      label: "Logic Assist Gateway",
+      description: "Enable Wizard-managed logic-assist routing and provider access",
     },
     {
       key: "ok_cloud_sanity_enabled",
-      label: "OK Cloud Sanity",
-      description: "Allow cloud sanity checks after local OK responses",
+      label: "Logic Network Sanity",
+      description: "Allow Wizard cloud review after local logic-assist responses",
     },
     {
       key: "plugin_repo_enabled",
@@ -514,29 +462,29 @@
   let providers = [];
   let showProviders = false;
   let isLoadingProviders = false;
-  const DEFAULT_AI_PROVIDER_IDS = ["ollama", "openrouter"];
+  const DEFAULT_LOGIC_PROVIDER_IDS = ["gpt4all", "openrouter"];
   const isAiProvider = (provider) =>
-    provider?.config_file === "assistant_keys.json" ||
+    provider?.id === "gpt4all" ||
     [
       "openai",
       "anthropic",
       "gemini",
       "mistral",
       "openrouter",
-      "ollama",
+      "gpt4all",
     ].includes(provider?.id);
   const isDefaultAiProvider = (provider) =>
-    DEFAULT_AI_PROVIDER_IDS.includes(provider?.id);
+    DEFAULT_LOGIC_PROVIDER_IDS.includes(provider?.id);
   const isOptionalAiProvider = (provider) =>
     isAiProvider(provider) && !isDefaultAiProvider(provider);
 
-  // Ollama model management
-  let showOllama = false;
+  // GPT4All local model management
+  let showLocalModel = false;
   let popularModels = [];
   let installedModels = [];
   let installedCount = 0;
   let loadingInstalled = false;
-  let ollamaPullProgress = {};
+  let localModelPullProgress = {};
   let pullPollers = {};
   let copiedModel = null;
 
@@ -571,22 +519,22 @@
   $: providerGroups = [
     {
       id: "ai-defaults",
-      title: "AI Defaults",
+      title: "Logic Defaults",
       description:
-        "Local-first routing uses Ollama (Devstral Small 2). OpenRouter is the optional burst cloud path.",
+        "Local-first routing uses GPT4All. OpenRouter is the optional burst cloud path.",
       providers: defaultAiProviders,
     },
     {
       id: "integrations",
       title: "Integrations & Tools",
-      description: "GitHub and other non-AI services.",
+      description: "GitHub and other non-provider services.",
       providers: nonAiProviders,
     },
     {
       id: "optional-ai",
-      title: "Optional AI Providers",
+      title: "Optional Providers",
       description:
-        "Only configure if you need direct access to these APIs outside the default routing.",
+        "Only configure if you need direct access to these APIs outside the default logic-assist routing.",
       providers: optionalAiProviders,
     },
   ];
@@ -616,7 +564,7 @@
       providers = [];
       networkingSettings = {
         web_proxy_enabled: true,
-        ok_gateway_enabled: true,
+        logic_assist_enabled: true,
         plugin_repo_enabled: true,
         github_push_enabled: true,
       };
@@ -636,7 +584,7 @@
       const data = await response.json();
       networkingSettings = {
         web_proxy_enabled: !!data?.networking?.web_proxy_enabled,
-        ok_gateway_enabled: !!data?.networking?.ok_gateway_enabled,
+        logic_assist_enabled: !!data?.networking?.logic_assist_enabled,
         plugin_repo_enabled: !!data?.networking?.plugin_repo_enabled,
         github_push_enabled: !!data?.networking?.github_push_enabled,
       };
@@ -1331,22 +1279,34 @@
     showProviders = !showProviders;
   }
 
-  function toggleOllama() {
-    showOllama = !showOllama;
-    if (showOllama) {
-      loadOllamaModels();
+  function toggleLocalModel() {
+    showLocalModel = !showLocalModel;
+    if (showLocalModel) {
+      loadLocalModelStatus();
       loadInstalledModels();
     }
   }
 
-  async function loadOllamaModels() {
+  async function loadLocalModelStatus() {
     try {
-      const response = await apiFetch("/api/providers/ollama/models/available");
+      const response = await apiFetch("/api/providers/gpt4all/status");
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
-      popularModels = data.models || [];
+      const status = data?.provider || {};
+      popularModels = [
+        {
+          name:
+            status.default_model ||
+            status.model_path?.split("/").pop() ||
+            "gpt4all-model",
+          size: status.model_path ? "local file" : "not configured",
+          category: "logic-assist",
+          description: status.model_path || "Configured in logic-assist.md",
+          installed: !!status.available,
+        },
+      ];
     } catch (err) {
-      setStatus(`Failed to load Ollama models: ${err.message}`, "error");
+      setStatus(`Failed to load GPT4All status: ${err.message}`, "error");
       popularModels = [];
     }
   }
@@ -1354,13 +1314,22 @@
   async function loadInstalledModels() {
     loadingInstalled = true;
     try {
-      const response = await apiFetch("/api/providers/ollama/models/installed");
+      const response = await apiFetch("/api/providers/gpt4all/status");
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
-      installedModels = data.models || [];
-      installedCount = data.count || 0;
+      const status = data?.provider || {};
+      installedModels = status.available
+        ? [
+            {
+              id: status.default_model || "gpt4all",
+              name: status.default_model || "gpt4all",
+              size: "local file",
+            },
+          ]
+        : [];
+      installedCount = installedModels.length;
     } catch (err) {
-      setStatus(`Failed to load installed models: ${err.message}`, "error");
+      setStatus(`Failed to load local model status: ${err.message}`, "error");
       installedModels = [];
       installedCount = 0;
     } finally {
@@ -1374,33 +1343,13 @@
   }
 
   async function pullModel(modelName) {
-    if (isPulling(modelName)) return;
-    try {
-      const response = await apiFetch(
-        `/api/providers/ollama/models/pull?model=${encodeURIComponent(
-          modelName,
-        )}`,
-        { method: "POST" },
-      );
-      const data = await response.json();
-      if (!response.ok || data.error) {
-        throw new Error(
-          data.error || data.message || `HTTP ${response.status}`,
-        );
-      }
-      pullProgress = {
-        ...pullProgress,
-        [modelName]: { state: "queued", percent: 0 },
-      };
-      setStatus(`Pulling ${modelName}...`, "info");
-      startPullPolling(modelName);
-    } catch (err) {
-      setStatus(`Failed to pull ${modelName}: ${err.message}`, "error");
-    }
+    await runLogicAssistSetup();
+    await loadLocalModelStatus();
+    await loadInstalledModels();
   }
 
   async function copyPullCommand(modelName) {
-    const command = `ollama pull ${modelName}`;
+    const command = "SETUP dev";
     try {
       await navigator.clipboard.writeText(command);
       copiedModel = modelName;
@@ -1423,68 +1372,14 @@
   }
 
   function startPullPolling(modelName) {
-    if (pullPollers[modelName]) return;
-    const poller = setInterval(async () => {
-      try {
-        const res = await apiFetch(
-          `/api/providers/ollama/models/pull/status?model=${encodeURIComponent(
-            modelName,
-          )}`,
-        );
-        const data = await res.json();
-        if (res.ok && data.success && data.status) {
-          pullProgress = {
-            ...pullProgress,
-            [modelName]: data.status,
-          };
-          const state = data.status.state;
-          if (state === "done" || state === "error") {
-            stopPullPolling(modelName);
-            await loadInstalledModels();
-            await loadOllamaModels();
-          }
-        } else if (!res.ok || data.error) {
-          pullProgress = {
-            ...pullProgress,
-            [modelName]: {
-              state: "error",
-              error: data?.error || `HTTP ${res.status}`,
-            },
-          };
-          stopPullPolling(modelName);
-        }
-      } catch (err) {
-        pullProgress = {
-          ...pullProgress,
-          [modelName]: { state: "error", error: err.message || String(err) },
-        };
-        stopPullPolling(modelName);
-      }
-    }, 1200);
-    pullPollers = { ...pullPollers, [modelName]: poller };
+    return;
   }
 
   async function removeModel(modelName) {
-    if (!confirm(`Remove ${modelName} from Ollama?`)) return;
-    try {
-      const response = await apiFetch(
-        `/api/providers/ollama/models/remove?model=${encodeURIComponent(
-          modelName,
-        )}`,
-        { method: "POST" },
-      );
-      const data = await response.json();
-      if (!response.ok || data.error) {
-        throw new Error(
-          data.error || data.message || `HTTP ${response.status}`,
-        );
-      }
-      setStatus(`Removed ${modelName}`, "success");
-      await loadInstalledModels();
-      await loadOllamaModels(); // Refresh available models to update installed status
-    } catch (err) {
-      setStatus(`Failed to remove ${modelName}: ${err.message}`, "error");
-    }
+    setStatus(
+      "Local GPT4All model files are managed directly on disk.",
+      "info",
+    );
   }
 
   function isProviderEnabled(provider) {
@@ -1653,8 +1548,8 @@
           <span>Web Proxy Enabled</span>
         </label>
         <label class="flex items-center gap-2">
-          <input type="checkbox" bind:checked={networkingSettings.ok_gateway_enabled} />
-          <span>OK Cloud Gateway Enabled</span>
+          <input type="checkbox" bind:checked={networkingSettings.logic_assist_enabled} />
+          <span>Logic Assist Network Enabled</span>
         </label>
         <label class="flex items-center gap-2">
           <input type="checkbox" bind:checked={networkingSettings.plugin_repo_enabled} />
@@ -1805,7 +1700,7 @@
       <div>
         <h3 class="text-sm font-semibold text-white">Self-Heal Actions</h3>
         <p class="text-xs text-gray-400">
-          Diagnose Wizard + Ollama + Noun Project and run guided fixes.
+          Diagnose Wizard + Logic Assist + Noun Project and run guided fixes.
         </p>
       </div>
       <button
@@ -1834,23 +1729,23 @@
           </span>
         </div>
         <div class="flex items-center justify-between">
-          <span>Ollama</span>
+          <span>Logic Assist</span>
           <span
-            class={selfHealStatus.ollama?.running
+            class={selfHealStatus.logic_assist?.ready
               ? "text-emerald-300"
               : "text-yellow-300"}
           >
-            {selfHealStatus.ollama?.running ? "Running" : "Not running"}
+            {selfHealStatus.logic_assist?.ready ? "Ready" : "Needs setup"}
           </span>
         </div>
         <div class="flex items-center justify-between">
-          <span>Missing models</span>
+          <span>Local model file</span>
           <span
-            class={(selfHealStatus.ollama?.missing_models?.length || 0) === 0
+            class={selfHealStatus.logic_assist?.model_present
               ? "text-emerald-300"
               : "text-yellow-300"}
           >
-            {selfHealStatus.ollama?.missing_models?.length || 0}
+            {selfHealStatus.logic_assist?.model_present ? "Present" : "Missing"}
           </span>
         </div>
         <div class="flex items-center justify-between">
@@ -1900,18 +1795,18 @@
 
     <div class="mt-3 flex flex-wrap items-center gap-2">
       <button
-        on:click={runOkSetup}
+        on:click={runLogicAssistSetup}
         class="px-3 py-1.5 text-xs rounded bg-indigo-600 text-white hover:bg-indigo-500 transition-colors disabled:opacity-60"
-        disabled={selfHealOkSetup}
+        disabled={selfHealLogicSetup}
       >
-        {selfHealOkSetup ? "Running INSTALL VIBE..." : "INSTALL VIBE"}
+        {selfHealLogicSetup ? "Preparing..." : "Prepare Logic Assist"}
       </button>
       <button
-        on:click={pullOllamaModels}
+        on:click={prepareLogicAssistModel}
         class="px-3 py-1.5 text-xs rounded bg-emerald-600 text-white hover:bg-emerald-500 transition-colors disabled:opacity-60"
-        disabled={selfHealPulling}
+        disabled={false}
       >
-        {selfHealPulling ? "Pulling..." : "Pull Missing Models (OK PULL)"}
+        Open Model Guidance
       </button>
       <button
         on:click={seedNounProjectIcons}
@@ -1923,10 +1818,10 @@
     </div>
 
     <!-- Progress bars -->
-    {#if selfHealOkSetup && okSetupProgress > 0}
+    {#if selfHealLogicSetup && okSetupProgress > 0}
       <div class="mt-3 space-y-2">
         <div class="flex items-center justify-between text-xs text-gray-400">
-          <span>INSTALL VIBE Progress</span>
+          <span>Logic Assist Setup Progress</span>
           <span>{okSetupProgress}%</span>
         </div>
         <div class="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
@@ -2236,7 +2131,7 @@
               <code class="text-green-400">SETUP github</code>
             </div>
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">SETUP ollama</code>
+              <code class="text-green-400">SETUP gpt4all</code>
             </div>
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
               <code class="text-green-400">SETUP mistral</code>
@@ -2561,7 +2456,7 @@
               <div>CONFIG SHOW - View config status</div>
               <div>CONFIG LIST - List all configs</div>
               <div>
-                SETUP &lt;provider&gt; - Setup github, ollama, mistral, etc.
+                SETUP &lt;provider&gt; - Setup github, gpt4all, mistral, etc.
               </div>
               <div>SETUP --help - Show all SETUP options</div>
             </div>
@@ -2575,7 +2470,7 @@
     </div>
   {/if}
 
-  <!-- OLLAMA Section -->
+  <!-- GPT4ALL Section -->
   <div class="mt-6 bg-gray-800 border border-gray-700 rounded-lg p-6">
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-2">
@@ -2592,21 +2487,20 @@
             d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"
           />
         </svg>
-        <h3 class="text-lg font-semibold text-white">OLLAMA Offline Models</h3>
+        <h3 class="text-lg font-semibold text-white">GPT4All Local Model</h3>
       </div>
       <button
         class="px-3 py-1.5 text-sm rounded bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
-        on:click={toggleOllama}
+        on:click={toggleLocalModel}
       >
-        {showOllama ? "▼ Hide" : "▶ Show"}
+        {showLocalModel ? "▼ Hide" : "▶ Show"}
       </button>
     </div>
 
-    {#if showOllama}
+    {#if showLocalModel}
       <p class="text-sm text-gray-400 mb-4">
-        OLLAMA maintains its own offline model library. Browse, install, and
-        manage models locally—similar to how Wizard manages plugins and
-        extensions.
+        GPT4All is the v1.5 local advisory runtime. Wizard tracks the configured
+        local model file and the standard contributor setup path.
       </p>
 
       <!-- Popular Models Browser -->
@@ -2616,9 +2510,9 @@
         >
           <h4 class="text-sm font-semibold text-white">📚 Popular Models</h4>
           <div class="text-[11px] text-gray-400">
-            Remote: set <code>OLLAMA_HOST=http://host:11434</code> in the same
-            shell as uCODE/TUI. Local: install Ollama or run
-            <code>ollama serve</code>.
+            Local model path comes from <code>logic-assist.md</code>. Setup
+            prepares the directory and package, but the model file remains
+            user-managed.
           </div>
         </div>
 
@@ -2662,7 +2556,7 @@
                     </div>
                   {/if}
                   <div class="mt-2 text-[11px] text-gray-500">
-                    Command: <code>ollama pull {model.name}</code>
+                    Command: <code>SETUP dev</code>
                   </div>
                   <div class="mt-2 flex items-center gap-2 text-[11px]">
                     <button
@@ -2730,7 +2624,7 @@
           </div>
         {:else}
           <p class="text-xs text-gray-500">
-            No models installed. Pull one above!
+            No local GPT4All model detected yet.
           </p>
         {/if}
       </div>
@@ -2741,14 +2635,14 @@
           <h4 class="text-sm font-semibold text-white mb-2">uCODE Setup</h4>
           <div class="space-y-2 text-xs text-gray-400">
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">INSTALL VIBE</code>
+              <code class="text-green-400">SETUP dev</code>
               <div class="text-gray-500">
-                Install Ollama + Vibe CLI + 3 Mistral models
+                Install GPT4All package and contributor tooling
               </div>
             </div>
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">OK SETUP</code>
-              <div class="text-gray-500">Same install flow (alias)</div>
+              <code class="text-green-400">LOGIC LOCAL</code>
+              <div class="text-gray-500">Check local logic-assist readiness</div>
             </div>
           </div>
         </div>
@@ -2757,20 +2651,20 @@
           <h4 class="text-sm font-semibold text-white mb-2">uCODE Models</h4>
           <div class="space-y-2 text-xs text-gray-400">
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">OK PULL &lt;model&gt;</code>
-              <div class="text-gray-500">Download + register a model by name</div>
+              <code class="text-green-400">SETUP gpt4all</code>
+              <div class="text-gray-500">Prepare the local GPT4All runtime path</div>
             </div>
             <div class="bg-gray-950 rounded p-2 border border-gray-700">
-              <code class="text-green-400">OK PULL mistral-small2</code>
-              <div class="text-gray-500">Example pull command</div>
+              <code class="text-green-400">LOGIC EXPLAIN &lt;file&gt;</code>
+              <div class="text-gray-500">Run the local advisory lane</div>
             </div>
           </div>
         </div>
       </div>
 
       <div class="mt-4 text-xs text-gray-500">
-        Tip: Use <code class="px-1 py-0.5 bg-gray-900 rounded">OK PULL</code> with
-        any Ollama model name to add more models from the TUI.
+        Tip: keep the configured GPT4All model file at the path shown in the
+        self-heal panel so local logic-assist stays available offline.
       </div>
     {/if}
   </div>
@@ -2802,9 +2696,8 @@
       </button>
     </div>
     <p class="text-xs text-gray-400">
-      Default AI routing is local-first (Ollama + Devstral). OpenRouter is the
-      optional burst cloud path. All other AI providers are listed at the
-      bottom.
+      Default logic-assist routing is local-first (GPT4All). OpenRouter is the
+      optional burst cloud path. All other providers are listed at the bottom.
     </p>
 
     {#if showProviders}

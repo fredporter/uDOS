@@ -14,12 +14,13 @@ Endpoints:
 
 from pathlib import Path
 from typing import Callable, Awaitable, Optional, List, Dict, Any
-from datetime import datetime, timedelta
+from datetime import timedelta
 import uuid
 
 from fastapi import APIRouter, HTTPException, Request, Query, Body
 from pydantic import BaseModel, Field
 
+from core.services.time_utils import parse_utc_datetime, utc_compact_timestamp, utc_now, utc_now_iso_z
 from wizard.services.beacon_service import (
     BeaconConfig,
     BeaconMode,
@@ -330,8 +331,8 @@ def create_beacon_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if not config:
             raise HTTPException(status_code=404, detail="Beacon not found")
 
-        updated_at = datetime.fromisoformat(config.updated_at)
-        age = (datetime.now() - updated_at).total_seconds()
+        updated_at = parse_utc_datetime(config.updated_at)
+        age = (utc_now() - updated_at).total_seconds()
         status = "online" if age < 3600 else "degraded" if age < 86400 else "offline"
 
         return BeaconStatus(
@@ -433,7 +434,7 @@ def create_beacon_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if not beacon_service.get_beacon_config(beacon_id):
             raise HTTPException(status_code=404, detail="Beacon not found")
 
-        tunnel_id = f"tunnel-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        tunnel_id = f"tunnel-{utc_compact_timestamp().replace('-', '')}"
 
         tunnel_defaults = beacon_service._get_tunnel_defaults()
         wizard_public_key = tunnel_defaults["wizard_public_key"] or "<wizard-generated-key>"
@@ -520,7 +521,7 @@ def create_beacon_routes(auth_guard: AuthGuard = None) -> APIRouter:
             "status": "success",
             "tunnel_id": tunnel_id,
             "message": f"Tunnel disabled: {reason}",
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": utc_now_iso_z(),
         }
 
     @router.post("/tunnel/{tunnel_id}/heartbeat")
@@ -545,7 +546,7 @@ def create_beacon_routes(auth_guard: AuthGuard = None) -> APIRouter:
             "status": "success",
             "tunnel_id": tunnel_id,
             "state": status.value,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": utc_now_iso_z(),
         }
 
     @router.post("/tunnel/{tunnel_id}/stats")
@@ -573,7 +574,7 @@ def create_beacon_routes(auth_guard: AuthGuard = None) -> APIRouter:
         return {
             "status": "success",
             "tunnel_id": tunnel_id,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": utc_now_iso_z(),
         }
 
     # ========================================================================
@@ -652,7 +653,7 @@ def create_beacon_routes(auth_guard: AuthGuard = None) -> APIRouter:
         return {
             "status": "success",
             "plugin_id": plugin_id,
-            "cached_at": datetime.now().isoformat(),
+            "cached_at": utc_now_iso_z(),
             "location": "beacon-local",
         }
 

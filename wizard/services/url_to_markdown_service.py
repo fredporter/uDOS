@@ -17,7 +17,7 @@ import urllib.request
 import urllib.error
 from pathlib import Path
 from typing import Optional, Tuple
-from datetime import datetime
+from core.services.time_utils import utc_now_iso_z
 from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
 
@@ -110,7 +110,7 @@ class URLToMarkdownService:
             output_path = self.outbox_path / f"{filename}.md"
             
             # Add metadata header
-            timestamp = datetime.now().isoformat()
+            timestamp = utc_now_iso_z()
             metadata = f"""---
 title: {filename}
 source_url: {url}
@@ -192,7 +192,7 @@ format: url-to-markdown
             markdown_content = result.stdout
             
             # Add metadata header
-            timestamp = datetime.now().isoformat()
+            timestamp = utc_now_iso_z()
             metadata = f"""---
 title: {filename}
 source_url: {url}

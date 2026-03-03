@@ -11,7 +11,6 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from fastapi import HTTPException
 
-from core.services.integration_registry import get_assistant_config_key_map
 from wizard.services.path_utils import (
     get_artifacts_dir,
     get_logs_dir,
@@ -26,13 +25,11 @@ class ConfigRouteHelpers:
     def __init__(self, config_path: Path):
         self.config_path = config_path
         self.config_files = {
-            "assistant_keys": "assistant_keys.json",
             "github_keys": "github_keys.json",
             "oauth": "oauth_providers.json",
             "wizard": "wizard.json",
         }
         self.label_map = {
-            "assistant_keys": "Assistant Keys",
             "github_keys": "GitHub Keys",
             "oauth": "OAuth Providers",
             "wizard": "Wizard",
@@ -93,16 +90,6 @@ class ConfigRouteHelpers:
                 if not config.get("github_push_enabled"):
                     config["github_push_enabled"] = True
                     changed = True
-        elif file_id == "assistant_keys":
-            ai_key_map = get_assistant_config_key_map()
-            for key, provider_id in ai_key_map.items():
-                if content.get(key):
-                    changed |= self._enable_provider(config, provider_id)
-            if any(content.get(k) for k in ai_key_map.keys()):
-                if not config.get("ok_gateway_enabled"):
-                    config["ok_gateway_enabled"] = True
-                    changed = True
-
         if changed:
             self.save_wizard_config(config)
         return changed

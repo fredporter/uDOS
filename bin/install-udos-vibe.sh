@@ -5,7 +5,7 @@
 # ============================================================
 # Cross-platform installer for macOS and Linux
 # Handles: OS detection, dependencies, .env setup, Dev Mode tooling,
-#          optional Ollama, wizard lazy-loading, and more.
+#          v1.5 logic-assist preparation, optional TUI build, wizard lazy-loading, and more.
 #
 # Usage:
 #   ./bin/install-udos-vibe.sh           # Full install
@@ -15,6 +15,7 @@
 # ============================================================
 
 set -euo pipefail
+export UV_PROJECT_ENVIRONMENT=.venv
 
 # ── Colors & Output ──────────────────────────────────────────
 RED='\033[0;31m'
@@ -68,7 +69,6 @@ INSTALL_MODE="full"
 UPDATE_MODE=false
 CORE_ONLY=false
 WIZARD_ONLY=false
-SKIP_OLLAMA=false
 REQUESTED_TIER="auto"
 PREFLIGHT_JSON=false
 PROFILE_SELECTION=""
@@ -88,11 +88,10 @@ HAS_GPU=false
 GPU_VRAM_GB=0
 INSTALL_TIER="tier1"
 LOCAL_MODELS_ALLOWED=false
-OLLAMA_RECOMMENDED=false
 AUTO_TIER_RESULT="tier1"
 LOCAL_MODEL_BLOCK_REASON="none"
 LOCAL_MODEL_REMEDIATION="none"
-OLLAMA_RECOMMENDED_MODELS=""
+LOGIC_ASSIST_RECOMMENDED_MODELS=""
 
 VIBE_CLI_INSTALLED=false
 UV_INSTALLED=false
@@ -153,10 +152,6 @@ while [[ $# -gt 0 ]]; do
             UPDATE_MODE=true
             shift
             ;;
-        --skip-ollama)
-            SKIP_OLLAMA=true
-            shift
-            ;;
         --preflight-json)
             PREFLIGHT_JSON=true
             shift
@@ -188,7 +183,6 @@ while [[ $# -gt 0 ]]; do
             echo "  --core         Install core components only (no wizard)"
             echo "  --wizard       Install wizard components only (assumes core exists)"
             echo "  --update       Update existing installation"
-            echo "  --skip-ollama  Skip Ollama installation prompts"
             echo "  --profile      Certified profiles: core,home,creator,gaming,dev"
             echo "  --tinycore     Route to TinyCore package installer (distribution/installer.sh)"
             echo "  --tier         Runtime tier: auto | 1 | 2 | 3"
@@ -227,10 +221,10 @@ function select_certified_profiles() {
     local resolved="$requested"
 
     if command -v uv >/dev/null 2>&1; then
-        resolved="$(UDOS_ROOT="$REPO_ROOT" uv run python -m core.services.release_profile_cli resolved --repo-root "$REPO_ROOT" --profiles "$requested" 2>/dev/null || printf '%s' "$requested")"
-        SELECTED_TINYCORE_TIER="$(UDOS_ROOT="$REPO_ROOT" uv run python -m core.services.release_profile_cli tier --repo-root "$REPO_ROOT" --profiles "$resolved" 2>/dev/null || printf 'core')"
-        SELECTED_PACKAGE_GROUPS="$(UDOS_ROOT="$REPO_ROOT" uv run python -m core.services.release_profile_cli packages --repo-root "$REPO_ROOT" --profiles "$resolved" 2>/dev/null || true)"
-        SELECTED_PROFILE_EXTENSIONS="$(UDOS_ROOT="$REPO_ROOT" uv run python -m core.services.release_profile_cli extensions --repo-root "$REPO_ROOT" --profiles "$resolved" 2>/dev/null || true)"
+        resolved="$(UDOS_ROOT="$REPO_ROOT" UV_PROJECT_ENVIRONMENT=.venv uv run python -m core.services.release_profile_cli resolved --repo-root "$REPO_ROOT" --profiles "$requested" 2>/dev/null || printf '%s' "$requested")"
+        SELECTED_TINYCORE_TIER="$(UDOS_ROOT="$REPO_ROOT" UV_PROJECT_ENVIRONMENT=.venv uv run python -m core.services.release_profile_cli tier --repo-root "$REPO_ROOT" --profiles "$resolved" 2>/dev/null || printf 'core')"
+        SELECTED_PACKAGE_GROUPS="$(UDOS_ROOT="$REPO_ROOT" UV_PROJECT_ENVIRONMENT=.venv uv run python -m core.services.release_profile_cli packages --repo-root "$REPO_ROOT" --profiles "$resolved" 2>/dev/null || true)"
+        SELECTED_PROFILE_EXTENSIONS="$(UDOS_ROOT="$REPO_ROOT" UV_PROJECT_ENVIRONMENT=.venv uv run python -m core.services.release_profile_cli extensions --repo-root "$REPO_ROOT" --profiles "$resolved" 2>/dev/null || true)"
     fi
 
     SELECTED_PROFILES_CSV="$resolved"
@@ -244,7 +238,7 @@ function sync_certified_profiles() {
         return
     fi
     if command -v uv >/dev/null 2>&1; then
-        UDOS_ROOT="$REPO_ROOT" uv run python -m core.services.release_profile_cli install --repo-root "$REPO_ROOT" --profiles "$SELECTED_PROFILES_CSV" >/dev/null 2>&1 || warning "Could not persist certified profile state"
+        UDOS_ROOT="$REPO_ROOT" UV_PROJECT_ENVIRONMENT=.venv uv run python -m core.services.release_profile_cli install --repo-root "$REPO_ROOT" --profiles "$SELECTED_PROFILES_CSV" >/dev/null 2>&1 || warning "Could not persist certified profile state"
         return
     fi
     mkdir -p "$REPO_ROOT/memory/ucode"
@@ -276,7 +270,6 @@ function detect_os() {
             HAS_GPU=true
         fi
 
-        info "macOS $OS_VERSION detected"
     elif [[ "$platform" == "Linux" ]]; then
         if [[ -f /etc/os-release ]]; then
             source /etc/os-release
@@ -302,7 +295,6 @@ function detect_os() {
             HAS_GPU=true
         fi
 
-        info "$OS_TYPE $OS_VERSION detected"
     else
         error "Unsupported operating system: $platform"
         error "This installer supports macOS and Linux only"
@@ -314,6 +306,7 @@ function detect_os() {
         GPU_VRAM_GB="$(_probe_gpu_vram_gb)"
     fi
 
+    info "$OS_TYPE $OS_VERSION detected"
     info "Architecture: $CPU_ARCH"
     info "CPU Cores: $CPU_CORES"
     info "RAM: ${TOTAL_RAM_GB}GB"
@@ -378,14 +371,12 @@ function _configure_tier() {
     INSTALL_TIER="$candidate"
     if [[ "$candidate" == "tier1" ]]; then
         LOCAL_MODELS_ALLOWED=false
-        OLLAMA_RECOMMENDED=false
     else
         LOCAL_MODELS_ALLOWED=true
-        OLLAMA_RECOMMENDED=true
     fi
 }
 
-function _ollama_tier_profile_csv() {
+function _logic_assist_tier_profile_csv() {
     case "$1" in
         tier2|2)
             echo "devstral-small-2,mistral,llama3.2,qwen3"
@@ -520,7 +511,7 @@ function emit_preflight_json() {
   "auto_tier": "$AUTO_TIER_RESULT",
   "selected_tier": "$INSTALL_TIER",
   "local_models_allowed": $(_bool_to_json "$LOCAL_MODELS_ALLOWED"),
-  "ollama_recommended_models": $(_json_array_from_csv "$OLLAMA_RECOMMENDED_MODELS"),
+  "logic_assist_recommended_models": $(_json_array_from_csv "$LOGIC_ASSIST_RECOMMENDED_MODELS"),
   "block_reason": "$LOCAL_MODEL_BLOCK_REASON",
   "remediation": "$LOCAL_MODEL_REMEDIATION"
 }
@@ -615,19 +606,18 @@ function evaluate_install_tier() {
     fi
 
     _configure_tier "$selected"
-    OLLAMA_RECOMMENDED_MODELS="$(_ollama_tier_profile_csv "$INSTALL_TIER")"
+    LOGIC_ASSIST_RECOMMENDED_MODELS="$(_logic_assist_tier_profile_csv "$INSTALL_TIER")"
 
     info "Selected install tier: $INSTALL_TIER (requested: $REQUESTED_TIER, auto-detected: $auto_tier)"
     case "$INSTALL_TIER" in
         tier1)
-            info "Tier1 profile: cloud-first vibe-cli, offline demos/docs/system info; local-model setup disabled."
-            SKIP_OLLAMA=true
+            info "Tier1 profile: offline-first core plus Wizard review; local GPT4All setup disabled."
             ;;
         tier2)
-            info "Tier2 profile: eligible for Ollama + small local models with cloud fallback."
+            info "Tier2 profile: eligible for GPT4All local assist with smaller models and Wizard escalation."
             ;;
         tier3)
-            info "Tier3 profile: eligible for larger local models with cloud fallback."
+            info "Tier3 profile: eligible for larger GPT4All local assist models with Wizard escalation."
             ;;
     esac
 
@@ -848,7 +838,7 @@ function setup_env_file() {
     fi
 
     echo ""
-    prompt "Enter your Mistral API key (get one at https://console.mistral.ai):"
+    prompt "Enter your Mistral API key for Wizard network review (optional; leave blank for offline-first install):"
     read -r api_key
     if [[ -n "$api_key" ]]; then
         sed -i.bak "s|MISTRAL_API_KEY=.*|MISTRAL_API_KEY=$api_key|g" "$env_file"
@@ -857,16 +847,18 @@ function setup_env_file() {
 
     upsert_env_var "$env_file" "VIBE_INSTALL_TIER" "$INSTALL_TIER"
     upsert_env_var "$env_file" "LOCAL_MODELS_ALLOWED" "$(if [[ "$LOCAL_MODELS_ALLOWED" == true ]]; then echo "1"; else echo "0"; fi)"
-    upsert_env_var "$env_file" "VIBE_OLLAMA_RECOMMENDED_MODELS" "$OLLAMA_RECOMMENDED_MODELS"
+    upsert_env_var "$env_file" "UDOS_LOGIC_LOCAL_RUNTIME" "GPT4All"
+    upsert_env_var "$env_file" "UDOS_LOGIC_INSTALL_TIER" "$INSTALL_TIER"
+    upsert_env_var "$env_file" "UDOS_LOGIC_RECOMMENDED_MODELS" "$LOGIC_ASSIST_RECOMMENDED_MODELS"
 
     # Generate wizard admin token if needed
     if [[ "$INSTALL_MODE" != "core" ]]; then
         local wizard_token
-        wizard_token=$(uv run python -c "import secrets; print(secrets.token_urlsafe(32))" 2>/dev/null || openssl rand -base64 32)
+        wizard_token=$(UV_PROJECT_ENVIRONMENT=.venv uv run python -c "import secrets; print(secrets.token_urlsafe(32))" 2>/dev/null || openssl rand -base64 32)
         sed -i.bak "s|WIZARD_ADMIN_TOKEN=.*|WIZARD_ADMIN_TOKEN=$wizard_token|g" "$env_file"
 
         local wizard_key
-        wizard_key=$(uv run python -c "import secrets; print(secrets.token_hex(32))" 2>/dev/null || openssl rand -hex 32)
+        wizard_key=$(UV_PROJECT_ENVIRONMENT=.venv uv run python -c "import secrets; print(secrets.token_hex(32))" 2>/dev/null || openssl rand -hex 32)
         sed -i.bak "s|WIZARD_KEY=.*|WIZARD_KEY=$wizard_key|g" "$env_file"
         rm -f "$env_file.bak"
     fi
@@ -1116,7 +1108,7 @@ function install_core_requirements() {
 
     if [[ -f "pyproject.toml" ]]; then
         info "Syncing uv environment (core profile: --extra udos, verbose progress)..."
-        uv sync --extra udos --verbose
+        UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos --verbose
         success "Core requirements installed"
     else
         error "pyproject.toml not found!"
@@ -1136,7 +1128,7 @@ function install_wizard_requirements() {
     cd "$REPO_ROOT"
 
     # Install wizard profile (includes core via optional-dependency chain)
-    uv sync --extra udos-wizard --verbose
+    UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard --verbose
 
     success "Wizard requirements installed"
 
@@ -1149,61 +1141,47 @@ function install_wizard_requirements() {
     fi
 }
 
-# ── Ollama Installation ──────────────────────────────────────
-function install_ollama() {
-    if [[ "$SKIP_OLLAMA" == true ]]; then
-        info "Skipping Ollama installation (--skip-ollama flag)"
+function setup_logic_assist_runtime() {
+    local env_file="$REPO_ROOT/.env"
+    if [[ ! -f "$env_file" ]]; then
         return
     fi
 
     if ! _profile_selected "dev"; then
-        info "Skipping Ollama installation (dev profile not selected)"
+        info "Skipping local logic-assist tooling (dev profile not selected)"
         return
     fi
 
     if [[ "$LOCAL_MODELS_ALLOWED" != true ]]; then
-        info "Skipping Ollama installation (selected $INSTALL_TIER profile disables local-model setup)"
+        info "Skipping local logic-assist tooling (selected $INSTALL_TIER profile disables local GPT4All setup)"
         return
     fi
 
-    step "Checking Ollama installation..."
+    step "Preparing v1.5 local logic-assist tooling..."
+    local setup_output=""
+    if setup_output=$(UV_PROJECT_ENVIRONMENT=.venv uv run python - "$REPO_ROOT" <<'PY'
+from pathlib import Path
+import sys
 
-    if command -v ollama &> /dev/null; then
-        info "Ollama already installed"
-        ollama --version
+from core.services.logic_assist_setup import run_logic_assist_setup
+
+repo_root = Path(sys.argv[1])
+result = run_logic_assist_setup(repo_root)
+for line in result.get("steps", []):
+    print(f"STEP:{line}")
+for line in result.get("warnings", []):
+    print(f"WARN:{line}")
+PY
+); then
+        while IFS= read -r line; do
+            case "$line" in
+                STEP:*) info "${line#STEP:}" ;;
+                WARN:*) warning "${line#WARN:}" ;;
+            esac
+        done <<< "$setup_output"
     else
-        echo ""
-        prompt "Install Ollama for local LLM support? (optional) [y/N]"
-        read -r response
-        if [[ ! "$response" =~ ^[Yy] ]]; then
-            info "Skipping Ollama installation"
-            return
-        fi
-
-        info "Installing Ollama..."
-        if [[ "$OS_TYPE" == "mac" ]]; then
-            curl -fsSL https://ollama.com/install.sh | sh
-        else
-            curl -fsSL https://ollama.com/install.sh | sh
-        fi
-
-        if command -v ollama &> /dev/null; then
-            success "Ollama installed"
-        else
-            warning "Ollama installation failed (non-critical)"
-            return
-        fi
+        warning "Logic-assist setup helper did not complete cleanly. You can rerun with: ./bin/ucode then SETUP dev"
     fi
-
-    # Offer to download models
-    echo ""
-    prompt "Download Ollama models for $INSTALL_TIER profile? [Y/n]"
-    read -r response
-    if [[ "$response" =~ ^[Nn] ]]; then
-        return
-    fi
-
-    download_ollama_models
 }
 
 function reconcile_provider_mode() {
@@ -1220,110 +1198,47 @@ function reconcile_provider_mode() {
     fi
 
     local local_ready=false
-    if command -v ollama &> /dev/null; then
-        if ollama list >/dev/null 2>&1; then
+    local local_model_path local_model_name local_model_file
+    local_model_path="$(awk -F': ' '/^- local_model_path:/{print $2; exit}' "$REPO_ROOT/core/framework/seed/bank/typo-workspace/settings/logic-assist.md" 2>/dev/null || true)"
+    local_model_name="$(awk -F': ' '/^- local_model_name:/{print $2; exit}' "$REPO_ROOT/core/framework/seed/bank/typo-workspace/settings/logic-assist.md" 2>/dev/null || true)"
+    if [[ -n "$local_model_path" && -n "$local_model_name" ]]; then
+        local_model_file="$REPO_ROOT/${local_model_path#./}/$local_model_name"
+        if [[ -f "$local_model_file" ]]; then
             local_ready=true
         fi
     fi
 
     if [[ "$local_ready" == true ]]; then
         write_provider_hints "local" "$(if [[ "$cloud_ready" == true ]]; then echo "cloud"; else echo "none"; fi)"
-        info "Provider mode: local primary$(if [[ "$cloud_ready" == true ]]; then echo ", cloud secondary"; else echo ""; fi)"
+        info "Provider mode: local GPT4All primary$(if [[ "$cloud_ready" == true ]]; then echo ", Wizard cloud secondary"; else echo ""; fi)"
         return
     fi
 
     if [[ "$cloud_ready" == true ]]; then
         write_provider_hints "cloud" "cloud"
-        info "Provider mode: cloud primary (local backend unavailable)"
+        info "Provider mode: Wizard cloud primary (local GPT4All model unavailable)"
         return
     fi
 
     write_provider_hints "none" "none"
-    error "No AI provider is currently available (local backend unhealthy and cloud key missing)."
-    error "Remediation: start Ollama and run 'ollama list', or set MISTRAL_API_KEY in .env and rerun --update."
+    warning "No logic-assist provider is currently ready (local GPT4All model missing and cloud key absent)."
+    warning "Remediation: run SETUP dev, place the configured GPT4All model file in memory/models/gpt4all, or set MISTRAL_API_KEY in .env and rerun --update."
 }
 
-# ── Download Ollama Models ───────────────────────────────────
-function download_ollama_models() {
-    step "Ollama model selection..."
-
-    echo ""
-    if [[ "$INSTALL_TIER" == "tier2" ]]; then
-        info "Tier2 guidance: prefer smaller models (mistral, llama3.2) for stability."
-    elif [[ "$INSTALL_TIER" == "tier3" ]]; then
-        info "Tier3 guidance: larger models are supported; cloud fallback remains available."
+function build_optional_tui() {
+    if [[ ! -f "$REPO_ROOT/scripts/build_udos_tui.sh" ]]; then
+        return
     fi
-
-    echo "Available models (select by number, space-separated):"
-    echo "  1) mistral            (4.1GB) - Fast general model"
-    echo "  2) devstral-small-2   (8.7GB) - Coding-focused local default"
-    echo "  3) llama3.2           (2.0GB) - Fast compact model"
-    echo "  4) qwen3              (4.7GB) - Multilingual reasoning"
-    echo "  5) codellama          (3.8GB) - Code-specialized"
-    echo "  6) phi3               (2.2GB) - Small general model"
-    echo "  7) gemma2             (1.6GB) - Lightweight general model"
-    echo "  8) deepseek-coder     (3.8GB) - Code model"
-    echo ""
-    prompt "Enter numbers (e.g., '1 2 4') or 'recommended' or 'all' or 'skip':"
-    read -r selection
-
-    if [[ "$selection" == "skip" ]]; then
-        info "Skipping model downloads"
+    if ! command -v go >/dev/null 2>&1; then
+        info "Skipping Bubble Tea/Lip Gloss TUI build (go not installed)"
         return
     fi
 
-    local models=()
-    local recommended_csv="$(_ollama_tier_profile_csv "$INSTALL_TIER")"
-    local IFS=','
-
-    if [[ -z "$selection" || "$selection" == "recommended" ]]; then
-        for model in $recommended_csv; do
-            model="$(printf '%s' "$model" | sed 's/^ *//;s/ *$//')"
-            [[ -n "$model" ]] && models+=("$model")
-        done
-    elif [[ "$selection" == "all" ]]; then
-        models=("mistral" "devstral-small-2" "llama3.2" "qwen3" "codellama" "phi3" "gemma2" "deepseek-coder")
+    step "Building optional v1.5 uDOS TUI frontend..."
+    if "$REPO_ROOT/scripts/build_udos_tui.sh"; then
+        success "udos-tui built"
     else
-        IFS=' '
-        for num in $selection; do
-            case $num in
-                1) models+=("mistral") ;;
-                2) models+=("devstral-small-2") ;;
-                3) models+=("llama3.2") ;;
-                4) models+=("qwen3") ;;
-                5) models+=("codellama") ;;
-                6) models+=("phi3") ;;
-                7) models+=("gemma2") ;;
-                8) models+=("deepseek-coder") ;;
-                *) warning "Unknown selection: $num" ;;
-            esac
-        done
-    fi
-
-    if [[ ${#models[@]} -eq 0 ]]; then
-        warning "No models selected"
-        return
-    fi
-
-    echo ""
-    info "Downloading ${#models[@]} model(s)..."
-
-    for model in "${models[@]}"; do
-        step "Pulling $model..."
-        if ollama pull "$model"; then
-            success "$model downloaded"
-        else
-            warning "$model download failed (continuing...)"
-        fi
-    done
-
-    success "Model downloads complete"
-
-    # Set default model priority in .env
-    if [[ -f "$REPO_ROOT/.env" ]]; then
-        echo "" >> "$REPO_ROOT/.env"
-        echo "# Ollama model priority (auto-added by installer)" >> "$REPO_ROOT/.env"
-        echo "OLLAMA_DEFAULT_MODEL=${models[0]}" >> "$REPO_ROOT/.env"
+        warning "udos-tui build failed (non-critical). Core shell remains available through ./bin/ucode"
     fi
 }
 
@@ -1355,7 +1270,8 @@ function run_health_check() {
     echo "  Dev Mode Tooling: $(if command -v vibe &> /dev/null; then echo "✓ $(vibe --version | head -n1)"; else echo "✗"; fi)"
     echo "  micro: $(if command -v micro &> /dev/null; then echo "✓"; else echo "✗"; fi)"
     echo "  Obsidian: $(if [[ "$OBSIDIAN_INSTALLED" == true ]]; then echo "✓"; else echo "✗"; fi)"
-    echo "  Ollama: $(if command -v ollama &> /dev/null; then echo "✓ $(ollama --version)"; else echo "✗"; fi)"
+    echo "  GPT4All package: $(UV_PROJECT_ENVIRONMENT=.venv uv run python -c "import importlib.util; print('✓' if importlib.util.find_spec('gpt4all') else '✗')" 2>/dev/null || echo "✗")"
+    echo "  udos-tui: $(if [[ -x "$REPO_ROOT/tui/bin/udos-tui" ]]; then echo "✓ $REPO_ROOT/tui/bin/udos-tui"; else echo "✗"; fi)"
     echo ""
     echo "Configuration:"
     echo "  Repo Root: $REPO_ROOT"
@@ -1402,6 +1318,7 @@ function main() {
         info "Skipping Dev Mode tooling installation (dev profile not selected)"
     fi
     install_core_requirements
+    build_optional_tui
 
     # Wizard installation (home profile)
     if [[ "$CORE_ONLY" == false ]] && _profile_selected "home"; then
@@ -1409,7 +1326,7 @@ function main() {
     fi
 
     # Optional components
-    install_ollama
+    setup_logic_assist_runtime
     reconcile_provider_mode
     sync_certified_profiles
 
@@ -1430,10 +1347,16 @@ function main() {
     echo "2. Open uCODE command runtime:"
     printf '%b\n' "   ${CYAN}./bin/ucode${NC}"
     echo ""
+    if [[ -x "$REPO_ROOT/tui/bin/udos-tui" ]]; then
+        echo "   v1.5 teletext TUI frontend:"
+        printf '%b\n' "   ${CYAN}./bin/udos-tui${NC}"
+        echo ""
+    fi
     if _profile_selected "dev"; then
         echo "   Dev profile also installed contributor tooling:"
         printf '%b\n' "   ${CYAN}cd $REPO_ROOT${NC}"
         printf '%b\n' "   ${CYAN}vibe${NC}"
+        printf '%b\n' "   ${CYAN}./bin/ucode${NC} then type: ${BOLD}SETUP dev${NC}"
         echo ""
     fi
     if _profile_selected "home"; then

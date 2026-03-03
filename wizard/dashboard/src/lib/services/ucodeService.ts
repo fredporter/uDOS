@@ -27,33 +27,33 @@ export async function fetchUCodeHotkeys() {
 }
 
 /**
- * Fetch OK status
+ * Fetch logic-assist status
  */
-export async function fetchOkStatus() {
+export async function fetchLogicStatus() {
   try {
-    const res = await apiFetch("/api/ok/status");
+    const res = await apiFetch("/api/ucode/logic/status");
     if (res.ok) return await res.json();
   } catch {}
   return { status: "unavailable" };
 }
 
 /**
- * Fetch OK history
+ * Fetch logic-assist history
  */
-export async function fetchOkHistory() {
+export async function fetchLogicHistory() {
   try {
-    const res = await apiFetch("/api/ok/history");
+    const res = await apiFetch("/api/ucode/logic/history");
     if (res.ok) return await res.json();
   } catch {}
   return { history: [] };
 }
 
 /**
- * Set OK default model
+ * Set logic-assist default model
  */
-export async function setOkDefaultModel(model) {
+export async function setLogicDefaultModel(model) {
   try {
-    const res = await apiFetch("/api/ok/model", {
+    const res = await apiFetch("/api/ucode/logic/model", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ model }),
@@ -149,14 +149,13 @@ export async function fetchDevStatus() {
 }
 
 /**
- * Toggle dev mode
+ * Toggle the @dev workspace lane.
  */
 export async function toggleDevMode(enabled) {
   try {
-    const res = await apiFetch("/api/dev/toggle", {
+    const endpoint = enabled ? "/api/dev/activate" : "/api/dev/deactivate";
+    const res = await apiFetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ enabled }),
     });
     return res.ok;
   } catch {}

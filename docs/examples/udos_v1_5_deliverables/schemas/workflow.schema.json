@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "required": [
+    "workflow_id",
+    "steps"
+  ],
+  "properties": {
+    "workflow_id": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "step_id",
+          "action"
+        ],
+        "properties": {
+          "step_id": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "requires_online": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

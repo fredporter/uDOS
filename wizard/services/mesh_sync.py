@@ -23,13 +23,13 @@ Date: 2026-01-06
 
 import json
 import hashlib
-from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Set
 from dataclasses import dataclass, asdict
 from enum import Enum
 import threading
 
+from core.services.time_utils import utc_from_timestamp, utc_now_iso_z
 from wizard.services.logging_api import get_logger
 
 logger = get_logger("wizard-mesh-sync")
@@ -147,7 +147,7 @@ class MeshSyncService:
                 "global_version": self.global_version,
                 "item_versions": self.item_versions,
                 "deleted_items": list(self.deleted_items),
-                "updated_at": datetime.now().isoformat(),
+                "updated_at": utc_now_iso_z(),
             }
             with open(SYNC_STATE_FILE, "w") as f:
                 json.dump(data, f, indent=2)
@@ -192,7 +192,7 @@ class MeshSyncService:
             to_version=self.global_version,
             items=items,
             deleted_ids=deleted,
-            timestamp=datetime.now().isoformat(),
+            timestamp=utc_now_iso_z(),
         )
 
         logger.info(
@@ -290,7 +290,7 @@ class MeshSyncService:
             path=str(file_path.relative_to(KNOWLEDGE_ROOT)),
             version=self.item_versions.get(item_id, 0),
             hash=content_hash,
-            modified_at=datetime.fromtimestamp(file_path.stat().st_mtime).isoformat(),
+            modified_at=utc_from_timestamp(file_path.stat().st_mtime).isoformat().replace("+00:00", "Z"),
             data=content,
         )
 

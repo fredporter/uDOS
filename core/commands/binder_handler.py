@@ -14,6 +14,7 @@ from pathlib import Path
 from core.binder import BinderCompiler
 from core.commands.base import BaseCommandHandler
 from core.services.error_contract import CommandError
+from core.services.vibe_binder_service import get_binder_service
 from core.services.logging_api import get_repo_root
 from core.tui.file_browser import FileBrowser
 from core.tui.output import OutputToolkit
@@ -38,6 +39,36 @@ class BinderHandler(BaseCommandHandler):
         if subcommand == "PICK":
             start_dir = params[1] if len(params) > 1 else "."
             return self._pick_binder(start_dir)
+
+        if subcommand == "IMPORT-RESEARCH":
+            if len(params) < 3:
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="Usage: BINDER IMPORT-RESEARCH <binder_id> <note_id> [action]",
+                    recovery_hint="Provide a binder ID and persisted research note id",
+                    level="INFO",
+                )
+            binder_id = params[1]
+            note_id = params[2]
+            action = params[3].lower() if len(params) > 3 else "research"
+            result = get_binder_service().import_research_artifact(
+                binder_id,
+                note_id,
+                action=action,
+            )
+            if result.get("status") != "success":
+                return result
+            output = "\n".join([
+                OutputToolkit.banner("BINDER IMPORT RESEARCH"),
+                f"Binder: {binder_id}",
+                f"Note: {note_id}",
+                f"Action: {action}",
+                f"Imported copy: {result['imported']['target_path']}",
+                f"Processed snapshot: {result['imported']['processed_snapshot']}",
+                f"Move: {result['move'].get('id', result.get('move_id', 'n/a'))}",
+            ])
+            result["output"] = output
+            return result
 
         if subcommand == "COMPILE":
             
@@ -126,7 +157,7 @@ class BinderHandler(BaseCommandHandler):
         raise CommandError(
             code="ERR_COMMAND_NOT_FOUND",
             message=f"Unknown BINDER subcommand: {subcommand}",
-            recovery_hint="Use BINDER PICK, COMPILE, or CHAPTERS",
+            recovery_hint="Use BINDER PICK, IMPORT-RESEARCH, COMPILE, or CHAPTERS",
             level="INFO",
         )
 

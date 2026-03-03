@@ -122,7 +122,7 @@ def _resolve_sonic_integration_name(manager) -> str:
 
 
 def _library_sonic_alias_enabled() -> bool:
-    return get_bool_config("UDOS_SONIC_ENABLE_LIBRARY_ALIAS", True)
+    return get_bool_config("UDOS_SONIC_ENABLE_LIBRARY_ALIAS", False)
 
 
 def _resolve_requested_integration_name(manager, requested_name: str) -> str:
@@ -303,7 +303,10 @@ async def get_library_alias_status(request: Request):
         await _run_guard(request)
         return {
             "sonic_library_alias_enabled": _library_sonic_alias_enabled(),
-            "retirement_target": "v1.5",
+            "status": "compatibility_override"
+            if _library_sonic_alias_enabled()
+            else "retired",
+            "retired_in": "v1.5",
             "alias": "/api/library/integration/sonic",
             "canonical": "/api/library/integration/sonic-screwdriver",
         }

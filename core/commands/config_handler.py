@@ -531,7 +531,7 @@ VARIABLE TYPES:
     @location               Your location
 
   flag_name                 Feature flags (wizard.json)
-    ok_gateway_enabled      Enable OK gateway
+    logic_assist_enabled    Enable Wizard-managed logic routing
 
 EXAMPLES:
   CONFIG                    Show all variables

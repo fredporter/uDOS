@@ -4,6 +4,7 @@ from typing import List, Dict, Any, Optional
 from fastapi import APIRouter, HTTPException, Query, Body
 from pydantic import BaseModel
 
+from core.services.time_utils import utc_now_iso_z
 from wizard.services.logging_api import get_logger
 from wizard.services.home_assistant.gateway.manager import GatewayManager
 from wizard.services.home_assistant.schemas.device import DeviceSchema, DeviceType
@@ -96,7 +97,7 @@ async def health_check() -> Dict[str, Any]:
         return {
             "healthy": status.connected,
             "status": status.status,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": utc_now_iso_z(),
         }
     except Exception as e:
         raise HTTPException(status_code=503, detail="Gateway not available")

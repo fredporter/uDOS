@@ -34,7 +34,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         "Inventory": ["BAG", "GRAB", "SPAWN"],
         "NPCs & Dialogue": ["NPC", "SEND"],
         "Files & State": ["SAVE", "LOAD", "FILE", "UNDO"],
-        "Operator & Dev": ["OK"],
+        "Operator & Dev": ["LOGIC", "OPERATOR"],
         "System & Maintenance": [
             "REBOOT",
             "HEALTH",
@@ -213,13 +213,13 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "category": "System & Maintenance",
             "syntax": "HELP [<command>] | HELP CATEGORY <category> | HELP SEARCH <query>",
         },
-        "OK": {
-            "description": "Legacy Dev Mode helper bridge",
-            "usage": "OK <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|FALLBACK> [args]",
-            "example": "OPERATOR show scheduler logs",
-            "notes": "Standard runtime uses OPERATOR and UCODE OPERATOR. `OK` remains available only for Dev Mode helper and coding flows.",
+        "LOGIC": {
+            "description": "Logic-assist entry for local GPT4All and Wizard network review",
+            "usage": "LOGIC <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|NETWORK|FALLBACK> [args]",
+            "example": "LOGIC EXPLAIN core/commands/ucode_handler.py",
+            "notes": "Standard runtime uses LOGIC for the v1.5 local advisory lane and Wizard-reviewed network escalation.",
             "category": "Operator & Dev",
-            "syntax": "OK <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|FALLBACK> [args] [--cloud]  # Dev Mode only",
+            "syntax": "LOGIC <LOCAL|EXPLAIN|DIFF|PATCH|ROUTE|NETWORK|FALLBACK> [args]",
         },
         "OPERATOR": {
             "description": "Top-level operator status, planning, and queue access",

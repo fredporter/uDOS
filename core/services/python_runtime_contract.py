@@ -10,18 +10,15 @@ import subprocess
 import sys
 import tomllib
 
+from core.services.path_service import get_repo_root as resolve_repo_root
+
 
 CANONICAL_ENV_DIRNAME = ".venv"
 CANONICAL_PYTHON_VERSION = "3.12"
 CANONICAL_ENV_MANAGER = "uv"
 
-
-def get_repo_root() -> Path:
-    return Path(__file__).resolve().parents[2]
-
-
 def canonical_env_path(repo_root: Path | None = None) -> Path:
-    root = repo_root or get_repo_root()
+    root = repo_root or resolve_repo_root()
     return root / CANONICAL_ENV_DIRNAME
 
 
@@ -102,7 +99,7 @@ def _wizard_dependency_groups_declared(root: Path) -> bool:
 
 
 def detect_python_runtime_status(repo_root: Path | None = None) -> PythonRuntimeStatus:
-    root = repo_root or get_repo_root()
+    root = repo_root or resolve_repo_root()
     env_path = canonical_env_path(root)
     python_path = canonical_python_path(root)
     uv_bin = shutil.which(CANONICAL_ENV_MANAGER)

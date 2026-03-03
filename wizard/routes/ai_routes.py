@@ -1,32 +1,20 @@
-"""
-AI Routes (Vibe/Mistral) for Wizard Server.
-"""
+"""v1.5 logic-assist routes for Wizard Server."""
 
-from typing import Callable, Awaitable, Optional
+from typing import Awaitable, Callable, Optional
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
-from wizard.services.mistral_vibe import MistralVibeIntegration
-from wizard.services.ok_gateway import OKGateway, OKRequest
+from wizard.services.logic_assist_service import (
+    LogicAssistRequest,
+    get_logic_assist_service,
+)
 
 AuthGuard = Optional[Callable[[Request], Awaitable[str]]]
 
 
 def create_ai_routes(auth_guard: AuthGuard = None) -> APIRouter:
-    router = APIRouter(prefix="/api/ai", tags=["ai"])
-    ai_instance: Optional[MistralVibeIntegration] = None
-
-    def get_ai() -> MistralVibeIntegration:
-        nonlocal ai_instance
-        if ai_instance is None:
-            ai_instance = MistralVibeIntegration()
-        return ai_instance
-
-    class QueryRequest(BaseModel):
-        prompt: str
-        include_context: bool = True
-        model: str = "devstral-small"
+    router = APIRouter(prefix="/api/logic", tags=["logic"])
 
     class CodeExplainRequest(BaseModel):
         file_path: str
@@ -41,65 +29,66 @@ def create_ai_routes(auth_guard: AuthGuard = None) -> APIRouter:
         workspace: Optional[str] = "core"
         privacy: Optional[str] = "internal"
         tags: Optional[list[str]] = None
-        cloud_sanity: Optional[bool] = False
-        force_cloud: Optional[bool] = False
-        allow_cloud: Optional[bool] = True
+        force_network: Optional[bool] = False
+        allow_network: Optional[bool] = True
         system_prompt: Optional[str] = ""
         temperature: Optional[float] = None
         offline_required: Optional[bool] = False
-        ghost_mode: Optional[bool] = False
-        task_hint: Optional[str] = None
+        actor: Optional[str] = None
 
     @router.get("/config")
-    async def get_ai_config(request: Request):
+    async def get_logic_config(request: Request):
         if auth_guard:
             await auth_guard(request)
         try:
-            ai = get_ai()
+            status = get_logic_assist_service().get_status()
             return {
                 "status": "ok",
-                "vibe_cli_installed": True,
-                "vibe_config_path": str(ai.vibe_config) if ai.vibe_config else None,
-                "default_model": "devstral-small",
+                "schema": status["schema"],
+                "profile": status["profile"],
+                "default_model": status["profile"]["local_model_name"],
             }
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc))
 
     @router.get("/health")
-    async def health_check(request: Request):
+    async def logic_health_check(request: Request):
         if auth_guard:
             await auth_guard(request)
         try:
-            ai = get_ai()
-            context = ai.get_context_files()
+            status = get_logic_assist_service().get_status()
             return {
                 "status": "ok",
-                "vibe_cli_installed": True,
-                "context_files_loaded": len(context),
+                "local": status["local"],
+                "network": status["network"],
             }
         except Exception as exc:
             raise HTTPException(status_code=503, detail=str(exc))
 
-    @router.post("/query")
-    async def query_ai(request: Request, body: QueryRequest):
+    @router.get("/status")
+    async def get_logic_status(request: Request):
         if auth_guard:
             await auth_guard(request)
         try:
-            ai = get_ai()
-            response = ai.query_vibe(
-                body.prompt, include_context=body.include_context, model=body.model
-            )
-            return {"response": response, "model": body.model}
+            return get_logic_assist_service().get_status()
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=str(exc))
+
+    @router.get("/models")
+    async def get_logic_models(request: Request):
+        if auth_guard:
+            await auth_guard(request)
+        try:
+            return {"models": get_logic_assist_service().list_models()}
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc))
 
     @router.post("/complete")
-    async def complete_ai(request: Request, body: CompleteRequest):
+    async def complete_logic(request: Request, body: CompleteRequest):
         if auth_guard:
             await auth_guard(request)
         try:
-            gateway = OKGateway()
-            ok_request = OKRequest(
+            logic_request = LogicAssistRequest(
                 prompt=body.prompt,
                 mode=body.mode,
                 conversation_id=body.conversation_id,
@@ -109,56 +98,16 @@ def create_ai_routes(auth_guard: AuthGuard = None) -> APIRouter:
                 tags=body.tags or [],
                 system_prompt=body.system_prompt or "",
                 temperature=body.temperature,
-                cloud_sanity=bool(body.cloud_sanity),
-                force_cloud=bool(body.force_cloud),
-                allow_cloud=bool(body.allow_cloud),
+                force_network=bool(body.force_network),
+                allow_network=bool(body.allow_network),
                 offline_required=bool(body.offline_required),
-                ghost_mode=bool(body.ghost_mode),
-                task_hint=body.task_hint,
+                actor=body.actor,
             )
             device_id = request.client.host if request.client else "local"
-            result = await gateway.complete(ok_request, device_id=device_id)
-            return {
-                "status": "ok",
-                "result": result.to_dict(),
-            }
-        except Exception as exc:
-            raise HTTPException(status_code=500, detail=str(exc))
-
-    @router.get("/context")
-    async def get_context(request: Request):
-        if auth_guard:
-            await auth_guard(request)
-        try:
-            ai = get_ai()
-            context = ai.get_context_files()
-            return {
-                "files": list(context.keys()),
-                "total_files": len(context),
-                "total_chars": sum(len(c) for c in context.values()),
-            }
-        except Exception as exc:
-            raise HTTPException(status_code=500, detail=str(exc))
-
-    @router.post("/analyze-logs")
-    async def analyze_logs(request: Request, log_type: str = "error"):
-        if auth_guard:
-            await auth_guard(request)
-        try:
-            ai = get_ai()
-            analysis = ai.analyze_logs(log_type)
-            return {"log_type": log_type, "analysis": analysis}
-        except Exception as exc:
-            raise HTTPException(status_code=500, detail=str(exc))
-
-    @router.get("/suggest-next")
-    async def suggest_next_steps(request: Request):
-        if auth_guard:
-            await auth_guard(request)
-        try:
-            ai = get_ai()
-            suggestions = ai.suggest_next_steps()
-            return {"suggestions": suggestions}
+            result = await get_logic_assist_service().complete(
+                logic_request, device_id=device_id
+            )
+            return {"status": "ok", "result": result.to_dict()}
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc))
 
@@ -167,15 +116,23 @@ def create_ai_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if auth_guard:
             await auth_guard(request)
         try:
-            ai = get_ai()
             line_range = None
+            range_suffix = ""
             if body.line_start and body.line_end:
                 line_range = (body.line_start, body.line_end)
-            explanation = ai.explain_code(body.file_path, line_range)
+                range_suffix = f" lines {body.line_start}-{body.line_end}"
+            prompt = (
+                f"Explain the code in {body.file_path}{range_suffix}. "
+                "Provide purpose, key logic, risk points, and safe next steps."
+            )
+            result = await get_logic_assist_service().complete(
+                LogicAssistRequest(prompt=prompt, mode="code", workspace="wizard"),
+                device_id=request.client.host if request.client else "local",
+            )
             return {
                 "file_path": body.file_path,
                 "line_range": line_range,
-                "explanation": explanation,
+                "explanation": result.content,
             }
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc))

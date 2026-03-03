@@ -111,16 +111,16 @@
 
   async function loadOkStatus() {
     try {
-      const res = await apiFetch("/api/ucode/ok/status", {
+      const res = await apiFetch("/api/ucode/logic/status", {
         headers: authHeaders(),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
-      okStatus = data.ok || null;
+      okStatus = data.logic || null;
     } catch (err) {
       okStatus = null;
-      notifyError("OK status failed", err.message || String(err), {
-        path: "/api/ucode/ok/status",
+      notifyError("Logic assist status failed", err.message || String(err), {
+        path: "/api/ucode/logic/status",
       });
     }
   }
@@ -129,9 +129,10 @@
     okInstallResult = null;
     okInstalling = true;
     try {
-      const res = await apiFetch("/api/ucode/ok/setup", {
+      const res = await apiFetch("/api/ucode/logic/network", {
         method: "POST",
-        headers: authHeaders(),
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ prompt: "Provide setup readiness summary." }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
@@ -139,8 +140,8 @@
       await loadOkStatus();
     } catch (err) {
       okInstallResult = { error: err.message || String(err) };
-      notifyError("OK setup failed", err.message || String(err), {
-        path: "/api/ucode/ok/setup",
+      notifyError("Logic assist setup failed", err.message || String(err), {
+        path: "/api/ucode/logic/network",
       });
     } finally {
       okInstalling = false;
@@ -356,20 +357,20 @@
     </div>
 
     <div class="setup-section">
-      <h3>4. OK Helper (Local AI)</h3>
+      <h3>4. Logic Assist (Local GPT4All)</h3>
       <p class="section-description">
-        Install the local OK helper stack (Ollama, Vibe CLI, and recommended
-        models) and verify what is installed.
+        Check the local GPT4All logic-assist lane and confirm whether the
+        current machine is ready for offline advisory work.
       </p>
       <div class="story-actions">
         <button class="btn-secondary" on:click={runOkSetup} disabled={okInstalling}>
-          {okInstalling ? "Installing..." : "Run OK Setup"}
+          {okInstalling ? "Running..." : "Check Logic Assist"}
         </button>
       </div>
       {#if okStatus}
         <div class="status-grid" style="margin-top: 0.75rem;">
           <div>
-            <div class="label">Local OK</div>
+            <div class="label">Local Assist</div>
             <div class="value">{okStatus.ready ? "✅ Ready" : "⚠️ " + (okStatus.issue || "Not ready")}</div>
           </div>
           <div>
@@ -377,10 +378,10 @@
             <div class="value">{okStatus.model || okStatus.default_model || "—"}</div>
           </div>
           <div>
-            <div class="label">Installed Models</div>
+            <div class="label">Model Path</div>
             <div class="value">
-              {#if okStatus.models?.length}
-                {okStatus.models.join(", ")}
+              {#if okStatus.model_path}
+                {okStatus.model_path}
               {:else}
                 —
               {/if}

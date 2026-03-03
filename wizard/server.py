@@ -11,7 +11,7 @@ Endpoints:
   /health          - Health check
   /api/plugin/* - Plugin repository API
   /api/web/*    - Web proxy API
-  /api/ai/*     - OK gateway API
+  /api/logic/*  - Logic assist API
   /ws              - WebSocket for real-time updates
 
 Security:
@@ -33,7 +33,10 @@ from wizard.services.device_auth import DeviceStatus, get_device_auth
 from wizard.services.deploy_mode import is_managed_mode
 from wizard.services.logging_api import get_log_stats, get_logger
 from wizard.services.mesh_sync import get_mesh_sync
-from wizard.services.ok_gateway import OKGateway, OKRequest
+from wizard.services.logic_assist_service import (
+    LogicAssistRequest,
+    get_logic_assist_service,
+)
 from wizard.services.path_utils import get_repo_root
 
 logger = get_logger("wizard.server")
@@ -112,7 +115,7 @@ class WizardServer:
         self.app: FastAPI | None = None
         self.logger = get_logger("wizard", category="server", name="wizard-server")
         self.rate_limiter = get_rate_limiter()
-        self.ok_gateway = OKGateway()
+        self.logic_assist = get_logic_assist_service(REPO_ROOT)
         self._started = False
         self.logging_manager = None
         self.auth = WizardAuthService(self.config, self.logger)
@@ -348,7 +351,7 @@ class WizardServer:
         except ImportError as exc:
             self.logger.warn("[WIZ] GitHub routes disabled: %s", exc)
 
-        # Register AI routes (Mistral/Vibe)
+        # Register v1.5 logic-assist routes
         from wizard.routes.ai_routes import create_ai_routes
 
         ai_router = create_ai_routes(auth_guard=self._authenticate)
@@ -377,13 +380,6 @@ class WizardServer:
 
         self_heal_router = create_self_heal_routes(auth_guard=self._authenticate_admin)
         app.include_router(self_heal_router)
-
-        # Register public Ollama routes FIRST (no auth required for local operations)
-        # Must be registered before protected provider routes due to route matching
-        from wizard.routes.provider_routes import create_public_ollama_routes
-
-        public_ollama_router = create_public_ollama_routes()
-        app.include_router(public_ollama_router)
 
         # Register Provider management routes
         from wizard.routes.provider_routes import create_provider_routes
@@ -686,9 +682,9 @@ class WizardServer:
                         "description": "Fetch web content for devices",
                     },
                     {
-                        "name": "OK Gateway",
+                        "name": "Logic Assist",
                         "enabled": self.config.ok_gateway_enabled,
-                        "description": "OK model access with cost tracking",
+                        "description": "GPT4All local assist plus Wizard network budget control",
                     },
                 ],
                 "system": system_stats,
@@ -757,43 +753,45 @@ class WizardServer:
             device_id = await self._authenticate(request)
             return self.rate_limiter.get_device_stats(device_id)
 
-        # OK gateway routes
-        @app.get("/api/ai/status")
-        async def ai_status(request: Request):
-            """Return OK gateway + routing status."""
+        # v1.5 logic-assist routes
+        @app.get("/api/logic/status")
+        async def logic_status(request: Request):
+            """Return logic-assist + routing status."""
             device_id = await self._authenticate(request)
-            return {"device_id": device_id, "gateway": self.ok_gateway.get_status()}
+            return {"device_id": device_id, "logic": self.logic_assist.get_status()}
 
-        @app.get("/api/ai/models")
-        async def ai_models(request: Request):
-            """List available AI models (local-first)."""
+        @app.get("/api/logic/models")
+        async def logic_models(request: Request):
+            """List available logic-assist models."""
             await self._authenticate(request)
-            return {"models": self.ok_gateway.list_models()}
+            return {"models": self.logic_assist.list_models()}
 
-        @app.post("/api/ai/complete")
-        async def ai_complete(request: Request):
-            """Run OK completion through the routed gateway."""
+        @app.post("/api/logic/complete")
+        async def logic_complete(request: Request):
+            """Run logic-assist completion through the routed service."""
             device_id = await self._authenticate(request)
             body = await request.json()
 
-            ai_request = OKRequest(
+            logic_request = LogicAssistRequest(
                 prompt=body.get("prompt", ""),
                 model=body.get("model", ""),
                 system_prompt=body.get("system") or body.get("system_prompt", ""),
                 max_tokens=body.get("max_tokens", 1024),
                 temperature=body.get("temperature"),
-                stream=body.get("stream", False),
                 mode=body.get("mode"),
-                task_id=body.get("task_id"),
                 workspace=body.get("workspace", "core"),
                 privacy=body.get("privacy", "internal"),
-                urgency=body.get("urgency", "normal"),
                 tags=body.get("tags") or [],
                 actor=body.get("actor"),
                 conversation_id=body.get("conversation_id"),
+                force_network=bool(body.get("force_network", False)),
+                allow_network=bool(body.get("allow_network", True)),
+                offline_required=bool(body.get("offline_required", False)),
             )
 
-            response = await self.ok_gateway.complete(ai_request, device_id=device_id)
+            response = await self.logic_assist.complete(
+                logic_request, device_id=device_id
+            )
             status_code = 200 if response.success else 400
             return JSONResponse(status_code=status_code, content=response.to_dict())
 

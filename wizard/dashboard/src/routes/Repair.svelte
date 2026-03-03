@@ -321,7 +321,7 @@
     <h2 class="text-lg font-bold text-white">Repair Actions</h2>
     <div class="actions">
       <button on:click={() => runAction("bootstrap-venv")}>
-        Bootstrap venv
+        Bootstrap .venv
       </button>
       <button on:click={() => runAction("install-python-deps")}>
         Install Python deps

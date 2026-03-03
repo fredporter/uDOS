@@ -334,7 +334,7 @@ OPTIONS:
   --confirm         Skip confirmation prompts
   --help            Show this help
   --refresh-runtime, --refresh-extensions
-                    Clean runtime caches (venv, extensions, dashboard assets) and reinstall enabled plugins
+                    Clean runtime caches (`.venv`, extensions, dashboard assets) and reinstall enabled plugins
   --install-plugin <name>
                     Reinstall a specific integration via the Wizard library manager
 
@@ -501,7 +501,8 @@ EXAMPLES:
         repo_root = get_repo_root()
         root_parent = repo_root.parent
         return [
-            ("Virtualenv (venv)", repo_root / "venv"),
+            ("Python runtime (.venv)", repo_root / ".venv"),
+            ("Legacy Python runtime (venv)", repo_root / "venv"),
             ("Extensions runtime copies", repo_root / "extensions"),
             (
                 "Wizard dashboard node_modules",
@@ -520,10 +521,10 @@ EXAMPLES:
                 root_parent / "wizard" / "github_integration",
             ),
             (
-                "Local AI assets (Mistral/Vibe)",
+                "Local logic-assist assets (Vibe CLI)",
                 root_parent / "library" / "mistral-vibe",
             ),
-            ("Local Ollama container", root_parent / "library" / "ollama"),
+            ("Legacy Ollama container", root_parent / "library" / "ollama"),
         ]
 
     def _clean_runtime_targets(self) -> tuple[list[str], list[str]]:

@@ -6,9 +6,16 @@ task structures, and seed data suitable for AI ingestion and import handling.
 """
 
 import json
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Dict, List, Any
 from pathlib import Path
+
+from core.ulogic.deliverables import (
+    validate_completed_file_payload,
+    validate_project_file_payload,
+    validate_tasks_file_payload,
+)
+from core.services.time_utils import parse_utc_datetime, utc_now, utc_now_iso
 
 
 class MissionTemplates:
@@ -17,7 +24,7 @@ class MissionTemplates:
     @staticmethod
     def _with_workflow_model(mission: Dict[str, Any]) -> Dict[str, Any]:
         """Attach workflow-spec project model fields with safe defaults."""
-        now = datetime.now().isoformat()
+        now = utc_now_iso()
         mission.setdefault("goal", mission.get("description", ""))
         mission.setdefault("definition_of_done", "Deliver outcomes and archive evidence in binder outputs.")
         mission.setdefault(
@@ -206,8 +213,8 @@ class TaskTemplates:
                 "tags": ["kickoff", "planning"],
                 "source": "manual",
                 "metadata": {},
-                "created": datetime.now().isoformat(),
-                "updated": datetime.now().isoformat()
+                "created": utc_now_iso(),
+                "updated": utc_now_iso()
             },
             {
                 "id": f"task-setup-{project_id}-002",
@@ -220,8 +227,8 @@ class TaskTemplates:
                 "tags": ["setup", "infrastructure"],
                 "source": "manual",
                 "metadata": {},
-                "created": datetime.now().isoformat(),
-                "updated": datetime.now().isoformat()
+                "created": utc_now_iso(),
+                "updated": utc_now_iso()
             },
             {
                 "id": f"task-setup-{project_id}-003",
@@ -234,8 +241,8 @@ class TaskTemplates:
                 "tags": ["documentation", "planning"],
                 "source": "manual",
                 "metadata": {},
-                "created": datetime.now().isoformat(),
-                "updated": datetime.now().isoformat()
+                "created": utc_now_iso(),
+                "updated": utc_now_iso()
             }
         ]
 
@@ -249,11 +256,11 @@ class TaskTemplates:
         organizer: str = "organizer@company.com"
     ) -> Dict[str, Any]:
         """Create a calendar event task."""
-        start = datetime.fromisoformat(event_datetime)
+        start = parse_utc_datetime(event_datetime)
         end = start + timedelta(minutes=duration_minutes)
 
         return {
-            "id": f"evt-{mission_id}-{datetime.now().timestamp()}",
+            "id": f"evt-{mission_id}-{int(utc_now().timestamp())}",
             "mission_id": mission_id,
             "title": title,
             "description": description,
@@ -274,8 +281,8 @@ class TaskTemplates:
             "metadata": {
                 "recurring": False
             },
-            "created": datetime.now().isoformat(),
-            "updated": datetime.now().isoformat()
+            "created": utc_now_iso(),
+            "updated": utc_now_iso()
         }
 
     @staticmethod
@@ -289,7 +296,7 @@ class TaskTemplates:
     ) -> Dict[str, Any]:
         """Create a reminder task."""
         return {
-            "id": f"rem-{mission_id}-{datetime.now().timestamp()}",
+            "id": f"rem-{mission_id}-{int(utc_now().timestamp())}",
             "mission_id": mission_id,
             "title": title,
             "description": description,
@@ -303,8 +310,8 @@ class TaskTemplates:
                 "alert_type": alert_type,
                 "alert_interval": alert_interval
             },
-            "created": datetime.now().isoformat(),
-            "updated": datetime.now().isoformat()
+            "created": utc_now_iso(),
+            "updated": utc_now_iso()
         }
 
     @staticmethod
@@ -319,7 +326,7 @@ class TaskTemplates:
     ) -> Dict[str, Any]:
         """Create an imported item task."""
         return {
-            "id": f"imp-{mission_id}-{datetime.now().timestamp()}",
+            "id": f"imp-{mission_id}-{int(utc_now().timestamp())}",
             "mission_id": mission_id,
             "title": title,
             "description": description,
@@ -331,10 +338,10 @@ class TaskTemplates:
             "source_id": source_id,
             "metadata": {
                 "item_category": item_category,
-                "import_timestamp": datetime.now().isoformat()
+                "import_timestamp": utc_now_iso()
             },
-            "created": datetime.now().isoformat(),
-            "updated": datetime.now().isoformat()
+            "created": utc_now_iso(),
+            "updated": utc_now_iso()
         }
 
 
@@ -383,6 +390,13 @@ class ProjectInitializer:
 
         # Write project.json
         mission_path = project_dir / "project.json"
+        project_validation = validate_project_file_payload(mission)
+        if not project_validation.ok:
+            return {
+                "status": "error",
+                "message": "Invalid project deliverable payload",
+                "errors": project_validation.errors,
+            }
         with open(mission_path, 'w') as f:
             json.dump(mission, f, indent=4)
 
@@ -392,11 +406,25 @@ class ProjectInitializer:
             moves_data["tasks"] = TaskTemplates.create_standard_tasks(project_id)
 
         moves_path = project_dir / "tasks.json"
+        tasks_validation = validate_tasks_file_payload(moves_data)
+        if not tasks_validation.ok:
+            return {
+                "status": "error",
+                "message": "Invalid tasks deliverable payload",
+                "errors": tasks_validation.errors,
+            }
         with open(moves_path, 'w') as f:
             json.dump(moves_data, f, indent=4)
 
         # Create empty completed.json
         milestones_path = project_dir / "completed.json"
+        completed_validation = validate_completed_file_payload({"completed": []})
+        if not completed_validation.ok:
+            return {
+                "status": "error",
+                "message": "Invalid completed deliverable payload",
+                "errors": completed_validation.errors,
+            }
         with open(milestones_path, 'w') as f:
             json.dump({"completed": []}, f, indent=4)
 

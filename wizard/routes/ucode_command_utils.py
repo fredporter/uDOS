@@ -9,53 +9,53 @@ from typing import Any, Callable, Dict, Optional
 from fastapi import HTTPException
 
 
-OK_CODING_MODES = frozenset({"EXPLAIN", "DIFF", "PATCH"})
+LOGIC_CODING_MODES = frozenset({"EXPLAIN", "DIFF", "PATCH"})
 
 
 @dataclass
-class ParsedOKCommand:
+class ParsedLogicCommand:
     command: str
-    ok_args: str
-    ok_tokens: list[str]
-    ok_mode: str
+    logic_args: str
+    logic_tokens: list[str]
+    logic_mode: str
 
 
 @dataclass
-class OKCodingRequest:
+class LogicCodingRequest:
     mode: str
     path: Path
     prompt: str
     use_cloud: bool
 
 
-def normalize_ok_command(command: str) -> str:
-    """Normalize OK command by converting '?' prefix to 'OK'."""
+def normalize_logic_command(command: str) -> str:
+    """Normalize logic command by converting '?' prefix to 'LOGIC'."""
     if command.startswith("?"):
         rest = command[1:].strip()
-        return f"OK {rest}".strip()
+        return f"LOGIC {rest}".strip()
     return command
 
 
-def parse_ok_command(command: str) -> ParsedOKCommand | None:
-    """Parse OK command into structured components."""
-    normalized = normalize_ok_command(command)
+def parse_logic_command(command: str) -> ParsedLogicCommand | None:
+    """Parse logic-assist command into structured components."""
+    normalized = normalize_logic_command(command)
     upper = normalized.upper()
-    if not (upper == "OK" or upper.startswith("OK ")):
+    if not (upper == "LOGIC" or upper.startswith("LOGIC ")):
         return None
 
-    ok_args = normalized[2:].strip()
-    ok_tokens = ok_args.split() if ok_args else []
-    ok_mode = ok_tokens[0].upper() if ok_tokens else "LOCAL"
-    return ParsedOKCommand(
+    logic_args = normalized[5:].strip()
+    logic_tokens = logic_args.split() if logic_args else []
+    logic_mode = logic_tokens[0].upper() if logic_tokens else "LOCAL"
+    return ParsedLogicCommand(
         command=normalized,
-        ok_args=ok_args,
-        ok_tokens=ok_tokens,
-        ok_mode=ok_mode,
+        logic_args=logic_args,
+        logic_tokens=logic_tokens,
+        logic_mode=logic_mode,
     )
 
 
-def parse_ok_file_args(args: str) -> Dict[str, Any]:
-    """Parse OK file command arguments (e.g., 'path.py 10 20 --cloud')."""
+def parse_logic_file_args(args: str) -> Dict[str, Any]:
+    """Parse logic file command arguments (e.g., 'path.py 10 20 --cloud')."""
     tokens = args.strip().split()
     use_cloud = False
     clean_tokens = []
@@ -101,7 +101,7 @@ def parse_ok_file_args(args: str) -> Dict[str, Any]:
     }
 
 
-def load_ok_file_content(
+def load_logic_file_content(
     path: Path, line_start: Optional[int] = None, line_end: Optional[int] = None
 ) -> str:
     """Load file content with optional line range."""
@@ -115,8 +115,8 @@ def load_ok_file_content(
     return content
 
 
-def build_ok_file_prompt(mode: str, path: Path, content: str) -> str:
-    """Build OK file prompt for coding modes (EXPLAIN, DIFF, PATCH)."""
+def build_logic_file_prompt(mode: str, path: Path, content: str) -> str:
+    """Build logic-assist file prompt for coding modes."""
     mode_upper = mode.upper()
     if mode_upper == "EXPLAIN":
         return (
@@ -136,7 +136,26 @@ def build_ok_file_prompt(mode: str, path: Path, content: str) -> str:
             f"```python\n{content}\n```\n\n"
             "Return a unified diff only."
         )
-    raise HTTPException(status_code=400, detail=f"Unsupported OK file mode: {mode}")
+    raise HTTPException(
+        status_code=400, detail=f"Unsupported logic file mode: {mode}"
+    )
+
+
+def parse_ok_file_args(args: str) -> Dict[str, Any]:
+    """Compatibility alias for the v1.5 logic file parser."""
+    return parse_logic_file_args(args)
+
+
+def load_ok_file_content(
+    path: Path, line_start: Optional[int] = None, line_end: Optional[int] = None
+) -> str:
+    """Compatibility alias for the v1.5 logic file loader."""
+    return load_logic_file_content(path, line_start=line_start, line_end=line_end)
+
+
+def build_ok_file_prompt(mode: str, path: Path, content: str) -> str:
+    """Compatibility alias for the v1.5 logic file prompt builder."""
+    return build_logic_file_prompt(mode, path, content)
 
 
 def shell_safe(command: str) -> bool:
@@ -146,28 +165,28 @@ def shell_safe(command: str) -> bool:
     return not any(kw in cmd_lower for kw in destructive_keywords)
 
 
-def prepare_ok_coding_request(
+def prepare_logic_coding_request(
     *,
-    parsed: ParsedOKCommand,
+    parsed: ParsedLogicCommand,
     is_dev_mode_active: Callable[[], bool],
     logger: Any,
     corr_id: str,
     rejected_log_message: str,
     missing_file_log_message: str,
-) -> OKCodingRequest:
-    """Prepare OK coding request from parsed command."""
-    if parsed.ok_mode not in OK_CODING_MODES:
+) -> LogicCodingRequest:
+    """Prepare logic-assist coding request from parsed command."""
+    if parsed.logic_mode not in LOGIC_CODING_MODES:
         raise HTTPException(
             status_code=400,
-            detail=f"Unsupported OK file mode: {parsed.ok_mode}",
+            detail=f"Unsupported logic file mode: {parsed.logic_mode}",
         )
     if not is_dev_mode_active():
         raise HTTPException(
             status_code=409,
-            detail="OK coding commands require the active Dev extension lane.",
+            detail="Logic coding commands require the active Dev extension lane.",
         )
 
-    parsed_file_args = parse_ok_file_args(" ".join(parsed.ok_tokens[1:]))
+    parsed_file_args = parse_logic_file_args(" ".join(parsed.logic_tokens[1:]))
     if parsed_file_args.get("error"):
         logger.warn(
             rejected_log_message,
@@ -189,9 +208,9 @@ def prepare_ok_coding_request(
         )
         raise
 
-    return OKCodingRequest(
-        mode=parsed.ok_mode,
+    return LogicCodingRequest(
+        mode=parsed.logic_mode,
         path=path,
-        prompt=build_ok_file_prompt(parsed.ok_mode, path, content),
+        prompt=build_logic_file_prompt(parsed.logic_mode, path, content),
         use_cloud=bool(parsed_file_args.get("use_cloud")),
     )

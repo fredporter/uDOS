@@ -1,6 +1,6 @@
 # Datasets Service
 
-Read-only dataset inspection plus stub import/export.
+Read-only dataset inspection plus bounded export and parse surfaces.
 
 ## Routes
 
@@ -23,4 +23,4 @@ Read-only dataset inspection plus stub import/export.
   - Export table data (server-side).
 
 - `POST /api/data/parse/{table}`
-  - Stub import/parse (payload passthrough).
+  - Import/parse handoff for dataset-specific processing lanes.

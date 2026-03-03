@@ -1,10 +1,14 @@
-# Dev template ignores
-examples/
-goblin/
-library/
-scripts/
-tests/
-
-# OS detritus
-.DS_Store
-**/.DS_Store
+# v1.5 @dev workspace: track only the distributable scaffold.
+*
+!.gitignore
+!AGENTS.md
+!DEVLOG.md
+!README.md
+!completed.json
+!extension.json
+!project.json
+!tasks.md
+!docs/
+!docs/**
+!goblin/
+!goblin/**

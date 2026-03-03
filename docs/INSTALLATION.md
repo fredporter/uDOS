@@ -4,6 +4,8 @@
 
 The uDOS installer provides a comprehensive, cross-platform setup experience for macOS and Linux. It handles all dependencies, environment configuration, and optional components automatically.
 
+Contributor-only Dev Mode guidance now lives under `dev/docs/`. Root `docs/` keeps runtime and operator installation material.
+
 ## Quick Install
 
 ### macOS
@@ -52,10 +54,21 @@ Update the installed runtime and dependencies:
 ./bin/install-udos-vibe.sh --update
 ```
 
-### Skip Ollama Prompts
-Skip all Ollama-related prompts (useful for CI/automation):
+## v1.4 to v1.5 Migration
+
+Use the active migration framework in [docs/examples/udos_v1_5_deliverables/docs/migration-v1.4-to-v1.5.md](/Users/fredbook/Code/uDOS/docs/examples/udos_v1_5_deliverables/docs/migration-v1.4-to-v1.5.md) as the canonical upgrade checklist.
+
+Current v1.5 migration requirements:
+- remove retired local-model default runtime assumptions
+- standardize on GPT4All as the local assist layer
+- treat Wizard as the exclusive online routing and budget-control layer
+- update project/task/workflow artifacts to the v1.5 deliverables schema family under [docs/examples/udos_v1_5_deliverables/schemas](/Users/fredbook/Code/uDOS/docs/examples/udos_v1_5_deliverables/schemas)
+
+Recommended upgrade sequence:
 ```bash
-./bin/install-udos-vibe.sh --skip-ollama
+UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard --dev
+uv run ./uDOS.py SETUP
+./scripts/run_pytest_core_stdlib.sh
 ```
 
 ### Preflight Capability Check (No Install)
@@ -75,9 +88,9 @@ Use `--tier 1|2|3` to test hardline gating for a requested tier.
 - **Tier Hardlines**: Forces cloud-only tier when OS/kernel is legacy or resources are below local-model requirements
 
 ### 2. Package Manager Setup
-- **uv Installation**: Installs [uv](https://github.com/astral-sh/uv) if not present
-- Fast, modern Python package manager
-- Replaces pip/poetry for better performance
+- **uv Installation**: installs [uv](https://github.com/astral-sh/uv) if not present
+- standard repo-local runtime path is `/.venv`
+- all active Python install/update flows use `uv`
 
 ### 3. Environment Configuration
 - **Creates .env file**: Copies from `.env.example` and auto-configures:
@@ -100,9 +113,11 @@ Use `--tier 1|2|3` to test hardline gating for a requested tier.
 - **Install global vibe runtime**: Only when the `dev` profile is selected
 - **Wizard-managed extension lane**: Dev Mode is installed and removed through Wizard GUI lifecycle controls
 - **Framework gate**: Requires `/dev/` plus `/dev/extension.json`
+- **Workspace contract**: tracked contributor docs and Goblin fixtures now live under `dev/docs/` and `dev/goblin/`
 - **uDOS integration**: Creates `.vibe/` symlinks for contributor tools/skills
 - **Standard runtime**: `ucode` remains the primary entry point
 - **Core dependencies**: Installs Python packages from `pyproject.toml`
+- **Logic assist prep**: runs the v1.5 GPT4All contributor setup helper when the selected tier permits local assist
 
 ### 6. Wizard Server Setup (if not --core)
 - **Wizard dependencies**: Installs FastAPI, uvicorn, Flask, etc.
@@ -111,18 +126,17 @@ Use `--tier 1|2|3` to test hardline gating for a requested tier.
 - **API endpoints**: Sets up REST API and WebSocket servers
 
 ### 7. Optional Components
-- **Ollama**: Local LLM runtime
-  - Offers guided installation
-  - Model selection UI with 6 curated options
-  - Progress indicators during download
-  - Priority configuration in .env
-- **Supported models**:
-  - codestral:latest (22GB) - Code generation
-  - mistral:latest (4.1GB) - General purpose
-  - mistral-small:latest (7.7GB) - Balanced
-  - llama3.2:latest (2.0GB) - Fast & efficient
-  - qwen2.5-coder:latest (7.6GB) - Advanced coding
-  - deepseek-r1:latest (8.9GB) - Reasoning
+- **GPT4All local assist**: standard local offline assist layer for v1.5
+  - advisory only; never execution authority
+  - optimized for summarization, drafting, and operator guidance
+  - pairs with deterministic `uLogic` execution and Wizard online escalation policy
+- **udos-tui build**:
+  - built automatically when `go` is available
+  - provides the Bubble Tea + Lip Gloss v1.5 shell frontend
+  - remains optional; `./bin/ucode` continues to work without it
+- **Wizard budget control**:
+  - handles all online model routing and daily spend policy
+  - keeps offline-first behavior when budgets or policy thresholds block escalation
 
 ### 8. Health Check & Summary
 - **Component verification**: Checks all installed tools
@@ -148,8 +162,9 @@ You'll be prompted to set:
 ### Optional (can be set manually later)
 - `UDOS_TIMEZONE` - Your timezone (e.g., "America/New_York")
 - `UDOS_LOCATION` - Your location
-- `OLLAMA_HOST` - Ollama server URL (default: http://localhost:11434)
-- `OLLAMA_DEFAULT_MODEL` - Preferred model (auto-set if Ollama installed)
+- GPT4All/Wizard-specific runtime settings as introduced by the active v1.5 logic-assist migration path
+- `UDOS_LOGIC_INSTALL_TIER` - installer-selected logic-assist tier
+- `UDOS_LOGIC_RECOMMENDED_MODELS` - advisory list of local GPT4All model names for the selected tier
 
 ## Directory Structure After Install
 
@@ -166,7 +181,8 @@ uDOS/
 │   ├── project.json
 │   ├── tasks.md
 │   ├── completed.json
-│   └── docs/
+│   ├── docs/
+│   └── goblin/
 ├── memory/
 │   ├── vault/               # Your personal vault (seeded from template)
 │   ├── logs/                # Runtime logs
@@ -220,6 +236,10 @@ The Vibe lane is intentionally small and contributor-only.
 - LAN gateway features
 - Dev Mode extension install/uninstall and activation lifecycle
 
+Contributor setup details:
+- `dev/docs/howto/VIBE-Setup-Guide.md`
+- `dev/docs/specs/DEV-WORKSPACE-SPEC.md`
+
 ### Lazy Loading
 The wizard is **not required** for core functionality:
 1. Install core: `./bin/install-udos-vibe.sh --core`
@@ -233,7 +253,7 @@ This approach saves disk space and keeps installations minimal.
 ### 1. Test Core Installation
 ```bash
 cd /path/to/uDOS
-ucode STATUS
+./bin/ucode STATUS
 ```
 
 You should see the standard `ucode` runtime respond successfully.
@@ -252,7 +272,7 @@ This completes the user configuration:
 
 ### 3. Start Wizard (if installed)
 ```bash
-ucode WIZARD start
+./bin/ucode WIZARD start
 ```
 
 Access the web interface at: http://localhost:8765
@@ -298,10 +318,10 @@ chmod +x bin/install-udos-vibe.command
 **macOS**: Install from https://obsidian.md/download
 **Linux**: `snap install obsidian --classic`
 
-### Ollama models won't download
-1. Check Ollama is running: `ollama list`
-2. Start Ollama service: `ollama serve` (in another terminal)
-3. Try manual pull: `ollama pull mistral:latest`
+### GPT4All local model is not ready
+1. Run `SETUP dev` to install the GPT4All package and contributor tooling
+2. Check the configured model path in `core/framework/seed/bank/typo-workspace/settings/logic-assist.md`
+3. Place the configured `.gguf` model file in the expected local model directory
 
 ### Wizard won't start
 1. Check wizard dependencies: `./bin/install-udos-vibe.sh --wizard`
@@ -312,8 +332,8 @@ chmod +x bin/install-udos-vibe.command
 Reinstall dependencies by profile:
 ```bash
 cd /path/to/uDOS
-uv sync --extra udos          # Core profile only
-uv sync --extra udos-wizard   # Wizard web/API profile (includes FastAPI)
+UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos          # Core profile only
+UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard   # Wizard web/API profile (includes FastAPI)
 # uv sync --extra udos-full   # Optional full profile with extra providers
 ```
 
@@ -327,35 +347,31 @@ uv sync --extra udos-wizard   # Wizard web/API profile (includes FastAPI)
 ### Update dependencies only
 ```bash
 cd /path/to/uDOS
-uv sync --extra udos
+UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos
 # If you use Wizard web/API features:
-uv sync --extra udos-wizard
+UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard
 ```
 
-### Update Ollama models
-```bash
-ollama pull codestral:latest
-ollama pull mistral:latest
-# ... repeat for each model
-```
+### Update local GPT4All model selection
+Update the local model contract in `logic-assist.md`, then replace the local `.gguf` file in the configured model directory.
 
 ## Advanced Options
 
 ### Custom Python Environment
-The installer uses `--system` flag with uv. To use a virtual environment:
+uDOS v1.5 standardizes on `/.venv`:
 ```bash
 uv venv .venv --python 3.12
 UV_PROJECT_ENVIRONMENT=.venv uv run python --version
-uv sync --extra udos
+UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos
 # Add Wizard profile only when needed:
-uv sync --extra udos-wizard
+UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard
 ```
 
 ### Skip Interactive Prompts
 Set environment variables before running:
 ```bash
 export UDOS_SKIP_PROMPTS=1
-export USER_USERNAME="myname"
+export USER_NAME="myname"
 export MISTRAL_API_KEY="your-key-here"
 ./bin/install-udos-vibe.sh
 ```
@@ -363,7 +379,7 @@ export MISTRAL_API_KEY="your-key-here"
 ### CI/Automation Mode
 ```bash
 export UDOS_AUTOMATION=1
-./bin/install-udos-vibe.sh --core --skip-ollama
+./bin/install-udos-vibe.sh --core
 ```
 
 ## Uninstallation
@@ -375,25 +391,13 @@ Use Wizard GUI to uninstall or deactivate the Dev Mode extension first. Remove g
 uv tool uninstall mistral-vibe
 ```
 
-### Remove Ollama
-**macOS**:
-```bash
-brew uninstall ollama
-# or if installed via script:
-sudo rm /usr/local/bin/ollama
-```
-
-**Linux**:
-```bash
-sudo systemctl stop ollama
-sudo rm /usr/local/bin/ollama
-```
-
 ### Clean up repo artifacts
 ```bash
 rm -rf .env
 rm -rf memory/
 rm -rf .vibe/
+rm -rf .venv/
+rm -rf tui/bin/
 ```
 
 ### Remove uv

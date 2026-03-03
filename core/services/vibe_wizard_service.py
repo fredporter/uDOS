@@ -6,11 +6,11 @@ Manages automation workflows, task scheduling, and orchestration.
 
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
-from datetime import datetime
 import time
 
 from core.services.logging_manager import get_logger
 from core.services.persistence_service import get_persistence_service
+from core.services.time_utils import utc_now_iso_z
 
 
 @dataclass
@@ -121,7 +121,7 @@ class VibeWizardService:
 
         task = self.tasks[task_id]
         task.status = "running"
-        task.last_run = datetime.now().isoformat()
+        task.last_run = utc_now_iso_z()
         self._active_runs[task_id] = time.perf_counter()
         self._save_tasks()
 

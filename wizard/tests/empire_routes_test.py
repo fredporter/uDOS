@@ -128,7 +128,7 @@ def test_empire_document_detail_route_reads_document(tmp_path, monkeypatch):
     _seed_empire_root(tmp_path)
 
     class _ServiceWithDocument:
-        def get_document(self, document_id: str):
+        def get_document(self, document_id: str, *, scope: str = "master", binder_id: str | None = None):
             return {
                 "document_id": document_id,
                 "title": "Inbox Intake",
@@ -136,6 +136,10 @@ def test_empire_document_detail_route_reads_document(tmp_path, monkeypatch):
                 "scope": "master",
                 "binder_id": None,
                 "media_type": "application/pdf",
+                "classification": "pdf_doc",
+                "confidence": 0.62,
+                "summary": "First page summary",
+                "review_status": "pending_review",
                 "metadata": {"pages": 2},
                 "extracted_text": "First page summary",
             }
@@ -152,6 +156,126 @@ def test_empire_document_detail_route_reads_document(tmp_path, monkeypatch):
     assert payload["document_id"] == "doc-42"
     assert payload["title"] == "Inbox Intake"
     assert payload["metadata"]["pages"] == 2
+    assert payload["classification"] == "pdf_doc"
+
+
+def test_empire_document_review_bundle_route_reads_related_entities(tmp_path, monkeypatch):
+    _seed_empire_root(tmp_path)
+
+    class _ServiceWithReviewBundle:
+        def get_document_review_bundle(self, document_id: str, *, scope: str = "master", binder_id: str | None = None):
+            return {
+                "document": {"document_id": document_id, "classification": "email_message"},
+                "records": [{"record_id": "r1", "email": "user@example.com"}],
+                "events": [{"event_id": "e1", "event_type": "email.import"}],
+                "tasks": [{"task_id": "t1", "task_type": "email_follow_up"}],
+                "summary": {"record_count": 1, "event_count": 1, "task_count": 1, "emails": ["user@example.com"]},
+            }
+
+    monkeypatch.setattr(empire_routes, "get_empire_extension_service", lambda: _ServiceWithReviewBundle())
+
+    app = FastAPI()
+    app.include_router(empire_routes.create_empire_routes())
+    client = TestClient(app)
+
+    response = client.get("/api/empire/documents/doc-42/review-bundle")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["document"]["document_id"] == "doc-42"
+    assert payload["summary"]["record_count"] == 1
+    assert payload["tasks"][0]["task_type"] == "email_follow_up"
+
+
+def test_empire_record_promote_route_delegates_to_extension_service(tmp_path, monkeypatch):
+    _seed_empire_root(tmp_path)
+
+    class _ServiceWithPromotion:
+        def promote_record_to_master(self, record_id: str, *, binder_id: str | None):
+            return {
+                "status": "promoted",
+                "source_record_id": record_id,
+                "binder_id": binder_id,
+                "target_record_id": "master-r1",
+            }
+
+    monkeypatch.setattr(empire_routes, "get_empire_extension_service", lambda: _ServiceWithPromotion())
+
+    app = FastAPI()
+    app.include_router(empire_routes.create_empire_routes())
+    client = TestClient(app)
+
+    response = client.post("/api/empire/records/binder-r1/promote", json={"binder_id": "project-a"})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "promoted"
+    assert payload["source_record_id"] == "binder-r1"
+    assert payload["target_record_id"] == "master-r1"
+
+
+def test_empire_record_merge_routes_delegate_to_extension_service(tmp_path, monkeypatch):
+    _seed_empire_root(tmp_path)
+
+    class _ServiceWithMerge:
+        def find_record_merge_candidates(self, record_id: str, *, limit: int = 10):
+            return {
+                "record": {"record_id": record_id},
+                "candidates": [{"record_id": "dup-r1", "match_reason": "email"}],
+                "summary": {"candidate_count": 1},
+            }
+
+        def merge_records(self, *, target_record_id: str, source_record_id: str):
+            return {
+                "status": "merged",
+                "target_record_id": target_record_id,
+                "source_record_id": source_record_id,
+            }
+
+    monkeypatch.setattr(empire_routes, "get_empire_extension_service", lambda: _ServiceWithMerge())
+
+    app = FastAPI()
+    app.include_router(empire_routes.create_empire_routes())
+    client = TestClient(app)
+
+    candidates = client.get("/api/empire/records/master-r1/merge-candidates")
+    assert candidates.status_code == 200
+    assert candidates.json()["candidates"][0]["record_id"] == "dup-r1"
+
+    merge = client.post(
+        "/api/empire/records/merge",
+        json={"target_record_id": "master-r1", "source_record_id": "dup-r1"},
+    )
+    assert merge.status_code == 200
+    assert merge.json()["status"] == "merged"
+
+
+def test_empire_document_review_route_delegates_to_document_service(tmp_path, monkeypatch):
+    _seed_empire_root(tmp_path)
+
+    class _FakeDocumentService:
+        def review_document(self, *, document_id: str, scope: str = "master", binder_id: str | None = None, review_status: str, review_notes: str | None = None, classification: str | None = None):
+            return {
+                "document_id": document_id,
+                "scope": scope,
+                "binder_id": binder_id,
+                "review_status": review_status,
+                "classification": classification or "task_doc",
+            }
+
+    monkeypatch.setattr(empire_routes, "get_empire_document_service", lambda: _FakeDocumentService())
+
+    app = FastAPI()
+    app.include_router(empire_routes.create_empire_routes())
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/empire/documents/doc-42/review",
+        json={"scope": "binder", "binder_id": "project-a", "review_status": "approved", "classification": "meeting_note"},
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["document_id"] == "doc-42"
+    assert payload["review_status"] == "approved"
+    assert payload["classification"] == "meeting_note"
 
 
 def test_extension_routes_keep_empire_visible_as_official_extension(tmp_path, monkeypatch):
@@ -262,10 +386,11 @@ def test_empire_collate_route_delegates_to_collation_service(tmp_path, monkeypat
     monkeypatch.setattr(empire_routes, "get_empire_extension_service", lambda: service)
 
     class _FakeCollationService:
-        def collate_document(self, document_id: str, emit_mode: str = "task_note"):
+        def collate_document(self, document_id: str, emit_mode: str = "task_note", *, scope: str = "master", binder_id: str | None = None):
             return {
                 "document_id": document_id,
                 "task_count": 2,
+                "tasks": [{"title": "Follow up by tomorrow", "due_hint": "tomorrow", "review_status": "ready"}],
                 "artifact_path": "/tmp/task-note.md",
                 "emit_mode": emit_mode,
             }
@@ -281,7 +406,37 @@ def test_empire_collate_route_delegates_to_collation_service(tmp_path, monkeypat
     payload = response.json()
     assert payload["document_id"] == "doc-1"
     assert payload["task_count"] == 2
+    assert payload["tasks"][0]["due_hint"] == "tomorrow"
     assert payload["emit_mode"] == "workflow_stub"
+
+
+def test_empire_task_review_route_delegates_to_task_service(tmp_path, monkeypatch):
+    _seed_empire_root(tmp_path)
+
+    class _FakeTaskService:
+        def review_task(self, *, task_id: str, scope: str = "master", binder_id: str | None = None, review_status: str, status: str | None = None, due_hint: str | None = None, notes: str | None = None):
+            return {
+                "task_id": task_id,
+                "scope": scope,
+                "binder_id": binder_id,
+                "review_status": review_status,
+                "status": status or "open",
+            }
+
+    monkeypatch.setattr(empire_routes, "get_empire_task_service", lambda: _FakeTaskService())
+
+    app = FastAPI()
+    app.include_router(empire_routes.create_empire_routes())
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/empire/tasks/task-42/review",
+        json={"scope": "master", "review_status": "approved"},
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["task_id"] == "task-42"
+    assert payload["review_status"] == "approved"
 
 
 def test_empire_connector_run_route_delegates_to_sync_service(tmp_path, monkeypatch):
@@ -320,7 +475,7 @@ def test_empire_connectors_route_exposes_catalog_and_recent_jobs(tmp_path, monke
     service = _seed_empire_root(tmp_path)
 
     class _ServiceWithConnectors:
-        def connector_catalog(self):
+        def connector_catalog(self, *, scope: str = "master", binder_id: str | None = None):
             return {
                 "connectors": {
                     "google": {
@@ -357,7 +512,7 @@ def test_empire_sync_job_detail_route_reads_job(tmp_path, monkeypatch):
     service = _seed_empire_root(tmp_path)
 
     class _ServiceWithSyncJob:
-        def get_sync_job(self, sync_job_id: str):
+        def get_sync_job(self, sync_job_id: str, *, scope: str = "master", binder_id: str | None = None):
             return {"sync_job_id": sync_job_id, "status": "completed", "metadata": {"records_imported": 2}}
 
     monkeypatch.setattr(empire_routes, "get_empire_extension_service", lambda: _ServiceWithSyncJob())
@@ -379,11 +534,27 @@ def test_empire_webhook_routes_delegate_to_webhook_service(tmp_path, monkeypatch
         def save_mapping(self, **kwargs):
             return {**kwargs, "mapping_id": "map-1"}
 
+        def validate_mapping(self, **kwargs):
+            return {"ok": True, "errors": [], "warnings": ["using fallback mapping"], "resolved_scope": {"scope": "master", "binder_id": None}}
+
+        def list_webhook_templates(self):
+            return [{"path": "templates/webhooks/hubspot-contact-master.md", "label": "HubSpot Contact To Master"}]
+
+        def preview_mapping(self, **kwargs):
+            return {
+                "field_map": {"email": "email"},
+                "transformed_payload": {"email": "preview@example.com"},
+                "preview": {"email": "preview@example.com", "name": "Preview User"},
+            }
+
         def test_mapping(self, mapping_id, payload):
             return {"mapping_id": mapping_id, "result": {"record_id": "r1"}, "payload": payload}
 
         def receive_inbound(self, *, mapping_id, payload, signature):
             return {"mapping_id": mapping_id, "result": {"record_id": "r2"}, "signature": signature}
+
+        def retry_delivery(self, delivery_id):
+            return {"delivery_id": "del-2", "retried_from_delivery_id": delivery_id, "result": {"record_id": "r3"}}
 
     class _ServiceWithWebhooks:
         def list_webhook_mappings(self, limit=100):
@@ -418,6 +589,37 @@ def test_empire_webhook_routes_delegate_to_webhook_service(tmp_path, monkeypatch
     assert save.status_code == 200
     assert save.json()["mapping_id"] == "map-1"
 
+    validate = client.post(
+        "/api/empire/webhooks/validate",
+        json={
+            "name": "HubSpot Contact",
+            "source_system": "hubspot",
+            "event_type": "contact.updated",
+            "target_scope": "master",
+            "target_entity": "contact",
+            "status": "active",
+            "config": {"field_map": {"email": "email"}},
+        },
+    )
+    assert validate.status_code == 200
+    assert validate.json()["ok"] is True
+
+    templates = client.get("/api/empire/webhooks/templates")
+    assert templates.status_code == 200
+    assert templates.json()["templates"][0]["label"] == "HubSpot Contact To Master"
+
+    preview = client.post(
+        "/api/empire/webhooks/preview",
+        json={
+            "source_system": "hubspot",
+            "target_entity": "contact",
+            "template_path": "templates/webhooks/hubspot-contact-master.md",
+            "payload": {"email": "preview@example.com"},
+        },
+    )
+    assert preview.status_code == 200
+    assert preview.json()["preview"]["email"] == "preview@example.com"
+
     deliveries = client.get("/api/empire/webhooks/deliveries")
     assert deliveries.status_code == 200
     assert deliveries.json()["deliveries"][0]["delivery_id"] == "del-1"
@@ -430,6 +632,10 @@ def test_empire_webhook_routes_delegate_to_webhook_service(tmp_path, monkeypatch
     assert inbound.status_code == 200
     assert inbound.json()["signature"] == "secret"
 
+    retry = client.post("/api/empire/webhooks/deliveries/del-1/retry")
+    assert retry.status_code == 200
+    assert retry.json()["retried_from_delivery_id"] == "del-1"
+
 
 def test_empire_import_job_detail_route_reads_job(tmp_path, monkeypatch):
     service = _seed_empire_root(tmp_path)
@@ -439,7 +645,7 @@ def test_empire_import_job_detail_route_reads_job(tmp_path, monkeypatch):
         def status_payload(self):
             return service.status_payload()
 
-        def get_import_job(self, job_id: str):
+        def get_import_job(self, job_id: str, *, scope: str = "master", binder_id: str | None = None):
             return {"job_id": job_id, "status": "completed", "metadata": "{}"}
 
     monkeypatch.setattr(empire_routes, "get_empire_extension_service", lambda: _ServiceWithJob())
@@ -481,6 +687,10 @@ def test_empire_accounts_route_exposes_wizard_managed_actions(tmp_path, monkeypa
     assert payload["google"]["connected"] is True
     assert payload["google"]["actions"]["connect_url"] == "/api/oauth/connect/google"
     assert payload["google"]["user"] == "operator@example.com"
+    assert payload["google"]["release_scope"] == "v1.5-live"
+    assert payload["google"]["action_required"] is None
+    assert payload["icloud"]["release_scope"] == "v1.5-deferred"
+    assert payload["linkedin"]["readiness"] == "scaffolded"
 
 
 def test_empire_import_jobs_parse_metadata(tmp_path):

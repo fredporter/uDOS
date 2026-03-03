@@ -40,6 +40,7 @@ from typing import Dict, Any, Optional, List, AsyncGenerator
 from dataclasses import dataclass, asdict, field
 from enum import Enum
 
+from core.services.time_utils import parse_utc_datetime, utc_day_string, utc_now, utc_now_iso_z
 from wizard.services.logging_api import get_logger
 from wizard.services.quota_tracker import (
     APIProvider as QuotaAPIProvider,
@@ -158,7 +159,7 @@ class AIResponse:
 
     def __post_init__(self):
         if not self.timestamp:
-            self.timestamp = datetime.now().isoformat()
+            self.timestamp = utc_now_iso_z()
 
     def to_dict(self) -> Dict[str, Any]:
         """Return response as serializable dict."""
@@ -346,8 +347,8 @@ class OKGateway:
 
     def _check_resets(self):
         """Reset daily/monthly counters if needed."""
-        today = datetime.now().strftime("%Y-%m-%d")
-        month = datetime.now().strftime("%Y-%m")
+        today = utc_day_string()
+        month = utc_now().strftime("%Y-%m")
 
         if self.costs.last_daily_reset != today:
             self.costs.spent_today = 0.0
@@ -437,8 +438,8 @@ class OKGateway:
             try:
                 data = json.loads(cache_file.read_text())
                 # Check expiry (24 hours)
-                cached_time = datetime.fromisoformat(data["timestamp"])
-                if datetime.now() - cached_time < timedelta(hours=24):
+                cached_time = parse_utc_datetime(data["timestamp"])
+                if utc_now() - cached_time < timedelta(hours=24):
                     response = AIResponse(**data)
                     response.cached = True
                     return response

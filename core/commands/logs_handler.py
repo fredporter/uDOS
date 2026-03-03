@@ -280,7 +280,7 @@ class LogsHandler(BaseCommandHandler):
         }
 
     def _show_ok_outputs(self, limit: int = 50) -> Dict:
-        """Show recent OK local output summaries."""
+        """Show recent logic-assist local output summaries."""
         from core.tui.output import OutputToolkit
 
         entries = self._collect_entries(category="ok-local-output", limit=limit)
@@ -289,13 +289,13 @@ class LogsHandler(BaseCommandHandler):
             return {
                 "status": "info",
                 "output": OutputToolkit.section(
-                    "🧭 OK LOCAL OUTPUTS",
-                    "No OK local outputs found yet.\nRun: OK EXPLAIN <file> or OK LOCAL",
+                    "🧭 LOGIC LOCAL OUTPUTS",
+                    "No logic local outputs found yet.\nRun: LOGIC EXPLAIN <file> or LOGIC LOCAL",
                 ),
             }
 
         lines = [
-            OutputToolkit.banner("🧭 OK LOCAL OUTPUTS"),
+            OutputToolkit.banner("🧭 LOGIC LOCAL OUTPUTS"),
             f"Showing {len(entries)} entries\n",
         ]
 
@@ -315,7 +315,7 @@ class LogsHandler(BaseCommandHandler):
             rows.append([time_str, mode, model, source, file_short, preview])
 
         lines.append(OutputToolkit.table(headers, rows))
-        lines.append("\nTip: OK LOCAL SHOW <id> for full output")
+        lines.append("\nTip: LOGIC LOCAL SHOW <id> for full output")
 
         return {"status": "success", "output": "\n".join(lines)}
 
@@ -332,7 +332,7 @@ USAGE:
   LOGS --core                   Only Core logs
   LOGS --wizard                 Only Wizard logs
   LOGS --goblin                 Only Goblin logs
-  LOGS --ok                     Show OK local output summaries
+  LOGS --ok                     Show logic local output summaries
   LOGS --level LEVEL            Filter by level (TRACE, DEBUG, INFO, WARN, ERROR, FATAL)
   LOGS --category CATEGORY      Filter by category
   LOGS --stats                  Statistics

@@ -1,4 +1,4 @@
-"""OK subroutes for uCODE bridge routes."""
+"""Logic-assist subroutes for uCODE bridge routes."""
 
 from __future__ import annotations
 
@@ -8,12 +8,12 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 
-class OkModelRequest(BaseModel):
+class LogicModelRequest(BaseModel):
     model: str
     profile: Optional[str] = "core"
 
 
-class OkCloudRequest(BaseModel):
+class LogicCloudRequest(BaseModel):
     prompt: str
     mode: Optional[str] = "conversation"
     workspace: Optional[str] = "core"
@@ -41,7 +41,7 @@ def create_ucode_ok_routes(
     )
     dev_active_checker = is_dev_mode_active or (lambda: False)
 
-    @router.get("/ok/status")
+    @router.get("/logic/status")
     async def get_ok_status() -> Dict[str, Any]:
         status = get_ok_local_status()
         cloud_status = get_ok_cloud_status()
@@ -51,12 +51,12 @@ def create_ucode_ok_routes(
         default_models = get_default_models()
         dev_active = dev_active_checker()
         logger.debug(
-            "OK status requested",
+            "Logic assist status requested",
             ctx={"model": status.get("model"), "ready": status.get("ready")},
         )
         return {
             "status": "ok",
-            "ok": {
+            "logic": {
                 **status,
                 "context_window": get_ok_context_window(),
                 "default_model": get_default_model(),
@@ -79,23 +79,23 @@ def create_ucode_ok_routes(
             },
         }
 
-    @router.get("/ok/history")
+    @router.get("/logic/history")
     async def get_ok_history() -> Dict[str, Any]:
         return {"status": "ok", "history": list(ok_history)}
 
-    @router.post("/ok/model")
-    async def set_ok_model(payload: OkModelRequest) -> Dict[str, Any]:
+    @router.post("/logic/model")
+    async def set_ok_model(payload: LogicModelRequest) -> Dict[str, Any]:
         model = (payload.model or "").strip()
         profile = (payload.profile or "core").strip().lower()
         dev_active = dev_active_checker()
         if not model:
-            logger.warn("OK model update rejected (empty)")
+            logger.warn("Logic model update rejected (empty)")
             raise HTTPException(status_code=400, detail="model is required")
         if profile not in {"core", "dev"}:
-            logger.warn("OK model update rejected (invalid profile)", ctx={"profile": profile})
+            logger.warn("Logic model update rejected (invalid profile)", ctx={"profile": profile})
             raise HTTPException(status_code=400, detail="profile must be core or dev")
         if profile == "dev" and not dev_active:
-            logger.warn("OK model update rejected (dev inactive)")
+            logger.warn("Logic model update rejected (dev inactive)")
             raise HTTPException(status_code=409, detail="Dev Mode must be active to set coding profile model")
 
         config = load_ai_modes_config()
@@ -109,11 +109,11 @@ def create_ucode_ok_routes(
             models.append({"name": model, "availability": [profile]})
 
         write_ok_modes_config(config)
-        logger.info("OK model updated", ctx={"model": model, "profile": profile})
+        logger.info("Logic model updated", ctx={"model": model, "profile": profile})
         return {"status": "ok", "default_models": default_models}
 
-    @router.post("/ok/cloud")
-    async def run_ok_cloud_route(payload: OkCloudRequest) -> Dict[str, Any]:
+    @router.post("/logic/cloud")
+    async def run_ok_cloud_route(payload: LogicCloudRequest) -> Dict[str, Any]:
         prompt = (payload.prompt or "").strip()
         if not prompt:
             raise HTTPException(status_code=400, detail="prompt is required")
@@ -125,21 +125,23 @@ def create_ucode_ok_routes(
         try:
             response, model = run_ok_cloud(prompt)
         except Exception as exc:
-            logger.warn("OK cloud request failed", ctx={"error": str(exc)})
+            logger.warn("Logic cloud request failed", ctx={"error": str(exc)})
             raise HTTPException(status_code=500, detail=str(exc))
 
         return {"status": "ok", "response": response, "model": model}
 
-    @router.post("/ok/setup")
+    @router.post("/logic/setup")
     async def run_ok_setup() -> Dict[str, Any]:
         try:
             from core.services.logging_api import get_repo_root
-            from core.services.ok_setup import run_ok_setup as _run_ok_setup
+            from core.services.logic_assist_setup import (
+                run_logic_assist_setup as _run_ok_setup,
+            )
 
             result = _run_ok_setup(get_repo_root())
             return {"status": "ok", "result": result}
         except Exception as exc:
-            logger.warn("OK setup failed", ctx={"error": str(exc)})
+            logger.warn("Logic setup failed", ctx={"error": str(exc)})
             raise HTTPException(status_code=500, detail=str(exc))
 
     return router

@@ -24,12 +24,18 @@ It exists for:
 `/dev` must contain:
 - `AGENTS.md`
 - `DEVLOG.md`
+- `README.md`
 - `project.json`
 - `tasks.md`
 - `completed.json`
 - `extension.json`
 - `docs/README.md`
 - `docs/DEV-MODE-POLICY.md`
+- `docs/specs/DEV-WORKSPACE-SPEC.md`
+- `docs/howto/GETTING-STARTED.md`
+- `docs/howto/VIBE-Setup-Guide.md`
+- `docs/features/GITHUB-INTEGRATION.md`
+- `goblin/README.md`
 
 ---
 
@@ -38,8 +44,10 @@ It exists for:
 `/dev` must contain only:
 - contributor planning
 - contributor governance
+- contributor documentation
 - extension templates and metadata
 - distro-facing Dev Mode framework content
+- distributable Goblin fixtures
 
 `/dev` must not contain:
 - primary runtime logic
@@ -62,6 +70,11 @@ Allowed local-only working directories:
 
 These are working areas only, not the canonical extension template payload.
 
+Tracked sync payload:
+- `/dev` governance files
+- `dev/docs/`
+- `dev/goblin/`
+
 ---
 
 ## Runtime Boundary
@@ -71,6 +84,7 @@ These are working areas only, not the canonical extension template payload.
 - `vibe` is contributor-only Dev Mode tooling.
 - Wizard owns Dev Mode install, uninstall, activation, deactivation, and GitHub sync behavior.
 - If runtime logic is needed, implement it in `wizard/` or `core/`, not in `/dev/`.
+- `dev/goblin/` is the distributable dev scaffold and testing-server layer.
 
 ---
 

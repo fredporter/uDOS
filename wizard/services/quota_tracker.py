@@ -20,12 +20,13 @@ Alpha: v1.0.2.1+
 import json
 import time
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Dict, Any, Optional, List, Callable
 from dataclasses import dataclass, field, asdict
 from enum import Enum
 from collections import defaultdict
 
+from core.services.time_utils import utc_day_string, utc_now, utc_now_iso_z
 from wizard.services.logging_api import get_logger
 from wizard.services.provider_load_logger import log_provider_event
 
@@ -353,7 +354,7 @@ class QuotaTracker:
         """Save quota data."""
         data = {
             "version": "1.0.0",
-            "updated_at": datetime.now().isoformat(),
+            "updated_at": utc_now_iso_z(),
             "quotas": {
                 provider.value: quota.to_dict()
                 for provider, quota in self._quotas.items()
@@ -393,7 +394,7 @@ class QuotaTracker:
         """Save queued requests."""
         data = {
             "version": "1.0.0",
-            "updated_at": datetime.now().isoformat(),
+            "updated_at": utc_now_iso_z(),
             "queue": [
                 {
                     "id": req.id,
@@ -419,8 +420,8 @@ class QuotaTracker:
 
     def _check_rollovers(self):
         """Check and apply date rollovers."""
-        today = datetime.now().strftime("%Y-%m-%d")
-        this_month = datetime.now().strftime("%Y-%m")
+        today = utc_day_string()
+        this_month = utc_now().strftime("%Y-%m")
 
         for quota in self._quotas.values():
             # Daily rollover
@@ -570,7 +571,7 @@ class QuotaTracker:
         # Record in history
         self._history.append(
             {
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": utc_now_iso_z(),
                 "provider": provider.value,
                 "tokens_input": tokens_input,
                 "tokens_output": tokens_output,
@@ -632,7 +633,7 @@ class QuotaTracker:
     def get_all_quotas(self) -> Dict[str, Any]:
         """Get quota status for all providers."""
         result = {
-            "updated_at": datetime.now().isoformat(),
+            "updated_at": utc_now_iso_z(),
             "providers": {},
             "totals": {
                 "cost_today": 0.0,

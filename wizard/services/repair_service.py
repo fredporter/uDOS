@@ -120,50 +120,42 @@ class RepairService:
         return get_library_manager().update_alpine_toolchain(packages)
 
     def bootstrap_venv(self) -> RepairResult:
-        """Create venv and install requirements if present."""
+        """Create the canonical Python runtime and sync Wizard dependencies."""
         venv_path = self._wizard_venv_path()
-        requirements_path = self._wizard_requirements_path()
-        python_path = shutil.which("python3")
-        if not python_path:
+        uv_path = shutil.which("uv")
+        if not uv_path:
             return RepairResult(
                 success=False,
                 action="bootstrap-venv",
-                error="python3 not found",
+                error="uv not found",
             )
 
         outputs = []
         try:
             if not venv_path.exists():
                 result = self._run_command(
-                    [python_path, "-m", "venv", str(venv_path)],
+                    [uv_path, "venv", str(venv_path), "--python", "3.12"],
                     cwd=self.repo_root,
+                    action="bootstrap-venv",
                 )
                 if not result.success:
                     return result
                 outputs.append(result.output)
 
-            pip_path = venv_path / "bin" / "pip"
-            if pip_path.exists():
-                result = self._run_command(
-                    [str(pip_path), "install", "--upgrade", "pip"],
-                    cwd=self.repo_root,
-                )
-                if not result.success:
-                    return result
-                outputs.append(result.output)
-                if requirements_path.exists():
-                    result = self._run_command(
-                        [str(pip_path), "install", "-r", str(requirements_path)],
-                        cwd=self.repo_root,
-                    )
-                    if not result.success:
-                        return result
-                    outputs.append(result.output)
+            result = self._run_command(
+                [uv_path, "sync", "--extra", "udos-wizard", "--dev"],
+                cwd=self.repo_root,
+                action="bootstrap-venv",
+                env_overrides={"UV_PROJECT_ENVIRONMENT": ".venv"},
+            )
+            if not result.success:
+                return result
+            outputs.append(result.output)
 
             return RepairResult(
                 success=True,
                 action="bootstrap-venv",
-                message="Venv bootstrapped",
+                message="Python runtime bootstrapped",
                 output="\n".join(outputs).strip(),
             )
         except Exception as exc:
@@ -174,28 +166,20 @@ class RepairService:
             )
 
     def install_python_deps(self) -> RepairResult:
-        """Install Python dependencies via venv if present."""
-        requirements = self._wizard_requirements_path()
-        if not requirements.exists():
+        """Install Python dependencies via the canonical uv runtime."""
+        uv_path = shutil.which("uv")
+        if not uv_path:
             return RepairResult(
                 success=False,
                 action="install-python-deps",
-                error=f"{requirements.name} not found",
-            )
-
-        pip_path = self._wizard_venv_path() / "bin" / "pip"
-        pip_cmd = str(pip_path) if pip_path.exists() else shutil.which("pip3")
-        if not pip_cmd:
-            return RepairResult(
-                success=False,
-                action="install-python-deps",
-                error="pip3 not found",
+                error="uv not found",
             )
 
         return self._run_command(
-            [pip_cmd, "install", "-r", str(requirements)],
+            [uv_path, "sync", "--extra", "udos-wizard", "--dev"],
             cwd=self.repo_root,
             action="install-python-deps",
+            env_overrides={"UV_PROJECT_ENVIRONMENT": ".venv"},
         )
 
     def install_dashboard_deps(self) -> RepairResult:
@@ -302,16 +286,24 @@ class RepairService:
             return {"success": False, "error": str(exc)}
 
     def _run_command(
-        self, cmd: list[str], cwd: Path, action: str = ""
+        self,
+        cmd: list[str],
+        cwd: Path,
+        action: str = "",
+        env_overrides: Optional[dict[str, str]] = None,
     ) -> RepairResult:
         action_name = action or "command"
         try:
+            env = os.environ.copy()
+            if env_overrides:
+                env.update(env_overrides)
             result = subprocess.run(
                 cmd,
                 cwd=str(cwd),
                 capture_output=True,
                 text=True,
                 timeout=900,
+                env=env,
             )
             if result.returncode != 0:
                 return RepairResult(

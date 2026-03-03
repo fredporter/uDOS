@@ -50,7 +50,7 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
         Usage:
             SETUP              Run the setup story (configure local identity)
             SETUP webhook      Interactive GitHub webhook setup
-            SETUP <provider>   Setup a specific provider (github, ollama, mistral, etc.)
+            SETUP <provider>   Setup a specific provider (github, gpt4all, mistral, etc.)
             SETUP dev          Prepare Dev extension contributor tooling
             SETUP --profile    Show your current setup profile
             SETUP --edit       Edit setup values
@@ -72,7 +72,7 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
             SETUP webhook github    GitHub webhooks only
 
         Provider Setup (delegates to Wizard):
-            Supported: github, ollama, mistral, openrouter
+            Supported: github, gpt4all, mistral, openrouter, openai, anthropic, gemini
 
         Extended data in Wizard keystore (when installed):
             - API keys, OAuth tokens, credentials
@@ -88,8 +88,8 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
                     ("Edit setup", "edit", "Update local .env values"),
                     ("Clear setup", "clear", "Reset local setup data"),
                     ("Webhook setup", "webhook", "Configure GitHub webhooks"),
-                    ("Dev extension setup", "dev", "Prepare Ollama + vibe contributor tooling + recommended models"),
-                    ("Provider setup", "provider", "Configure provider (github/ollama/mistral/openrouter)"),
+                    ("Dev extension setup", "dev", "Prepare GPT4All + vibe contributor tooling"),
+                    ("Provider setup", "provider", "Configure provider (github/gpt4all/mistral/openrouter/openai/anthropic/gemini)"),
                     ("Help", "help", "Show SETUP help"),
                 ],
             )
@@ -111,7 +111,7 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
                 return self._setup_dev_mode_helper()
             if choice == "provider":
                 try:
-                    provider = input("Provider (github/ollama/mistral/openrouter): ").strip().lower()
+                    provider = input("Provider (github/gpt4all/mistral/openrouter/openai/anthropic/gemini): ").strip().lower()
                 except Exception:
                     provider = ""
                 if provider:
@@ -135,7 +135,7 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
             return self._setup_dev_mode_helper(legacy_alias=True)
 
         # Check if this is a provider setup request
-        provider_names = {"github", "ollama", "mistral", "openrouter"}
+        provider_names = {"github", "gpt4all", "mistral", "openrouter", "openai", "anthropic", "gemini"}
         if action in provider_names:
             return self._setup_provider(action)
 
@@ -434,14 +434,14 @@ Key fields to edit:
         }
 
     def _setup_dev_mode_helper(self, legacy_alias: bool = False) -> Dict:
-        """Prepare local Dev extension tooling (Ollama + vibe + models)."""
+        """Prepare local Dev extension tooling (GPT4All + vibe)."""
         output: List[str] = []
         output.append("\n⚙️  SETUP: Preparing Dev extension contributor tooling\n")
         output.append("=" * 60)
         if legacy_alias:
             output.append("Legacy alias detected: `SETUP vibe` now routes to `SETUP dev`.")
         try:
-            from core.services.ok_setup import run_ok_setup
+            from core.services.logic_assist_setup import run_logic_assist_setup
             from core.services.logging_api import get_repo_root
             from core.services.network_gate_policy import (
                 bootstrap_download_gate,
@@ -461,10 +461,9 @@ Key fields to edit:
 
             with bootstrap_download_gate(opened_by="core.commands.setup_dev_mode"):
                 output.append("🌐 Web gate open for setup downloads")
-                result = run_ok_setup(
+                result = run_logic_assist_setup(
                     get_repo_root(),
                     log=lambda msg: output.append(msg),
-                    models=None,
                 )
             for warning in result.get("warnings", []):
                 output.append(f"  ⚠️  {warning}")
@@ -482,7 +481,7 @@ Key fields to edit:
             close_bootstrap_gate(reason="setup-complete")
 
     def _setup_provider(self, provider_id: str) -> Dict:
-        """Setup a provider (github, ollama, mistral, etc.)."""
+        """Setup a provider (github, gpt4all, mistral, etc.)."""
         import subprocess
         import sys
 

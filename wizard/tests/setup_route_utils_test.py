@@ -1,6 +1,12 @@
 from wizard.routes import setup_route_utils as utils
 
 
+def test_get_system_timezone_info_uses_shared_render_helper():
+    info = utils.get_system_timezone_info()
+    assert "timezone" in info
+    assert "local_time" in info
+
+
 def test_is_ghost_mode_variants():
     assert utils.is_ghost_mode("Ghost", "admin") is True
     assert utils.is_ghost_mode("alice", "ghost") is True

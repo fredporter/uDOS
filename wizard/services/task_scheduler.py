@@ -8,7 +8,7 @@ import logging
 import sqlite3
 import uuid
 import hashlib
-from datetime import datetime, timedelta, time
+from datetime import UTC, datetime, timedelta, time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -17,7 +17,8 @@ from wizard.services.deploy_mode import is_managed_mode
 from wizard.services.path_utils import get_repo_root
 from wizard.services.system_info_service import get_system_info_service
 from wizard.services.store import get_wizard_store
-from core.services.maintenance_utils import compost_cleanup
+from core.services.maintenance_utils import compost_cleanup, run_housekeeping
+from core.services.time_utils import parse_utc_datetime, utc_now, utc_now_iso
 from core.workflows.scheduler import WorkflowScheduler
 from wizard.services.repair_service import get_repair_service
 
@@ -55,7 +56,13 @@ DEFAULT_SETTINGS = {
 def _serialize_dt(value: datetime | None) -> str | None:
     if value is None:
         return None
-    return value.isoformat()
+    return _coerce_utc(value).isoformat()
+
+
+def _coerce_utc(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
 
 
 class TaskScheduler:
@@ -356,7 +363,7 @@ class TaskScheduler:
                 "kind": kind,
                 "payload": payload or {},
                 "state": "plant",
-                "created_at": datetime.now().isoformat(),
+                "created_at": utc_now_iso(),
             }
         except sqlite3.Error as exc:
             logger.error(f"[WIZ] Create task error: {exc}")
@@ -405,7 +412,7 @@ class TaskScheduler:
     def schedule_task(
         self, task_id: str, scheduled_for: Optional[datetime] = None
     ) -> Dict[str, Any]:
-        scheduled_for = scheduled_for or datetime.now()
+        scheduled_for = _coerce_utc(scheduled_for or utc_now())
         if self._managed:
             return self.store.schedule_task(task_id, scheduled_for)
         run_id = f"run_{uuid.uuid4().hex[:12]}"
@@ -480,7 +487,7 @@ class TaskScheduler:
                     WHERE q.state = 'pending' AND q.scheduled_for <= ?
                     LIMIT ?
                     """,
-                    (_serialize_dt(datetime.now()), limit),
+                    (_serialize_dt(utc_now()), limit),
                 )
                 return [dict(row) for row in cursor.fetchall()]
         except sqlite3.Error as exc:
@@ -597,7 +604,7 @@ class TaskScheduler:
                         _serialize_dt(scheduled_for),
                         reason,
                         backoff_seconds,
-                        _serialize_dt(datetime.now()),
+                        _serialize_dt(utc_now()),
                         queue_id,
                     ),
                 )
@@ -610,7 +617,7 @@ class TaskScheduler:
     def retry_queue_item(self, queue_id: int) -> Dict[str, Any] | None:
         if self._managed:
             return self.store.retry_queue_item(queue_id)
-        now = _serialize_dt(datetime.now())
+        now = _serialize_dt(utc_now())
         try:
             with sqlite3.connect(self.db_path) as conn:
                 conn.row_factory = sqlite3.Row
@@ -783,7 +790,7 @@ class TaskScheduler:
         return self.get_task_history(task_id, limit)
 
     def execute_task(self, task_id: str) -> Dict[str, Any]:
-        scheduled = self.schedule_task(task_id, datetime.now())
+        scheduled = self.schedule_task(task_id, utc_now())
         if "error" in scheduled:
             return scheduled
         return {"scheduled": scheduled}
@@ -851,7 +858,7 @@ class TaskScheduler:
         allowed_days, start_at, _end_at = self._window_rule(window, settings)
         for day_offset in range(0, 8):
             candidate_date = (now + timedelta(days=day_offset)).date()
-            candidate = datetime.combine(candidate_date, start_at)
+            candidate = datetime.combine(candidate_date, start_at, tzinfo=UTC)
             if day_offset == 0 and candidate <= now:
                 candidate += timedelta(days=1)
             if allowed_days is not None and candidate.weekday() not in allowed_days:
@@ -899,7 +906,7 @@ class TaskScheduler:
     def _task_due(self, task: Dict[str, Any]) -> bool:
         schedule = (task.get("schedule") or "daily").lower()
         last_run = self._get_last_run_time(task["id"])
-        now = datetime.now()
+        now = utc_now()
         if schedule in WINDOW_SCHEDULES:
             schedule = "daily"
         if schedule in {"once", "one"}:
@@ -923,7 +930,7 @@ class TaskScheduler:
                 )
                 row = cursor.fetchone()
                 if row and row[0]:
-                    return datetime.fromisoformat(row[0])
+                    return parse_utc_datetime(row[0])
         except Exception:
             return None
         return None
@@ -933,7 +940,7 @@ class TaskScheduler:
         scheduled = 0
         settings = self.get_settings()
         tasks = self.list_tasks(limit=1000)
-        now = datetime.now()
+        now = utc_now()
         for task in tasks:
             if not task.get("enabled", True):
                 continue
@@ -998,7 +1005,7 @@ class TaskScheduler:
         executed = 0
         network_ok = self._network_available() if allow_network else False
         deferred = 0
-        now = datetime.now()
+        now = utc_now()
         for item in pending:
             if executed >= max_tasks:
                 break
@@ -1050,7 +1057,7 @@ class TaskScheduler:
                     scheduled_for = defer_until
                 elif isinstance(defer_until, str):
                     try:
-                        scheduled_for = datetime.fromisoformat(defer_until.replace("Z", "+00:00"))
+                        scheduled_for = parse_utc_datetime(defer_until)
                     except ValueError:
                         scheduled_for = now + timedelta(hours=1)
                 self._defer_queue_item(
@@ -1104,7 +1111,7 @@ class TaskScheduler:
                 "result": "deferred",
                 "output": f"Waiting for workflow {workflow_id} to reach phase {phase_index + 1}",
                 "defer_reason": "waiting_for_workflow_phase",
-                "defer_until": state.next_run_at or (datetime.now() + timedelta(hours=1)).isoformat(),
+                "defer_until": state.next_run_at or (utc_now() + timedelta(hours=1)).isoformat(),
             }
 
         state = self.workflow_scheduler.run_workflow(workflow_id)
@@ -1114,7 +1121,7 @@ class TaskScheduler:
                 "result": "deferred",
                 "output": f"Workflow {workflow_id} waiting in state {state.status}",
                 "defer_reason": "waiting_for_workflow_state",
-                "defer_until": state.next_run_at or (datetime.now() + timedelta(hours=12)).isoformat(),
+                "defer_until": state.next_run_at or (utc_now() + timedelta(hours=12)).isoformat(),
             }
 
         if current_phase.status == "failed":
@@ -1145,6 +1152,11 @@ class TaskScheduler:
             dry_run = bool(payload.get("dry_run", False))
             result = compost_cleanup(days=days, dry_run=dry_run)
             return {"result": "success", "output": json.dumps(result)}
+        if kind == "health_housekeeping":
+            scope = str(payload.get("scope", "knowledge"))
+            apply = bool(payload.get("apply", True))
+            result = run_housekeeping(scope, apply=apply)
+            return {"result": "success", "output": json.dumps(result)}
         if kind == "backup_target":
             target_key = payload.get("target")
             notes = payload.get("notes")
@@ -1172,6 +1184,25 @@ class TaskScheduler:
             payload={"days": days, "dry_run": dry_run},
         )
 
+    def ensure_daily_health_housekeeping(
+        self,
+        scope: str = "knowledge",
+        apply: bool = True,
+    ) -> None:
+        if self.get_task_by_kind("health_housekeeping"):
+            return
+        self.create_task(
+            name="Daily health housekeeping",
+            description="Tidy/CLEAN scoped uDOS data with elastic .compost retention",
+            schedule="daily",
+            priority=6,
+            need=5,
+            resource_cost=1,
+            requires_network=False,
+            kind="health_housekeeping",
+            payload={"scope": scope, "apply": apply},
+        )
+
     def get_task_by_kind(self, kind: str) -> Optional[Dict[str, Any]]:
         if self._managed:
             return self.store.get_task_by_kind(kind)
@@ -1189,7 +1220,7 @@ class TaskScheduler:
 
     def get_stats(self) -> Dict[str, Any]:
         settings = self.get_settings()
-        budget = self._budget_state(settings, datetime.now())
+        budget = self._budget_state(settings, utc_now())
         if self._managed:
             stats = self.store.get_task_stats()
             stats["api_budget"] = {

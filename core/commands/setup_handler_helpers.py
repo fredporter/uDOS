@@ -198,7 +198,7 @@ stored in the Wizard keystore.
 
 USAGE:
   SETUP              Run setup story (interactive questions)
-  SETUP <provider>   Setup a provider (github, ollama, mistral, etc.)
+  SETUP <provider>   Setup a provider (github, gpt4all, mistral, etc.)
   SETUP dev          Prepare Dev extension contributor tooling
   SETUP --profile    Show your current setup
   SETUP --edit       Edit setup manually
@@ -207,10 +207,10 @@ USAGE:
 
 PROVIDERS:
   SETUP github       Configure GitHub authentication
-  SETUP ollama       Setup local Ollama AI model
-  SETUP mistral      Configure Mistral AI provider
+  SETUP gpt4all      Prepare local GPT4All model runtime
+  SETUP mistral      Configure Mistral provider
   SETUP openrouter   Configure OpenRouter gateway
-  SETUP dev          Prepare Ollama + vibe contributor tooling + recommended local models
+  SETUP dev          Prepare GPT4All + vibe contributor tooling
 
 LOCAL SETTINGS (.env):
     USER_NAME          Username
@@ -222,7 +222,7 @@ LOCAL SETTINGS (.env):
   OS_TYPE            alpine | ubuntu | mac | windows
 
 EXTENDED SETTINGS (Wizard Keystore - installed later):
-    API Keys:          GitHub, OpenAI, Anthropic, etc.
+    Provider Keys:     GitHub, OpenAI, Anthropic, etc.
   OAuth Tokens:      Calendar, Google Drive, etc.
   Cloud Services:    AWS, GCP, Azure credentials
   Webhooks:          Custom webhooks and secrets
@@ -232,7 +232,7 @@ EXTENDED SETTINGS (Wizard Keystore - installed later):
 EXAMPLES:
   SETUP                     # Start interactive setup
   SETUP github              # Setup GitHub authentication
-  SETUP ollama              # Setup local Ollama
+  SETUP gpt4all             # Prepare local GPT4All runtime
   SETUP dev                 # Prepare Dev extension contributor tooling
   SETUP --profile           # View current settings
   SETUP --clear && SETUP    # Reset and reconfigure

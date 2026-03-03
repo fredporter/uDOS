@@ -16,17 +16,8 @@ import subprocess
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from core.services.integration_registry import get_provider_definitions
-from wizard.routes.ollama_route_utils import (
-    get_installed_ollama_models_payload,
-    remove_ollama_model_payload,
-    validate_model_name,
-)
 from wizard.services.logging_api import get_logger
-from wizard.services.ollama_service import (
-    get_popular_models,
-    get_pull_tracker,
-    start_pull,
-)
+from wizard.services.logic_assist_service import get_logic_assist_service
 from wizard.services.path_utils import get_repo_root
 from wizard.services.provider_health_service import get_provider_health_service
 from wizard.services.quota_tracker import get_quota_tracker
@@ -42,8 +33,6 @@ def create_provider_routes(auth_guard=None):
         prefix="/api/providers", tags=["providers"], dependencies=dependencies
     )
     logger = get_logger("provider-routes")
-    pull_tracker = get_pull_tracker()
-
     CONFIG_PATH = Path(__file__).parent.parent / "config"
     SETUP_FLAGS_FILE = CONFIG_PATH / "provider_setup_flags.json"
     SCRIPT_DIR = Path(__file__).parent.parent.parent / "bin"
@@ -102,7 +91,7 @@ def create_provider_routes(auth_guard=None):
                 "mistral",
                 "openrouter",
                 "gemini",
-                "ollama",
+                "gpt4all",
             ])
 
         return sorted(enabled)
@@ -129,21 +118,22 @@ def create_provider_routes(auth_guard=None):
         """Check if a provider is configured and working."""
         from core.services.ai_provider_handler import get_ai_provider_handler
 
-        # Use centralized AI provider handler for Ollama and Mistral
-        if provider_id == "ollama":
-            handler = get_ai_provider_handler()
-            ai_status = handler.check_local_provider()
+        # Use the v1.5 logic-assist runtime for GPT4All local status.
+        if provider_id == "gpt4all":
+            logic_status = get_logic_assist_service(get_repo_root()).get_status()
+            local_status = logic_status["local"]
             return {
-                "provider_id": "ollama",
-                "name": "Ollama",
-                "configured": ai_status.is_configured,
-                "available": ai_status.is_available,
-                "cli_installed": ai_status.is_configured,
+                "provider_id": "gpt4all",
+                "name": "GPT4All",
+                "configured": bool(local_status.get("model_path")),
+                "available": bool(local_status.get("ready")),
+                "cli_installed": None,
                 "needs_restart": False,
-                "enabled": "ollama" in _get_enabled_providers(),
-                "loaded_models": ai_status.loaded_models,
-                "default_model": ai_status.default_model,
-                "issue": ai_status.issue,
+                "enabled": "gpt4all" in _get_enabled_providers(),
+                "loaded_models": [local_status.get("model")],
+                "default_model": local_status.get("model"),
+                "issue": local_status.get("issue"),
+                "model_path": local_status.get("model_path"),
             }
 
         if provider_id == "mistral":
@@ -169,7 +159,12 @@ def create_provider_routes(auth_guard=None):
                 "error": "Unknown provider",
             }
 
-        config_file = CONFIG_PATH / provider["config_file"]
+        config_file_value = str(provider["config_file"])
+        config_file = (
+            get_repo_root() / config_file_value
+            if config_file_value.startswith("memory/")
+            else CONFIG_PATH / config_file_value
+        )
         enabled_ids = set(_get_enabled_providers())
         status = {
             "provider_id": provider_id,
@@ -247,7 +242,9 @@ def create_provider_routes(auth_guard=None):
                 "github": ["github_token", "github_webhook_secret"],
                 "mistral": ["mistral_api_key"],
                 "openrouter": ["openrouter_api_key"],
-                "ollama": ["ollama_api_key"],
+                "openai": ["openai_api_key"],
+                "anthropic": ["anthropic_api_key"],
+                "gemini": ["gemini_api_key"],
             }
             for key_id in secret_key_map.get(provider_id, []):
                 if _secret_available(key_id):
@@ -341,7 +338,10 @@ def create_provider_routes(auth_guard=None):
         provider = PROVIDERS[provider_id]
         config_file = provider.get("config_file")
         config_key = provider.get("config_key")
-        config_path = (CONFIG_PATH / config_file) if config_file else None
+        if config_file and str(config_file).startswith("memory/"):
+            config_path = get_repo_root() / str(config_file)
+        else:
+            config_path = (CONFIG_PATH / str(config_file)) if config_file else None
 
         payload = {
             "provider_id": provider_id,
@@ -474,128 +474,12 @@ def create_provider_routes(auth_guard=None):
 
         return {"success": True, "message": "Provider disabled"}
 
-    # ─────────────────────────────────────────────────────────────
-    # Ollama Model Management
-    # ─────────────────────────────────────────────────────────────
-
-    @router.get("/ollama/models/available")
-    async def get_available_ollama_models():
-        """Get list of popular Ollama models.
-        Returns: List of recommended models with sizes and descriptions
-        """
-        popular_models = get_popular_models(include_installed=True)
-        categories = sorted({
-            model.get("category", "")
-            for model in popular_models
-            if model.get("category")
-        })
-
-        return {"success": True, "models": popular_models, "categories": categories}
-
-    @router.get("/ollama/models/installed")
-    async def get_installed_ollama_models():
-        """Get list of currently installed Ollama models.
-        Returns: List of installed models with details
-        """
-        return get_installed_ollama_models_payload()
-
-    @router.post("/ollama/models/pull")
-    async def pull_ollama_model(
-        model: str = Query(..., description="Model name to pull"),
-    ):
-        """Pull (download) an Ollama model.
-        Args: model - Model name (e.g., 'mistral', 'devstral-small-2')
-        """
-        validate_model_name(model)
-
-        try:
-            pull_tracker.set(model, state="queued", percent=0)
-            start_pull(model, pull_tracker)
-            return {
-                "success": True,
-                "message": f"Started pulling {model}...",
-                "model": model,
-                "note": "Poll /api/providers/ollama/models/pull/status for progress",
-            }
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-
-    @router.get("/ollama/models/pull/status")
-    async def pull_ollama_status(model: str = Query(..., description="Model name")):
-        """Get pull progress for an Ollama model."""
-        status = pull_tracker.get(model)
-        if not status:
-            return {"success": False, "error": "No pull status found", "model": model}
-        return {"success": True, "status": status}
-
-    @router.post("/ollama/models/remove")
-    async def remove_ollama_model(
-        model: str = Query(..., description="Model name to remove"),
-    ):
-        """Remove an installed Ollama model."""
-        return remove_ollama_model_payload(model)
-
-    return router
-
-
-def create_public_ollama_routes():
-    """Create public Ollama routes that don't require authentication.
-    These are local operations and don't expose sensitive data.
-    """
-    router = APIRouter(prefix="/api/providers/ollama", tags=["ollama-public"])
-    pull_tracker = get_pull_tracker()
-
-    @router.get("/models/available")
-    async def get_available_ollama_models_public():
-        """Public endpoint: Get list of popular Ollama models."""
-        popular_models = get_popular_models(include_installed=True)
-        categories = sorted({
-            model.get("category", "")
-            for model in popular_models
-            if model.get("category")
-        })
-
-        return {"success": True, "models": popular_models, "categories": categories}
-
-    @router.get("/models/installed")
-    async def get_installed_ollama_models_public():
-        """Public endpoint: Get list of currently installed Ollama models."""
-        return get_installed_ollama_models_payload()
-
-    @router.post("/models/pull")
-    async def pull_ollama_model_public(
-        model: str = Query(..., description="Model name to pull"),
-    ):
-        """Public endpoint: Pull (download) an Ollama model."""
-        validate_model_name(model)
-
-        try:
-            pull_tracker.set(model, state="queued", percent=0)
-            start_pull(model, pull_tracker)
-            return {
-                "success": True,
-                "message": f"Started pulling {model} via Ollama API...",
-                "model": model,
-                "note": "Poll /api/providers/ollama/models/pull/status for progress",
-            }
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-
-    @router.get("/models/pull/status")
-    async def pull_ollama_status_public(
-        model: str = Query(..., description="Model name"),
-    ):
-        """Public endpoint: Get pull progress for an Ollama model."""
-        status = pull_tracker.get(model)
-        if not status:
-            return {"success": False, "error": "No pull status found", "model": model}
-        return {"success": True, "status": status}
-
-    @router.post("/models/remove")
-    async def remove_ollama_model_public(
-        model: str = Query(..., description="Model name to remove"),
-    ):
-        """Public endpoint: Remove an installed Ollama model."""
-        return remove_ollama_model_payload(model)
+    @router.get("/gpt4all/status")
+    async def get_gpt4all_status():
+        """Return the active GPT4All local-assist status."""
+        return {
+            "success": True,
+            "logic": get_logic_assist_service(get_repo_root()).get_status()["local"],
+        }
 
     return router

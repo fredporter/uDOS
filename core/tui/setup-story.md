@@ -97,10 +97,10 @@ label: Download and Install Dev Mode Helper...?
 type: select
 required: true
 options:
-  - yes: Yes (install Ollama, vibe Dev Mode tooling, Mistral2 small/large, Devstral2 small)
+  - yes: Yes (prepare GPT4All local logic-assist, vibe Dev Mode tooling, and recommended contributor models)
   - no: No (skip for now)
   - skip: Skip (ask me later)
-help: "Runs SETUP dev to install Ollama + vibe Dev Mode tooling + recommended local models. Operator mode remains the standard runtime."
+help: "Runs SETUP dev to prepare the local logic-assist contributor lane and recommended tooling. Operator mode remains the standard runtime."
 default: no
 ```
 ```story

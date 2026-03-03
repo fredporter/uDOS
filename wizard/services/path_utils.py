@@ -116,7 +116,7 @@ def ensure_test_runs_dir() -> Path:
 
 
 def _resolve_venv_path(raw_path: str) -> Path:
-    """Resolve venv path from env/user input, allowing relative paths."""
+    """Resolve Python runtime path from env/user input, allowing relative paths."""
     return _resolve_repo_path(raw_path)
 
 
@@ -129,17 +129,17 @@ def _resolve_repo_path(raw_path: str) -> Path:
 
 
 def get_wizard_venv_dir() -> Path:
-    """Return Wizard runtime venv path.
+    """Return the Wizard Python runtime path.
 
     Priority:
     1. WIZARD_VENV_PATH env (absolute or repo-relative)
-    2. Default repo path: venv
+    2. Default repo path: .venv
     """
     env_venv = get_config("WIZARD_VENV_PATH", "").strip()
     if env_venv:
         return _resolve_venv_path(env_venv)
 
-    return get_repo_root() / "venv"
+    return get_repo_root() / ".venv"
 
 
 def get_repo_root() -> Path:

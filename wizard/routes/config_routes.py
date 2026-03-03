@@ -18,9 +18,9 @@ import os
 import secrets
 from pathlib import Path
 from typing import Dict, Any
-from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Depends, Request, UploadFile, File
 from pydantic import BaseModel
+from core.services.time_utils import utc_now_iso_z
 from wizard.services.secret_store import (
     get_secret_store,
     SecretStoreError,
@@ -50,7 +50,7 @@ def create_config_routes(auth_guard=None):
 
     class _NetworkingUpdate(BaseModel):
         web_proxy_enabled: bool | None = None
-        ok_gateway_enabled: bool | None = None
+        logic_assist_enabled: bool | None = None
         plugin_repo_enabled: bool | None = None
         github_push_enabled: bool | None = None
         open_bootstrap_gate_seconds: int | None = None
@@ -84,7 +84,7 @@ def create_config_routes(auth_guard=None):
             "status": "ok",
             "networking": {
                 "web_proxy_enabled": bool(config.get("web_proxy_enabled", True)),
-                "ok_gateway_enabled": bool(config.get("ok_gateway_enabled", True)),
+                "logic_assist_enabled": bool(config.get("ok_gateway_enabled", True)),
                 "plugin_repo_enabled": bool(config.get("plugin_repo_enabled", True)),
                 "github_push_enabled": bool(config.get("github_push_enabled", True)),
             },
@@ -97,16 +97,13 @@ def create_config_routes(auth_guard=None):
         """Update wizard networking settings and optionally open/close bootstrap gate."""
         config = helpers.load_wizard_config()
         updates: dict[str, bool] = {}
-        for key in (
-            "web_proxy_enabled",
-            "ok_gateway_enabled",
-            "plugin_repo_enabled",
-            "github_push_enabled",
-        ):
+        direct_fields = ("web_proxy_enabled", "plugin_repo_enabled", "github_push_enabled")
+        for key in direct_fields:
             value = getattr(payload, key)
-            if value is None:
-                continue
-            updates[key] = bool(value)
+            if value is not None:
+                updates[key] = bool(value)
+        if payload.logic_assist_enabled is not None:
+            updates["ok_gateway_enabled"] = bool(payload.logic_assist_enabled)
 
         if updates:
             config.update(updates)
@@ -127,7 +124,7 @@ def create_config_routes(auth_guard=None):
             "status": "ok",
             "networking": {
                 "web_proxy_enabled": bool(config.get("web_proxy_enabled", True)),
-                "ok_gateway_enabled": bool(config.get("ok_gateway_enabled", True)),
+                "logic_assist_enabled": bool(config.get("ok_gateway_enabled", True)),
                 "plugin_repo_enabled": bool(config.get("plugin_repo_enabled", True)),
                 "github_push_enabled": bool(config.get("github_push_enabled", True)),
             },
@@ -468,7 +465,7 @@ def create_config_routes(auth_guard=None):
             payload = {}
 
         new_value = payload.get("new_value") or secrets.token_urlsafe(32)
-        rotated_at = datetime.now(timezone.utc).isoformat()
+        rotated_at = utc_now_iso_z()
 
         try:
             store = get_secret_store()

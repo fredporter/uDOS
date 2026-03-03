@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from pathlib import Path
 import asyncio
 from typing import Any, Dict, Optional, Generator, List
@@ -18,7 +17,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
-from wizard.services.logging_api import get_logger, get_logs_root
+from core.services.time_utils import utc_day_string
+from wizard.services.logging_api import get_logger, get_log_stats, get_logging_health, get_logs_root
 
 
 class ToastLogPayload(BaseModel):
@@ -82,8 +82,15 @@ def create_log_routes(auth_guard=None):
         }
         logger.info("Toast log", ctx=record)
         log_dir = get_logs_root() / "wizard"
-        log_path = log_dir / f"wizard-toast-{datetime.now(timezone.utc).strftime('%Y-%m-%d')}.jsonl"
+        log_path = log_dir / f"wizard-toast-{utc_day_string()}.jsonl"
         return {"status": "ok", "path": str(log_path)}
+
+    @router.get("/status")
+    async def log_status() -> Dict[str, Any]:
+        return {
+            "health": get_logging_health(),
+            "stats": get_log_stats(),
+        }
 
     @router.get("/stream")
     async def stream_logs(

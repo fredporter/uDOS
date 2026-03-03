@@ -16,15 +16,21 @@ Supports multiple item types in tasks.json:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
 import json
 from pathlib import Path
 from typing import Any
 import uuid
 
 from core.services.logging_manager import get_logger
-from core.services.paths import get_vault_root
+from core.services.knowledge_artifact_service import get_knowledge_artifact_service
+from core.services.paths import get_udos_root, get_vault_root
 from core.services.persistence_service import get_persistence_service
+from core.services.time_utils import utc_now, utc_now_iso
+from core.ulogic.deliverables import (
+    validate_completed_file_payload,
+    validate_project_file_payload,
+    validate_tasks_file_payload,
+)
 
 _logger = get_logger(__name__)
 _binder_service_instance = None
@@ -112,6 +118,8 @@ class VibeBinderService:
         self.persistence_service = get_persistence_service()
         self.vault_root = get_vault_root()
         self.binder_root = self.vault_root / "@binders"
+        self.knowledge_artifacts = get_knowledge_artifact_service(get_udos_root())
+        self.knowledge_artifacts.binder_root = self.binder_root
 
         # Ensure binder directory exists
         self.binder_root.mkdir(parents=True, exist_ok=True)
@@ -176,6 +184,15 @@ class VibeBinderService:
 
         file_path = mission_dir / filename
 
+        validation_errors = self._validate_mission_file(filename, data)
+        if validation_errors:
+            self.logger.error(
+                "Deliverable validation failed for %s: %s",
+                file_path,
+                "; ".join(validation_errors),
+            )
+            return False
+
         try:
             with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=4)
@@ -183,6 +200,18 @@ class VibeBinderService:
         except Exception as e:
             self.logger.error(f"Error saving {file_path}: {e}")
             return False
+
+    def _validate_mission_file(self, filename: str, data: dict[str, Any]) -> list[str]:
+        if filename == "project.json":
+            result = validate_project_file_payload(data)
+            return list(result.errors)
+        if filename == "tasks.json":
+            result = validate_tasks_file_payload(data)
+            return list(result.errors)
+        if filename == "completed.json":
+            result = validate_completed_file_payload(data)
+            return list(result.errors)
+        return []
 
     def list_binders(self) -> dict[str, Any]:
         """List all available binders (missions)."""
@@ -406,7 +435,7 @@ class VibeBinderService:
 
         # Standard task
         move_id = str(uuid.uuid4())
-        now = datetime.now().isoformat()
+        now = utc_now_iso()
 
         move = {
             "id": move_id,
@@ -474,7 +503,7 @@ class VibeBinderService:
             }
 
         move_id = str(uuid.uuid4())
-        now = datetime.now().isoformat()
+        now = utc_now_iso()
 
         move = {
             "id": move_id,
@@ -544,7 +573,7 @@ class VibeBinderService:
             }
 
         move_id = str(uuid.uuid4())
-        now = datetime.now().isoformat()
+        now = utc_now_iso()
 
         move = {
             "id": move_id,
@@ -610,7 +639,7 @@ class VibeBinderService:
             }
 
         move_id = str(uuid.uuid4())
-        now = datetime.now().isoformat()
+        now = utc_now_iso()
 
         move = {
             "id": move_id,
@@ -674,7 +703,7 @@ class VibeBinderService:
             }
 
         move_id = str(uuid.uuid4())
-        now = datetime.now().isoformat()
+        now = utc_now_iso()
 
         move = {
             "id": move_id,
@@ -747,7 +776,7 @@ class VibeBinderService:
             if field in kwargs:
                 move[field] = kwargs[field]
 
-        move["updated"] = datetime.now().isoformat()
+        move["updated"] = utc_now_iso()
 
         # Save
         moves_data = {"tasks": self.binders[mission_id]["moves"]}
@@ -779,7 +808,7 @@ class VibeBinderService:
             }
 
         # Convert move to milestone
-        now = datetime.now().isoformat()
+        now = utc_now_iso()
         milestone = {
             "id": move["id"],
             "mission_id": mission_id,
@@ -892,7 +921,8 @@ class VibeBinderService:
 
         # Statistics
         high_priority = [m for m in moves if m.get("priority") == "high"]
-        overdue = [m for m in moves if m.get("due_date") and m.get("due_date") < datetime.now().isoformat()]
+        current_iso = utc_now_iso()
+        overdue = [m for m in moves if m.get("due_date") and m.get("due_date") < current_iso]
         assigned = [m for m in moves if m.get("assigned_to")]
 
         return {
@@ -917,6 +947,49 @@ class VibeBinderService:
             },
             "moves": moves,
             "milestones": milestones,
+        }
+
+    def import_research_artifact(
+        self,
+        mission_id: str,
+        note_id: str,
+        *,
+        action: str = "research",
+    ) -> dict[str, Any]:
+        if mission_id not in self.binders:
+            return {
+                "status": "error",
+                "message": f"Mission not found: {mission_id}",
+            }
+
+        imported = self.knowledge_artifacts.import_into_binder(
+            mission_id=mission_id,
+            action=action,
+            note_name=note_id,
+        )
+        record = self.knowledge_artifacts.read(action, note_id)
+        move_result = self.add_imported_item(
+            mission_id,
+            title=record.title,
+            description=record.body or f"Imported {action} artifact {note_id}",
+            source="research",
+            source_id=record.note_id,
+            item_category=action,
+            tags=["research", action],
+            metadata={
+                "knowledge_note_id": record.note_id,
+                "knowledge_action": action,
+                "knowledge_source_path": imported["source_path"],
+                "knowledge_target_path": imported["target_path"],
+                "processed_snapshot": imported["processed_snapshot"],
+            },
+        )
+        return {
+            "status": "success",
+            "message": f"Imported {action} artifact into mission {mission_id}",
+            "imported": imported,
+            "move": move_result.get("move", {}),
+            "move_id": move_result.get("move_id"),
         }
 
     def _calculate_avg_priority(self, moves: list[dict[str, Any]]) -> str:

@@ -11,6 +11,7 @@
   let loading = true;
   let error = null;
   let stats = null;
+  let logHealth = null;
   let lastUpdated = null;
   let autoRefresh = true;
   let refreshMs = 10000;
@@ -66,6 +67,8 @@
     return date.toLocaleString();
   };
 
+  const formatBool = (value) => (value ? "Yes" : "No");
+
   async function loadLogs(retry = true) {
     loading = true;
     error = null;
@@ -76,13 +79,16 @@
         needsAdminToken = true;
         throw new Error("Admin token required");
       }
-      const res = await fetchWithTimeout(
-        `/api/logs?category=${encodeURIComponent(selectedCategory)}&limit=${limit}`,
-        { headers: authHeaders() },
-        7000,
-      );
-      if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
+      const [logsRes, statusRes] = await Promise.all([
+        fetchWithTimeout(
+          `/api/logs?category=${encodeURIComponent(selectedCategory)}&limit=${limit}`,
+          { headers: authHeaders() },
+          7000,
+        ),
+        fetchWithTimeout("/api/logs/status", { headers: authHeaders() }, 7000),
+      ]);
+      if (!logsRes.ok) {
+        if (logsRes.status === 401 || logsRes.status === 403) {
           localStorage.removeItem("wizardAdminToken");
           adminToken = "";
           if (retry) {
@@ -94,12 +100,19 @@
           needsAdminToken = true;
           throw new Error("Admin token required");
         }
-        throw new Error(`HTTP ${res.status}`);
+        throw new Error(`HTTP ${logsRes.status}`);
       }
-      const data = await res.json();
+      const data = await logsRes.json();
       logs = Array.isArray(data.logs) ? data.logs : [];
       categories = Array.isArray(data.categories) ? data.categories : [];
       stats = data.stats || null;
+      if (statusRes.ok) {
+        const statusPayload = await statusRes.json();
+        logHealth = statusPayload.health || null;
+        stats = statusPayload.stats || stats;
+      } else {
+        logHealth = null;
+      }
       lastUpdated = new Date();
     } catch (err) {
       error = `Failed to load logs: ${err.message}`;
@@ -245,6 +258,92 @@
     <div class="wiz-terminal-panel p-4 text-gray-200">
       <div class="text-gray-400 text-sm">Categories</div>
       <div class="text-2xl font-semibold">{categories.length}</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="wiz-terminal-panel p-4 text-gray-200 space-y-3">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <div class="text-gray-400 text-sm">Logging Contract</div>
+          <div class="text-xl font-semibold">{logHealth?.schema ?? "udos-log-v1.5"}</div>
+        </div>
+        <div class="text-right">
+          <div class="text-gray-400 text-sm">Runtime</div>
+          <div class="font-semibold">{logHealth?.runtime_version ?? "-"}</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div>
+          <div class="text-gray-400">Level</div>
+          <div>{logHealth?.level ?? "-"}</div>
+        </div>
+        <div>
+          <div class="text-gray-400">Destination</div>
+          <div>{logHealth?.dest ?? "-"}</div>
+        </div>
+        <div>
+          <div class="text-gray-400">Format</div>
+          <div>{logHealth?.format ?? "-"}</div>
+        </div>
+        <div>
+          <div class="text-gray-400">Payloads</div>
+          <div>{logHealth?.payloads ?? "-"}</div>
+        </div>
+        <div>
+          <div class="text-gray-400">Redaction</div>
+          <div>{formatBool(logHealth?.redact)}</div>
+        </div>
+        <div>
+          <div class="text-gray-400">Ring</div>
+          <div>{logHealth?.ring_entries ?? "-"} / {logHealth?.ring_size ?? "-"}</div>
+        </div>
+      </div>
+
+      <div class="text-xs text-gray-500 break-all">
+        Root: {logHealth?.root ?? stats?.root ?? "-"}
+      </div>
+    </div>
+
+    <div class="wiz-terminal-panel p-4 text-gray-200 space-y-3">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <div class="text-gray-400 text-sm">Log Tree</div>
+          <div class="text-xl font-semibold">{stats?.total_files ?? "-"}</div>
+        </div>
+        <div class="text-right">
+          <div class="text-gray-400 text-sm">Size</div>
+          <div class="font-semibold">{stats?.total_size_mb ?? "-"} MB</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div>
+          <div class="text-gray-400">Latest file</div>
+          <div class="break-all">{stats?.latest_file ?? "-"}</div>
+        </div>
+        <div>
+          <div class="text-gray-400">Generated</div>
+          <div>{formatTimestamp(stats?.generated_at ?? "")}</div>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <div class="text-gray-400 text-sm">By component</div>
+        {#if stats?.by_component}
+          {#each Object.entries(stats.by_component) as [component, componentStats]}
+            <div class="flex items-center justify-between gap-3 text-sm border-t border-gray-800 pt-2">
+              <div class="font-semibold">{component}</div>
+              <div class="text-gray-400">
+                {componentStats.count} files · {componentStats.size_mb} MB
+              </div>
+            </div>
+          {/each}
+        {:else}
+          <div class="text-sm text-gray-500">No component stats available.</div>
+        {/if}
+      </div>
     </div>
   </div>
 

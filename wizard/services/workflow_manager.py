@@ -1,6 +1,4 @@
-"""
-Workflow Manager - uDOS Native Todo/Project System (Wizard)
-"""
+"""Workflow Manager - Wizard facade over core workflow runtime plus local task storage."""
 
 import sqlite3
 from datetime import datetime
@@ -8,6 +6,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from core.services.time_utils import render_utc_as_local, utc_now_iso_z
+from core.workflows.scheduler import WorkflowScheduler
 from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
 
@@ -27,9 +27,11 @@ class WorkflowManager:
 
     def __init__(self, db_path: str = None):
         repo_root = get_repo_root()
+        self.repo_root = repo_root
         default_db = repo_root / "memory" / "wizard" / "workflow.db"
         self.db_path = Path(db_path) if db_path else default_db
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        self.scheduler = WorkflowScheduler(repo_root)
         self._init_db()
         logger.info(f"[WIZ] Workflow manager using {self.db_path}")
 
@@ -133,7 +135,19 @@ class WorkflowManager:
         name: str,
         description: str | None = None,
         task_ids: list[str] | None = None,
+        *,
+        template_id: str | None = None,
+        workflow_id: str | None = None,
     ) -> Dict[str, Any]:
+        if template_id and workflow_id:
+            spec = self.scheduler.create_workflow(
+                template_name=template_id,
+                workflow_id=workflow_id,
+                variables={},
+                project=name,
+            )
+            return self.get_runtime_workflow(spec.workflow_id)
+
         project_id = self.create_project(name=name, description=description or "")
 
         linked_task_ids: list[int] = []
@@ -158,6 +172,73 @@ class WorkflowManager:
         workflow_payload["linked_task_ids"] = linked_task_ids
         workflow_payload["message"] = "Workflow created"
         return workflow_payload
+
+    def list_runtime_workflows(self) -> Dict[str, Any]:
+        workflows: list[dict[str, Any]] = []
+        for workflow_id in self.scheduler.list_workflows():
+            payload = self.scheduler.status(workflow_id)
+            workflows.append(self._runtime_summary(payload))
+        return {
+            "status": "success",
+            "workflows": workflows,
+            "count": len(workflows),
+        }
+
+    def get_runtime_workflow(self, workflow_id: str) -> Dict[str, Any]:
+        payload = self.scheduler.status(workflow_id)
+        summary = self._runtime_summary(payload)
+        return {
+            "status": "success",
+            "workflow": {
+                **summary,
+                "spec": payload["spec"],
+                "state": payload["state"],
+            },
+        }
+
+    def get_runtime_workflow_status(self, workflow_id: str) -> Dict[str, Any]:
+        payload = self.scheduler.status(workflow_id)
+        summary = self._runtime_summary(payload)
+        return {
+            "status": "success",
+            "workflow_id": workflow_id,
+            "summary": summary,
+            "state": payload["state"],
+        }
+
+    def run_runtime_workflow(self, workflow_id: str) -> Dict[str, Any]:
+        state = self.scheduler.run_workflow(workflow_id)
+        payload = self.scheduler.status(workflow_id)
+        return {
+            "status": "success",
+            "workflow_id": workflow_id,
+            "run": {
+                "state": state.status,
+                "current_phase_index": state.current_phase_index,
+                "next_run_at": state.next_run_at,
+            },
+            "workflow": self._runtime_summary(payload),
+            "state_detail": payload["state"],
+        }
+
+    def get_runtime_dashboard(self) -> Dict[str, Any]:
+        workflows = self.list_runtime_workflows()["workflows"]
+        by_status: dict[str, int] = {}
+        awaiting_approval = 0
+        for workflow in workflows:
+            status = workflow.get("status") or "unknown"
+            by_status[status] = by_status.get(status, 0) + 1
+            if status == "awaiting_approval":
+                awaiting_approval += 1
+        return {
+            "status": "success",
+            "workflows": workflows,
+            "summary": {
+                "runs": len(workflows),
+                "awaiting_approval": awaiting_approval,
+                "by_status": by_status,
+            },
+        }
 
     def get_workflows(self) -> Dict[str, Any]:
         workflows: list[dict[str, Any]] = []
@@ -256,12 +337,34 @@ class WorkflowManager:
             "status": "success",
             "workflow_id": str(project_id),
             "message": "Workflow run started",
-            "run": {
-                "task_id": str(task_id),
-                "task_title": next_task.get("title", ""),
-                "task_status": task_status,
-                "started_at": datetime.now().isoformat(),
-            },
+                "run": {
+                    "task_id": str(task_id),
+                    "task_title": next_task.get("title", ""),
+                    "task_status": task_status,
+                    "started_at": utc_now_iso_z(),
+                },
+            }
+
+    def _runtime_summary(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        spec = payload.get("spec") or {}
+        state = payload.get("state") or {}
+        current_index = int(state.get("current_phase_index", 0) or 0)
+        phases = state.get("phases") or []
+        current = phases[current_index] if current_index < len(phases) else {}
+        return {
+            "id": str(spec.get("workflow_id") or state.get("workflow_id") or ""),
+            "name": str(spec.get("workflow_id") or ""),
+            "template_id": spec.get("template_id"),
+            "project": spec.get("project"),
+            "purpose": spec.get("purpose") or spec.get("goal") or "",
+            "status": state.get("status", "unknown"),
+            "current_phase": current.get("name", "n/a"),
+            "current_phase_status": current.get("status", "n/a"),
+            "next_run_at": state.get("next_run_at") or "",
+            "next_run_local": render_utc_as_local(state.get("next_run_at") or ""),
+            "total_cost_usd": float(state.get("total_cost_usd", 0.0) or 0.0),
+            "total_tokens": int(state.get("total_tokens", 0) or 0),
+            "phase_count": len(spec.get("phases") or []),
         }
 
     def create_task(
@@ -300,7 +403,7 @@ class WorkflowManager:
     def update_task_status(self, task_id: int, status: TaskStatus) -> None:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        completed_at = datetime.now() if status == TaskStatus.COMPLETED else None
+        completed_at = utc_now_iso_z() if status == TaskStatus.COMPLETED else None
         cursor.execute(
             """UPDATE tasks SET status = ?, updated_at = CURRENT_TIMESTAMP, completed_at = ? WHERE id = ?""",
             (status.value, completed_at, task_id),
@@ -347,7 +450,7 @@ class WorkflowManager:
             projects = [dict(row) for row in cursor.fetchall()]
 
         md = "# uDOS Workflow\n\n"
-        md += f"_Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}_\n\n"
+        md += f"_Generated: {render_utc_as_local()['local_display']}_\n\n"
         for project in projects:
             md += f"## {project['name']}\n\n"
             if project.get("description"):

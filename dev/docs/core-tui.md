@@ -52,7 +52,7 @@ python uDOS.py --script memory/ucode/scripts/example-script.md
 
 ### Startup Sequence
 
-1. **Environment Check**: Verifies Python venv
+1. **Environment Check**: Verifies the shared `/.venv` runtime
 2. **Config Load**: Reads `core/config/settings.json`
 3. **Rainbow Splash**: Animated startup (if enabled)
 4. **Home Tile**: Loads TILE 100
@@ -178,29 +178,16 @@ Long content uses the built-in pager:
 
 ## Dev Mode UI
 
-When Dev Mode is active:
+In v1.5, the contributor lane is represented as the `@dev` workspace.
 
-```
-┌────────────────────────────────────────┐
-│ uDOS v1.0.0.64 🧙 DEV ░░░░░░░░░ P:100 │
-├────────────────────────────────────────┤
-│ Provider: mistral                      │
-│ Quota: 80/100                          │
-├────────────────────────────────────────┤
-```
+Wizard surfaces should describe:
 
-### Debug Panel
+- `@dev` workspace status
+- tracked payload readiness
+- Goblin fixture availability
+- Dev extension activation state
 
-```bash
-DEV MODE ON
-L                     # Open debug panel
-```
-
-Shows:
-- Recent log entries
-- Command trace
-- Error details
-- Performance metrics
+They should avoid presenting `/dev` as an unstructured local folder without the workspace context.
 
 ---
 
@@ -293,7 +280,7 @@ FILE LIST knowledge/ # Verify knowledge files
 
 - [Commands](howto/commands/README.md) - Command reference
 - [uCODE](VISION.md#ucode) - uCODE syntax
-- [Dev Mode](wizard/README.md#dev-mode) - Wizard features
+- [Wizard And `@dev`](wizard-server.md) - contributor control plane
 
 ---
 

@@ -11,7 +11,7 @@
 │                        WIZARD SERVER (8765)                  │
 │                     Status: Active v1.5 lane                 │
 │                                                              │
-│  Assistant Gateway  | Plugin Repo  | Web Proxy (stub)        │
+│  Assistant Gateway  | Plugin Repo  | Web Proxy (optional)    │
 │  Gmail Relay (opt)  | GitHub Monitor/Sync | Port Manager     │
 │  Rate Limits        | Cost Tracking | VS Code Bridge         │
 │  Notification History | Interactive Console (foreground)     │
@@ -100,7 +100,7 @@ wizard/
 - Assistant routing gateway (local-first, policy-controlled cloud burst)
 - Dev extension management (status, enable, disable, restart, logs via `/api/dev/*`)
 - Plugin repository distribution (from repo-level `distribution/`)
-- Web proxy (stubbed, validated; disabled if toggled off)
+- Web proxy (optional; disabled when toggled off)
 - Gmail relay (Wizard-only)
 - GitHub integration (CLI ops, issue/PR management, sync, devlog/roadmap context)
 - Port Manager API + CLI
@@ -151,7 +151,7 @@ The Dev extension lane is not a second default runtime and must not be described
 - `/health` (no auth), `/api/status`, `/api/rate-limits`
 - Assistant: `/api/ai/status`, `/api/ai/models`, `/api/ai/complete`, `/api/ai/query`, `/api/ai/context`, `/api/ai/analyze-logs`, `/api/ai/suggest`, `/api/ai/explain`
 - Plugins: `/api/plugin/list`, `/api/plugin/{id}`, `/api/plugin/{id}/download`
-- Proxy: `/api/web/fetch` (stub, gated by config)
+- Proxy: `/api/web/fetch` (optional, gated by config)
 - GitHub: `/api/github/health`, `/api/github/sync-cli`, `/api/github/issues`, `/api/github/pulls`, `/api/github/context/*` (devlog, roadmap, agents, copilot), `/api/github/logs/{log_type}`
 - Dev extension: `/api/dev/health`, `/api/dev/status`, `/api/dev/activate`, `/api/dev/deactivate`, `/api/dev/restart`, `/api/dev/logs`
 - Binder: `/api/binder/compile`, `/api/binder/chapters`, `/api/binder/export`

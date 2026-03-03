@@ -33,7 +33,7 @@ class WizardConfig:
 
     github_webhook_secret: Optional[str] = None
     github_webhook_secret_key_id: Optional[str] = None
-    github_allowed_repo: str = "fredporter/uDOS-dev"
+    github_allowed_repo: str = "fredporter/uDOS"
     github_default_branch: str = "main"
     github_push_enabled: bool = False
     admin_api_key_id: Optional[str] = None

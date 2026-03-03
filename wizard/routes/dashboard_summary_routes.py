@@ -17,13 +17,12 @@ Design goals:
 
 from __future__ import annotations
 
-import urllib.request
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 
+from core.services.time_utils import render_utc_as_local, utc_now_iso, utc_now_iso_z
 from core.services.template_workspace_service import get_template_workspace_service
 from wizard.services.path_utils import get_repo_root
 from wizard.services.sonic_boot_profile_service import get_sonic_boot_profile_service
@@ -49,23 +48,10 @@ def _probe(fn: Callable[[], dict[str, Any]], label: str) -> dict[str, Any]:
         return {"ok": False, "error": str(exc), "subsystem": label}
 
 
-def _ollama_status() -> dict[str, Any]:
-    """Probe Ollama daemon on localhost:11434.
+def _logic_local_status() -> dict[str, Any]:
+    from wizard.services.logic_assist_service import get_logic_assist_service
 
-    Raises RuntimeError when Ollama is not reachable so _probe() marks ok=False.
-    """
-    try:
-        with urllib.request.urlopen(
-            "http://localhost:11434/api/version", timeout=2
-        ) as resp:
-            import json as _json
-            data = _json.loads(resp.read())
-            return {
-                "running": True,
-                "version": data.get("version", "unknown"),
-            }
-    except Exception as exc:
-        raise RuntimeError(f"Ollama not reachable: {exc}") from exc
+    return get_logic_assist_service(get_repo_root()).get_status()["local"]
 
 
 def _cloud_status() -> dict[str, Any]:
@@ -174,14 +160,15 @@ def health_probe(services: Optional[dict[str, Any]] = None) -> dict[str, Any]:
             caller has access to WizardServerConfig.  Absent from the dashboard
             probe which has no config reference.
     """
-    ollama = _probe(_ollama_status, "ollama")
+    logic_local = _probe(_logic_local_status, "logic_local")
     result: dict[str, Any] = {
         "status": "healthy",
         "ok": True,
         "bridge": "udos-wizard",
         "version": get_wizard_server_version(),
-        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-        "ollama_running": ollama.get("ok", False) and ollama.get("running", False),
+        "timestamp": utc_now_iso_z(),
+        "server_time": render_utc_as_local(),
+        "logic_local_ready": logic_local.get("ok", False) and logic_local.get("ready", False),
     }
     if services is not None:
         result["services"] = services
@@ -208,16 +195,16 @@ def create_dashboard_summary_routes(auth_guard: Optional[Callable] = None) -> AP
         Probes each subsystem independently — partial failures are reported
         per-subsystem without failing the whole response.
         """
-        ts = datetime.now(timezone.utc).isoformat()
+        ts = utc_now_iso()
 
-        ollama   = _probe(_ollama_status, "ollama")
+        logic_local = _probe(_logic_local_status, "logic_local")
         cloud    = _probe(_cloud_status, "cloud")
         ha       = _probe(_ha_status, "ha_bridge")
         sync     = _probe(_sync_status, "secret_sync")
         workspace_runtime = _probe(_workspace_runtime_status, "workspace_runtime")
 
         subsystems = {
-            "ollama": ollama,
+            "logic_local": logic_local,
             "cloud": cloud,
             "ha_bridge": ha,
             "secret_sync": sync,
@@ -225,7 +212,7 @@ def create_dashboard_summary_routes(auth_guard: Optional[Callable] = None) -> AP
         }
 
         # Overall health: ok if all critical subsystems report ok
-        critical = [ollama, cloud]
+        critical = [logic_local, cloud]
         overall_ok = all(s.get("ok", False) for s in critical)
 
         return {
@@ -233,6 +220,7 @@ def create_dashboard_summary_routes(auth_guard: Optional[Callable] = None) -> AP
             "bridge": "udos-wizard",
             "version": get_wizard_server_version(),
             "timestamp": ts,
+            "server_time": render_utc_as_local(ts),
             "subsystems": subsystems,
             "workspace_runtime": workspace_runtime,
             "summary": {

@@ -40,6 +40,8 @@ class WorkflowHandler(BaseCommandHandler):
             return self._approve(args)
         if action == "ESCALATE":
             return self._escalate(args)
+        if action == "IMPORT":
+            return self._import(args)
 
         raise CommandError(
             code="ERR_COMMAND_NOT_FOUND",
@@ -60,6 +62,8 @@ class WorkflowHandler(BaseCommandHandler):
                     "WORKFLOW STATUS <workflow_id>            Show workflow state and next window",
                     "WORKFLOW APPROVE <workflow_id>           Approve a completed review checkpoint",
                     "WORKFLOW ESCALATE <workflow_id>          Escalate current phase to the next provider tier",
+                    "WORKFLOW IMPORT RESEARCH <workflow_id> <note_id> [action]",
+                    "                                       Copy persisted research into workflow inputs",
                     "",
                     "Variable syntax for WORKFLOW NEW:",
                     "  WORKFLOW NEW WRITING-article article-001 goal=\"Write release note\" audience=operators tone=plain word_limit=600",
@@ -142,6 +146,36 @@ class WorkflowHandler(BaseCommandHandler):
             "workflow_id": workflow_id,
             "state": state.status,
             "output": self._format_state(workflow_id, state),
+        }
+
+    def _import(self, args: List[str]) -> Dict:
+        if len(args) < 3 or args[0].upper() != "RESEARCH":
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Syntax: WORKFLOW IMPORT RESEARCH <workflow_id> <note_id> [action]",
+                recovery_hint="Run `WORKFLOW HELP`",
+                level="INFO",
+            )
+        workflow_id = args[1]
+        note_id = args[2]
+        action = args[3].lower() if len(args) > 3 else "research"
+        imported = self.scheduler.import_research_artifact(
+            workflow_id,
+            note_id,
+            action=action,
+        )
+        return {
+            "status": "success",
+            "workflow_id": workflow_id,
+            "imported": imported,
+            "output": "\n".join(
+                [
+                    f"Workflow: {workflow_id}",
+                    f"Imported {action}: {imported['note_id']}",
+                    f"Input copy: {imported['target_path']}",
+                    f"Processed snapshot: {imported['processed_snapshot']}",
+                ]
+            ),
         }
 
     def _require_workflow_id(self, args: List[str], usage: str) -> str:

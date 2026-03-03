@@ -51,7 +51,7 @@ class EmpireSyncService:
             connector=connector,
             action=action,
             metadata={"params": params, "action": action},
-            db_path=self.empire.db_path,
+            db_path=db_path,
         )
 
         result_payload: dict[str, Any] = {}
@@ -96,7 +96,7 @@ class EmpireSyncService:
                 records_imported=records_imported,
                 documents_created=0,
                 metadata=result_payload,
-                db_path=self.empire.db_path,
+                db_path=db_path,
             )
             storage.record_event(
                 record_id=None,
@@ -105,7 +105,7 @@ class EmpireSyncService:
                 subject=f"Connector completed: {connector}:{action}",
                 notes=str(result_payload),
                 metadata=str({"sync_job_id": sync_job_id, "scope": resolved_scope["scope"]}),
-                db_path=self.empire.db_path,
+                db_path=db_path,
             )
             return {
                 "sync_job_id": sync_job_id,
@@ -124,7 +124,7 @@ class EmpireSyncService:
                 documents_created=0,
                 error=str(exc),
                 metadata=result_payload,
-                db_path=self.empire.db_path,
+                db_path=db_path,
             )
             raise
 

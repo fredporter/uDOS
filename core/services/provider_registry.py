@@ -242,7 +242,7 @@ class CoreProviderRegistry:
 
     @classmethod
     def auto_register_vibe(cls):
-        """Auto-register VibeService if Ollama is running and model is available."""
+        """Auto-register VibeService when the local logic-assist runtime is ready."""
         try:
             from wizard.services.vibe_service import VibeConfig, VibeService
 
@@ -253,7 +253,7 @@ class CoreProviderRegistry:
                     ProviderType.VIBE_SERVICE,
                     vibe,
                     name="VibeService",
-                    description="Local Vibe provider (Ollama)",
+                    description="Local Vibe provider (logic-assist)",
                     version="1.0.0",
                 )
                 logger.info("Auto-registered VibeService provider.")

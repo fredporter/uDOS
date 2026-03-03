@@ -12,13 +12,13 @@ Includes git/version control metadata, installer pathways, and update tracking.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
 import json
 from pathlib import Path
 import subprocess
 from typing import Any
 
 from core.services.container_catalog_service import get_container_catalog_service
+from core.services.time_utils import utc_now_iso_z
 from core.services.unified_config_loader import get_config
 from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
@@ -145,7 +145,7 @@ class EnhancedPluginDiscovery:
         for source_key, source_info in self.PLUGIN_SOURCES.items():
             self._discover_source(source_key, source_info)
 
-        self.last_scan = datetime.now().isoformat()
+        self.last_scan = utc_now_iso_z()
         logger.info(f"[DISCOVERY] Found {len(self.plugins)} plugins")
 
         return self.plugins

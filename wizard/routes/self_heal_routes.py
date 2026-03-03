@@ -1,19 +1,13 @@
-"""Self-Heal Routes
-================
-
-Expose diagnostics and guided repair actions for Wizard setup.
-"""
+"""Self-heal routes for v1.5 setup diagnostics and guided repair."""
 
 from __future__ import annotations
 
 import asyncio
 import functools
 import json
-import os
 from pathlib import Path
 import re
 import shutil
-import subprocess
 import time
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -28,6 +22,7 @@ from wizard.providers.nounproject_client import (
     QuotaExceededError,
     RateLimitError,
 )
+from wizard.services.logic_assist_service import get_logic_assist_service
 from wizard.services.logging_api import get_logger as _get_logger
 from wizard.services.path_utils import get_repo_root
 from wizard.services.port_manager import OperationStatus, get_port_manager
@@ -45,10 +40,6 @@ DEFAULT_CATEGORIES = {
 class SeedRequest(BaseModel):
     categories: dict[str, list[str]] | None = None
     per_term: int = 2
-
-
-class PullRequest(BaseModel):
-    model: str
 
 
 class RecoverRequest(BaseModel):
@@ -81,89 +72,6 @@ def _slugify(text: str) -> str:
     return text.strip("-") or "icon"
 
 
-def _ollama_get(path: str) -> dict | None:
-    import urllib.request
-
-    url = f"http://127.0.0.1:11434{path}"
-    try:
-        req = urllib.request.Request(url, method="GET")
-        with urllib.request.urlopen(req, timeout=2) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except Exception:
-        return None
-
-
-def _ollama_models() -> list[str]:
-    data = _ollama_get("/api/tags")
-    if not data:
-        return []
-    models = []
-    for entry in data.get("models", []):
-        name = entry.get("name", "")
-        if name:
-            models.append(name)
-    return models
-
-
-def _normalize_model_name(name: str) -> str:
-    from wizard.services.ollama_tier_service import normalize_model_name
-    return normalize_model_name(name)
-
-
-def _required_ollama_models() -> list[str]:
-    from wizard.services.ollama_tier_service import get_required_models
-
-    recommended = get_config("VIBE_OLLAMA_RECOMMENDED_MODELS", "").strip()
-    tier = get_config("VIBE_INSTALL_TIER", "").strip().lower()
-    return get_required_models(tier=tier or None, override=recommended or None)
-
-
-def _configured_ollama_default_model() -> str:
-    return (
-        get_config("OLLAMA_DEFAULT_MODEL", "").strip()
-        or get_config("VIBE_ASK_MODEL", "").strip()
-        or "devstral-small-2"
-    )
-
-
-def _ensure_ollama_running() -> dict[str, str | None]:
-    """Ensure Ollama daemon is running; attempt to start if needed."""
-    if _ollama_get("/api/version"):
-        return {"started": False, "method": "already-running"}
-
-    started = False
-    method = None
-    error = None
-
-    try:
-        # macOS app launch if available
-        if os.path.exists("/Applications/Ollama.app"):
-            subprocess.Popen(["open", "-a", "Ollama"])
-            started = True
-            method = "open-app"
-        else:
-            # Fallback to CLI daemon
-            subprocess.Popen(
-                ["ollama", "serve"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                start_new_session=True,
-            )
-            started = True
-            method = "ollama-serve"
-    except Exception as exc:
-        error = str(exc)
-
-    # Wait briefly for daemon
-    if started:
-        for _ in range(10):
-            if _ollama_get("/api/version"):
-                return {"started": True, "method": method}
-            time.sleep(0.5)
-
-    return {"started": started, "method": method, "error": error}
-
-
 def _handle_provider_error(exc: Exception):
     if isinstance(exc, AuthenticationError):
         raise HTTPException(status_code=401, detail=str(exc))
@@ -184,12 +92,12 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
 
     strategies = {
         "quick_recover": {
-            "description": "Validate critical dependencies and start Ollama if needed.",
-            "steps": ["check_ollama", "check_port_conflicts"],
+            "description": "Validate critical dependencies and logic-assist readiness.",
+            "steps": ["check_logic_assist", "check_port_conflicts"],
         },
-        "ollama_recover": {
-            "description": "Recover Ollama daemon and validate required model availability.",
-            "steps": ["check_ollama", "check_models"],
+        "logic_assist_recover": {
+            "description": "Validate GPT4All package availability and local model readiness.",
+            "steps": ["check_logic_assist", "check_model_assets"],
         },
         "ports_recover": {
             "description": "Detect service port conflicts and return remediation plan.",
@@ -213,28 +121,22 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
         actions = []
         summary = {"dry_run": payload.dry_run, "strategy": payload.strategy}
 
-        if "check_ollama" in strategy["steps"]:
+        if "check_logic_assist" in strategy["steps"]:
+            logic_status = get_logic_assist_service(get_repo_root()).get_status()
             if payload.dry_run:
-                actions.append({"step": "check_ollama", "planned": True})
+                actions.append({"step": "check_logic_assist", "planned": True})
             else:
-                ollama_result = _ensure_ollama_running()
-                actions.append({"step": "check_ollama", "result": ollama_result})
+                actions.append({"step": "check_logic_assist", "result": logic_status["local"]})
 
-        if "check_models" in strategy["steps"]:
-            models = _ollama_models()
-            normalized = {_normalize_model_name(m) for m in models}
-            required = _required_ollama_models()
-            configured_default = _normalize_model_name(
-                _configured_ollama_default_model()
-            )
-            if configured_default and configured_default not in required:
-                required.append(configured_default)
-            missing = [m for m in required if m not in normalized]
+        if "check_model_assets" in strategy["steps"]:
+            logic_status = get_logic_assist_service(get_repo_root()).get_status()
+            local_status = logic_status["local"]
             actions.append({
-                "step": "check_models",
-                "required": required,
-                "available": sorted(list(normalized)),
-                "missing": missing,
+                "step": "check_model_assets",
+                "runtime": local_status.get("runtime"),
+                "package_available": local_status.get("package_available"),
+                "model_present": local_status.get("model_present"),
+                "model_path": local_status.get("model_path"),
             })
 
         if "check_port_conflicts" in strategy["steps"]:
@@ -275,17 +177,8 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
                 noun_auth_ok = False
                 noun_error = str(exc)
 
-        pm = get_port_manager()
-        ollama_port_open = pm.is_port_open(11434)
-        ollama_version = _ollama_get("/api/version")
-        ollama_running = bool(ollama_version)
-        models = _ollama_models() if ollama_running else []
-        normalized = {_normalize_model_name(m) for m in models}
-        required = _required_ollama_models()
-        configured_default = _normalize_model_name(_configured_ollama_default_model())
-        if configured_default and configured_default not in required:
-            required.append(configured_default)
-        missing = [m for m in required if m not in normalized]
+        logic_status = get_logic_assist_service(get_repo_root()).get_status()
+        local_logic = logic_status["local"]
         vibe_cli = bool(shutil.which("vibe"))
 
         next_steps = []
@@ -293,11 +186,12 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
             next_steps.append(
                 "Set WIZARD_ADMIN_TOKEN in the Wizard server environment."
             )
-        if not ollama_running:
-            next_steps.append("Run `ollama serve` or open the Ollama app.")
-        if missing:
-            pull_cmds = " && ".join(f"ollama pull {name}" for name in missing)
-            next_steps.append(f"Run `{pull_cmds}`.")
+        if not local_logic.get("package_available"):
+            next_steps.append("Run `SETUP dev` to install GPT4All and contributor tooling.")
+        if not local_logic.get("model_present"):
+            next_steps.append(
+                f"Place the configured GPT4All model at `{local_logic.get('model_path')}`."
+            )
         if not noun_configured:
             next_steps.append("Set NOUNPROJECT_API_KEY and NOUNPROJECT_API_SECRET.")
         if noun_auth_ok is False:
@@ -321,16 +215,7 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
 
         return {
             "admin_token_present": bool(env_admin_token),
-            "ollama": {
-                "running": ollama_running,
-                "port_open": ollama_port_open,
-                "version": ollama_version,
-                "models": models,
-                "required_models": required,
-                "configured_default_model": configured_default,
-                "missing_default_model": configured_default in missing,
-                "missing_models": missing,
-            },
+            "logic_assist": local_logic,
             "vibe_cli": {"installed": vibe_cli},
             "nounproject": {
                 "configured": noun_configured,
@@ -340,101 +225,6 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
             "next_steps": next_steps,
             "core_diagnostics": core_diagnostics,
         }
-
-    @router.post("/ollama/pull")
-    async def pull_model(payload: PullRequest):
-        """Pull Ollama model with progress streaming."""
-        import asyncio
-
-        from fastapi.responses import StreamingResponse
-
-        try:
-
-            async def generate_progress():
-                pm = get_port_manager()
-
-                # Register operation start
-                op_id = pm.start_operation(
-                    operation_type="pull_model",
-                    description=f"Pulling Ollama model: {payload.model}",
-                )
-
-                try:
-                    startup = _ensure_ollama_running()
-                    # Use json.dumps for proper escaping
-                    msg = json.dumps({
-                        "progress": 0,
-                        "status": "starting",
-                        "message": f"Starting Ollama pull for {payload.model}...",
-                    })
-                    yield f"data: {msg}\n\n"
-
-                    if not shutil.which("ollama"):
-                        pm.complete_operation(op_id, error="ollama not installed")
-                        msg = json.dumps({
-                            "error": "ollama not installed",
-                            "status": "failed",
-                        })
-                        yield f"data: {msg}\n\n"
-                        return
-
-                    proc = await asyncio.create_subprocess_exec(
-                        "ollama",
-                        "pull",
-                        payload.model,
-                        stdout=asyncio.subprocess.PIPE,
-                        stderr=asyncio.subprocess.PIPE,
-                    )
-
-                    progress = 10
-                    async for line in proc.stdout:
-                        line_text = line.decode().strip()
-                        if line_text:
-                            progress = min(progress + 5, 90)
-                            # Update operation with progress
-                            pm.update_operation(
-                                op_id,
-                                progress=progress,
-                                status=OperationStatus.IN_PROGRESS,
-                            )
-                            # Use json.dumps for proper escaping
-                            msg = json.dumps({
-                                "progress": progress,
-                                "status": "pulling",
-                                "message": line_text[:100],
-                            })
-                            yield f"data: {msg}\n\n"
-
-                    await proc.wait()
-
-                    if proc.returncode == 0:
-                        pm.complete_operation(op_id)
-                        msg = json.dumps({
-                            "progress": 100,
-                            "status": "complete",
-                            "message": f"✅ Pulled {payload.model} successfully",
-                        })
-                        yield f"data: {msg}\n\n"
-                    else:
-                        stderr = await proc.stderr.read()
-                        error_msg = stderr.decode().strip() or "Pull failed"
-                        pm.complete_operation(op_id, error=error_msg)
-                        msg = json.dumps({"error": error_msg, "status": "failed"})
-                        yield f"data: {msg}\n\n"
-                except Exception as exc:
-                    error_detail = f"{exc.__class__.__name__}: {exc!s}"
-                    _log.error("ollama/pull error", err=exc)
-                    pm.complete_operation(op_id, error=error_detail)
-                    msg = json.dumps({"error": error_detail, "status": "failed"})
-                    yield f"data: {msg}\n\n"
-
-            return StreamingResponse(
-                generate_progress(), media_type="text/event-stream"
-            )
-        except Exception as exc:
-            error_detail = f"{exc.__class__.__name__}: {exc!s}"
-            _log.error("ollama/pull handler error", err=exc)
-            raise HTTPException(status_code=500, detail=error_detail)
 
     @router.post("/port-conflicts")
     async def check_port_conflicts():
@@ -530,9 +320,9 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
                 status_code=500, detail=result.get("error", "Failed to restart service")
             )
 
-    @router.post("/ok-setup")
-    async def run_ok_setup_endpoint():
-        """Run OK setup with progress streaming."""
+    @router.post("/logic-assist/setup")
+    async def run_logic_assist_setup_endpoint():
+        """Run v1.5 logic-assist setup with progress streaming."""
         from fastapi.responses import StreamingResponse
 
         try:
@@ -542,7 +332,8 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
 
                 # Register operation start
                 op_id = pm.start_operation(
-                    operation_type="ok_setup", description="Running OK Gateway setup"
+                    operation_type="logic_assist_setup",
+                    description="Running logic-assist setup",
                 )
 
                 try:
@@ -550,12 +341,14 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
                     msg = json.dumps({
                         "progress": 0,
                         "status": "starting",
-                        "message": "Initializing OK Setup...",
+                        "message": "Initializing logic-assist setup...",
                     })
                     yield f"data: {msg}\n\n"
 
                     try:
-                        from core.services.ok_setup import run_ok_setup
+                        from core.services.logic_assist_setup import (
+                            run_logic_assist_setup,
+                        )
                     except Exception as exc:
                         pm.complete_operation(op_id, error=f"Import failed: {exc!s}")
                         msg = json.dumps({
@@ -568,15 +361,15 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
                     msg = json.dumps({
                         "progress": 10,
                         "status": "running",
-                        "message": "Checking Ollama installation...",
+                        "message": "Preparing GPT4All local runtime...",
                     })
                     yield f"data: {msg}\n\n"
 
                     try:
-                        result = run_ok_setup(get_repo_root())
+                        result = run_logic_assist_setup(get_repo_root())
                     except Exception as exc:
                         error_detail = f"{exc.__class__.__name__}: {exc!s}"
-                        _log.error("ok_setup error", err=exc)
+                        _log.error("logic_assist_setup error", err=exc)
                         pm.complete_operation(op_id, error=error_detail)
                         msg = json.dumps({
                             "error": f"Setup failed: {error_detail}",
@@ -593,7 +386,7 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
                     msg = json.dumps({
                         "progress": 50,
                         "status": "running",
-                        "message": "Configuring OK Gateway...",
+                        "message": "Writing logic-assist runtime guidance...",
                     })
                     yield f"data: {msg}\n\n"
 
@@ -623,7 +416,7 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
                     summary = {
                         "progress": 100,
                         "status": "complete",
-                        "message": "✅ OK Setup completed",
+                        "message": "✅ Logic-assist setup completed",
                         "steps_count": len(steps),
                         "warnings_count": len(warnings),
                     }
@@ -631,7 +424,7 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
                     yield f"data: {msg}\n\n"
                 except Exception as exc:
                     error_detail = f"{exc.__class__.__name__}: {exc!s}"
-                    _log.error("ok-setup outer error", err=exc)
+                    _log.error("logic-assist setup outer error", err=exc)
                     pm.complete_operation(op_id, error=error_detail)
                     msg = json.dumps({
                         "error": f"Setup failed: {error_detail}",
@@ -644,7 +437,7 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
             )
         except Exception as exc:
             error_detail = f"{exc.__class__.__name__}: {exc!s}"
-            _log.error("ok-setup handler error", err=exc)
+            _log.error("logic-assist setup handler error", err=exc)
             raise HTTPException(status_code=500, detail=error_detail)
 
     @router.post("/nounproject/seed")

@@ -125,17 +125,22 @@ def ensure_schema(db_path: Path = DEFAULT_DB_PATH) -> None:
                 task_id TEXT PRIMARY KEY,
                 title TEXT,
                 category TEXT,
+                task_type TEXT,
                 source TEXT,
                 source_ref TEXT,
                 created_at TEXT,
+                due_hint TEXT,
                 status TEXT,
+                review_status TEXT,
                 notes TEXT,
+                metadata TEXT,
                 record_id TEXT,
                 FOREIGN KEY(record_id) REFERENCES records(record_id)
             )
             """
         )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_tasks_review_status ON tasks(review_status)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_tasks_source ON tasks(source)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_tasks_record_id ON tasks(record_id)")
         conn.execute(
@@ -187,6 +192,11 @@ def ensure_schema(db_path: Path = DEFAULT_DB_PATH) -> None:
                 source_path TEXT,
                 title TEXT,
                 media_type TEXT,
+                classification TEXT,
+                confidence REAL,
+                summary TEXT,
+                review_status TEXT,
+                review_notes TEXT,
                 extracted_text TEXT,
                 metadata TEXT,
                 created_at TEXT,
@@ -196,6 +206,7 @@ def ensure_schema(db_path: Path = DEFAULT_DB_PATH) -> None:
         )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_documents_scope ON documents(scope)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_documents_binder_id ON documents(binder_id)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_documents_review_status ON documents(review_status)")
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS import_jobs (
@@ -276,6 +287,10 @@ def ensure_schema(db_path: Path = DEFAULT_DB_PATH) -> None:
         conn.execute("CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_status ON webhook_deliveries(status)")
         _ensure_column(conn, "tasks", "source_ref", "TEXT")
         _ensure_column(conn, "tasks", "record_id", "TEXT")
+        _ensure_column(conn, "tasks", "task_type", "TEXT")
+        _ensure_column(conn, "tasks", "due_hint", "TEXT")
+        _ensure_column(conn, "tasks", "review_status", "TEXT")
+        _ensure_column(conn, "tasks", "metadata", "TEXT")
 
 
 def upsert_record(
@@ -424,10 +439,14 @@ def record_task(
     *,
     title: str,
     category: str,
+    task_type: Optional[str] = None,
     source: str,
     created_at: str,
+    due_hint: Optional[str] = None,
     status: str = "open",
+    review_status: str = "pending_review",
     notes: Optional[str] = None,
+    metadata: Optional[Dict[str, object]] = None,
     source_ref: Optional[str] = None,
     record_id: Optional[str] = None,
     dedupe_by_source: bool = False,
@@ -445,12 +464,53 @@ def record_task(
         task_id = uuid.uuid4().hex
         conn.execute(
             """
-            INSERT INTO tasks (task_id, title, category, source, source_ref, created_at, status, notes, record_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO tasks (
+                task_id, title, category, task_type, source, source_ref, created_at,
+                due_hint, status, review_status, notes, metadata, record_id
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (task_id, title, category, source, source_ref, created_at, status, notes, record_id),
+            (
+                task_id,
+                title,
+                category,
+                task_type,
+                source,
+                source_ref,
+                created_at,
+                due_hint,
+                status,
+                review_status,
+                notes,
+                json.dumps(metadata or {}, ensure_ascii=False),
+                record_id,
+            ),
         )
     return task_id
+
+
+def update_task_review(
+    *,
+    task_id: str,
+    review_status: str,
+    status: Optional[str] = None,
+    due_hint: Optional[str] = None,
+    notes: Optional[str] = None,
+    db_path: Path = DEFAULT_DB_PATH,
+) -> None:
+    ensure_schema(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.execute(
+            """
+            UPDATE tasks
+            SET review_status = ?,
+                status = COALESCE(?, status),
+                due_hint = COALESCE(?, due_hint),
+                notes = COALESCE(?, notes)
+            WHERE task_id = ?
+            """,
+            (review_status, status, due_hint, notes, task_id),
+        )
 
 
 def task_exists_by_source(source: str, *, db_path: Path = DEFAULT_DB_PATH) -> bool:
@@ -611,6 +671,11 @@ def record_document(
     source_path: str,
     title: Optional[str],
     media_type: str,
+    classification: Optional[str] = None,
+    confidence: Optional[float] = None,
+    summary: Optional[str] = None,
+    review_status: str = "pending_review",
+    review_notes: Optional[str] = None,
     extracted_text: Optional[str],
     metadata: Optional[Dict[str, object]] = None,
     db_path: Path = DEFAULT_DB_PATH,
@@ -622,8 +687,9 @@ def record_document(
             """
             INSERT INTO documents (
                 document_id, source, scope, binder_id, source_path, title, media_type,
+                classification, confidence, summary, review_status, review_notes,
                 extracted_text, metadata, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
             """,
             (
                 document_id,
@@ -633,6 +699,11 @@ def record_document(
                 source_path,
                 title,
                 media_type,
+                classification,
+                confidence,
+                summary,
+                review_status,
+                review_notes,
                 extracted_text,
                 json.dumps(metadata or {}, ensure_ascii=False),
             ),
@@ -768,6 +839,7 @@ def list_documents(db_path: Path = DEFAULT_DB_PATH, limit: int = 100) -> List[Di
         rows = conn.execute(
             """
             SELECT document_id, source, scope, binder_id, source_path, title, media_type,
+                   classification, confidence, summary, review_status, review_notes,
                    created_at, updated_at
             FROM documents
             ORDER BY updated_at DESC
@@ -836,6 +908,7 @@ def get_document(document_id: str, db_path: Path = DEFAULT_DB_PATH) -> Optional[
         row = conn.execute(
             """
             SELECT document_id, source, scope, binder_id, source_path, title, media_type,
+                   classification, confidence, summary, review_status, review_notes,
                    extracted_text, metadata, created_at, updated_at
             FROM documents
             WHERE document_id = ?
@@ -844,6 +917,40 @@ def get_document(document_id: str, db_path: Path = DEFAULT_DB_PATH) -> Optional[
             (document_id,),
         ).fetchone()
     return dict(row) if row else None
+
+
+def update_document_review(
+    *,
+    document_id: str,
+    review_status: str,
+    review_notes: Optional[str] = None,
+    classification: Optional[str] = None,
+    confidence: Optional[float] = None,
+    summary: Optional[str] = None,
+    db_path: Path = DEFAULT_DB_PATH,
+) -> None:
+    ensure_schema(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.execute(
+            """
+            UPDATE documents
+            SET review_status = ?,
+                review_notes = COALESCE(?, review_notes),
+                classification = COALESCE(?, classification),
+                confidence = COALESCE(?, confidence),
+                summary = COALESCE(?, summary),
+                updated_at = datetime('now')
+            WHERE document_id = ?
+            """,
+            (
+                review_status,
+                review_notes,
+                classification,
+                confidence,
+                summary,
+                document_id,
+            ),
+        )
 
 
 def get_import_job(job_id: str, db_path: Path = DEFAULT_DB_PATH) -> Optional[Dict[str, object]]:
@@ -1038,3 +1145,20 @@ def list_webhook_deliveries(
                 (limit,),
             ).fetchall()
     return [dict(row) for row in rows]
+
+
+def get_webhook_delivery(delivery_id: str, db_path: Path = DEFAULT_DB_PATH) -> Optional[Dict[str, object]]:
+    ensure_schema(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            """
+            SELECT delivery_id, mapping_id, direction, event_type, status,
+                   request_payload, response_payload, error, created_at
+            FROM webhook_deliveries
+            WHERE delivery_id = ?
+            LIMIT 1
+            """,
+            (delivery_id,),
+        ).fetchone()
+    return dict(row) if row else None

@@ -21,6 +21,11 @@
   let devInstalled = false;
   let devActivated = false;
 
+  $: workspaceAlias = status?.workspace_alias || status?.requirements?.workspace_alias || "@dev";
+  $: workspaceRoot = status?.requirements?.dev_root || status?.dev_root || "n/a";
+  $: trackedDocsRoot = status?.requirements?.tracked_sync_paths?.docs || `${workspaceRoot}/docs`;
+  $: goblinRoot = status?.requirements?.tracked_sync_paths?.goblin || `${workspaceRoot}/goblin`;
+
   // GitHub PAT state
   let patStatus = null;
   let patInput = "";
@@ -114,7 +119,7 @@
 
   async function runScript() {
     if (!devActivated) {
-      runError = "Dev mode must be activated before running /dev scripts.";
+      runError = `${workspaceAlias} must be active before running contributor scripts.`;
       return;
     }
     if (!selectedScript) return;
@@ -143,7 +148,7 @@
 
   async function runTests() {
     if (!devActivated) {
-      runError = "Dev mode must be activated before running /dev tests.";
+      runError = `${workspaceAlias} must be active before running contributor tests.`;
       return;
     }
     runBusy = true;
@@ -340,8 +345,8 @@
 </script>
 
 <div class="max-w-7xl mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold text-white mb-2">Dev Mode</h1>
-  <p class="text-gray-400 mb-8">Manage the activated /dev extension framework and TUI tooling through Wizard GUI</p>
+  <h1 class="text-3xl font-bold text-white mb-2">{workspaceAlias} Dev Mode</h1>
+  <p class="text-gray-400 mb-8">Manage the contributor workspace, tracked payload, Goblin scaffold, and Wizard-gated tooling lane.</p>
 
   {#if error}
     <div
@@ -357,7 +362,7 @@
     <!-- Status Card -->
     <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-white">Dev Extension Status</h3>
+        <h3 class="text-lg font-semibold text-white">{workspaceAlias} Workspace Status</h3>
         <div class="flex items-center gap-2">
           <div
             class="w-3 h-3 rounded-full {status.active
@@ -372,8 +377,20 @@
 
       <div class="grid grid-cols-2 gap-4 text-sm mb-6">
         <div>
-          <span class="text-gray-400">Dev Root:</span>
-          <span class="text-white ml-2">{status.requirements?.dev_root || status.dev_root || "n/a"}</span>
+          <span class="text-gray-400">Workspace:</span>
+          <span class="text-white ml-2">{workspaceAlias}</span>
+        </div>
+        <div>
+          <span class="text-gray-400">Workspace root:</span>
+          <span class="text-white ml-2">{workspaceRoot}</span>
+        </div>
+        <div>
+          <span class="text-gray-400">Tracked docs:</span>
+          <span class="text-white ml-2">{trackedDocsRoot}</span>
+        </div>
+        <div>
+          <span class="text-gray-400">Goblin:</span>
+          <span class="text-white ml-2">{goblinRoot}</span>
         </div>
         <div>
           <span class="text-gray-400">Framework:</span>
@@ -398,7 +415,7 @@
             variant="success"
             className="px-4 py-2"
           >
-            Enable Dev Extension
+            Enable {workspaceAlias}
           </TerminalButton>
         {:else}
           <TerminalButton
@@ -421,13 +438,13 @@
       </div>
       {#if status?.requirements}
         <div class="mt-4 text-xs text-gray-400">
-          /dev present: {status.requirements.dev_root_present ? "yes" : "no"} ·
+          {workspaceAlias} present: {status.requirements.dev_root_present ? "yes" : "no"} ·
           templates ok: {status.requirements.dev_template_present ? "yes" : "no"} ·
           framework manifest: {status.requirements.framework_manifest_present ? "yes" : "no"}
         </div>
       {/if}
       {#if !canDevMode}
-        <div class="mt-2 text-xs text-amber-300">Dev Mode requires admin and dev permissions plus a complete /dev extension framework.</div>
+        <div class="mt-2 text-xs text-amber-300">Dev Mode requires admin and dev permissions plus a complete {workspaceAlias} framework payload.</div>
       {/if}
     </div>
 
@@ -448,8 +465,8 @@
 
   <TerminalPanel
     className="mb-6"
-    title="/dev Extension Runner"
-    subtitle="Run contributor scripts and tests from the activated /dev framework while keeping the live runtime TUI based."
+    title={`${workspaceAlias} Runner`}
+    subtitle="Run contributor scripts and tests from the activated workspace while keeping the standard runtime separate."
   >
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -510,11 +527,11 @@
 
     {#if !devInstalled}
       <div class="bg-amber-900/40 border border-amber-700 text-amber-100 p-3 rounded text-sm">
-        /dev is not installed or the Dev extension framework is incomplete. Dev operations are locked.
+        {workspaceAlias} is not available or the tracked contributor framework is incomplete. Dev operations are locked.
       </div>
     {:else if !devActivated}
       <div class="bg-slate-900/70 border border-slate-700 text-slate-200 p-3 rounded text-sm">
-        Dev Mode is installed but inactive. Enable the Dev extension lane to unlock contributor scripts and tests.
+        {workspaceAlias} is installed but inactive. Enable the Dev extension lane to unlock contributor scripts and tests.
       </div>
     {/if}
 
@@ -529,7 +546,7 @@
   <TerminalPanel
     className="mb-6"
     title="GitHub Personal Access Token"
-    subtitle="Configure your GitHub PAT for API access and repository operations."
+    subtitle={`Configure GitHub access for the Wizard-managed ${workspaceAlias} sync lane.`}
   >
 
     {#if patError}

@@ -2,7 +2,7 @@
 ================================
 
 Single all-in-one settings page for:
-  1. Virtual environment (venv) management & detection
+  1. Python runtime (.venv) management & detection
   2. Wizard API key & secret store configuration
   3. Extension & API installer integration
   4. Config auto-migration from v1.0.x formats
@@ -21,13 +21,13 @@ import secrets
 import subprocess
 import sys
 from typing import Any
-import venv
 
 from fastapi import APIRouter, Request
 from pydantic import BaseModel
 
 from core.services.destructive_ops import remove_path
 from core.services.integration_registry import get_wizard_secret_sync_map
+from core.services.time_utils import utc_now_iso_z
 from core.services.template_workspace_service import get_template_workspace_service
 from core.services.unified_config_loader import get_config
 from wizard.services.logging_api import get_logger
@@ -47,7 +47,7 @@ logger = get_logger("settings-unified")
 
 
 class VenvStatus(BaseModel):
-    """Virtual environment status."""
+    """Python runtime environment status."""
 
     exists: bool
     path: str
@@ -105,12 +105,12 @@ class TemplateWorkspaceFieldWriteRequest(BaseModel):
 
 
 def get_venv_path() -> Path:
-    """Get the configured venv directory path."""
+    """Get the configured Python runtime directory path."""
     return get_wizard_venv_dir()
 
 
 def get_venv_status() -> VenvStatus:
-    """Get current virtual environment status."""
+    """Get current Python runtime status."""
     venv_path = get_venv_path()
     python_exec = venv_path / "bin" / "python"
 
@@ -119,7 +119,7 @@ def get_venv_status() -> VenvStatus:
         path=str(venv_path),
         is_active=hasattr(sys, "real_prefix")
         or (hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix),
-        last_checked=datetime.now().isoformat(),
+        last_checked=utc_now_iso_z(),
     )
 
     if status.exists and python_exec.exists():
@@ -147,40 +147,50 @@ def get_venv_status() -> VenvStatus:
 
 
 def create_venv() -> dict[str, Any]:
-    """Create a new virtual environment."""
+    """Create the canonical Python runtime environment."""
     venv_path = get_venv_path()
 
     if venv_path.exists():
-        return {"error": "venv already exists", "path": str(venv_path)}
+        return {"error": ".venv already exists", "path": str(venv_path)}
 
     try:
-        logger.info(f"[LOCAL] Creating venv at {venv_path}")
-        venv.create(str(venv_path), with_pip=True, clear=False)
+        logger.info(f"[LOCAL] Creating Python runtime at {venv_path}")
+        result = subprocess.run(
+            ["uv", "venv", str(venv_path), "--python", "3.12"],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        if result.returncode != 0:
+            return {
+                "error": result.stderr.strip() or "uv venv failed",
+                "path": str(venv_path),
+            }
 
         status = get_venv_status()
         return {
             "status": "created",
             "venv": status.model_dump(),
-            "next_step": "Install dependencies: pip install -r wizard/requirements.txt",
+            "next_step": "Install dependencies: UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard --dev",
         }
     except Exception as e:
-        logger.error(f"[LOCAL] Failed to create venv: {e}")
+        logger.error(f"[LOCAL] Failed to create Python runtime: {e}")
         return {"error": str(e)}
 
 
 def delete_venv() -> dict[str, Any]:
-    """Delete the virtual environment."""
+    """Delete the Python runtime environment."""
     venv_path = get_venv_path()
 
     if not venv_path.exists():
-        return {"error": "venv does not exist"}
+        return {"error": ".venv does not exist"}
 
     try:
-        logger.info(f"[LOCAL] Deleting venv at {venv_path}")
+        logger.info(f"[LOCAL] Deleting Python runtime at {venv_path}")
         remove_path(venv_path)
         return {"status": "deleted"}
     except Exception as e:
-        logger.error(f"[LOCAL] Failed to delete venv: {e}")
+        logger.error(f"[LOCAL] Failed to delete Python runtime: {e}")
         return {"error": str(e)}
 
 
@@ -192,7 +202,13 @@ def delete_venv() -> dict[str, Any]:
 def get_secrets_config() -> dict[str, list[SecretConfig]]:
     """Get all configured secrets organized by category."""
     categories = {
-        "ai": ["mistral_api_key", "openrouter_api_key", "ollama_api_key"],
+        "ai": [
+            "mistral_api_key",
+            "openrouter_api_key",
+            "openai_api_key",
+            "anthropic_api_key",
+            "gemini_api_key",
+        ],
         "github": ["github_token", "github_webhook_secret"],
         "oauth": ["oauth_client_id", "oauth_client_secret"],
         "integrations": ["nounproject_api_key", "nounproject_api_secret"],
@@ -217,26 +233,16 @@ def get_secrets_config() -> dict[str, list[SecretConfig]]:
         return current
 
     legacy_config = {
-        "assistant": _load_config_file("assistant_keys.json"),
         "github": _load_config_file("github_keys.json"),
         "oauth": _load_config_file("oauth_providers.json"),
     }
 
     legacy_values: dict[str, Any] = {
-        "mistral_api_key": (
-            _get_nested(legacy_config["assistant"], ["providers", "mistral", "key_id"])
-            or legacy_config["assistant"].get("MISTRAL_API_KEY")
-        ),
-        "openrouter_api_key": (
-            _get_nested(
-                legacy_config["assistant"], ["providers", "openrouter", "key_id"]
-            )
-            or legacy_config["assistant"].get("OPENROUTER_API_KEY")
-        ),
-        "ollama_api_key": (
-            _get_nested(legacy_config["assistant"], ["providers", "ollama", "key_id"])
-            or legacy_config["assistant"].get("OLLAMA_API_KEY")
-        ),
+        "mistral_api_key": get_config("MISTRAL_API_KEY", None) or None,
+        "openrouter_api_key": get_config("OPENROUTER_API_KEY", None) or None,
+        "openai_api_key": get_config("OPENAI_API_KEY", None) or None,
+        "anthropic_api_key": get_config("ANTHROPIC_API_KEY", None) or None,
+        "gemini_api_key": get_config("GEMINI_API_KEY", None) or None,
         "github_token": (
             legacy_config["github"].get("token")
             or _get_nested(legacy_config["github"], ["tokens", "default", "key_id"])
@@ -385,7 +391,7 @@ def repair_secret_store() -> dict[str, Any]:
         key_id=_get_admin_key_id(),
         provider="wizard-admin",
         value=new_admin_token,
-        created_at=datetime.now(UTC).isoformat(),
+        created_at=utc_now_iso_z(),
         metadata={"source": "wizard-repair"},
     )
     store.set(entry)
@@ -410,7 +416,7 @@ def set_secret(key: str, value: str) -> dict[str, Any]:
         except SecretStoreError as e:
             logger.error(f"[LOCAL] Failed to unlock secret store: {e}")
             return {"error": f"Secret store is locked: {e!s}"}
-        store.set_entry(key, value, metadata={"updated_at": datetime.now().isoformat()})
+        store.set_entry(key, value, metadata={"updated_at": utc_now_iso_z()})
         # Persist env-only secrets when applicable
         if key in {"nounproject_api_key", "nounproject_api_secret"}:
             repo_root = get_repo_root()
@@ -518,7 +524,7 @@ def get_available_extensions() -> list[ExtensionInstaller]:
 def migrate_config_from_v1_0() -> dict[str, Any]:
     """Auto-migrate config from v1.0.x fragmented format to v1.1.0 unified format.
 
-    v1.0.x: 7 separate config files (assistant_keys.json, github_keys.json, etc.)
+    v1.0.x: 7 separate config files
     v1.1.0: Unified secret store + single settings page
     """
     repo_root = get_repo_root()
@@ -533,7 +539,6 @@ def migrate_config_from_v1_0() -> dict[str, Any]:
 
     # Map old config files to secret categories
     config_mapping = {
-        "assistant_keys.json": ("ai", ["mistral_api_key", "openrouter_api_key"]),
         "github_keys.json": ("github", ["github_token", "github_webhook_secret"]),
         "oauth.json": ("oauth", ["oauth_client_id", "oauth_client_secret"]),
     }
@@ -555,7 +560,7 @@ def migrate_config_from_v1_0() -> dict[str, Any]:
                         data[key],
                         metadata={
                             "migrated_from": old_file,
-                            "migrated_at": datetime.now().isoformat(),
+                            "migrated_at": utc_now_iso_z(),
                         },
                     )
 
@@ -596,7 +601,7 @@ def create_settings_unified_router(auth_guard=None):
             "extensions": [ext.model_dump() for ext in get_available_extensions()],
             "template_workspace": workspace.workspace_contract(),
             "wizard_settings_workspace": workspace.component_snapshot("wizard"),
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": utc_now_iso_z(),
         }
 
     @router.get("/template-workspace")

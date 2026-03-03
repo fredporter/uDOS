@@ -1,142 +1,32 @@
-# uDOS Vision
+# Dev Workspace Vision
 
-> **Version:** Core v1.1.0.0 | **Updated:** 2026-01-10
+Updated: 2026-03-04
 
-**A text-first computing environment for humans who value privacy, simplicity, and offline capability.**
+The v1.5 contributor lane is built around one idea: keep the public repository clean while preserving a versioned contributor framework inside the main repo.
 
----
+## Vision
 
-## 🎯 What is uDOS?
+`@dev` should give contributors a stable place for:
 
-uDOS is a **Python-venv OS layer** targeting Alpine Linux for minimal hardware while providing powerful features:
+- governance
+- onboarding
+- Dev Mode policy
+- Goblin fixtures
+- contributor GitHub integration guidance
 
-- **230+ offline survival guides** in markdown format
-- **AI-powered content generation** (online via Gemini, offline via Ollama)
-- **Terminal and desktop interfaces** (TUI + uCode Markdown App)
-- **Private mesh networking** without internet dependency
+without mixing that material into root `docs/` or the shipping runtime tree.
 
-## 🏛️ Core Principles
+## Outcome
 
-### 1. Text-First Computing
+- root `docs/` stays product and operator focused
+- `dev/docs/` becomes the contributor documentation home
+- `dev/goblin/` becomes the distributable dev scaffold and testing-server layer
+- sprawling personal work stays ignored until promoted deliberately
 
-```
-Text → Markdown → ASCII/Teletext → SVG (only when essential)
-```
+## Runtime Relationship
 
-Every output starts as text. Graphics exist to serve communication, not decoration.
+- `ucode` is still the standard runtime
+- Wizard still owns Dev Mode controls, gates, and permissions
+- `vibe` remains contributor tooling inside the active Dev extension lane
 
-### 2. Offline-First / Privacy-First
-
-- **Full functionality without internet**
-- **No telemetry, no tracking**
-- **Explicit opt-in for any cloud features**
-- **Data stays on your device by default**
-
-### 3. Two-Realm Architecture
-
-| Realm             | Purpose   | Internet    | Example                       |
-| ----------------- | --------- | ----------- | ----------------------------- |
-| **User Mesh**     | Daily use | Never       | Laptops, phones, Alpine nodes |
-| **Wizard Server** | AI & web  | When needed | Always-on home server         |
-
-The Wizard Server handles web-dependent tasks (Gemini AI, web scraping, email) and communicates with user devices over **private transports only**.
-
-### 4. Human-Centric Design
-
-- **Drip, don't smash** - Content delivered at sustainable pace
-- **Wellbeing awareness** - Tasks adapt to user energy levels
-- **Simple over clever** - Obvious beats elegant
-
----
-
-## 🔒 Transport Policy (Non-Negotiable)
-
-### Private Transports (Data Allowed)
-
-- **MeshCore** - Primary P2P mesh
-- **Bluetooth Private** - Paired devices only
-- **NFC** - Physical contact transfer
-- **QR Relay** - Visual data transfer
-- **Audio Relay** - Acoustic packets
-
-### Public Channels (Signal Only)
-
-- **Bluetooth Public** - Presence beacons, NEVER data
-- **Internet** - Wizard Server only, never user devices
-
----
-
-## 💡 Key Concepts
-
-### uCODE Commands
-
-Commands typed in TUI or executed from `.udos.md` scripts:
-
-```bash
-GUIDE survival/water      # Browse knowledge
-BUNDLE START survival     # Begin learning bundle
-CAPTURE https://example.com  # Save web content
-MAKE TEXT "water guide"   # Generate with AI
-```
-
-### .udos.md Documents
-
-Markdown files with embedded scripts:
-
-````markdown
----
-title: Water Purification Guide
-type: knowledge
-bundle: survival
----
-
-# Water Purification
-
-Methods for making water safe...
-
-```upy
-# Embedded script
-result = GUIDE.SEARCH("filter")
-```
-````
-
-````
-
-### Bundles
-
-Collections of related documents with "drip" delivery:
-
-```yaml
-# .bundle.udos.md
-drip:
-  interval: daily
-  items_per_session: 1
-wellbeing:
-  energy_cost: medium
-````
-
----
-
-## 🎯 Target Users
-
-1. **Privacy advocates** - No tracking, no cloud dependency
-2. **Offline preppers** - Works without internet
-3. **Minimalists** - Runs on minimal hardware
-4. **Knowledge seekers** - 230+ survival guides included
-5. **Makers & hackers** - Fully customizable
-
----
-
-## 🚀 Getting Started
-
-1. **TUI Users**: Run `./bin/Launch-uCODE.sh` and type `HELP`
-2. **Desktop Users**: Launch uCode Markdown App
-3. **Developers**: See [Contributing](./contributing/README.md)
-
----
-
-_"Computing should serve humans, not surveil them."_
-
----
-
-Last Updated: 2026-01-07
+The contributor lane exists to support the runtime, not compete with it.

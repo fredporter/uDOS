@@ -60,3 +60,19 @@ def test_parse_unknown_as_guidance_plan() -> None:
     assert frames[0].input_class == "guidance"
     assert frames[0].intent == "guidance.plan"
     assert frames[0].slots["text"] == "help me organize notes for my synth rack"
+
+
+def test_parse_research_intent() -> None:
+    frame = parse_primary_input("research local assist budget options for udos")
+
+    assert frame is not None
+    assert frame.input_class == "knowledge"
+    assert frame.intent == "knowledge.research"
+
+
+def test_parse_generate_intent() -> None:
+    frame = parse_primary_input("generate a guide from gathered notes")
+
+    assert frame is not None
+    assert frame.input_class == "knowledge"
+    assert frame.intent == "knowledge.generate"

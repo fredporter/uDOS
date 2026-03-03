@@ -21,7 +21,6 @@ Date: 2026-01-30
 
 from __future__ import annotations
 
-from datetime import datetime
 import os
 import re
 import sys
@@ -38,6 +37,7 @@ from core.input.confirmation_utils import (
 )
 from core.locations import LocationService
 from core.services.logging_api import get_logger
+from core.services.time_utils import render_utc_as_local
 from core.services.viewport_service import ViewportService
 from core.tui.form_fields import DatePicker, DateTimeApproval, LocationSelector
 from core.utils.tty import interactive_tty_status
@@ -152,11 +152,12 @@ class AdvancedFormField:
                 suggestions["user_timezone"] = "UTC"
 
             # System time
-            suggestions["user_local_time"] = datetime.now().strftime("%Y-%m-%d %H:%M")
-            suggestions["user_date"] = datetime.now().strftime("%Y-%m-%d")
-            suggestions["time"] = datetime.now().strftime("%Y-%m-%d %H:%M")
-            suggestions["date"] = datetime.now().strftime("%Y-%m-%d")
-            suggestions["datetime"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+            rendered = render_utc_as_local(suggestions["user_timezone"])
+            suggestions["user_local_time"] = rendered["local_display"]
+            suggestions["user_date"] = rendered["local_date"]
+            suggestions["time"] = rendered["local_display"]
+            suggestions["date"] = rendered["local_date"]
+            suggestions["datetime"] = rendered["local_display"]
 
             # System hostname (possible location hint)
             try:
@@ -335,7 +336,7 @@ class AdvancedFormField:
             elif field_type == "date":
                 suggestion = suggestions.get("date") or suggestions.get("user_date")
             elif field_type == "time":
-                suggestion = suggestions.get("time") or datetime.now().strftime("%H:%M")
+                suggestion = suggestions.get("time") or render_utc_as_local().get("local_clock", "00:00:00")
 
         # Render field with suggestion
         self._maybe_clear_screen()
@@ -974,13 +975,12 @@ class AdvancedFormField:
                 break
             approved = choice in {"yes", "ok"}
             choice_label = {"yes": "Yes", "no": "No", "ok": "OK"}[choice]
-            now = datetime.now().astimezone()
-            tz = now.tzname() or str(now.tzinfo) or "UTC"
+            rendered = render_utc_as_local(timezone_hint)
             return {
                 "approved": approved,
-                "date": now.strftime("%Y-%m-%d"),
-                "time": now.strftime("%H:%M:%S"),
-                "timezone": tz,
+                "date": rendered["local_date"],
+                "time": rendered["local_clock"],
+                "timezone": rendered["timezone"],
                 "choice": choice,
                 "choice_label": choice_label,
                 "status": "approved" if approved else "denied",

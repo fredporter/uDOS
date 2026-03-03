@@ -3,7 +3,7 @@
 ## Purpose
 Manage plugin registry, distribution catalog, validation, and install lifecycle.
 
-## Endpoints (current + target)
+## Endpoints (current)
 
 ### Registry
 - `GET /api/plugins/registry`
@@ -13,7 +13,7 @@ Manage plugin registry, distribution catalog, validation, and install lifecycle.
 - `GET /api/plugins/registry/schema`
 - `GET /api/plugins/registry/{plugin_id}`
 
-### CLI Stub (migration placeholder)
+### Command Bridge
 - `POST /api/plugin/command`
   - Body: `{ "command": "list" }`
 
@@ -46,7 +46,7 @@ Manage plugin registry, distribution catalog, validation, and install lifecycle.
 - `wizard.plugins.registry.get`
 - `wizard.plugins.registry.refresh`
 - `wizard.plugins.registry.schema`
-- `wizard.plugin.command` (stub)
+- `wizard.plugin.command`
 - `wizard.plugin.install`
 - `wizard.plugin.uninstall`
 - `wizard.plugin.enable`
@@ -55,4 +55,5 @@ Manage plugin registry, distribution catalog, validation, and install lifecycle.
 ## Notes
 
 - Distribution artifacts live under `distribution/plugins`.
-- CLI stub should be removed once Wizard plugin service is fully migrated.
+- Use the registry and install lifecycle endpoints as the canonical v1.5 plugin surface.
+- `wizard.plugin.command` remains a command-style bridge, not the primary contract.

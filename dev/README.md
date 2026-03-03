@@ -1,21 +1,21 @@
 # Dev Mode Extension Framework
 
-The `/dev` directory is the Dev Mode extension framework for uDOS v1.5.
+`/dev` is the v1.5 `@dev` workspace.
 
-It exists to provide:
-- Dev Mode governance files
-- contributor workflow templates
-- roadmap, task, and summary storage
-- extension metadata used to gate Dev Mode activation
-- contributor test policy and release-readiness workflows
+It is the tracked contributor framework payload for:
+
+- Dev Mode governance
+- contributor documentation
+- extension metadata
+- Goblin dev scaffold and testing-server fixtures
 
 Rules:
 
 - standard runtime remains `ucode`
-- Dev Mode is entered implicitly only after the `dev` profile and `dev-mode` extension are active
-- Wizard GUI owns install, uninstall, activation, and deactivation
-- `/dev` is the versioned distro/template scaffold
-- local mutable contributor data must stay separate from the template truth
-- executable pytest entrypoints remain in root `scripts/`
+- Wizard owns Dev Mode activation, deactivation, and GitHub integration
+- `/dev` is the tracked framework payload, not a second runtime root
+- `dev/docs/` holds contributor-only documentation
+- `dev/goblin/` holds the distributable dev scaffold
+- local mutable work must stay in ignored `/dev` working paths until promoted
 
-It must not contain production runtime code. Wizard owns the live Dev Mode runtime and TUI/Dev tooling integration.
+It must not contain production runtime logic. Wizard owns the live Dev Mode runtime and contributor control plane.

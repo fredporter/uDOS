@@ -17,6 +17,8 @@ from core.services.maintenance_utils import (
     get_compost_root,
     get_memory_root,
     list_backups,
+    resolve_housekeeping_scope,
+    run_housekeeping,
     restore_backup,
     tidy,
 )
@@ -94,18 +96,12 @@ class MaintenanceHandler(BaseCommandHandler, HandlerLoggingMixin):
         if not params:
             return "workspace", []
         scope = params[0].lower()
-        if scope in {"current", "+subfolders", "workspace", "all"}:
+        if scope in {"current", "+subfolders", "workspace", "all", "repo", "vault", "knowledge", "dev"}:
             return scope, params[1:]
         return "workspace", params
 
     def _resolve_scope(self, scope: str) -> tuple[Path, bool]:
-        if scope == "current":
-            return Path.cwd(), False
-        if scope == "+subfolders":
-            return Path.cwd(), True
-        if scope == "all":
-            return get_repo_root(), True
-        return get_memory_root(), True
+        return resolve_housekeeping_scope(scope)
 
     def _handle_backup(self, params: list[str]) -> dict:
         scope, remaining = self._parse_scope(params)
@@ -169,8 +165,14 @@ class MaintenanceHandler(BaseCommandHandler, HandlerLoggingMixin):
 
     def _handle_tidy(self, params: list[str]) -> dict:
         scope, _remaining = self._parse_scope(params)
-        target_root, recursive = self._resolve_scope(scope)
-        moved, archive_root = tidy(target_root, recursive=recursive)
+        if scope in {"repo", "vault", "knowledge", "dev"}:
+            report = run_housekeeping(scope, apply=True)
+            moved = int(report.get("moved", 0))
+            archive_root = report.get("archive_root") or "(none)"
+            target_root = Path(report["target_root"])
+        else:
+            target_root, recursive = self._resolve_scope(scope)
+            moved, archive_root = tidy(target_root, recursive=recursive)
         output = "\n".join([
             OutputToolkit.banner("TIDY"),
             f"Scope: {scope}",
@@ -182,16 +184,22 @@ class MaintenanceHandler(BaseCommandHandler, HandlerLoggingMixin):
 
     def _handle_clean(self, params: list[str]) -> dict:
         scope, _remaining = self._parse_scope(params)
-        target_root, recursive = self._resolve_scope(scope)
-        if target_root == get_repo_root():
-            allowlist = default_repo_allowlist()
-        elif target_root == get_memory_root():
-            allowlist = default_memory_allowlist()
+        if scope in {"repo", "vault", "knowledge", "dev"}:
+            report = run_housekeeping(scope, apply=True)
+            moved = int(report.get("moved", 0))
+            archive_root = report.get("archive_root") or "(none)"
+            target_root = Path(report["target_root"])
         else:
-            allowlist = []
-        moved, archive_root = clean(
-            target_root, allowed_entries=allowlist, recursive=recursive
-        )
+            target_root, recursive = self._resolve_scope(scope)
+            if target_root == get_repo_root():
+                allowlist = default_repo_allowlist()
+            elif target_root == get_memory_root():
+                allowlist = default_memory_allowlist()
+            else:
+                allowlist = []
+            moved, archive_root = clean(
+                target_root, allowed_entries=allowlist, recursive=recursive
+            )
         output = "\n".join([
             OutputToolkit.banner("CLEAN"),
             f"Scope: {scope}",

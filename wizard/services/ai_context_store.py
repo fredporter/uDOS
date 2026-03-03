@@ -1,8 +1,8 @@
 """
-AI Context Store
-================
+Logic Assist Context Store
+==========================
 
-Builds a normalized context bundle for Wizard AI tools (Vibe/Ollama/Mistral).
+Builds a normalized context bundle for Wizard logic-assist tools.
 Stores context in memory/ai/context.json and memory/ai/context.md.
 """
 

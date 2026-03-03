@@ -14,7 +14,7 @@ Commands:
   github     - Show GitHub Actions status
   workflows  - Alias for 'github' command
   dev        - DEV MODE on/off/status/clear
-  ai         - Vibe/Ollama/Mistral helpers
+  logic      - Logic-assist contributor helpers
   git        - Git shortcuts (status/pull/push)
     workflow   - Workflow/todo helper
     logs       - Tail logs from memory/logs
@@ -38,15 +38,11 @@ from collections.abc import Callable
 from datetime import datetime
 import json
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 import threading
 import time
 from typing import Any
-import urllib.error
-import urllib.parse
-import urllib.request
 
 from core.services.maintenance_utils import (
     clean,
@@ -67,10 +63,12 @@ from wizard.services.editor_utils import (
     open_in_editor,
     resolve_workspace_path,
 )
-from wizard.services.mistral_api import MistralAPI
+from wizard.services.logic_assist_service import (
+    LogicAssistRequest,
+    get_logic_assist_service,
+)
 from wizard.services.path_utils import get_repo_root
 from wizard.services.pdf_ocr_service import get_pdf_ocr_service
-from wizard.services.secret_store import SecretStoreError, get_secret_store
 from wizard.services.tree_service import TreeStructureService
 from wizard.services.url_to_markdown_service import get_url_to_markdown_service
 from wizard.services.vibe_service import VibeService
@@ -99,7 +97,7 @@ class WizardConsole:
             "workflows": self.cmd_workflows,
             "workflow": self.cmd_workflow,
             "dev": self.cmd_dev,
-            "ai": self.cmd_ai,
+            "logic": self.cmd_logic,
             "git": self.cmd_git,
             "logs": self.cmd_logs,
             "tree": self.cmd_tree,
@@ -166,132 +164,31 @@ class WizardConsole:
         )
         return dashboard_index.exists()
 
-    def _assistant_keys_path(self) -> Path:
-        return Path(__file__).parent.parent / "config" / "assistant_keys.json"
+    def _logic_status(self) -> dict[str, Any]:
+        return get_logic_assist_service(self.repo_root).get_status()
 
-    def _load_assistant_keys(self) -> dict[str, Any]:
-        path = self._assistant_keys_path()
-        if not path.exists():
-            return {}
-        try:
-            return json.loads(path.read_text())
-        except Exception:
-            return {}
-
-    def _resolve_secret_store(self):
-        try:
-            store = get_secret_store()
-            store.unlock()
-            return store, None
-        except SecretStoreError as exc:
-            return None, str(exc)
-
-    def _secret_has_value(self, store, key_id: str) -> bool:
-        if not store or not key_id:
-            return False
-        entry = store.get_entry(key_id)
-        return entry is not None and bool(entry.value)
-
-    def _ollama_host(self) -> str:
-        host = (get_config("OLLAMA_HOST", "http://127.0.0.1:11434")).strip()
-        return host.rstrip("/")
-
-    def _check_ollama_status(self) -> dict[str, Any]:
-        """Return ollama reachability + available models."""
-        endpoint = self._ollama_host()
-        try:
-            with urllib.request.urlopen(f"{endpoint}/api/tags", timeout=4) as resp:
-                if resp.status != 200:
-                    return {
-                        "reachable": False,
-                        "models": [],
-                        "error": f"HTTP {resp.status}",
-                    }
-                payload = json.loads(resp.read().decode("utf-8"))
-                models = [m.get("name", "") for m in payload.get("models", [])]
-                return {"reachable": True, "models": models, "error": None}
-        except Exception as exc:
-            return {"reachable": False, "models": [], "error": str(exc)}
-
-    def _check_openrouter_key(self) -> dict[str, Any]:
-        """Check if OpenRouter key is configured via assistant_keys or secret store."""
-        assistant_keys = self._load_assistant_keys()
-        providers_map = assistant_keys.get("providers", {})
-        entry = providers_map.get("openrouter")
-        key_id = None
-        direct_key = None
-
-        if isinstance(entry, dict):
-            direct_key = entry.get("api_key") or entry.get("key")
-            key_id = entry.get("key_id")
-        elif isinstance(entry, str):
-            direct_key = entry
-
-        if direct_key:
-            return {"configured": True, "source": "assistant_keys.json"}
-
-        store, err = self._resolve_secret_store()
-        if key_id and self._secret_has_value(store, key_id):
-            return {"configured": True, "source": f"secret_store:{key_id}"}
-
-        for candidate in ("openrouter_api_key", "ai-openrouter"):
-            if self._secret_has_value(store, candidate):
-                return {"configured": True, "source": f"secret_store:{candidate}"}
-
-        if err:
-            return {"configured": False, "locked": True, "error": err}
-
-        return {"configured": False, "locked": False, "error": "Missing OpenRouter key"}
-
-    def _check_default_ai_setup(self) -> dict[str, Any]:
-        """Check default AI providers (OF/OL/PR) readiness."""
-        ollama = self._check_ollama_status()
-        models = [m.split(":")[0] for m in ollama.get("models", [])]
-        devstral_ready = "devstral-small-2" in models
-
-        openrouter = self._check_openrouter_key()
-
-        return {
-            "ollama": ollama,
-            "devstral": {"ready": devstral_ready, "model": "devstral-small-2"},
-            "openrouter": openrouter,
-        }
-
-    def _print_default_ai_startup_checks(self) -> None:
-        checks = self._check_default_ai_setup()
+    def _print_logic_startup_checks(self) -> None:
+        checks = self._logic_status()
         base_host = "localhost" if self.config.host == "0.0.0.0" else self.config.host
         config_url = f"http://{base_host}:{self.config.port}/#config"
 
-        print("\n🤖 DEFAULT AI STARTUP CHECKS (OF / OL / PR):")
+        local = checks["local"]
+        network = checks["network"]
 
-        # OL: Ollama service
-        if checks["ollama"]["reachable"]:
-            print("  • OL (Ollama service): ✅ Reachable")
+        print("\n🧠 LOGIC ASSIST STARTUP CHECKS:")
+        if local.get("ready"):
+            print(f"  • Local GPT4All: ✅ Ready ({local.get('model')})")
         else:
-            print("  • OL (Ollama service): ⚠️  Not reachable")
-            print(
-                f"    - Start Ollama or set OLLAMA_HOST (currently {self._ollama_host()})"
-            )
-            print(f"    - Visit Wizard Config to complete setup: {config_url}")
+            print(f"  • Local GPT4All: ⚠️  {local.get('issue') or 'Not ready'}")
+            print(f"    - Model path: {local.get('model_path')}")
+            print(f"    - Visit Wizard Config or run SETUP dev: {config_url}")
 
-        # OF: Offline Devstral model
-        if checks["devstral"]["ready"]:
-            print("  • OF (Offline Devstral): ✅ Model ready")
+        if network.get("ready"):
+            available = ", ".join(network.get("available_providers") or [])
+            print(f"  • Wizard network lane: ✅ Ready ({available})")
         else:
-            print("  • OF (Offline Devstral): ⚠️  Model missing")
-            print("    - Install: ollama pull devstral-small-2")
-            print(f"    - Or use Wizard Config: {config_url}")
-
-        # PR: OpenRouter key
-        if checks["openrouter"].get("configured"):
-            print("  • PR (OpenRouter): ✅ Key configured")
-        else:
-            if checks["openrouter"].get("locked"):
-                print("  • PR (OpenRouter): ⚠️  Secret store locked")
-            else:
-                print("  • PR (OpenRouter): ⚠️  Key missing")
-            print("    - Add OpenRouter API key in Wizard Config → Quick Keys")
-            print(f"    - Open: {config_url}")
+            print(f"  • Wizard network lane: ⚠️  {network.get('issue') or 'Not ready'}")
+            print(f"    - Configure provider secrets in Wizard Config: {config_url}")
         print()
 
     def _startup_checks(self) -> None:
@@ -299,7 +196,7 @@ class WizardConsole:
         self._dashboard_ready = self._run_with_spinner(
             "Checking dashboard build", self._check_dashboard_build
         )
-        self._print_default_ai_startup_checks()
+        self._print_logic_startup_checks()
 
     def print_banner(self):
         """Display startup banner with capabilities."""
@@ -375,10 +272,10 @@ class WizardConsole:
                 "version": "1.1.0",
                 "description": "Plugin distribution and updates",
             },
-            "OK Gateway": {
+            "Logic Assist": {
                 "enabled": self.config.ok_gateway_enabled,
                 "version": "1.1.0",
-                "description": "AI model routing (Ollama/OpenRouter)",
+                "description": "Local GPT4All advisory lane plus Wizard-managed network routing",
             },
             "Web Proxy": {
                 "enabled": self.config.web_proxy_enabled,
@@ -459,13 +356,13 @@ class WizardConsole:
         print("\n  Rate Limiting:")
         print(f"    • Per Minute: {self.config.requests_per_minute}")
         print(f"    • Per Hour: {self.config.requests_per_hour}")
-        print("\n  AI Budgets:")
+        print("\n  Logic Budgets:")
         print(f"    • Daily: ${self.config.ai_budget_daily}")
         print(f"    • Monthly: ${self.config.ai_budget_monthly}")
         print("\n  Service Toggles:")
         print(f"    • Plugin Repo: {self.config.plugin_repo_enabled}")
         print(f"    • Web Proxy: {self.config.web_proxy_enabled}")
-        print(f"    • OK Gateway: {self.config.ok_gateway_enabled}")
+        print(f"    • Logic Assist Network: {self.config.ok_gateway_enabled}")
         print()
 
     async def cmd_setup(self, args: list) -> None:
@@ -602,26 +499,17 @@ class WizardConsole:
             result = dev_mode.activate()
             print(f"\n{result.get('message', 'Dev mode activated')}")
             if result.get("status") == "activated":
-                # Check Ollama availability
-                try:
-                    import requests
-
-                    requests.get("http://127.0.0.1:11434/api/tags", timeout=3)
-                    print("✅ Ollama is reachable")
-                except Exception:
+                local = self._logic_status()["local"]
+                if local.get("ready"):
+                    print(f"✅ Logic Assist local runtime ready ({local.get('model')})")
+                else:
                     print(
-                        "⚠️  Ollama not reachable. Install/start with: brew install ollama && ollama serve"
+                        f"⚠️  Logic Assist local runtime not ready: {local.get('issue') or 'unknown issue'}"
                     )
-                    print("    Optional: run bin/setup_wizard.sh --auto --no-browser")
+                    print(f"    Model path: {local.get('model_path')}")
 
-                print("\n🔍 Suggested next steps (Vibe/Ollama):")
+                print("\n🔍 Suggested next steps (Dev extension / logic assist):")
                 suggestion = dev_mode.suggest_next_steps()
-                if "Failed" in suggestion:
-                    client = MistralAPI()
-                    if client.available():
-                        suggestion = client.chat(
-                            "Suggest next development steps for uDOS based on context."
-                        )
                 print(suggestion)
             print()
         elif action == "off":
@@ -642,23 +530,29 @@ class WizardConsole:
         else:
             print("\nUsage: dev on|off|status|clear\n")
 
-    async def cmd_ai(self, args: list) -> None:
-        """AI commands: vibe|mistral|ollama|context."""
+    async def cmd_logic(self, args: list) -> None:
+        """Logic-assist helper commands."""
         dev_mode = get_dev_mode_service()
         if not dev_mode.active:
             print("\n⚠️  DEV MODE is inactive. Use: dev on\n")
             return
         if not args:
-            print("\nUsage: ai vibe|mistral|mistral2|ollama|context\n")
+            print("\nUsage: logic status|local <prompt>|cloud <prompt>|context\n")
             return
         action = args[0].lower()
         if action == "context":
             write_context_bundle()
-            print("\n✅ AI context bundle refreshed (memory/ai/context.*)\n")
+            print("\n✅ Logic context bundle refreshed (memory/ai/context.*)\n")
             return
-        if action == "vibe":
+        if action == "status":
+            status = self._logic_status()
+            print("\nLOGIC ASSIST STATUS:")
+            print(json.dumps(status, indent=2))
+            print()
+            return
+        if action == "local":
             if len(args) < 2:
-                print("\nUsage: ai vibe <prompt>\n")
+                print("\nUsage: logic local <prompt>\n")
                 return
             prompt = " ".join(args[1:])
             vibe = VibeService()
@@ -666,43 +560,22 @@ class WizardConsole:
             result = vibe.generate(prompt=prompt, system=context)
             print(f"\n{result}\n")
             return
-        if action in ("mistral", "mistral2"):
+        if action == "cloud":
             if len(args) < 2:
-                print("\nUsage: ai mistral|mistral2 <prompt>\n")
+                print("\nUsage: logic cloud <prompt>\n")
                 return
             prompt = " ".join(args[1:])
-            client = MistralAPI()
-            if not client.available():
-                print("\n⚠️  MISTRAL_API_KEY not configured\n")
+            request = LogicAssistRequest(prompt=prompt, force_network=True)
+            response = await get_logic_assist_service(self.repo_root).complete(
+                request=request,
+                device_id="wizard-console",
+            )
+            if not response.success:
+                print(f"\n⚠️  Logic network request failed: {response.error}\n")
                 return
-            result = client.chat(prompt=prompt)
-            print(f"\n{result}\n")
+            print(f"\n{response.content}\n")
             return
-        if action == "ollama":
-            if len(args) < 2:
-                print("\nUsage: ai ollama status|pull <model>\n")
-                return
-            sub = args[1].lower()
-            if sub == "status":
-                try:
-                    import requests
-
-                    resp = requests.get("http://127.0.0.1:11434/api/tags", timeout=5)
-                    print("\nOllama status:")
-                    print(resp.json())
-                    print()
-                except Exception as exc:
-                    print(f"\n⚠️  Ollama not reachable: {exc}\n")
-            elif sub == "pull":
-                model = args[2] if len(args) > 2 else "devstral-small-2"
-                cmd = ["ollama", "pull", model]
-                if not shutil.which("ollama"):
-                    print("\n⚠️  Ollama CLI not installed. Run: brew install ollama\n")
-                    return
-                subprocess.run(cmd, check=False)
-            else:
-                print("\nUsage: ai ollama status|pull <model>\n")
-            return
+        print("\nUsage: logic status|local <prompt>|cloud <prompt>|context\n")
 
     async def cmd_git(self, args: list) -> None:
         """Git shortcuts: status|pull|push|log."""
@@ -936,7 +809,7 @@ class WizardConsole:
         print("  github     - Show GitHub Actions status and recent runs")
         print("  workflows  - Alias for 'github' command")
         print("  dev        - DEV MODE on/off/status/clear")
-        print("  ai         - Vibe/Ollama/Mistral helpers")
+        print("  logic      - Logic-assist contributor helpers")
         print("  git        - Git shortcuts (status/pull/push/log)")
         print("  workflow   - Workflow/todo helper")
         print("  logs       - Tail logs from memory/logs")
@@ -952,7 +825,7 @@ class WizardConsole:
         print("  clean      - Reset scope into .archive")
         print("  compost    - Move .archive/.backup/.tmp to /.compost")
         print("  destroy    - Dev TUI only (reinstall)")
-        print("  providers  - List provider status (Ollama, OpenRouter, etc.)")
+        print("  providers  - List provider status")
         print("  provider   - Provider actions: status|flag|unflag|setup <id>")
         print("  help       - Show this help message")
         print("  exit/quit  - Shutdown server gracefully")

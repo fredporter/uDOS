@@ -1,8 +1,10 @@
 # uDOS Documentation
 
-Updated: 2026-03-03
+Updated: 2026-03-04
 
 This is the canonical front door for repository documentation.
+
+Contributor-only Dev Mode documentation does not live here. Use `dev/docs/` for `@dev` workspace policy, Goblin, `vibe`, and contributor GitHub integration.
 
 ## Start Here
 
@@ -33,8 +35,8 @@ This is the canonical front door for repository documentation.
 
 - New to the repo:
   `README.md`,
-  `docs/dev/GETTING-STARTED.md`,
-  `docs/ARCHITECTURE.md`
+  `docs/ARCHITECTURE.md`,
+  `docs/INSTALLATION.md`
 - Working on workflows:
   `docs/decisions/v1-5-workflow.md`,
   `docs/specs/WORKFLOW-SCHEDULER-v1.5.md`,
@@ -53,4 +55,5 @@ This is the canonical front door for repository documentation.
 ## Notes
 
 - `docs/INDEX.md` is the quick navigation page.
-- Superseded documents stay in the active tree only as redirect stubs or move to `.compost` during cleanup.
+- `dev/docs/README.md` is the contributor documentation front door.
+- Superseded documents should move out of the active tree into `docs/.compost/`. Active docs should not keep redirect stubs unless a hard external dependency requires one.

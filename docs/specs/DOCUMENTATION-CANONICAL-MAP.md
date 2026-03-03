@@ -94,6 +94,21 @@ It should not be the long-term home for:
 
 - `sonic/docs/integration-spec.md`
 
+## Current Canonical Open-Box And Sonic Docs
+
+### Workspace transfer and restore
+
+- `docs/howto/WORKSPACE-TRANSFERABILITY.md`
+
+### Sonic standalone release/install
+
+- `docs/howto/SONIC-STANDALONE-RELEASE-AND-INSTALL.md`
+
+### Sonic local-docs entrypoint
+
+- `sonic/docs/howto/standalone-release-and-install.md`
+  - short pointer only
+
 ## Current Assessment
 
 ### Accurate and relevant
@@ -171,10 +186,6 @@ These likely need trimming or splitting rather than immediate archive:
    - now shortened; keep category pages aligned with command surface changes
 2. `docs/howto/WIZARD-PLUGIN-SYSTEM.md`
    - now reduced to a front-door guide with quickstart/reference companions
-3. `docs/howto/OFFLINE-ASSITANT-SETUP.md`
-   - now reduced to a short front-door guide with quickstart and reference companions
-4. `docs/howto/SVG-GRAPHICS-GENERATION.md`
-   - now reduced to a short front-door guide with quickstart and reference companions
 
 ### Low-risk cleanup opportunities
 
@@ -231,8 +242,10 @@ Recommended next review targets:
 - managed operations guidance was merged into the canonical how-to set
 - the oversized OK governance brief and spatial-grid brief were reduced to redirect stubs with new active canonical docs
 - `docs/howto/TOOLS-REFERENCE.md` was split into a short overview plus focused category reference pages
-- `docs/howto/OFFLINE-ASSITANT-SETUP.md` was reduced into a front-door page plus quickstart/reference companions
-- `docs/howto/SVG-GRAPHICS-GENERATION.md` was reduced into a front-door page plus quickstart/reference companions
+- the retired offline `OK` setup/front-door docs were moved into `docs/.compost/historic/2026-03-04-retired-offline-ok-docs/`
+- active graphics and installation guidance now point directly at the v1.5 setup/runtime docs instead of the retired offline `OK` path
+- `sonic/docs/howto/standalone-release-and-install.md` was reduced to a pointer so Sonic release/install guidance now has one canonical monorepo path
+- `docs/howto/SONIC-STANDALONE-RELEASE-AND-INSTALL.md` now carries the active seed/user catalog split and open-box restore evidence notes
 - `docs/howto/WIZARD-PLUGIN-SYSTEM.md` was reduced into a front-door page plus quickstart/reference companions
 - `docs/ARCHITECTURE.md` was reduced into an overview plus detailed integration reference
 - `docs/howto/BINDER-USAGE-GUIDE.md` was reduced into a front-door page plus binder quickstart
@@ -264,7 +277,7 @@ Recommended next review targets:
 1. Continue terminology cleanup in older but still indexed docs.
 2. Rename any remaining legacy filenames that still include prohibited terminology.
 3. Review long active decision/spec pages that still read like milestone briefs rather than stable contracts.
-4. Prefer redirect stubs in active locations once a document has been moved to `.compost`.
+4. Prefer removing retired files from the active tree entirely once references are updated. Keep redirect stubs only when an external dependency makes removal impractical.
 
 ## Working Rule
 

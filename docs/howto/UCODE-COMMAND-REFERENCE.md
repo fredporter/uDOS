@@ -1,7 +1,7 @@
 # uCODE Command Reference
 
 Version: Core v1.5+
-Updated: 2026-02-26
+Updated: 2026-03-04
 
 This guide covers uDOS commands (ucode) which are **backend services**, not UI features.
 
@@ -114,6 +114,21 @@ ucode UCODE TEMPLATE LIST
 ucode UCODE TEMPLATE LIST missions
 ucode UCODE TEMPLATE READ captures CAPTURE-template
 ucode UCODE TEMPLATE DUPLICATE submissions DEVICE-SUBMISSION-template my-device-template
+```
+
+Research, enrich, generate, and import flows now use the same file-backed shell path:
+
+```bash
+ucode UCODE RESEARCH prompt shell://input local assist cost policy
+ucode UCODE ENRICH prompt shell://input wizard queue health summary
+ucode UCODE GENERATE prompt shell://input release readiness note
+ucode UCODE RESEARCH LIST
+ucode UCODE RESEARCH READ <note-id>
+ucode UCODE RESEARCH IMPORT WORKFLOW <workflow_id> <note-id> research
+ucode UCODE RESEARCH IMPORT BINDER <binder_id> <note-id> research
+ucode WORKFLOW IMPORT RESEARCH <workflow_id> <note-id> research
+ucode BINDER IMPORT-RESEARCH <binder_id> <note-id> research
+ucode UCODE DELIVERABLE VALIDATE WORKFLOW @memory/vault/workflows/<workflow_id>/workflow.json
 ```
 
 ### 5. Python API (Internal)
@@ -250,11 +265,43 @@ Contract command set:
 Notes:
 - Legacy `NEW` and `EDIT` are consolidated into `FILE NEW` and `FILE EDIT`.
 - `UCODE` offline utility commands (`UCODE DEMO|DOCS|SYSTEM|CAPABILITIES|PLUGIN|UPDATE`) are available in current runtime flow.
+- the standard v1.5 shell now uses the canonical logic input contract inside `ucode.py`: deterministic input is normalized into command, workflow, knowledge, or guidance routes before any Dev-only contributor fallback
 - `UCODE SYSTEM INFO` includes minimum-spec validation for `2 cores / 4.0 GB RAM / 5.0 GB free storage`.
 - `UCODE SYSTEM INFO` includes a first field-validation round marker with local sample size and rebaseline targets.
 - `UCODE PLUGIN INSTALL <name>` creates a local plugin scaffold entry for capability discovery (`UCODE CAPABILITIES`).
 - `UCODE METRICS` reports local-only usage metrics from `memory/ucode/metrics/` by default (no network export).
 - Set `UDOS_UCODE_ROOT` to move the `UCODE` offline asset/cache root.
+
+### v1.5 Logic Input Routing
+
+The standard shell path is:
+
+```text
+terminal input
+-> logic input handler
+-> command | workflow | knowledge | guidance
+-> file-backed artifacts and logs
+```
+
+Examples:
+
+```bash
+workflow status wf-v15-001
+# -> WORKFLOW STATUS wf-v15-001
+
+browse knowledge missions
+# -> UCODE TEMPLATE LIST missions
+
+duplicate template submissions/DEVICE-SUBMISSION-template to my-device-template
+# -> UCODE TEMPLATE DUPLICATE submissions DEVICE-SUBMISSION-template my-device-template
+
+research local assist budget control
+# -> UCODE RESEARCH prompt shell://input research local assist budget control
+
+help me organize binder tasks
+# -> OPERATOR guidance in standard runtime
+# -> Dev-only contributor fallback when /dev is active and deterministic routing does not apply
+```
 
 ### Maintenance Storage Policy (v1.3.13+)
 
@@ -262,6 +309,10 @@ Notes:
 - `RESTORE` and `UNDO` read latest from `/.compost/<date>/backups/<scope>/`
 - `TIDY` and `CLEAN` move files to `/.compost/<date>/trash/<timestamp>/<scope>/`
 - `COMPOST` migrates older local dirs (`.archive`, `.backup`, `.tmp`, `.temp`) into `/.compost/<date>/archive/...`
+- `HEALTH CHECK housekeeping --scope vault|knowledge|dev|repo [--apply]` previews or applies scoped cleanup
+- `TIDY vault|knowledge|dev` and `CLEAN vault|knowledge|dev` use Markdown-first cleanup rules instead of blind directory wipes
+- `/.compost` is elastic: older entries are removed by age and older duplicate versions are pruned once enough newer copies exist
+- v1.5 `DESTROY`/`RESTORE` assumes an open-box split between runtime code and persisted user Markdown/data libraries
 
 ## Wizard-Owned Flows
 
@@ -314,7 +365,7 @@ Migration targets:
 | `!` | `!ls -la` | Bash shell passthrough |
 | (none, single word) | `health` | ucode if exact match — any case |
 | (none, multi-word ALL-CAPS) | `MAP tokyo` | ucode if first word exact match |
-| (none, multi-word lower) | `help me` | OK Assistant — natural language preserved |
+| (none, multi-word lower) | `help me` | Operator / logic-assist planning — natural language preserved |
 
 **Three commands use vibe's `/` and need `:` for ucode access:**
 - `:help` → ucode HELP (command reference) vs `/help` → vibe help
@@ -325,6 +376,8 @@ Migration targets:
 
 ```bash
 HEALTH
+HEALTH CHECK housekeeping --scope knowledge
+HEALTH CHECK housekeeping --scope dev --apply
 VERIFY
 FILE SELECT --files readme.md,docs/roadmap.md
 UCODE DEMO LIST
@@ -333,6 +386,9 @@ UCODE SYSTEM INFO
 UCODE CAPABILITIES --filter core
 UCODE PLUGIN LIST
 UCODE METRICS
+UCODE TEMPLATE LIST
+UCODE RESEARCH LIST
+WORKFLOW LIST TEMPLATES
 RULE LIST
 DRAW PAT LIST
 RUN DATA LIST

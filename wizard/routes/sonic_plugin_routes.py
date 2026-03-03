@@ -41,7 +41,7 @@ def _alias_notice(
 
 
 def _legacy_aliases_enabled() -> bool:
-    return get_bool_config("UDOS_SONIC_ENABLE_LEGACY_ALIASES", True)
+    return get_bool_config("UDOS_SONIC_ENABLE_LEGACY_ALIASES", False)
 
 
 def _raise_alias_retired(*, alias: str, canonical: str) -> None:
@@ -77,7 +77,7 @@ def create_sonic_plugin_routes(
         plugin = load_sonic_plugin(repo_root)
         api = plugin["api"].get_sonic_service()
         sync = plugin["sync"].get_sync_service()
-    except Exception:
+    except Exception as exc:
         # Fallback: plugin not available
         @router.get("/health")
         async def health_unavailable(request: Request):
@@ -85,7 +85,7 @@ def create_sonic_plugin_routes(
                 await auth_guard(request)
             return {
                 "status": "error",
-                "message": f"Sonic plugin not available: {e}",
+                "message": f"Sonic plugin not available: {exc}",
                 "installed": False,
             }
 
@@ -94,7 +94,7 @@ def create_sonic_plugin_routes(
             if auth_guard:
                 await auth_guard(request)
             raise HTTPException(
-                status_code=503, detail=f"Sonic plugin not available: {e}"
+                status_code=503, detail=f"Sonic plugin not available: {exc}"
             )
 
         @router.post("/rescan")
@@ -102,7 +102,7 @@ def create_sonic_plugin_routes(
             if auth_guard:
                 await auth_guard(request)
             raise HTTPException(
-                status_code=503, detail=f"Sonic plugin not available: {e}"
+                status_code=503, detail=f"Sonic plugin not available: {exc}"
             )
 
         @router.post("/rebuild")
@@ -110,7 +110,7 @@ def create_sonic_plugin_routes(
             if auth_guard:
                 await auth_guard(request)
             raise HTTPException(
-                status_code=503, detail=f"Sonic plugin not available: {e}"
+                status_code=503, detail=f"Sonic plugin not available: {exc}"
             )
 
         @router.get("/export")
@@ -118,7 +118,7 @@ def create_sonic_plugin_routes(
             if auth_guard:
                 await auth_guard(request)
             raise HTTPException(
-                status_code=503, detail=f"Sonic plugin not available: {e}"
+                status_code=503, detail=f"Sonic plugin not available: {exc}"
             )
 
         @router.post("/sync")
@@ -126,7 +126,7 @@ def create_sonic_plugin_routes(
             if auth_guard:
                 await auth_guard(request)
             raise HTTPException(
-                status_code=503, detail=f"Sonic plugin not available: {e}"
+                status_code=503, detail=f"Sonic plugin not available: {exc}"
             )
 
         @router.get("/sync/status")
@@ -134,7 +134,7 @@ def create_sonic_plugin_routes(
             if auth_guard:
                 await auth_guard(request)
             raise HTTPException(
-                status_code=503, detail=f"Sonic plugin not available: {e}"
+                status_code=503, detail=f"Sonic plugin not available: {exc}"
             )
 
         @router.post("/sync/rebuild")
@@ -142,7 +142,7 @@ def create_sonic_plugin_routes(
             if auth_guard:
                 await auth_guard(request)
             raise HTTPException(
-                status_code=503, detail=f"Sonic plugin not available: {e}"
+                status_code=503, detail=f"Sonic plugin not available: {exc}"
             )
 
         @router.post("/sync/export")
@@ -150,7 +150,7 @@ def create_sonic_plugin_routes(
             if auth_guard:
                 await auth_guard(request)
             raise HTTPException(
-                status_code=503, detail=f"Sonic plugin not available: {e}"
+                status_code=503, detail=f"Sonic plugin not available: {exc}"
             )
 
         @router.get("/db/status")
@@ -158,7 +158,7 @@ def create_sonic_plugin_routes(
             if auth_guard:
                 await auth_guard(request)
             raise HTTPException(
-                status_code=503, detail=f"Sonic plugin not available: {e}"
+                status_code=503, detail=f"Sonic plugin not available: {exc}"
             )
 
         @router.post("/db/rebuild")
@@ -166,7 +166,7 @@ def create_sonic_plugin_routes(
             if auth_guard:
                 await auth_guard(request)
             raise HTTPException(
-                status_code=503, detail=f"Sonic plugin not available: {e}"
+                status_code=503, detail=f"Sonic plugin not available: {exc}"
             )
 
         @router.get("/db/export")
@@ -174,7 +174,7 @@ def create_sonic_plugin_routes(
             if auth_guard:
                 await auth_guard(request)
             raise HTTPException(
-                status_code=503, detail=f"Sonic plugin not available: {e}"
+                status_code=503, detail=f"Sonic plugin not available: {exc}"
             )
 
         return router
@@ -306,7 +306,11 @@ def create_sonic_plugin_routes(
         """Report legacy alias compatibility mode for Sonic endpoints."""
         if auth_guard:
             await auth_guard(request)
-        return {"legacy_aliases_enabled": aliases_enabled, "retirement_target": "v1.5"}
+        return {
+            "legacy_aliases_enabled": aliases_enabled,
+            "status": "compatibility_override" if aliases_enabled else "retired",
+            "retired_in": "v1.5",
+        }
 
     @router.get("/db/status")
     async def db_status(request: Request):

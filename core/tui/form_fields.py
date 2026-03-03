@@ -29,6 +29,7 @@ from typing import Any
 from core.input.confirmation_utils import normalize_default, parse_confirmation
 from core.services.logging_api import get_logger, get_repo_root
 from core.services.maintenance_utils import get_memory_root
+from core.services.time_utils import render_utc_as_local, resolve_timezone, utc_now
 from core.services.viewport_service import ViewportService
 from core.utils.text_width import truncate_ansi_to_width
 
@@ -232,10 +233,8 @@ class DatePicker:
             parts = default.split("-")
             year, month, day = int(parts[0]), int(parts[1]), int(parts[2])
         else:
-            from datetime import datetime
-
-            now = datetime.now()
-            year, month, day = now.year, now.month, now.day
+            local_date = render_utc_as_local()["local_date"]
+            year, month, day = (int(part) for part in local_date.split("-"))
 
         self.year_picker = SmartNumberPicker(
             "Year", min_val=1900, max_val=2100, default=year, width=4
@@ -428,10 +427,8 @@ class TimePicker:
                 int(parts[2]) if len(parts) > 2 else 0,
             )
         else:
-            from datetime import datetime
-
-            now = datetime.now()
-            hour, minute, second = now.hour, now.minute, now.second
+            local_clock = render_utc_as_local()["local_clock"]
+            hour, minute, second = (int(part) for part in local_clock.split(":"))
 
         self.hour_picker = SmartNumberPicker(
             "Hour", min_val=0, max_val=23, default=hour, width=2
@@ -540,7 +537,7 @@ class DateTimeApproval:
             pass
 
     def _get_now(self) -> datetime:
-        return datetime.now().astimezone()
+        return utc_now().astimezone(resolve_timezone(self.timezone_hint)[0])
 
     def _get_timezone(self, now: datetime) -> str:
         if self.timezone_hint:
@@ -657,7 +654,7 @@ class DateTimeApproval:
             line(f"{ANSI_LABEL}Timezone:{ANSI_RESET} {ANSI_VALUE}{tz}{ANSI_RESET}"),
             border("├", "─", "┤"),
         ]
-        for clock_line in self._render_clock(datetime.now().astimezone()):
+        for clock_line in self._render_clock(self._get_now()):
             lines.append(center(clock_line))
 
         if self.progress:
@@ -1242,11 +1239,7 @@ class TUIFormRenderer:
             return None
 
     def _get_system_timezone(self) -> str:
-        now = datetime.now().astimezone()
-        tzinfo = now.tzinfo
-        if hasattr(tzinfo, "key"):
-            return str(tzinfo.key)
-        return str(tzinfo) or "UTC"
+        return render_utc_as_local()["timezone"]
 
     def _render_field(self, field: dict) -> str:
         """Render a single field with boxed styling like date/time pickers."""

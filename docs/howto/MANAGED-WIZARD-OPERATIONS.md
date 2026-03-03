@@ -50,7 +50,7 @@ Run these through your managed scheduler:
 
 ## Scheduler Controls
 
-Managed scheduler settings are controlled through `POST /api/ops/settings`.
+Managed scheduler settings are controlled through `POST /api/ops/config/settings`.
 
 Current controls:
 - `max_tasks_per_tick`
@@ -68,14 +68,33 @@ Current controls:
 - `backoff_policy`
 
 Runtime job and budget summaries are exposed through:
-- `/api/ops/summary`
-- `/api/ops/jobs`
+- `/api/ops/planning/overview`
+- `/api/ops/planning/jobs`
+- `/api/ops/automation/overview`
+- `/api/ops/config/status`
+- `/api/ops/releases/overview`
+- `/api/ops/logs/files`
+
+Grouped control-plane surfaces:
+- `/api/ops/session`
+- `/api/ops/switchboard`
+- `/api/ops/planning/*`
+- `/api/ops/automation/*`
+- `/api/ops/alerts*`
+- `/api/ops/config/*`
+- `/api/ops/releases/*`
+- `/api/ops/logs/*`
+
+Role-aware operator switching is exposed through `/api/ops/switchboard`.
+`operator` is limited to planning and automation actions.
+`admin` additionally receives config, release, log, and runtime control access.
 
 Deferred queue recovery is now part of the managed operator flow:
 - deferred reason counts are exposed in the control plane
 - single queued items can be retried immediately
 - deferred work can be retried in bulk by reason
 - the maintenance job can automatically retry safe defer classes such as `network_unavailable`
+- `/admin` now consumes the grouped planning and automation surfaces directly instead of deriving planning state from the compact summary payload
 
 Recommended defaults:
 - keep `auto_retry_deferred_reasons` limited to recoverable classes

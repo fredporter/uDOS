@@ -1,8 +1,8 @@
 # AGENTS.md — Wizard Subsystem
 
-Last Updated: 2026-02-24
-Milestone: v1.4.6 Architecture Stabilisation Phase
-Status: Stable
+Last Updated: 2026-03-03
+Milestone: v1.5 Python Runtime Consolidation
+Status: Active
 
 ---
 
@@ -25,7 +25,7 @@ Wizard provides:
 ### Dependency Permissions
 
 Wizard may use:
-- Full venv dependencies
+- Shared `/.venv` dependencies
 - httpx, requests
 - FastAPI
 - Cloud provider SDKs
@@ -55,6 +55,7 @@ Wizard operates as:
 - API server (FastAPI on port 58008)
 - OK Provider gateway
 - MCP server
+- Shared `uv` + `/.venv` runtime owner for non-stdlib Python dependencies
 
 Wizard requires:
 - Internet access (for cloud providers)

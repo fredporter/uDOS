@@ -13,8 +13,12 @@ from core.services.error_contract import CommandError
 from core.services.logging_api import get_repo_root
 from core.services.maintenance_utils import (
     clean,
+    collect_housekeeping_candidates,
     get_compost_root,
     get_memory_root,
+    normalize_housekeeping_scope,
+    resolve_housekeeping_scope,
+    run_housekeeping,
     tidy,
 )
 from core.services.mission_objective_registry import MissionObjectiveRegistry
@@ -124,9 +128,11 @@ class HealthHandler(BaseCommandHandler):
             return self._check_release_gates(fmt)
         if target in {"storage", "local-storage", "disk"}:
             return self._check_storage(fmt)
+        if target in {"housekeeping", "housekeep", "cleanup"}:
+            return self._check_housekeeping(params[1:], fmt)
         raise CommandError(
             code="ERR_COMMAND_INVALID_ARG",
-            message="Syntax: HEALTH CHECK <release-gates|storage> [--format json|text]",
+            message="Syntax: HEALTH CHECK <release-gates|storage|housekeeping> [--format json|text]",
             recovery_hint="Choose a valid HEALTH CHECK target",
             level="INFO",
         )
@@ -221,7 +227,12 @@ class HealthHandler(BaseCommandHandler):
         scope, _remaining = self._parse_scope(params[1:])
         target_root, recursive = self._resolve_scope(scope)
 
-        if action == "tidy":
+        if scope in {"repo", "vault", "knowledge", "dev"}:
+            report = run_housekeeping(scope, apply=True)
+            moved = int(report.get("moved", 0))
+            archive_root = Path(report.get("archive_root") or "")
+            title = f"HEALTH {action.upper()}"
+        elif action == "tidy":
             moved, archive_root = tidy(target_root, recursive=recursive)
             title = "HEALTH TIDY"
         else:
@@ -267,18 +278,60 @@ class HealthHandler(BaseCommandHandler):
         if not params:
             return "workspace", []
         scope = params[0].lower()
-        if scope in {"current", "+subfolders", "workspace", "all"}:
+        if scope in {"current", "+subfolders", "workspace", "all", "repo", "vault", "knowledge", "dev"}:
             return scope, params[1:]
         return "workspace", params
 
     def _resolve_scope(self, scope: str) -> tuple[Path, bool]:
-        if scope == "current":
-            return Path.cwd(), False
-        if scope == "+subfolders":
-            return Path.cwd(), True
-        if scope == "all":
-            return get_repo_root(), True
-        return get_memory_root(), True
+        return resolve_housekeeping_scope(scope)
+
+    def _check_housekeeping(self, params: list[str], fmt: str = "text") -> dict:
+        scope = "workspace"
+        apply = False
+        for idx, token in enumerate(params):
+            lower = token.lower()
+            if lower == "--apply":
+                apply = True
+            elif lower == "--scope" and idx + 1 < len(params):
+                scope = params[idx + 1].strip().lower()
+            elif lower.startswith("--scope="):
+                scope = lower.split("=", 1)[1].strip()
+
+        report = run_housekeeping(scope, apply=apply)
+        target_root, recursive = resolve_housekeeping_scope(scope)
+        candidate_count = len(
+            collect_housekeeping_candidates(
+                target_root,
+                profile=normalize_housekeeping_scope(scope),
+                recursive=recursive,
+            )
+        )
+
+        status = "success"
+        if candidate_count > 0 and not apply:
+            status = "warning"
+
+        if fmt == "json":
+            output = json.dumps(report, indent=2)
+        else:
+            output_lines = [OutputToolkit.banner("HEALTH CHECK housekeeping"), ""]
+            output_lines.append(f"Scope: {report['scope']}")
+            output_lines.append(f"Target: {report['target_root']}")
+            output_lines.append(f"Candidates: {report['candidate_count']}")
+            output_lines.append(f"Apply: {'yes' if apply else 'no'}")
+            if apply:
+                output_lines.append(f"Moved: {report['moved']}")
+                output_lines.append(f"Archive: {report['archive_root'] or '(none)'}")
+            else:
+                output_lines.append("Run with --apply to move candidates into /.compost trash.")
+            output = "\n".join(output_lines)
+
+        return {
+            "status": status,
+            "message": "Housekeeping check complete",
+            "output": output,
+            "housekeeping": report,
+        }
 
     def _default_repo_allowlist(self) -> list[str]:
         return [
@@ -307,6 +360,7 @@ class HealthHandler(BaseCommandHandler):
             ".npm-cache",
             ".env",
             ".env.example",
+            ".venv",
             "venv",
         ]
 

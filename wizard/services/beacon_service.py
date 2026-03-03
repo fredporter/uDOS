@@ -14,12 +14,13 @@ Provides interfaces for:
 
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Tuple
-from datetime import datetime, timedelta
+from datetime import timedelta
 import json
 import sqlite3
 from dataclasses import dataclass, asdict
 from enum import Enum
 
+from core.services.time_utils import parse_utc_datetime, utc_now, utc_now_iso_z
 from wizard.services.logging_api import get_logger
 
 logger = get_logger("beacon-service")
@@ -86,9 +87,9 @@ class BeaconConfig:
 
     def __post_init__(self):
         if not self.created_at:
-            self.created_at = datetime.now().isoformat()
+            self.created_at = utc_now_iso_z()
         if not self.updated_at:
-            self.updated_at = datetime.now().isoformat()
+            self.updated_at = utc_now_iso_z()
 
 
 @dataclass
@@ -109,9 +110,9 @@ class VPNTunnel:
 
     def __post_init__(self):
         if not self.created_at:
-            self.created_at = datetime.now().isoformat()
+            self.created_at = utc_now_iso_z()
         if not self.last_heartbeat:
-            self.last_heartbeat = datetime.now().isoformat()
+            self.last_heartbeat = utc_now_iso_z()
 
 
 @dataclass
@@ -127,7 +128,7 @@ class DeviceQuotaEntry:
 
     def __post_init__(self):
         if not self.month_start:
-            now = datetime.now()
+            now = utc_now()
             self.month_start = now.replace(day=1).isoformat()
             self.month_end = (
                 (now.replace(day=1) + timedelta(days=32)).replace(day=1) - timedelta(seconds=1)
@@ -351,7 +352,7 @@ class BeaconService:
 
     def update_beacon_config(self, beacon_id: str, updates: Dict[str, Any]) -> bool:
         """Update beacon configuration."""
-        updates["updated_at"] = datetime.now().isoformat()
+        updates["updated_at"] = utc_now_iso_z()
 
         set_clause = ", ".join([f"{k} = ?" for k in updates.keys()])
         values = list(updates.values()) + [beacon_id]
@@ -430,7 +431,7 @@ class BeaconService:
                 SET status = ?, last_heartbeat = ?
                 WHERE tunnel_id = ?
             """,
-                (status.value, datetime.now().isoformat(), tunnel_id),
+                (status.value, utc_now_iso_z(), tunnel_id),
             )
             conn.commit()
 
@@ -445,7 +446,7 @@ class BeaconService:
                 SET status = ?, last_heartbeat = ?
                 WHERE tunnel_id = ?
             """,
-                (status.value, datetime.now().isoformat(), tunnel_id),
+                (status.value, utc_now_iso_z(), tunnel_id),
             )
             conn.commit()
 
@@ -471,7 +472,7 @@ class BeaconService:
             """,
                 (
                     tunnel_id,
-                    datetime.now().isoformat(),
+                    utc_now_iso_z(),
                     bytes_sent,
                     bytes_received,
                     packets_lost,
@@ -571,11 +572,11 @@ class BeaconService:
             return quota
 
         try:
-            month_end = datetime.fromisoformat(quota.month_end)
+            month_end = parse_utc_datetime(quota.month_end)
         except Exception:
             return quota
 
-        if datetime.now() <= month_end:
+        if utc_now() <= month_end:
             return quota
 
         self.reset_device_quota(quota.device_id)
@@ -618,7 +619,7 @@ class BeaconService:
 
     def reset_device_quota(self, device_id: str) -> bool:
         """Reset monthly quota for device."""
-        now = datetime.now()
+        now = utc_now()
         month_start = now.replace(day=1).isoformat()
         month_end = ((now.replace(day=1) + timedelta(days=32)).replace(day=1) - timedelta(seconds=1)).isoformat()
 
@@ -673,7 +674,7 @@ class BeaconService:
                     plugin_id, version, cached_at, size_mb, download_url
                 ) VALUES (?, ?, ?, ?, ?)
             """,
-                (plugin_id, version, datetime.now().isoformat(), size_mb, f"http://beacon.local:8765/api/beacon/plugins/{plugin_id}"),
+                (plugin_id, version, utc_now_iso_z(), size_mb, f"http://beacon.local:8765/api/beacon/plugins/{plugin_id}"),
             )
             conn.commit()
 

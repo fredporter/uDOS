@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "properties": {
+    "daily_limit": {
+      "type": "number"
+    },
+    "tiers": {
+      "type": "object",
+      "properties": {
+        "tier0_free": {
+          "type": "boolean"
+        },
+        "tier1_budget": {
+          "type": "number"
+        },
+        "tier2_budget": {
+          "type": "number"
+        }
+      }
+    },
+    "auto_defer_when_exceeded": {
+      "type": "boolean"
+    }
+  }
+}

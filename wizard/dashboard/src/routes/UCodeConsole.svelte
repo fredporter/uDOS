@@ -5,9 +5,9 @@
   import {
     fetchUCodeCommands,
     fetchUCodeHotkeys,
-    fetchOkStatus,
-    fetchOkHistory,
-    setOkDefaultModel,
+    fetchLogicStatus,
+    fetchLogicHistory,
+    setLogicDefaultModel,
     dispatchUCodeCommand,
     fetchUCodeUser,
     fetchUCodeUsers,
@@ -71,28 +71,28 @@
 
   const historyKey = "wizardUcodeHistory";
   const lastUserKey = "wizardUcodeLastUser";
-  const okModelKey = "wizardOkModel";
+  const okModelKey = "wizardLogicModel";
 
   const okSubcommands = [
     {
       name: "EXPLAIN",
       help_text: "Explain a code file",
-      syntax: "OK EXPLAIN <file> [start end] [--cloud]",
+      syntax: "LOGIC EXPLAIN <file> [start end] [--network]",
     },
     {
       name: "DIFF",
       help_text: "Propose a diff for a file",
-      syntax: "OK DIFF <file> [start end] [--cloud]",
+      syntax: "LOGIC DIFF <file> [start end] [--network]",
     },
     {
       name: "PATCH",
       help_text: "Draft a patch for a file",
-      syntax: "OK PATCH <file> [start end] [--cloud]",
+      syntax: "LOGIC PATCH <file> [start end] [--network]",
     },
     {
       name: "LOCAL",
-      help_text: "Show recent OK local outputs",
-      syntax: "OK LOCAL [N]",
+      help_text: "Show recent logic-assist local outputs",
+      syntax: "LOGIC LOCAL [N]",
     },
   ];
 
@@ -158,11 +158,11 @@
     }
 
     const okMatch = trimmed.toUpperCase();
-    if (okMatch.startsWith("OK")) {
+    if (okMatch.startsWith("LOGIC")) {
       const parts = trimmed.split(/\s+/).filter(Boolean);
       if (parts.length <= 1) {
         suggestions = okSubcommands.map((item) => ({
-          name: `OK ${item.name}`,
+          name: `LOGIC ${item.name}`,
           help_text: item.help_text,
           syntax: item.syntax,
           category: "AI",
@@ -173,7 +173,7 @@
       suggestions = okSubcommands
         .filter((item) => item.name.startsWith(subPrefix) || item.name.includes(subPrefix))
         .map((item) => ({
-          name: `OK ${item.name}`,
+          name: `LOGIC ${item.name}`,
           help_text: item.help_text,
           syntax: item.syntax,
           category: "AI",
@@ -196,7 +196,7 @@
   function updateHelperLines() {
     if (!suggestions.length) {
       helperLine1 = "-> No matching commands";
-      helperLine2 = "-> Tip: '?' or 'OK' for AI, '/' for commands";
+      helperLine2 = "-> Tip: '?' or 'LOGIC' for local assist, '/' for commands";
       return;
     }
     const names = suggestions.slice(0, 3).map((s) => s.name).join(", ");
@@ -567,7 +567,7 @@
   function setQuickOkCommand(mode) {
     if (!okFilePath) return;
     const range = okRange ? ` ${okRange}` : "";
-    handleDispatch(`OK ${mode} ${okFilePath}${range}`);
+    handleDispatch(`LOGIC ${mode} ${okFilePath}${range}`);
   }
 
   async function refreshStatus() {
@@ -615,8 +615,8 @@
   async function refreshOkStatus() {
     if (!adminToken) return;
     try {
-      const payload = await fetchOkStatus(adminToken);
-      okStatus = payload.ok || null;
+      const payload = await fetchLogicStatus(adminToken);
+      okStatus = payload.logic || null;
       const models = okStatus?.models || [];
       const declared = okStatus?.declared_models || [];
       okModels = Array.from(new Set([...(models || []), ...(declared || [])])).filter(Boolean);
@@ -635,7 +635,7 @@
   async function refreshOkHistory() {
     if (!adminToken) return;
     try {
-      const payload = await fetchOkHistory(adminToken);
+      const payload = await fetchLogicHistory(adminToken);
       okHistory = (payload.history || []).slice().reverse();
     } catch {
       okHistory = [];
@@ -806,12 +806,12 @@
   async function handleOkSave() {
     if (!adminToken || !okModel) return;
     if (okProfile === "dev" && !okStatus?.dev_mode_active) {
-      okSaveStatus = "Coding assistant profile requires active Dev Mode.";
+      okSaveStatus = "Coding assistant profile requires the active @dev workspace.";
       return;
     }
     okSaveStatus = "";
     try {
-      await setOkDefaultModel(adminToken, okModel, okProfile);
+      await setLogicDefaultModel(adminToken, okModel, okProfile);
       okSaveStatus = `Saved ${okProfile} default to ${okModel}.`;
       await refreshOkStatus();
     } catch (err) {
@@ -876,7 +876,7 @@
       <div>
         <h1 class="text-3xl font-bold text-white">Terminal</h1>
         <p class="text-gray-400">
-          Live command console for Wizard services + Vibe CLI. Prefix with ':' for core commands, 'OK' for local Vibe, '/' for shell.
+          Live command console for Wizard services + the v1.5 logic-assist lane. Prefix with ':' for core commands, 'LOGIC' for assist tasks, '/' for shell.
         </p>
       </div>
       <div class="status-strip">
@@ -890,7 +890,7 @@
       </div>
       {#if okStatus?.default_models}
         <div class="defaults-banner">
-          <span class="defaults-label">OK defaults</span>
+          <span class="defaults-label">Logic defaults</span>
           <span class="defaults-value">
             core {okStatus.default_models.core || "—"} · dev {okStatus.default_models.dev || "—"}
           </span>
@@ -915,7 +915,7 @@
         {#if loading}
           <div class="text-gray-400">Loading console...</div>
         {:else if history.length === 0}
-          <div class="text-gray-400">No commands yet. Try `STATUS`, `MAP`, or `OK EXPLAIN core/tui/ucode.py`.</div>
+          <div class="text-gray-400">No commands yet. Try `STATUS`, `MAP`, or `LOGIC EXPLAIN core/tui/ucode.py`.</div>
         {:else}
           {#each history as entry (entry.id)}
             <div class="history-entry">
@@ -928,7 +928,7 @@
               </div>
               {#if entry.ok}
                 <div class="ok-block">
-                  <div class="ok-title">OK {entry.ok.mode} | {entry.ok.model} | {entry.ok.source}</div>
+                  <div class="ok-title">LOGIC {entry.ok.mode} | {entry.ok.model} | {entry.ok.source}</div>
                   {#if entry.ok.file_path}
                     <div class="ok-sub">File: {entry.ok.file_path}</div>
                   {/if}
@@ -984,7 +984,7 @@
         <div class="input-row">
           <input
             class="input-field wiz-terminal-input"
-            placeholder=":STATUS, OK EXPLAIN core/tui/ucode.py, /ls"
+            placeholder=":STATUS, LOGIC EXPLAIN core/tui/ucode.py, /ls"
             bind:value={commandInput}
             on:keydown={handleInputKeydown}
           />
@@ -993,9 +993,9 @@
           </TerminalButton>
         </div>
         <div class="hint-row">
-          <span>Tips: `:` command, `OK` local Vibe, `/` shell</span>
+          <span>Tips: `:` command, `LOGIC` assist, `/` shell</span>
           {#if okStatus}
-            <span>OK ctx {okStatus.context_window} | default {okStatus.default_model}</span>
+            <span>LOGIC ctx {okStatus.context_window} | default {okStatus.default_model}</span>
           {/if}
         </div>
       </div>
@@ -1004,7 +1004,7 @@
 
   <aside class="ucode-side">
     <section class="panel">
-      <div class="panel-header">OK / Vibe</div>
+      <div class="panel-header">Logic Assist</div>
       <div class="panel-body">
         {#if okStatus}
           <div class="status-row">
@@ -1018,8 +1018,8 @@
             <span>{okStatus.context_window}</span>
           </div>
           <div class="status-row">
-            <span class="label">Ollama</span>
-            <span>{okStatus.ollama_endpoint}</span>
+            <span class="label">Local Model</span>
+            <span>{okStatus.model_path}</span>
           </div>
           <label class="field">
             <span class="label">Local model</span>
@@ -1062,7 +1062,7 @@
             <button class="ghost-btn wiz-terminal-btn" on:click={() => setQuickOkCommand("PATCH")}>PATCH</button>
           </div>
         {:else}
-          <div class="text-gray-400 text-sm">OK status unavailable.</div>
+          <div class="text-gray-400 text-sm">Logic assist status unavailable.</div>
         {/if}
       </div>
     </section>
@@ -1148,7 +1148,7 @@
         </div>
         {#if devRequirements}
           <div class="status-row">
-            <span class="label">/dev present</span>
+            <span class="label">@dev present</span>
             <span>{devRequirements.dev_root_present ? "yes" : "no"}</span>
           </div>
           <div class="status-row">
@@ -1165,7 +1165,7 @@
           <div class="text-xs text-amber-200">{devGateError}</div>
         {/if}
         {#if !canDevMode}
-          <div class="text-xs text-amber-200">Dev Mode requires admin role and a complete /dev extension framework.</div>
+          <div class="text-xs text-amber-200">Dev Mode requires admin role and a complete @dev framework payload.</div>
         {/if}
       </div>
     </section>
@@ -1202,10 +1202,10 @@
     </section>
 
     <section class="panel">
-      <div class="panel-header">Recent OK Outputs</div>
+      <div class="panel-header">Recent Logic Outputs</div>
       <div class="panel-body">
         {#if okHistory.length === 0}
-          <div class="text-gray-400 text-sm">No OK outputs yet.</div>
+          <div class="text-gray-400 text-sm">No logic-assist outputs yet.</div>
         {:else}
           {#each okHistory.slice(0, 5) as entry}
             <div class="ok-history-item">

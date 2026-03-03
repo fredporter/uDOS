@@ -1,8 +1,8 @@
 # AGENTS.md — uDOS Root Governance
 
-Last Updated: 2026-02-24
-Milestone: v1.4.6 Architecture Stabilisation Phase
-Status: Stable
+Last Updated: 2026-03-03
+Milestone: v1.5 Python Runtime Consolidation
+Status: Active
 
 ---
 
@@ -55,7 +55,7 @@ uDOS consists of clearly separated layers:
 - No hidden runtime side-effects
 
 ### Wizard (Extended / Networked)
-- Full venv
+- Shared `uv` + `/.venv` runtime
 - Networking + web responsibilities
 - OK Provider integrations
 - Extended automation

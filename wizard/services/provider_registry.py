@@ -26,7 +26,7 @@ Usage:
     chain = registry.get_fallback_chain(mode="code")
 
 Version: 1.0.0
-Milestone: v1.4.6 Architecture Stabilisation
+Release baseline: v1.5 contributor routing
 """
 
 from __future__ import annotations

@@ -5,13 +5,15 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from wizard.services.path_utils import get_logs_dir
-
 from core.services import logging_api as core_logging
 from core.services.logging_api import LOG_SCHEMA_ID
+from core.services.logging_api import LOG_RUNTIME_VERSION
 from core.services.logging_api import LogConfig
 from core.services.logging_api import Logger
 from core.services.logging_api import get_log_manager
+from core.services.logging_api import get_log_stats as core_get_log_stats
+from core.services.logging_api import get_logging_health as core_get_logging_health
+from core.services.logging_api import get_logs_root as core_get_logs_root
 from core.services.logging_api import new_corr_id
 
 
@@ -35,32 +37,16 @@ def get_logger(
 
 def get_logs_root() -> Path:
     """Return memory/logs/udos root."""
-    root = get_logs_dir() / "udos"
-    root.mkdir(parents=True, exist_ok=True)
-    return root
+    return core_get_logs_root()
 
 
 def get_log_stats() -> Dict[str, Any]:
-    """Basic stats for v1.3 JSONL logs."""
-    root = get_logs_root()
-    stats: Dict[str, Any] = {
-        "total_files": 0,
-        "total_size_mb": 0,
-        "by_component": {},
-    }
+    """Basic stats for v1.5 JSONL logs."""
+    return core_get_log_stats(get_logs_root())
 
-    for path in root.rglob("*.jsonl"):
-        stats["total_files"] += 1
-        size_bytes = path.stat().st_size
-        stats["total_size_mb"] += size_bytes / (1024 * 1024)
-        component = path.parent.name
-        if component not in stats["by_component"]:
-            stats["by_component"][component] = {"count": 0, "size_mb": 0}
-        stats["by_component"][component]["count"] += 1
-        stats["by_component"][component]["size_mb"] += size_bytes / (1024 * 1024)
 
-    stats["total_size_mb"] = round(stats["total_size_mb"], 2)
-    for comp in stats["by_component"].values():
-        comp["size_mb"] = round(comp["size_mb"], 2)
-
-    return stats
+def get_logging_health() -> Dict[str, Any]:
+    health = core_get_logging_health()
+    health["schema"] = LOG_SCHEMA_ID
+    health["runtime_version"] = LOG_RUNTIME_VERSION
+    return health

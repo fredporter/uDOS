@@ -15,7 +15,7 @@ Read or update Wizard server configuration.
 ```json
 {
   "updates": {
-    "ok_gateway_enabled": true,
+    "logic_assist_enabled": true,
     "plugin_auto_update": false
   }
 }
@@ -27,7 +27,7 @@ Read or update Wizard server configuration.
 {
   "status": "ok",
   "config": {
-    "ok_gateway_enabled": true,
+    "logic_assist_enabled": true,
     "plugin_auto_update": false
   }
 }
@@ -37,4 +37,3 @@ Read or update Wizard server configuration.
 
 - Tool: `wizard.config.get`
 - Tool: `wizard.config.set`
-

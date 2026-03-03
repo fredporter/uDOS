@@ -104,10 +104,11 @@ cd uDOS
 
 The installer automatically handles:
 - ✓ uv package manager installation
+- ✓ `.venv` runtime setup
 - ✓ Environment configuration (.env)
 - ✓ standard runtime installation
 - ✓ Vault structure setup
-- ✓ Optional components (micro, Obsidian, Ollama)
+- ✓ Optional components (micro, Obsidian, Wizard-managed logic-assist, `udos-tui` when Go is available)
 
 **Option 2: Manual installation**
 
@@ -119,12 +120,13 @@ cd uDOS
 # Install uv if not present
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Install uDOS v1.4.5 +Vibe
-UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard
+# Install the v1.5 runtime contract
+uv venv .venv --python 3.12
+UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard --dev
 
 # Copy and configure .env
 cp .env.example .env
-# Edit `.env` with your provider key settings
+# Edit `.env` with your identity and optional Wizard provider settings
 
 # Run setup story
 UV_PROJECT_ENVIRONMENT=.venv uv run ./uDOS.py SETUP
@@ -171,13 +173,16 @@ uDOS/
 │   ├── services/                  # Web/routing services
 │   └── tests/
 │
-├── docs/                          # Development documentation
+├── docs/                          # Runtime, operator, and product documentation
 │   ├── ARCHITECTURE.md            # Architecture overview
 │   ├── INTEGRATION-READINESS.md   # Audit results
 │   ├── roadmap.md                 # Active milestone and execution plan
 │   ├── specs/                     # Format/interface specs
 │   ├── howto/                     # Procedures and guides
 │   └── decisions/                 # ADRs and design decisions
+├── dev/                           # `@dev` contributor workspace
+│   ├── docs/                      # Contributor-only Dev Mode docs
+│   └── goblin/                    # Distributable dev scaffold
 │
 ├── tests/                         # Test suite
 ├── ext/                           # Extensions / plugins
@@ -226,6 +231,7 @@ Recommended entrypoints:
 - [docs/specs/README.md](docs/specs/README.md) for active contracts
 - [docs/howto/](docs/howto/) for operator procedures
 - [docs/examples/](docs/examples/) for sample assets and packs
+- [dev/docs/README.md](dev/docs/README.md) for contributor-only `@dev` workspace guidance
 
 ---
 
@@ -233,7 +239,7 @@ Recommended entrypoints:
 
 For installation, configuration, and environment setup, use:
 - [docs/INSTALLATION.md](docs/INSTALLATION.md)
-- [docs/howto/OFFLINE-OK-SETUP-QUICKSTART.md](docs/howto/OFFLINE-OK-SETUP-QUICKSTART.md)
+- [dev/docs/howto/VIBE-Setup-Guide.md](dev/docs/howto/VIBE-Setup-Guide.md)
 - [docs/specs/MINIMUM-SPEC-VIBE-CLI-UCODE.md](docs/specs/MINIMUM-SPEC-VIBE-CLI-UCODE.md)
 
 ### Minimum Spec (`ucode` Runtime Path)
@@ -415,11 +421,11 @@ cat .vibe/config.toml
 grep -E 'API_KEY|API_BASE_URL' .env ~/.vibe/.env 2>/dev/null
 ```
 
-**Python venv issues?**
+**Python runtime issues?**
 ```bash
-# Reinstall venv
-rm -rf venv
-uv sync --extra udos-wizard
+# Rebuild the canonical .venv
+rm -rf .venv
+UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard --dev
 ```
 
 See [docs/troubleshooting/](docs/troubleshooting/) for more.

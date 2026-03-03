@@ -20,11 +20,11 @@ Example:
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime
 import json
 from pathlib import Path
 from typing import Any
 
+from core.services.time_utils import utc_now_iso_z
 from core.services.unified_config_loader import get_config
 from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
@@ -230,7 +230,7 @@ class PDFOCRService:
             )
 
             # Add metadata header
-            timestamp = datetime.now().isoformat()
+            timestamp = utc_now_iso_z()
             metadata = f"""---
 title: {pdf_base_sanitized}
 source_file: {pdf_path.name}

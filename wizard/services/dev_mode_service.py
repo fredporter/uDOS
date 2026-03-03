@@ -82,6 +82,11 @@ class DevModeService:
             self._framework_manifest(),
             dev_root / "docs" / "README.md",
             dev_root / "docs" / "DEV-MODE-POLICY.md",
+            dev_root / "docs" / "specs" / "DEV-WORKSPACE-SPEC.md",
+            dev_root / "docs" / "howto" / "GETTING-STARTED.md",
+            dev_root / "docs" / "howto" / "VIBE-Setup-Guide.md",
+            dev_root / "docs" / "features" / "GITHUB-INTEGRATION.md",
+            dev_root / "goblin" / "README.md",
         ]
         return all(path.exists() for path in markers)
 
@@ -139,6 +144,7 @@ class DevModeService:
         )
 
         self._dev_requirements_cache = {
+            "workspace_alias": "@dev",
             "dev_root": str(dev_root),
             "dev_root_present": dev_root.exists(),
             "dev_template_present": present,
@@ -152,6 +158,10 @@ class DevModeService:
             "script_count": script_count,
             "test_count": test_count,
             "framework_ready": present,
+            "tracked_sync_paths": {
+                "docs": str(self._dev_root() / "docs"),
+                "goblin": str(self._dev_root() / "goblin"),
+            },
             "remote_framework_only": True,
             "ignored_local_paths": {
                 "files": str(self._dev_root() / "files"),
@@ -166,7 +176,7 @@ class DevModeService:
     def ensure_requirements(self) -> Optional[str]:
         req = self.check_requirements(force=True)
         if not req.get("dev_root_present"):
-            return "Dev extension workspace not present at /dev."
+            return "Dev extension workspace not present at /dev (`@dev`)."
         if not req.get("dev_template_present"):
             return "Dev extension workspace is missing required framework files. Update /dev from the remote dev framework."
         if not req.get("framework_manifest_present"):

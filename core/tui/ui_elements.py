@@ -5,6 +5,7 @@ Provides:
 - Spinner: animated progress indicator with elapsed time
 - ProgressBar: simple text progress bar
 - Table: aligned text table formatter
+- ASCII-safe panels and hint bars for v1.5 TUI rendering
 """
 
 from __future__ import annotations
@@ -121,3 +122,64 @@ def format_table(headers: Sequence[str], rows: Iterable[Sequence[str]]) -> str:
     lines = [header_line, divider] + data_lines
     clamped = [truncate_to_width(line, width) for line in lines]
     return "\n".join(clamped)
+
+
+def format_panel(
+    title: str,
+    lines: Sequence[str],
+    *,
+    width: int | None = None,
+    footer: Sequence[str] | None = None,
+) -> str:
+    """Render an ASCII-safe boxed panel for structured TUI output."""
+    viewport = ViewportService().get_cols()
+    panel_width = min(viewport, width or min(88, viewport))
+    panel_width = max(24, panel_width)
+    inner = panel_width - 4
+
+    body_lines = list(lines or [""])
+    footer_lines = list(footer or [])
+    rendered = [f"+{'-' * (panel_width - 2)}+"]
+    rendered.append(f"| {pad_to_width(truncate_to_width(title, inner), inner)} |")
+    rendered.append(f"+{'=' * (panel_width - 2)}+")
+
+    for raw in body_lines:
+        for line in str(raw).splitlines() or [""]:
+            rendered.append(f"| {pad_to_width(truncate_to_width(line, inner), inner)} |")
+
+    if footer_lines:
+        rendered.append(f"+{'-' * (panel_width - 2)}+")
+        for raw in footer_lines:
+            for line in str(raw).splitlines() or [""]:
+                rendered.append(
+                    f"| {pad_to_width(truncate_to_width(line, inner), inner)} |"
+                )
+
+    rendered.append(f"+{'-' * (panel_width - 2)}+")
+    return "\n".join(rendered)
+
+
+def format_key_value_panel(
+    title: str,
+    rows: Sequence[tuple[str, str]],
+    *,
+    width: int | None = None,
+    footer: Sequence[str] | None = None,
+) -> str:
+    """Render a key/value panel with stable alignment."""
+    normalized = [(str(key), str(value)) for key, value in rows]
+    key_width = max((display_width(key) for key, _ in normalized), default=0)
+    key_width = min(max(key_width, 8), 24)
+    lines = [
+        f"{pad_to_width(key + ':', key_width + 1)} {value}"
+        for key, value in normalized
+    ]
+    return format_panel(title, lines, width=width, footer=footer)
+
+
+def format_hint_bar(items: Sequence[str], *, width: int | None = None) -> str:
+    """Render a compact single-line hint bar."""
+    viewport = ViewportService().get_cols()
+    bar_width = min(viewport, width or viewport)
+    text = " | ".join(item.strip() for item in items if str(item).strip())
+    return truncate_to_width(text, bar_width)

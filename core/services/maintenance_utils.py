@@ -9,15 +9,24 @@ from collections.abc import Callable, Iterable
 from datetime import datetime
 import fnmatch
 import json
+import os
 from pathlib import Path
 import shutil
 import tarfile
 
 from core.services.logging_api import get_repo_root
+from core.services.paths import get_vault_root
+from core.services.time_utils import (
+    utc_compact_timestamp,
+    utc_day_string,
+    utc_from_timestamp,
+    utc_now,
+)
 from core.services.unified_config_loader import get_config
 
 DEFAULT_EXCLUDES = [
     ".git/*",
+    ".venv/*",
     "venv/*",
     "node_modules/*",
     "dist/*",
@@ -48,13 +57,65 @@ JUNK_PATTERNS = [
     ".mypy_cache",
 ]
 
+TRANSIENT_DIR_NAMES = {
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    "node_modules",
+    "dist",
+    "build",
+    ".tmp",
+    ".cache",
+}
+
+MARKDOWN_LIBRARY_SUFFIXES = {
+    ".md",
+    ".markdown",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".txt",
+    ".csv",
+    ".tsv",
+    ".pdf",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".webp",
+    ".gif",
+    ".svg",
+    ".mp3",
+    ".wav",
+    ".m4a",
+    ".ogg",
+    ".mp4",
+    ".mov",
+    ".webm",
+}
+
+DEV_LOCAL_WORK_DIRS = {"files", "relecs", "dev-work", "testing"}
+DEV_REQUIRED_ROOT_NAMES = {
+    "AGENTS.md",
+    "DEVLOG.md",
+    "project.json",
+    "tasks.md",
+    "completed.json",
+    "extension.json",
+    "README.md",
+    "docs",
+    "files",
+    "relecs",
+    "dev-work",
+    "testing",
+}
+
 
 def _now_stamp() -> str:
-    return datetime.now().strftime("%Y%m%d-%H%M%S")
+    return utc_compact_timestamp()
 
 
 def _day_stamp() -> str:
-    return datetime.now().strftime("%Y-%m-%d")
+    return utc_day_string()
 
 
 def get_memory_root() -> Path:
@@ -518,7 +579,7 @@ def compost_stats() -> dict:
 
     newest_iso = None
     if newest_mtime is not None:
-        newest_iso = datetime.fromtimestamp(newest_mtime).isoformat()
+        newest_iso = utc_from_timestamp(newest_mtime).isoformat()
 
     return {
         "path": str(compost_root),
@@ -533,10 +594,28 @@ def compost_cleanup(days: int = 30, dry_run: bool = True) -> dict:
     compost_root = get_compost_root()
     if days <= 0:
         days = 30
-    cutoff = datetime.now().timestamp() - (days * 86400)
+    cutoff = utc_now().timestamp() - (days * 86400)
+    max_versions_raw = str(get_config("UDOS_COMPOST_KEEP_VERSIONS", "5")).strip()
+    try:
+        max_versions = max(1, int(max_versions_raw))
+    except ValueError:
+        max_versions = 5
 
     deleted = 0
     deleted_bytes = 0
+    version_pruned = 0
+
+    for group in _group_compost_versions(compost_root).values():
+        if len(group) <= max_versions:
+            continue
+        overflow = group[max_versions:]
+        for entry in overflow:
+            size = _path_size_bytes(entry)
+            if not dry_run:
+                _delete_entry(entry)
+            deleted += 1
+            deleted_bytes += size
+            version_pruned += 1
 
     for entry in compost_root.iterdir():
         try:
@@ -570,7 +649,175 @@ def compost_cleanup(days: int = 30, dry_run: bool = True) -> dict:
         "deleted_bytes": deleted_bytes,
         "days": days,
         "dry_run": dry_run,
+        "max_versions": max_versions,
+        "version_pruned": version_pruned,
     }
+
+
+def run_housekeeping(
+    scope: str,
+    *,
+    apply: bool = False,
+) -> dict[str, object]:
+    target_root, recursive = resolve_housekeeping_scope(scope)
+    normalized_scope = normalize_housekeeping_scope(scope)
+    candidates = collect_housekeeping_candidates(
+        target_root,
+        profile=normalized_scope,
+        recursive=recursive,
+    )
+    archive_root = _compost_type_root("trash") / _now_stamp() / _scope_key(target_root)
+    moved = 0
+    if apply and candidates:
+        incoming_bytes = sum(_path_size_bytes(path) for path in candidates)
+        _ensure_compost_capacity(incoming_bytes)
+        for candidate in candidates:
+            if not candidate.exists():
+                continue
+            _safe_move(candidate, archive_root)
+            moved += 1
+    return {
+        "scope": normalized_scope,
+        "target_root": str(target_root),
+        "recursive": recursive,
+        "candidate_count": len(candidates),
+        "candidates": [str(path) for path in candidates[:50]],
+        "apply": apply,
+        "moved": moved,
+        "archive_root": str(archive_root) if apply and moved else "",
+    }
+
+
+def normalize_housekeeping_scope(scope: str | None) -> str:
+    value = (scope or "workspace").strip().lower()
+    if value in {"repo", "all"}:
+        return "repo"
+    if value in {"vault", "knowledge", "dev", "workspace", "current", "+subfolders"}:
+        return value
+    return "workspace"
+
+
+def resolve_housekeeping_scope(scope: str | None) -> tuple[Path, bool]:
+    normalized = normalize_housekeeping_scope(scope)
+    if normalized == "repo":
+        return get_repo_root(), True
+    if normalized == "vault":
+        return get_vault_root(), True
+    if normalized == "knowledge":
+        return get_memory_root() / "bank" / "knowledge" / "user", True
+    if normalized == "dev":
+        return get_repo_root() / "dev", True
+    if normalized == "current":
+        return Path.cwd(), False
+    if normalized == "+subfolders":
+        return Path.cwd(), True
+    return get_memory_root(), True
+
+
+def collect_housekeeping_candidates(
+    scope_root: Path,
+    *,
+    profile: str,
+    recursive: bool = True,
+) -> list[Path]:
+    if not scope_root.exists():
+        return []
+    if profile in {"vault", "knowledge"}:
+        return _collect_markdown_library_candidates(scope_root, recursive=recursive)
+    if profile == "dev":
+        return _collect_dev_workspace_candidates(scope_root)
+    return _collect_generic_cleanup_candidates(scope_root, recursive=recursive)
+
+
+def _collect_generic_cleanup_candidates(scope_root: Path, *, recursive: bool) -> list[Path]:
+    candidates: list[Path] = []
+    for root, dirs, files in os.walk(scope_root):
+        root_path = Path(root)
+        if ".compost" in root_path.parts:
+            continue
+        if not recursive and root_path != scope_root:
+            continue
+        for entry in list(dirs) + list(files):
+            candidate = root_path / entry
+            if _matches_any(candidate, scope_root, JUNK_PATTERNS):
+                candidates.append(candidate)
+    return _dedupe_move_candidates(candidates)
+
+
+def _collect_markdown_library_candidates(scope_root: Path, *, recursive: bool) -> list[Path]:
+    candidates: list[Path] = []
+    allowed_hidden_dirs = {".obsidian", ".attachments"}
+    for root, dirs, files in os.walk(scope_root):
+        root_path = Path(root)
+        if ".compost" in root_path.parts:
+            continue
+        if not recursive and root_path != scope_root:
+            continue
+        retained_dirs: list[str] = []
+        for dirname in dirs:
+            candidate = root_path / dirname
+            if dirname in TRANSIENT_DIR_NAMES:
+                candidates.append(candidate)
+                continue
+            if dirname.startswith(".") and dirname not in allowed_hidden_dirs:
+                candidates.append(candidate)
+                continue
+            retained_dirs.append(dirname)
+        dirs[:] = retained_dirs
+        for filename in files:
+            candidate = root_path / filename
+            if _matches_any(candidate, scope_root, JUNK_PATTERNS):
+                candidates.append(candidate)
+                continue
+            if candidate.suffix.lower() not in MARKDOWN_LIBRARY_SUFFIXES:
+                candidates.append(candidate)
+    return _dedupe_move_candidates(candidates)
+
+
+def _collect_dev_workspace_candidates(dev_root: Path) -> list[Path]:
+    candidates: list[Path] = []
+    if not dev_root.exists():
+        return candidates
+
+    for entry in dev_root.iterdir():
+        if entry.name in DEV_REQUIRED_ROOT_NAMES:
+            continue
+        if entry.name in TRANSIENT_DIR_NAMES or _matches_any(entry, dev_root, JUNK_PATTERNS):
+            candidates.append(entry)
+
+    for dirname in DEV_LOCAL_WORK_DIRS:
+        work_root = dev_root / dirname
+        if not work_root.exists():
+            continue
+        candidates.extend(_collect_markdown_library_candidates(work_root, recursive=True))
+
+    return _dedupe_move_candidates(candidates)
+
+
+def _group_compost_versions(compost_root: Path) -> dict[str, list[Path]]:
+    groups: dict[str, list[Path]] = {}
+    for path in compost_root.rglob("*"):
+        if not path.is_file():
+            continue
+        key = _normalized_compost_name(path.name)
+        groups.setdefault(key, []).append(path)
+    for key, items in groups.items():
+        items.sort(key=lambda item: item.stat().st_mtime if item.exists() else 0.0, reverse=True)
+    return groups
+
+
+def _normalized_compost_name(name: str) -> str:
+    parts = name.split("-", 2)
+    if len(parts) == 3 and len(parts[0]) == 8 and len(parts[1]) == 6:
+        return parts[2]
+    return name
+
+
+def _delete_entry(path: Path) -> None:
+    if path.is_dir():
+        shutil.rmtree(path)
+    else:
+        path.unlink()
 
 
 def default_repo_allowlist() -> list[str]:
@@ -589,7 +836,8 @@ def default_repo_allowlist() -> list[str]:
         "memory",
         "dev",
         ".git",
-            "venv",
+        ".venv",
+        "venv",
         ".compost",
         "requirements.txt",
         "README.md",

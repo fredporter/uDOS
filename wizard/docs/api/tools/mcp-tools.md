@@ -22,7 +22,7 @@ For Dev Mode contributor use, Vibe consumes only the reduced `/dev/` extension u
   - Returns a list of MCP tool names for discovery.
 
 - `wizard.plugin.command`
-  - Calls `/api/plugin/command` (stub during migration).
+  - Calls `/api/plugin/command` as the compatibility bridge for command-style plugin operations.
 
 - `wizard.plugins.registry.list`
 - `wizard.plugins.registry.get`
@@ -159,7 +159,7 @@ Dev extension boundary:
   - MCP responses include a `display` field containing a Vibe-style TUI wrapper.
 
 - `ucode.dispatch` (deprecated alias)
-  - Temporary compatibility alias that delegates to `ucode.command`.
+  - Compatibility alias that delegates to `ucode.command`. Treat `ucode.command` as canonical for v1.5 work.
 
 - `ucode.tools.list` (generic lane)
   - Enumerates the approved Vibe Dev extension uCODE subset and input schemas.

@@ -143,8 +143,7 @@ for packet in received_packets:
 
 ```bash
 cd extensions/transport/qr
-source ../../../venv/bin/activate
-python encoder.py
+UV_PROJECT_ENVIRONMENT=.venv uv run python encoder.py
 ```
 
 Output:
@@ -438,4 +437,3 @@ logger.info("[QR-ASM] Assembled 3/3 chunks for packet abc123")
 **Last Updated:** 2026-01-04  
 **Version:** Alpha v1.0.1.0  
 **Status:** ✅ Encoder complete, 🔄 Decoder (packet assembly only)
-

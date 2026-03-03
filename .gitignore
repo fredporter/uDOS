@@ -218,6 +218,7 @@ core/memory/
 .compost/
 *.db
 *.sqlite3
+tui/bin/
 .wizard.pid
 *.pid
 
@@ -229,6 +230,19 @@ core/memory/
 # .env is already ignored above; .env.local variants:
 .env.local
 .env.*.local
+
+# ── v1.5 @dev workspace local-only areas ──
+dev/files/
+dev/relecs/
+dev/dev-work/
+dev/testing/
+dev/**/.env
+dev/**/.env.*
+dev/**/node_modules/
+dev/**/dist/
+dev/**/build/
+dev/**/.pytest_cache/
+dev/**/__pycache__/
 
 # ── vault/ is a committed framework wireframe only ──
 # Runtime user vault lives in memory/vault/ (seeded from core/framework/seed/vault/)
