@@ -31,6 +31,7 @@ DB sync routes:
 - `GET /api/sonic/sync/status`
 - `POST /api/sonic/sync/rebuild`
 - `POST /api/sonic/sync/export`
+- `POST /api/sonic/bootstrap/current`
 
 DB aliases:
 - `GET /api/sonic/db/status`
@@ -51,3 +52,12 @@ DB aliases:
 - `media_mode`: `none|htpc|retro|unknown`
 - `udos_launcher`: `none|basic|advanced|unknown`
 - `year_min`, `year_max`, `limit`, `offset`
+
+## Runtime Split
+
+- Seed catalog DB: `memory/sonic/seed/sonic-devices.seed.db`
+- User overlay DB: `memory/sonic/user/sonic-devices.user.db`
+- Compatibility mirror: `memory/sonic/sonic-devices.db`
+
+`GET /api/sonic/sync/status` reports the split runtime paths and whether the
+current machine has been registered into the local user catalog.

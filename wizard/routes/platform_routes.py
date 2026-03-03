@@ -336,6 +336,7 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
                 "sync": "/api/platform/sonic/gui/actions/sync",
                 "rebuild": "/api/platform/sonic/gui/actions/rebuild",
                 "export": "/api/platform/sonic/gui/actions/export",
+                "bootstrap": "/api/platform/sonic/gui/actions/bootstrap",
                 "build": "/api/platform/sonic/gui/actions/build",
             },
         }
@@ -538,6 +539,15 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
         if result.get("status") == "error":
             raise HTTPException(status_code=500, detail=result.get("message", "export failed"))
         return {"success": True, "action": "export", "result": result}
+
+    @router.post("/sonic/gui/actions/bootstrap")
+    async def sonic_gui_action_bootstrap(payload: SonicGUIActionRequest):
+        if not getattr(sonic_ops, "available", False):
+            raise HTTPException(status_code=503, detail="Sonic plugin not available")
+        result = sonic_ops.sync.bootstrap_current_machine(overwrite=payload.force if "force" in payload.model_fields_set else True)
+        if result.get("status") == "error":
+            raise HTTPException(status_code=500, detail=result.get("message", "bootstrap failed"))
+        return {"success": True, "action": "bootstrap", "result": result}
 
     @router.post("/sonic/gui/actions/build")
     async def sonic_gui_action_build(payload: SonicGUIActionRequest):

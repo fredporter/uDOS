@@ -43,7 +43,7 @@ It does not define the future Wizard GUI or control-plane scheduling APIs. Those
 Workflow templates currently ship from:
 
 ```text
-docs/examples/udos_creative_pack/templates/workflows/
+core/framework/seed/bank/templates/workflows/
 ```
 
 Prompt templates currently ship from:
@@ -103,12 +103,14 @@ The current parser extracts:
 - `template_id`
 - `project`
 - `goal`
+- `purpose`
+- `inputs`
 - `constraints`
 - `phases`
 - `outputs`
 
 The current parser normalizes phase names from labels into lowercase underscore identifiers.
-If a `## Project` section is present, that value becomes the first-class workflow project. Otherwise the parser falls back to a `project` constraint, then to `workflow_id`.
+If a `## Project` section is present, that value becomes the first-class workflow project. Otherwise the parser falls back to `Inputs -> Project`, then to a `project` constraint, then to `workflow_id`.
 
 ## Workflow Runtime Contract
 
@@ -119,6 +121,8 @@ A workflow spec contains:
 - `template_id`
 - `project`
 - `goal`
+- `purpose`
+- `inputs`
 - `constraints`
 - `phases`
 - `outputs`

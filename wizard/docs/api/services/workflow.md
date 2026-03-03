@@ -17,6 +17,12 @@ See `workflow-ui.md` for the dashboard/UI data model.
 - `GET /api/workflows/{workflow_id}/tasks`
 - `GET /api/workflows/dashboard`
 - `GET /api/workflows/tasks-dashboard`
+- `GET /api/workflows/templates`
+- `GET /api/workflows/templates/{template_name}`
+- `POST /api/workflows/templates/{template_name}/duplicate`
+
+Template note:
+- These routes reuse the shared `UCODE TEMPLATE` workflow family bridge rather than maintaining a separate workflow template inventory.
 
 ## Response (example)
 

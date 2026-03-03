@@ -25,11 +25,20 @@ historical exploration, but they are not the active v1.5 source of truth.
 Sonic Screwdriver publishes its curated device catalog via `wizard.routes.sonic_plugin_routes`. Any Wizard/Sonic bolt-on can consume the same SQLite + Schema artifacts described here and bundle them for CLI/GUI consumers. The Wizard API routes keep the catalog discoverable both from the TUI (`PLUGIN list`) and from remote automation by exposing the same contract documented here.
 
 ### Storage
-- Database: `memory/sonic/sonic-devices.db`
+- Seed catalog sources: `sonic/datasets/`
+- Seed runtime DB: `memory/sonic/seed/sonic-devices.seed.db`
+- User runtime DB: `memory/sonic/user/sonic-devices.user.db`
+- Legacy compatibility mirror: `memory/sonic/sonic-devices.db`
 - Schema: `sonic/datasets/sonic-devices.schema.json`
 - Markdown reference table: `sonic/datasets/sonic-devices.table.md`
-- Seed script: `sqlite3 memory/sonic/sonic-devices.db < sonic/datasets/sonic-devices.sql`
+- Seed rebuild source: `sonic/datasets/sonic-devices.sql`
 - Datasets folder also hosts `sonic-devices.csv` for bulk editing before rebuilding.
+
+Normal-user contract:
+- seed catalog is distributed and read-only
+- user catalog is local, writable, and overlays seed records at read time
+- current-machine bootstrap records live in the user catalog
+- both layers may carry `*_template_md` refs
 
 ### Key Fields (device record)
 
@@ -43,6 +52,10 @@ Sonic Screwdriver publishes its curated device catalog via `wizard.routes.sonic_
 | `methods` | JSON array, e.g. `["sonic_usb","wizard_netboot"]` |
 | `notes`, `sources` | Freeform guidance |
 | `last_seen` | Last update timestamp |
+| `settings_template_md` | Obsidian-style Markdown template for configurable settings |
+| `installers_template_md` | Obsidian-style Markdown template for installer flows |
+| `containers_template_md` | Obsidian-style Markdown template for container/service notes |
+| `drivers_template_md` | Obsidian-style Markdown template for driver/firmware notes |
 
 ### Wizard API Endpoints
 - `GET /api/sonic/health` – quick availability summary & rebuild hints.
@@ -51,14 +64,17 @@ Sonic Screwdriver publishes its curated device catalog via `wizard.routes.sonic_
 - `GET /api/sonic/db/status` – DB sync status alias.
 - `POST /api/sonic/db/rebuild` – DB rebuild alias.
 - `GET /api/sonic/db/export` – DB export alias.
+- `POST /api/sonic/bootstrap/current` – register the current machine in the local user catalog.
 
 Consumers should respect the `methods` array to know whether a device supports
 `sonic_usb`, native UEFI boot, or additional profile-specific install methods.
+Template fields should be treated as open-box Markdown references, not embedded opaque payloads.
 
 ### Syncing Plan
 1. Build tool (`wizard.routes.sonic_plugin_routes`) exports `devices` so dashboards show current catalog.
-2. Any `devices.db` refresh should overwrite `memory/sonic/sonic-devices.db` and trigger `sqlite3 ... < sonic/datasets/sonic-devices.sql`.
-3. UI/automation can poll `/api/sonic/health` and show quick instructions when the DB is stale.
+2. Seed rebuild refreshes `memory/sonic/seed/sonic-devices.seed.db` from `sonic/datasets/sonic-devices.sql`.
+3. User imports and current-machine bootstrap write only to `memory/sonic/user/sonic-devices.user.db`.
+4. UI/automation can poll `/api/sonic/health` or `/api/sonic/sync/status` and show quick instructions when the seed catalog is stale or the current machine has not yet been registered.
 
 ## 2. USB Builder API (Plan + Run)
 

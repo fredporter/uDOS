@@ -86,6 +86,11 @@ def to_sync_status_payload(status: Any) -> dict[str, Any]:
         "schema_version": getattr(status, "schema_version", None),
         "needs_rebuild": bool(getattr(status, "needs_rebuild", False)),
         "errors": list(getattr(status, "errors", [])),
+        "seed_db_path": getattr(status, "seed_db_path", None),
+        "user_db_path": getattr(status, "user_db_path", None),
+        "seed_record_count": getattr(status, "seed_record_count", None),
+        "user_record_count": getattr(status, "user_record_count", None),
+        "current_machine_registered": getattr(status, "current_machine_registered", None),
     }
 
 
@@ -96,4 +101,3 @@ def _normalize_usb_boot_value(value: Any) -> str | None:
     if value is None:
         return None
     return str(value)
-

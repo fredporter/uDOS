@@ -45,6 +45,47 @@ Write a release note
     assert spec.outputs == ["01-outline.md", "02-draft.md"]
 
 
+def test_workflow_template_parser_understands_shared_sections() -> None:
+    markdown = """# WORKFLOW: shared-shape-v1
+
+## Purpose
+Run a shared-shape workflow
+
+## Inputs
+- Project: release-ops
+- Audience: operators
+
+## Goal
+Write a release note
+
+## Constraints
+- Tone: plain
+
+## Steps
+1. Draft the workflow outputs.
+
+## Phases
+1. Outline (writing/outline -> 01-outline.md)
+
+## Outputs
+- 01-outline.md
+
+## Evidence
+- Outline generated
+
+## Notes
+- Shared-shape test
+"""
+    spec = WorkflowTemplateParser().parse("wf-shared", markdown)
+
+    assert spec.purpose == "Run a shared-shape workflow"
+    assert spec.inputs["project"] == "release-ops"
+    assert spec.inputs["audience"] == "operators"
+    assert spec.project == "release-ops"
+    assert spec.goal == "Write a release note"
+    assert spec.constraints["tone"] == "plain"
+
+
 def test_workflow_scheduler_create_run_approve_cycle() -> None:
     workflow_id = "wf-test-article"
     _cleanup(workflow_id)
@@ -64,6 +105,8 @@ def test_workflow_scheduler_create_run_approve_cycle() -> None:
         )
         spec = scheduler.load_spec(workflow_id)
         assert spec.project == "release-ops"
+        assert spec.purpose
+        assert spec.inputs["audience"] == "operators"
         state = scheduler.run_workflow(workflow_id)
         assert state.status == "awaiting_approval"
         assert state.phases[0].status == "pending_approval"

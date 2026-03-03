@@ -21,6 +21,11 @@ from core.services.error_contract import CommandError
 from core.services.offline_assets_service import resolve_offline_assets_contract
 from core.services.operator_mode_service import get_operator_mode_service
 from core.services.release_profile_service import get_release_profile_service
+from core.services.seed_template_service import get_seed_template_service
+from core.services.system_capability_service import (
+    MinimumSystemSpec,
+    get_system_capability_service,
+)
 
 
 @dataclass(frozen=True)
@@ -29,13 +34,6 @@ class _Capability:
     status: str
     detail: str
     profiles: set[str]
-
-
-@dataclass(frozen=True)
-class _MinimumSpec:
-    cpu_cores: int = 2
-    ram_gb: float = 4.0
-    storage_free_gb: float = 5.0
 
 
 class UcodeHandler(BaseCommandHandler):
@@ -67,9 +65,11 @@ class UcodeHandler(BaseCommandHandler):
         self.metrics_root = self.ucode_root / "metrics"
         self.metrics_events_path = self.metrics_root / "usage-events.jsonl"
         self.metrics_summary_path = self.metrics_root / "usage-summary.json"
-        self.minimum_spec = _MinimumSpec()
+        self.minimum_spec = MinimumSystemSpec()
         self.profile_service = get_release_profile_service()
         self.operator_service = get_operator_mode_service()
+        self.seed_template_service = get_seed_template_service(self.repo_root)
+        self.system_capability_service = get_system_capability_service(self.repo_root)
 
     def handle(
         self, command: str, params: list[str], grid: Any = None, parser: Any = None
@@ -85,40 +85,41 @@ class UcodeHandler(BaseCommandHandler):
             return result
 
         try:
-            match action:
-                case "demo":
-                    result = self._handle_demo(params[1:])
-                case "system":
-                    result = self._handle_system(params[1:])
-                case "docs":
-                    result = self._handle_docs(params[1:])
-                case "capabilities":
-                    result = self._handle_capabilities(params[1:])
-                case "plugin":
-                    result = self._handle_plugin(params[1:])
-                case "metrics":
-                    result = self._handle_metrics(params[1:])
-                case "update":
-                    result = self._handle_update()
-                case "env":
-                    result = self._handle_env(params[1:])
-                case "profile":
-                    result = self._handle_profile(params[1:])
-                case "operator":
-                    result = self._handle_operator(params[1:])
-                case "extension":
-                    result = self._handle_extension(params[1:])
-                case "package":
-                    result = self._handle_package(params[1:])
-                case "repair":
-                    result = self._handle_rebaseline_repair(params[1:])
-                case _:
-                    raise CommandError(
-                        code="ERR_COMMAND_INVALID_ARG",
-                        message="Syntax: UCODE <DEMO|SYSTEM|DOCS|CAPABILITIES|PLUGIN|METRICS|UPDATE|ENV|PROFILE|OPERATOR|EXTENSION|PACKAGE|REPAIR> ...",
-                        recovery_hint="Run UCODE for command help",
-                        level="INFO",
-                    )
+            if action == "demo":
+                result = self._handle_demo(params[1:])
+            elif action == "system":
+                result = self._handle_system(params[1:])
+            elif action == "docs":
+                result = self._handle_docs(params[1:])
+            elif action == "capabilities":
+                result = self._handle_capabilities(params[1:])
+            elif action == "plugin":
+                result = self._handle_plugin(params[1:])
+            elif action == "metrics":
+                result = self._handle_metrics(params[1:])
+            elif action == "update":
+                result = self._handle_update()
+            elif action == "env":
+                result = self._handle_env(params[1:])
+            elif action == "template":
+                result = self._handle_template(params[1:])
+            elif action == "profile":
+                result = self._handle_profile(params[1:])
+            elif action == "operator":
+                result = self._handle_operator(params[1:])
+            elif action == "extension":
+                result = self._handle_extension(params[1:])
+            elif action == "package":
+                result = self._handle_package(params[1:])
+            elif action == "repair":
+                result = self._handle_rebaseline_repair(params[1:])
+            else:
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="Syntax: UCODE <DEMO|SYSTEM|DOCS|CAPABILITIES|PLUGIN|METRICS|UPDATE|ENV|TEMPLATE|PROFILE|OPERATOR|EXTENSION|PACKAGE|REPAIR> ...",
+                    recovery_hint="Run UCODE for command help",
+                    level="INFO",
+                )
         except CommandError as exc:
             self._record_usage_metric(
                 action=action, result=None, started_at=started_at, error=exc
@@ -152,6 +153,7 @@ class UcodeHandler(BaseCommandHandler):
             "  UCODE METRICS [SUMMARY]",
             "  UCODE UPDATE",
             "  UCODE ENV [key=value ...]",
+            "  UCODE TEMPLATE <LIST|READ|DUPLICATE> ...",
             "  UCODE PROFILE <LIST|SHOW|INSTALL|ENABLE|DISABLE|VERIFY> [profile]",
             "  UCODE OPERATOR <STATUS|PLAN <prompt>|QUEUE>",
             "  UCODE EXTENSION <LIST|VERIFY> [extension]",
@@ -214,33 +216,27 @@ class UcodeHandler(BaseCommandHandler):
                 level="INFO",
             )
 
-        cpu_count = os.cpu_count() or 0
-        ram_gb = self._detect_ram_gb()
-        disk = shutil.disk_usage(str(self.repo_root))
-        free_gb = disk.free / (1024**3)
-        total_gb = disk.total / (1024**3)
-        meets_cpu = cpu_count >= self.minimum_spec.cpu_cores
-        meets_ram = ram_gb >= self.minimum_spec.ram_gb
-        meets_storage = free_gb >= self.minimum_spec.storage_free_gb
-        meets_min_spec = all((meets_cpu, meets_ram, meets_storage))
-        min_spec_status = "PASS" if meets_min_spec else "FAIL"
+        capability, spec_result = self.system_capability_service.evaluate_minimum_spec(
+            self.minimum_spec
+        )
+        min_spec_status = "PASS" if spec_result.overall else "FAIL"
         metrics_summary = self._load_metrics_summary()
         validation_samples = int(metrics_summary.get("total_events", 0))
         validation_round = "round-1-local"
 
         lines = [
-            f"OS: {platform.system()} {platform.release()} ({platform.machine()})",
-            f"CPU cores: {cpu_count}",
-            f"RAM: {ram_gb:.1f} GB",
-            f"Storage: {free_gb:.1f} GB free / {total_gb:.1f} GB total",
+            f"OS: {capability.system} {capability.release} ({capability.arch})",
+            f"CPU cores: {capability.cpu_cores}",
+            f"RAM: {capability.ram_gb:.1f} GB",
+            f"Storage: {capability.storage_free_gb:.1f} GB free / {capability.storage_total_gb:.1f} GB total",
             (
                 f"Minimum spec ({self.minimum_spec.cpu_cores} cores, "
                 f"{self.minimum_spec.ram_gb:.1f} GB RAM, "
                 f"{self.minimum_spec.storage_free_gb:.1f} GB free): {min_spec_status}"
             ),
-            f"  - CPU: {'PASS' if meets_cpu else 'FAIL'}",
-            f"  - RAM: {'PASS' if meets_ram else 'FAIL'}",
-            f"  - Storage: {'PASS' if meets_storage else 'FAIL'}",
+            f"  - CPU: {'PASS' if spec_result.cpu else 'FAIL'}",
+            f"  - RAM: {'PASS' if spec_result.ram else 'FAIL'}",
+            f"  - Storage: {'PASS' if spec_result.storage else 'FAIL'}",
             (
                 "Field validation: "
                 f"{validation_round} (samples={validation_samples}; "
@@ -252,26 +248,16 @@ class UcodeHandler(BaseCommandHandler):
             "message": "System information",
             "output": "\n".join(lines),
             "system": {
-                "os": platform.system(),
-                "release": platform.release(),
-                "arch": platform.machine(),
-                "cpu_cores": cpu_count,
-                "ram_gb": round(ram_gb, 1),
-                "storage_free_gb": round(free_gb, 1),
-                "storage_total_gb": round(total_gb, 1),
-                "minimum_spec": {
-                    "targets": {
-                        "cpu_cores": self.minimum_spec.cpu_cores,
-                        "ram_gb": self.minimum_spec.ram_gb,
-                        "storage_free_gb": self.minimum_spec.storage_free_gb,
-                    },
-                    "result": {
-                        "overall": meets_min_spec,
-                        "cpu": meets_cpu,
-                        "ram": meets_ram,
-                        "storage": meets_storage,
-                    },
-                },
+                "os": capability.system,
+                "release": capability.release,
+                "arch": capability.arch,
+                "cpu_cores": capability.cpu_cores,
+                "ram_gb": round(capability.ram_gb, 1),
+                "storage_free_gb": round(capability.storage_free_gb, 1),
+                "storage_total_gb": round(capability.storage_total_gb, 1),
+                "uefi_native": capability.uefi_native,
+                "headless": capability.headless,
+                "minimum_spec": spec_result.to_dict(),
                 "field_validation": {
                     "round": validation_round,
                     "sample_size": validation_samples,
@@ -785,6 +771,112 @@ class UcodeHandler(BaseCommandHandler):
                 recovery_hint="Check that .env file is writable",
                 level="ERROR",
             )
+
+    def _handle_template(self, params: list[str]) -> dict[str, Any]:
+        action = params[0].lower() if params else "list"
+        args = params[1:]
+
+        if action == "list":
+            family = args[0].strip().lower() if args else None
+            if family:
+                templates = self.seed_template_service.list_templates(family)
+                lines = [f"Template family: {family}"]
+                if not templates:
+                    lines.append("(no templates found)")
+                else:
+                    for template in templates:
+                        lines.append(f"- {template}")
+                return {
+                    "status": "success",
+                    "family": family,
+                    "templates": templates,
+                    "output": "\n".join(lines),
+                }
+
+            contract = self.seed_template_service.workspace_contract()
+            lines = ["Seed template families:"]
+            for template_family, payload in contract["families"].items():
+                lines.append(
+                    f"- {template_family}: {len(payload['templates'])} template(s)"
+                )
+                for template_name in payload["templates"]:
+                    lines.append(f"  - {template_name}")
+            return {
+                "status": "success",
+                "families": contract["families"],
+                "output": "\n".join(lines),
+            }
+
+        if action == "read":
+            if len(args) < 2:
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="Syntax: UCODE TEMPLATE READ <family> <template>",
+                    recovery_hint="Run `UCODE TEMPLATE LIST`",
+                    level="INFO",
+                )
+            snapshot = self.seed_template_service.read_template(args[0], args[1])
+            if not snapshot["exists"]:
+                raise CommandError(
+                    code="ERR_RESOURCE_NOT_FOUND",
+                    message=f"Template not found: {args[0]}/{args[1]}",
+                    recovery_hint="Run `UCODE TEMPLATE LIST <family>`",
+                    level="INFO",
+                )
+            header = [
+                f"Template: {snapshot['family']}/{snapshot['template_name']}",
+                f"Source: {snapshot['effective_source']}",
+                f"Path: {snapshot['effective_path']}",
+                "",
+            ]
+            return {
+                "status": "success",
+                "template": snapshot,
+                "output": "\n".join(header) + str(snapshot["content"]).rstrip(),
+            }
+
+        if action == "duplicate":
+            if len(args) < 2:
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="Syntax: UCODE TEMPLATE DUPLICATE <family> <template> [target_name]",
+                    recovery_hint="Run `UCODE TEMPLATE LIST`",
+                    level="INFO",
+                )
+            target_name = args[2] if len(args) > 2 else None
+            try:
+                result = self.seed_template_service.duplicate_to_user(
+                    args[0], args[1], target_name=target_name
+                )
+            except FileNotFoundError as exc:
+                raise CommandError(
+                    code="ERR_RESOURCE_NOT_FOUND",
+                    message=str(exc),
+                    recovery_hint="Run `UCODE TEMPLATE LIST <family>`",
+                    level="INFO",
+                ) from exc
+            except FileExistsError as exc:
+                raise CommandError(
+                    code="ERR_IO_WRITE_FAILED",
+                    message=str(exc),
+                    recovery_hint="Choose a different target name",
+                    level="INFO",
+                ) from exc
+            return {
+                "status": "success",
+                "duplicate": result,
+                "output": (
+                    f"Duplicated template: {result['family']}/{result['source_template']}\n"
+                    f"Local copy: {result['target_path']}"
+                ),
+            }
+
+        raise CommandError(
+            code="ERR_COMMAND_INVALID_ARG",
+            message="Syntax: UCODE TEMPLATE <LIST [family]|READ <family> <template>|DUPLICATE <family> <template> [target_name]>",
+            recovery_hint="Run `UCODE TEMPLATE LIST`",
+            level="INFO",
+        )
 
     def _handle_profile(self, params: list[str]) -> dict[str, Any]:
         action = params[0].lower() if params else "list"
@@ -1428,25 +1520,3 @@ class UcodeHandler(BaseCommandHandler):
         except Exception:
             return False
         return proc.returncode == 0
-
-    def _detect_ram_gb(self) -> float:
-        if pages := self._sysconf_pages():
-            return pages / (1024**3)
-        try:
-            import psutil
-
-            return psutil.virtual_memory().total / (1024**3)
-        except Exception:
-            return 0.0
-
-    def _sysconf_pages(self) -> int | None:
-        try:
-            pages = os.sysconf("SC_PHYS_PAGES")
-            page_size = os.sysconf("SC_PAGE_SIZE")
-        except (ValueError, OSError, AttributeError):
-            return None
-        if not isinstance(pages, int) or not isinstance(page_size, int):
-            return None
-        if pages <= 0 or page_size <= 0:
-            return None
-        return pages * page_size

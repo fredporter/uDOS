@@ -414,6 +414,16 @@ def create_sonic_plugin_routes(
         """Export database to CSV."""
         return await _sync_export_handler(request, output_path=output_path)
 
+    @router.post("/bootstrap/current")
+    async def bootstrap_current_machine(request: Request, overwrite: bool = Query(True)):
+        """Register the current machine in the local Sonic user catalog."""
+        if auth_guard:
+            await auth_guard(request)
+        result = sync.bootstrap_current_machine(overwrite=overwrite)
+        if result["status"] == "error":
+            raise HTTPException(status_code=500, detail=result["message"])
+        return result
+
     @router.get("/db/export")
     async def db_export(request: Request, output_path: str | None = Query(None)):
         """Alias for exporting the device database to CSV."""

@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import os
-import platform
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any
+
+from core.services.system_capability_service import get_system_capability_service
 
 
 class SonicTier(StrEnum):
@@ -35,15 +36,16 @@ class SonicHardwareContext:
 
 
 def detect_hardware_context() -> SonicHardwareContext:
+    capability = get_system_capability_service().measure()
     return SonicHardwareContext(
-        hostname=platform.node(),
-        system=platform.system().lower(),
-        arch=platform.machine().lower(),
-        processor=(platform.processor() or "").lower(),
-        cpu_count=os.cpu_count() or 1,
-        ram_gb=_detect_ram_gb(),
-        uefi_native=_detect_uefi(),
-        headless=not bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")),
+        hostname=capability.hostname,
+        system=capability.system.lower(),
+        arch=capability.arch,
+        processor=capability.processor,
+        cpu_count=capability.cpu_cores,
+        ram_gb=capability.ram_gb,
+        uefi_native=capability.uefi_native,
+        headless=capability.headless,
     )
 
 
@@ -126,25 +128,3 @@ def get_windows_profile_templates(gpu_lane: SonicGpuLane) -> dict[str, dict[str,
             "gpu_hint": "encoder_priority",
         },
     }
-
-
-def _detect_ram_gb() -> float | None:
-    try:
-        pages = os.sysconf("SC_PHYS_PAGES")
-        page_size = os.sysconf("SC_PAGE_SIZE")
-    except Exception:
-        return None
-    if not isinstance(pages, int) or not isinstance(page_size, int):
-        return None
-    if pages <= 0 or page_size <= 0:
-        return None
-    return round((pages * page_size) / (1024 ** 3), 2)
-
-
-def _detect_uefi() -> bool:
-    if os.name == "posix":
-        from pathlib import Path
-
-        if Path("/sys/firmware/efi").exists():
-            return True
-    return platform.system().lower() in {"darwin", "windows"}

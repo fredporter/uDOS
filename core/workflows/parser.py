@@ -13,6 +13,8 @@ _CONSTRAINT_RE = re.compile(r"^- (?P<key>[^:]+): (?P<value>.+)$")
 class WorkflowTemplateParser:
     def parse(self, workflow_id: str, markdown: str, source_path: Path | None = None) -> WorkflowSpec:
         title = self._section_text(markdown, "WORKFLOW:", title_mode=True)
+        purpose = self._section_text(markdown, "Purpose")
+        inputs = self._field_map(markdown, "Inputs")
         project = self._section_text(markdown, "Project")
         goal = self._section_text(markdown, "Goal")
         constraints = self._constraint_map(markdown)
@@ -21,8 +23,10 @@ class WorkflowTemplateParser:
         return WorkflowSpec(
             workflow_id=workflow_id,
             template_id=title,
-            project=(project.strip() or constraints.get("project") or workflow_id),
-            goal=goal.strip(),
+            project=(project.strip() or inputs.get("project") or constraints.get("project") or workflow_id),
+            goal=(goal.strip() or purpose.strip()),
+            purpose=purpose.strip(),
+            inputs=inputs,
             constraints=constraints,
             phases=phases,
             outputs=outputs,
@@ -50,7 +54,10 @@ class WorkflowTemplateParser:
         return "\n".join(collected).strip()
 
     def _constraint_map(self, markdown: str) -> dict[str, str]:
-        section = self._section_text(markdown, "Constraints")
+        return self._field_map(markdown, "Constraints")
+
+    def _field_map(self, markdown: str, heading: str) -> dict[str, str]:
+        section = self._section_text(markdown, heading)
         constraints: dict[str, str] = {}
         for line in section.splitlines():
             match = _CONSTRAINT_RE.match(line.strip())

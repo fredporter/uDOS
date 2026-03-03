@@ -73,6 +73,8 @@ def test_ops_jobs_and_config_status_routes(tmp_path, monkeypatch):
     assert "tasks" in jobs_res.json()
     assert "workspace_sources" in jobs_res.json()
     assert "settings" in jobs_res.json()
+    assert "template_families" in jobs_res.json()
+    assert "workflow_templates" in jobs_res.json()
 
     queue_item = next(item for item in jobs_res.json()["queue"] if item["task_id"] == job_id)
     queue_id = queue_item["id"]
@@ -104,6 +106,8 @@ def test_ops_jobs_and_config_status_routes(tmp_path, monkeypatch):
     assert "server_time" in summary_res.json()["runtime"]
     assert "local_time" in summary_res.json()["runtime"]["server_time"]
     assert "offset" in summary_res.json()["runtime"]["server_time"]
+    assert "template_families" in summary_res.json()
+    assert "workflow_templates" in summary_res.json()
 
     health_res = client.get("/api/ops/health")
     assert health_res.status_code == 200
@@ -166,3 +170,11 @@ def test_ops_jobs_and_config_status_routes(tmp_path, monkeypatch):
     config_res = client.get("/api/ops/config-status")
     assert config_res.status_code == 200
     assert "managed_contract" in config_res.json()
+
+    templates_res = client.get("/api/ops/templates")
+    assert templates_res.status_code == 200
+    assert "families" in templates_res.json()
+
+    workflow_templates_res = client.get("/api/ops/templates/workflows")
+    assert workflow_templates_res.status_code == 200
+    assert "templates" in workflow_templates_res.json()

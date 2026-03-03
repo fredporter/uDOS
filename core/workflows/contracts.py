@@ -41,6 +41,8 @@ class WorkflowSpec:
     phases: list[PhaseSpec]
     outputs: list[str]
     created_at_iso: str
+    purpose: str = ""
+    inputs: dict[str, Any] = field(default_factory=dict)
     source_path: str | None = None
 
 

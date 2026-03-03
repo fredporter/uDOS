@@ -12,7 +12,9 @@ The `/sonic/datasets` folder in the public `sonic` submodule contains:
 - `version.json` - Dataset component version metadata
 
 Runtime database location:
-- `memory/sonic/sonic-devices.db`
+- `memory/sonic/seed/sonic-devices.seed.db`
+- `memory/sonic/user/sonic-devices.user.db`
+- `memory/sonic/sonic-devices.db` (compatibility mirror)
 - Schema version: `1.1`
 
 ## API Endpoints
@@ -37,6 +39,7 @@ Device DB endpoints:
 - `POST /api/sonic/rescan` (alias)
 - `POST /api/sonic/rebuild` (alias)
 - `GET /api/sonic/export` (alias)
+- `POST /api/sonic/bootstrap/current`
 
 ## Query Filters (`GET /api/sonic/devices`)
 
@@ -57,8 +60,13 @@ Device DB endpoints:
 
 ```bash
 mkdir -p memory/sonic
-sqlite3 memory/sonic/sonic-devices.db < sonic/datasets/sonic-devices.sql
+sqlite3 memory/sonic/seed/sonic-devices.seed.db < sonic/datasets/sonic-devices.sql
 ```
+
+The local user overlay is managed separately in
+`memory/sonic/user/sonic-devices.user.db`. That layer stores current-machine
+bootstrap records and user-added devices without mutating the distributed seed
+catalog.
 
 Or rebuild via API:
 

@@ -38,6 +38,7 @@ class _API:
 class _Sync:
     def __init__(self):
         self.last_force = None
+        self.bootstrap_calls = 0
 
     def get_status(self):
         class _Status:
@@ -48,6 +49,11 @@ class _Sync:
             schema_version = "1"
             needs_rebuild = False
             errors = []
+            seed_db_path = "/tmp/seed.db"
+            user_db_path = "/tmp/user.db"
+            seed_record_count = 1
+            user_record_count = 0
+            current_machine_registered = False
 
         return _Status()
 
@@ -57,6 +63,10 @@ class _Sync:
 
     def export_to_csv(self, output_path=None):
         return {"status": "ok", "output_path": str(output_path) if output_path else None}
+
+    def bootstrap_current_machine(self, overwrite=True):
+        self.bootstrap_calls += 1
+        return {"status": "ok", "device_id": "local-test", "overwrite": overwrite}
 
 
 class _Schemas:
@@ -117,7 +127,13 @@ def test_sonic_plugin_alias_routes(monkeypatch):
     db_status = client.get("/api/sonic/db/status")
     assert db_status.status_code == 200
     assert db_status.json()["db_exists"] is True
+    assert db_status.json()["seed_db_path"] == "/tmp/seed.db"
     assert db_status.json()["deprecated_alias"]["canonical"] == "/api/sonic/sync/status"
+
+    bootstrap = client.post("/api/sonic/bootstrap/current")
+    assert bootstrap.status_code == 200
+    assert bootstrap.json()["device_id"] == "local-test"
+    assert sync.bootstrap_calls == 1
 
     db_rebuild = client.post("/api/sonic/db/rebuild")
     assert db_rebuild.status_code == 200

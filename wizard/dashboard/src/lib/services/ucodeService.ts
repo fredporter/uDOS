@@ -195,3 +195,61 @@ export async function fetchWizardHealth() {
   } catch {}
   return { status: "unhealthy" };
 }
+
+/**
+ * Fetch seed template families.
+ */
+export async function fetchTemplateFamilies() {
+  try {
+    const res = await apiFetch("/api/ucode/templates");
+    if (res.ok) return await res.json();
+  } catch {}
+  return { families: {} };
+}
+
+/**
+ * Fetch templates for one family.
+ */
+export async function fetchTemplateFamily(family) {
+  try {
+    const res = await apiFetch(`/api/ucode/templates/${encodeURIComponent(family)}`);
+    if (res.ok) return await res.json();
+  } catch {}
+  return { family, templates: [] };
+}
+
+/**
+ * Read one seeded template.
+ */
+export async function readTemplate(family, templateName) {
+  try {
+    const res = await apiFetch(
+      `/api/ucode/templates/${encodeURIComponent(family)}/${encodeURIComponent(templateName)}`
+    );
+    if (res.ok) return await res.json();
+  } catch {}
+  return { status: "error", template: null };
+}
+
+/**
+ * Duplicate a seeded template into the user layer.
+ */
+export async function duplicateTemplate(family, templateName, targetName = "") {
+  try {
+    const res = await apiFetch(
+      `/api/ucode/templates/${encodeURIComponent(family)}/${encodeURIComponent(templateName)}/duplicate`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ target_name: targetName || null }),
+      }
+    );
+    if (res.ok) return await res.json();
+    return {
+      status: "error",
+      error: await res.text(),
+    };
+  } catch (err) {
+    return { status: "error", error: err?.message || String(err) };
+  }
+}

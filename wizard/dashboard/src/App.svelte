@@ -37,6 +37,7 @@
   import Setup from "./routes/Setup.svelte";
   import ThinGui from "./routes/ThinGui.svelte";
   import Empire from "./routes/Empire.svelte";
+  import Templates from "./routes/Templates.svelte";
 
   // Route mapping
   const routes = {
@@ -74,6 +75,7 @@
     setup: Setup,
     "thin-gui": ThinGui,
     empire: Empire,
+    templates: Templates,
   };
 
   // Simple hash-based routing

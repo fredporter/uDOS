@@ -46,6 +46,7 @@
     { id: "tasks", label: "⏱️ Task Scheduler" },
     { id: "ports", label: "🔌 Port Manager" },
     { id: "workflow", label: "✅ Workflow" },
+    { id: "templates", label: "📓 Templates" },
     { id: "binder", label: "📚 Binder Compiler" },
     { id: "github", label: "🐙 GitHub" },
     { separator: true, label: "Extensions" },

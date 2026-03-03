@@ -410,7 +410,12 @@ def verify_media_inputs(
 ) -> dict[str, Any]:
     payloads_root = sonic_root / "payloads"
     dataset_root = sonic_root / "datasets"
-    memory_db = sonic_root.parent / "memory" / "sonic" / "sonic-devices.db"
+    memory_root = sonic_root.parent / "memory" / "sonic"
+    legacy_db = memory_root / "sonic-devices.db"
+    seed_db = memory_root / "seed" / "sonic-devices.seed.db"
+    user_db = memory_root / "user" / "sonic-devices.user.db"
+    local_device_db_ready = legacy_db.exists() or seed_db.exists() or user_db.exists()
+    local_device_db_paths = [str(path) for path in (legacy_db, seed_db, user_db)]
     policies: list[dict[str, Any]] = []
     issues: list[str] = []
     metadata_root = sonic_root / "config" / "image-sources"
@@ -541,8 +546,10 @@ def verify_media_inputs(
                 root=str(dataset_root),
                 version=str(dataset_version.get("version") or "unknown"),
                 schema_version=str(dataset_version.get("schema_version") or "unknown"),
-                local_db_exists=memory_db.exists(),
-                local_db_path=str(memory_db),
+                local_db_exists=local_device_db_ready,
+                local_db_path=str(legacy_db),
+                local_seed_db_path=str(seed_db),
+                local_user_db_path=str(user_db),
                 contract=dataset_contract,
             )
         )
@@ -550,13 +557,13 @@ def verify_media_inputs(
             issues.append("device_database_contract_invalid")
         for warning in dataset_contract.get("warnings", []):
             policies.append(_policy_entry("device-database-warning", "warning", warning, root=str(dataset_root)))
-        if not memory_db.exists():
+        if not local_device_db_ready:
             policies.append(
                 _policy_entry(
                     "device-database-local",
                     "warning",
                     "Local Sonic device database has not been synced yet",
-                    path=str(memory_db),
+                    paths=local_device_db_paths,
                 )
             )
 
@@ -586,13 +593,13 @@ def verify_media_inputs(
                     policies.append(_policy_entry("flash-pack-windows-iso", "warning", "Flash pack Windows ISO missing", path=str(source)))
                     issues.append("flash_pack_windows_iso_missing")
             metadata = pack_payload.get("metadata") or {}
-            if metadata.get("requires_device_db") and not memory_db.exists():
+            if metadata.get("requires_device_db") and not local_device_db_ready:
                 policies.append(
                     _policy_entry(
                         "flash-pack-device-db",
                         "warning",
                         "Flash pack requires local device DB sync before deployment",
-                        path=str(memory_db),
+                        paths=local_device_db_paths,
                     )
                 )
                 issues.append("flash_pack_device_db_required")

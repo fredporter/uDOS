@@ -105,6 +105,16 @@ core/ulogic/
 
 The reference scaffold under `docs/examples/udos_ulogic_pack/` already mirrors this layout.
 
+The first promoted canonical slice now lives under:
+
+```text
+core/ulogic/
+```
+
+Current promoted modules:
+- `core/ulogic/contracts.py`
+- `core/ulogic/parser.py`
+
 ## State Contracts
 
 ### `project.json`
@@ -220,6 +230,12 @@ The reference scaffold for these pieces lives in:
 docs/examples/udos_ulogic_pack/core/ulogic/ucode/dispatcher.py
 docs/examples/udos_ulogic_pack/core/ulogic/ucode/sandbox.py
 docs/examples/udos_ulogic_pack/core/ulogic/providers/
+```
+
+The promoted deterministic parser anchor now lives in:
+
+```text
+core/ulogic/parser.py
 ```
 
 ## Verification and Artifact Contract

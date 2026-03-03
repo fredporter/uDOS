@@ -31,7 +31,10 @@ Status values:
 | Spec | Status | Current anchor | Notes |
 |---|---|---|---|
 | `docs/specs/WORKFLOW-SCHEDULER-v1.5.md` | `implemented` | `core/workflows/`, `core/commands/workflow_handler.py`, `core/tests/workflow_handler_test.py` | Core workflow runtime is live and tested. |
-| `docs/specs/OFFLINE-ASSIST-STANDARD-v1.5.md` | `partial` | `docs/examples/udos_ulogic_pack/` | Canonical contract exists, but implementation is still mostly reference scaffold rather than promoted core runtime. |
+| `docs/specs/OFFLINE-ASSIST-STANDARD-v1.5.md` | `partial` | `core/ulogic/`, `docs/examples/udos_ulogic_pack/` | Canonical contract exists and now has a first promoted core slice, but most runtime behavior is still scaffold/reference rather than integrated core execution. |
+| `docs/specs/LOGIC-INPUT-HANDLER-v1.5.md` | `partial` | `core/ulogic/parser.py`, `core/tui/ucode.py`, `core/tui/dispatcher.py` | Canonical contract now exists and has a promoted deterministic parser anchor, but the v1.5 runtime still needs one standardized handler and routing event model. |
+| `docs/specs/WORKFLOW-MANAGER-CONTRACT-v1.5.md` | `partial` | `core/workflows/`, `core/commands/workflow_handler.py`, `wizard/routes/workflow_routes.py` | Core workflow execution exists; Round 4 still needs one standardized cross-surface orchestration contract in active runtime behavior. |
+| `docs/specs/KNOWLEDGE-BANK-RUNBOOK-STANDARD-v1.5.md` | `partial` | `docs/examples/udos_ulogic_pack/`, `docs/examples/udos_creative_pack/`, `core/workflows/` | Canonical librarian/template contract now exists, but the seed/local split and cross-component template structure still need runtime and evidence closure. |
 | `docs/specs/wiki_spec_obsidian.md` | `partial` | `docs/decisions/OBSIDIAN-INTEGRATION.md`, `wizard/services/markdown_job_service.py` | Markdown-first and import surfaces exist, but Round 1 still needs tighter mapping from Obsidian-facing spec to shipped paths. |
 | `docs/specs/FORMATTING-SPEC-v1.4.md` | `implemented` | `docs/specs/FORMATTING-SPEC-v1.4.md`, `.compost` policy docs | Canonical formatting and archival rules are already in place; use as governance during doc cleanup. |
 
@@ -70,6 +73,9 @@ Status values:
   - `PORT-REGISTRY`
   - `UCODE-SELECTOR-INTEGRATION-BRIEF`
   - `OFFLINE-ASSIST-STANDARD-v1.5`
+  - `LOGIC-INPUT-HANDLER-v1.5`
+  - `WORKFLOW-MANAGER-CONTRACT-v1.5`
+  - `KNOWLEDGE-BANK-RUNBOOK-STANDARD-v1.5`
   - `wiki_spec_obsidian`
   - `PACKAGING-RELEASE-CONTRACT-v1.5`
   - `INTEGRATION-READINESS`
@@ -79,6 +85,10 @@ Status values:
 
 ## Round 1 Follow-up
 
-1. Resolve the missing `DEV-Mode-Spec` catalog entry.
-2. Link each `partial` spec to one concrete acceptance pass or evidence doc.
-3. Use this checklist as the source surface for Round 2 through Round 5 progress updates.
+1. Link each `partial` spec to one concrete acceptance pass or evidence doc.
+2. Use this checklist as the source surface for Round 2 through Round 5 progress updates.
+3. Add explicit evidence for:
+   - global knowledge-bank seed/read-only contract
+   - local user knowledge-tree writable contract
+   - Sonic global seeded catalog and contributor approval path
+   - cross-component Markdown template/runbook standardization

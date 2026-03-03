@@ -18,6 +18,9 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 - `docs/specs/3DWORLD-EXTENSION-SPEC-v1.5.0.md` — containerized 3D world extension contract (draft lane toward v1.5)
 - `docs/specs/WORKFLOW-SCHEDULER-v1.5.md` — core workflow scheduler contract for v1.5
 - `docs/specs/OFFLINE-ASSIST-STANDARD-v1.5.md` — canonical offline assist and `uLogic` standard for v1.5, grounded in the `udos_ulogic_pack` reference scaffold
+- `docs/specs/LOGIC-INPUT-HANDLER-v1.5.md` — canonical smart logic input handler contract for the refactored v1.5 `ucode` shell
+- `docs/specs/WORKFLOW-MANAGER-CONTRACT-v1.5.md` — canonical cross-surface workflow manager contract for core, Wizard, and offline logic
+- `docs/specs/KNOWLEDGE-BANK-RUNBOOK-STANDARD-v1.5.md` — canonical librarian content, seed/local split, and Markdown runbook/template standard
 - `docs/specs/UHOME-v1.5.md` — canonical v1.5 home profile runtime and Sonic install contract
 - `docs/specs/FORMATTING-SPEC-v1.4.md` — canonical formatting and `.compost` archival contract
 - `docs/specs/TYPESCRIPT-MARKDOWN-RUNTIME-CONTRACT.md` — active TypeScript markdown runtime contract

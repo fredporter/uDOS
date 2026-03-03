@@ -20,6 +20,7 @@ def test_dispatcher_supports_workflow_command() -> None:
 
     assert result["status"] == "success"
     assert "WRITING-article" in result["templates"]
+    assert "MULTI-creative-campaign" in result["templates"]
 
 
 def test_workflow_handler_new_status_run() -> None:

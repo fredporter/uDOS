@@ -243,6 +243,21 @@ def test_sonic_sync_no_force_if_db_exists(tmp_path):
     assert result["db_path"].endswith("sonic-devices.db")
 
 
+def test_sonic_bootstrap_registers_current_machine(tmp_path):
+    repo_root = tmp_path / "repo"
+    sonic_root = repo_root / "sonic"
+    datasets = sonic_root / "datasets"
+    datasets.mkdir(parents=True, exist_ok=True)
+    (datasets / "sonic-devices.sql").write_text("CREATE TABLE devices(id TEXT PRIMARY KEY, vendor TEXT NOT NULL, model TEXT NOT NULL, year INTEGER NOT NULL, bios TEXT NOT NULL, secure_boot TEXT NOT NULL, tpm TEXT NOT NULL, usb_boot TEXT NOT NULL, uefi_native TEXT NOT NULL, reflash_potential TEXT NOT NULL, methods TEXT NOT NULL, last_seen TEXT NOT NULL, windows10_boot TEXT NOT NULL, media_mode TEXT NOT NULL, udos_launcher TEXT NOT NULL, variant TEXT, cpu TEXT, gpu TEXT, ram_gb INTEGER, storage_gb INTEGER, notes TEXT, sources TEXT, wizard_profile TEXT, media_launcher TEXT, settings_template_md TEXT, installers_template_md TEXT, containers_template_md TEXT, drivers_template_md TEXT);\n", encoding="utf-8")
+
+    handler = _FakeSonicHandler(repo_root=repo_root, sonic_root=sonic_root)
+    handler.handle("SONIC", ["SYNC", "--force"])
+    result = handler.handle("SONIC", ["BOOTSTRAP"])
+
+    assert result["status"] == "ok"
+    assert result["result"]["device_id"].startswith("local-")
+
+
 def test_sonic_plan_requires_wizard_mode_when_boundaries_enforced(tmp_path, monkeypatch):
     repo_root = tmp_path / "repo"
     sonic_root = repo_root / "sonic"

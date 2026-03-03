@@ -107,6 +107,15 @@ ucode UCODE OPERATOR STATUS
 ucode STATUS TASK_ID
 ```
 
+Template browsing and duplication now use the same seeded/default/user contract:
+
+```bash
+ucode UCODE TEMPLATE LIST
+ucode UCODE TEMPLATE LIST missions
+ucode UCODE TEMPLATE READ captures CAPTURE-template
+ucode UCODE TEMPLATE DUPLICATE submissions DEVICE-SUBMISSION-template my-device-template
+```
+
 ### 5. Python API (Internal)
 ```python
 from core.services.command_dispatch_service import CommandDispatchService
@@ -123,6 +132,12 @@ This guide is organized by:
 - Python ucode command surface (core dispatcher, /core stdlib-only)
 - Wizard commands (networking, GUI, packaging, /wizard)
 - Extension commands (/extensions, /sonic)
+
+Seed template families exposed through the Python `UCODE` surface:
+- `workflows`
+- `missions`
+- `captures`
+- `submissions`
 
 ## Environment Configuration
 

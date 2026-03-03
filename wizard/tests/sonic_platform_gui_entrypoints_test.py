@@ -47,6 +47,11 @@ class _SyncStatus:
     record_count = 123
     needs_rebuild = False
     last_sync = "2026-02-16T00:00:00Z"
+    seed_db_path = "/tmp/seed.db"
+    user_db_path = "/tmp/user.db"
+    seed_record_count = 122
+    user_record_count = 1
+    current_machine_registered = True
 
 
 class _SyncSvc:
@@ -58,6 +63,9 @@ class _SyncSvc:
 
     def export_to_csv(self, output_path=None):
         return {"status": "ok", "output_path": str(output_path) if output_path else "/tmp/sonic.csv"}
+
+    def bootstrap_current_machine(self, overwrite=True):
+        return {"status": "ok", "device_id": "local-test", "overwrite": overwrite}
 
 
 class _SonicOps:
@@ -89,6 +97,8 @@ def test_sonic_gui_summary_and_actions(monkeypatch):
     assert "ok" in summary["dataset_contract"]
     assert "verification" in summary
     assert summary["sync_status"]["record_count"] == 123
+    assert summary["sync_status"]["user_record_count"] == 1
+    assert summary["actions"]["bootstrap"] == "/api/platform/sonic/gui/actions/bootstrap"
 
     sync_res = client.post("/api/platform/sonic/gui/actions/sync", json={})
     assert sync_res.status_code == 200
@@ -102,6 +112,10 @@ def test_sonic_gui_summary_and_actions(monkeypatch):
     export_res = client.post("/api/platform/sonic/gui/actions/export", json={"output_path": "/tmp/out.csv"})
     assert export_res.status_code == 200
     assert export_res.json()["action"] == "export"
+
+    bootstrap_res = client.post("/api/platform/sonic/gui/actions/bootstrap", json={})
+    assert bootstrap_res.status_code == 200
+    assert bootstrap_res.json()["action"] == "bootstrap"
 
     build_res = client.post("/api/platform/sonic/gui/actions/build", json={"profile": "alpine-core+sonic"})
     assert build_res.status_code == 200

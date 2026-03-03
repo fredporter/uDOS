@@ -34,7 +34,7 @@ WORKFLOW LIST TEMPLATES
 Current templates come from:
 
 ```text
-docs/examples/udos_creative_pack/templates/workflows/
+core/framework/seed/bank/templates/workflows/
 ```
 
 ## 2. Create a Workflow Run
@@ -140,4 +140,4 @@ meta/<phase>.json
 - Roadmap:
   - `docs/roadmap.md`
 - Example templates:
-  - `docs/examples/udos_creative_pack/`
+  - `core/framework/seed/bank/templates/`

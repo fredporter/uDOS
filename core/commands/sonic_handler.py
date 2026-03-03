@@ -9,6 +9,7 @@ from typing import Dict, List, Tuple, Any
 from core.commands.base import BaseCommandHandler
 from core.services.logging_api import get_logger, LogTags
 from core.services.mode_policy import RuntimeMode, boundaries_enforced, resolve_runtime_mode
+from core.services.sonic_device_service import get_sonic_device_service
 from extensions.sonic_loader import load_sonic_plugin
 
 logger = get_logger("command-sonic")
@@ -34,6 +35,8 @@ class SonicHandler(BaseCommandHandler):
             return self._status()
         if action == "sync":
             return self._sync(params[1:])
+        if action == "bootstrap":
+            return self._bootstrap(params[1:])
         if action == "verify":
             return self._verify(params[1:])
         if action == "plan":
@@ -80,7 +83,7 @@ class SonicHandler(BaseCommandHandler):
     def _status(self) -> Dict:
         sonic_root = self._sonic_root()
         dataset_root = sonic_root / "datasets"
-        db_path = self._repo_root() / "memory" / "sonic" / "sonic-devices.db"
+        runtime = get_sonic_device_service(self._repo_root()).runtime_contract()
         return {
             "status": "ok",
             "sonic_root": str(sonic_root),
@@ -96,8 +99,13 @@ class SonicHandler(BaseCommandHandler):
                 "available": (dataset_root / "sonic-devices.table.md").exists(),
             },
             "device_db": {
-                "path": str(db_path),
-                "exists": db_path.exists(),
+                "path": runtime["paths"]["legacy_db_path"],
+                "exists": Path(runtime["paths"]["legacy_db_path"]).exists(),
+                "seed_db_path": runtime["paths"]["seed_db_path"],
+                "user_db_path": runtime["paths"]["user_db_path"],
+                "seed_record_count": runtime["seed_catalog"]["record_count"],
+                "user_record_count": runtime["user_catalog"]["record_count"],
+                "current_machine_registered": runtime["user_catalog"]["current_machine_registered"],
             },
             "manifest": {
                 "example": str(sonic_root / "config" / "sonic-manifest.json.example"),
@@ -161,7 +169,6 @@ class SonicHandler(BaseCommandHandler):
         flags, _ = self._parse_flags(params)
         sonic_root = self._sonic_root()
         sql_source = sonic_root / "datasets" / "sonic-devices.sql"
-        db_path = self._repo_root() / "memory" / "sonic" / "sonic-devices.db"
         force = bool(flags.get("force"))
 
         if not sql_source.exists():
@@ -176,7 +183,7 @@ class SonicHandler(BaseCommandHandler):
             return {
                 "status": "ok",
                 "message": "Device DB already exists. Use SONIC SYNC --force to rebuild.",
-                "db_path": str(db_path),
+                "db_path": str(get_sonic_device_service(self._repo_root()).paths.legacy_db_path),
                 "wizard_equivalent": "POST /api/sonic/sync/rebuild?force=false",
             }
 
@@ -211,6 +218,28 @@ class SonicHandler(BaseCommandHandler):
             "message": "Sonic device DB sync delegated to canonical plugin sync service.",
             "result": result,
             "wizard_equivalent": "POST /api/sonic/sync/rebuild",
+        }
+
+    def _bootstrap(self, params: List[str]) -> Dict:
+        flags, _ = self._parse_flags(params)
+        overwrite = not bool(flags.get("no-overwrite"))
+        try:
+            plugin = load_sonic_plugin(self._repo_root())
+            sync_service = plugin["sync"].get_sync_service()
+            result = sync_service.bootstrap_current_machine(overwrite=overwrite)
+        except Exception as exc:
+            return {
+                "status": "error",
+                "message": f"Failed to bootstrap Sonic current-machine record: {exc}",
+                "suggestion": "Use Wizard endpoint POST /api/sonic/bootstrap/current as fallback.",
+            }
+        if result.get("status") != "ok":
+            return {"status": "error", "message": result.get("message", "Sonic bootstrap failed.")}
+        return {
+            "status": "ok",
+            "message": "Current machine registered in Sonic user catalog.",
+            "result": result,
+            "wizard_equivalent": "POST /api/sonic/bootstrap/current",
         }
 
     def _plan(self, params: List[str]) -> Dict:
@@ -385,11 +414,12 @@ class SonicHandler(BaseCommandHandler):
             "syntax": [
                 "SONIC STATUS",
                 "SONIC SYNC [--force]",
+                "SONIC BOOTSTRAP [--no-overwrite]",
                 "SONIC VERIFY [--manifest config/sonic-manifest.json] [--build-id <id>] [--flash-pack <pack>]",
                 "SONIC PLAN [--usb-device /dev/sdb] [--layout-file config/sonic-layout.json]",
                 "SONIC PLAN [--payloads-dir /path/to/payloads] [--format-mode full|skip]",
                 "SONIC RUN [--manifest config/sonic-manifest.json] [--dry-run]",
                 "SONIC RUN [--payloads-dir /path/to/payloads] [--no-validate-payloads] --confirm",
             ],
-            "note": "SONIC VERIFY checks manifest structure, media-source policy, device DB readiness, and optional signed release bundles. SONIC RUN requires --confirm and Linux for destructive operations. SONIC SYNC mirrors Wizard /api/sonic/db/rebuild.",
+            "note": "SONIC VERIFY checks manifest structure, media-source policy, device DB readiness, and optional signed release bundles. SONIC RUN requires --confirm and Linux for destructive operations. SONIC SYNC mirrors Wizard /api/sonic/db/rebuild. SONIC BOOTSTRAP registers the current machine in the local user Sonic catalog.",
         }

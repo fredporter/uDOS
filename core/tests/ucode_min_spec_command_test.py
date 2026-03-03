@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from types import SimpleNamespace
-
 import pytest
 
 from core.services.error_contract import CommandError
 from core.commands.ucode_handler import UcodeHandler
+from core.services.system_capability_service import MinimumSpecResult, MinimumSystemSpec
 from core.tui.dispatcher import CommandDispatcher
 
 
@@ -22,6 +21,7 @@ def test_ucode_help_surface(monkeypatch, tmp_path):
     result = handler.handle("UCODE", [])
     assert result["status"] == "success"
     assert "UCODE DEMO LIST" in result["output"]
+    assert "UCODE TEMPLATE <LIST|READ|DUPLICATE>" in result["output"]
     assert "UCODE PROFILE <LIST|SHOW|INSTALL|ENABLE|DISABLE|VERIFY>" in result["output"]
 
 
@@ -56,14 +56,32 @@ def test_ucode_system_info(monkeypatch, tmp_path):
 
 def test_ucode_system_info_minimum_spec_status(monkeypatch, tmp_path):
     handler = _handler_with_home(monkeypatch, tmp_path)
-    monkeypatch.setattr("core.commands.ucode_handler.os.cpu_count", lambda: 4)
-    monkeypatch.setattr(handler, "_detect_ram_gb", lambda: 8.0)
+    capability = type(
+        "Capability",
+        (),
+        {
+            "system": "Linux",
+            "release": "6.1",
+            "arch": "x86_64",
+            "cpu_cores": 4,
+            "ram_gb": 8.0,
+            "storage_free_gb": 10.0,
+            "storage_total_gb": 100.0,
+            "uefi_native": True,
+            "headless": False,
+        },
+    )()
+    spec_result = MinimumSpecResult(
+        targets=MinimumSystemSpec(cpu_cores=2, ram_gb=4.0, storage_free_gb=5.0),
+        overall=True,
+        cpu=True,
+        ram=True,
+        storage=True,
+    )
     monkeypatch.setattr(
-        "core.commands.ucode_handler.shutil.disk_usage",
-        lambda _path: SimpleNamespace(
-            free=10 * (1024 ** 3),
-            total=100 * (1024 ** 3),
-        ),
+        handler.system_capability_service,
+        "evaluate_minimum_spec",
+        lambda minimum_spec=None: (capability, spec_result),
     )
     result = handler.handle("UCODE", ["SYSTEM", "INFO"])
     minimum_spec = result["system"]["minimum_spec"]["result"]
@@ -203,6 +221,44 @@ def test_ucode_profile_lifecycle(monkeypatch, tmp_path):
     verified = handler.handle("UCODE", ["PROFILE", "VERIFY", "core"])
     assert verified["status"] == "success"
     assert "Profile verify: core" in verified["output"]
+
+
+def test_ucode_template_list_read_and_duplicate(monkeypatch, tmp_path):
+    handler = _handler_with_home(monkeypatch, tmp_path)
+
+    listed = handler.handle("UCODE", ["TEMPLATE", "LIST"])
+    assert listed["status"] == "success"
+    assert "workflows" in listed["output"]
+    assert "missions" in listed["output"]
+    assert "captures" in listed["output"]
+    assert "submissions" in listed["output"]
+
+    family_list = handler.handle("UCODE", ["TEMPLATE", "LIST", "missions"])
+    assert family_list["status"] == "success"
+    assert "MISSION-template" in family_list["output"]
+
+    read = handler.handle(
+        "UCODE", ["TEMPLATE", "READ", "captures", "CAPTURE-template"]
+    )
+    assert read["status"] == "success"
+    assert "Template: captures/CAPTURE-template" in read["output"]
+    assert "## Purpose" in read["output"]
+
+    duplicated = handler.handle(
+        "UCODE",
+        [
+            "TEMPLATE",
+            "DUPLICATE",
+            "submissions",
+            "DEVICE-SUBMISSION-template",
+            "my-device-template",
+        ],
+    )
+    assert duplicated["status"] == "success"
+    assert "Local copy:" in duplicated["output"]
+    assert Path(
+        duplicated["duplicate"]["target_path"]
+    ).read_text(encoding="utf-8").startswith("# SUBMISSION:")
 
 
 def test_ucode_operator_status_and_plan(monkeypatch, tmp_path):

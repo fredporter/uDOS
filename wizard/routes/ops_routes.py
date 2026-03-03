@@ -11,13 +11,17 @@ from pydantic import BaseModel
 from core.services.prompt_parser_service import get_prompt_parser_service
 from core.workflows.scheduler import WorkflowScheduler
 from wizard.services.deploy_mode import get_deploy_mode, is_managed_mode
-from wizard.services.logging_api import get_log_stats, get_logs_root
+from wizard.services.logging_api import get_log_stats, get_logger, get_logs_root
 from wizard.services.markdown_job_service import MarkdownJobService
 from wizard.services.monitoring_manager import AlertSeverity, AlertType, MonitoringManager
 from wizard.services.ops_workspace_service import OpsWorkspaceService
 from wizard.services.path_utils import get_repo_root
 from wizard.services.setup_manager import get_full_config_status
 from wizard.services.task_scheduler import TaskScheduler
+from wizard.routes.ucode_template_dispatch import (
+    list_family_templates as dispatch_list_family_templates,
+    list_template_families as dispatch_list_template_families,
+)
 
 AuthGuard = Optional[Callable[[Request], Awaitable[None]]]
 SessionResolver = Optional[Callable[[Request], dict[str, object]]]
@@ -122,12 +126,28 @@ def create_ops_routes(
 ) -> APIRouter:
     dependencies = [Depends(auth_guard)] if auth_guard else []
     router = APIRouter(prefix="/api/ops", tags=["ops"], dependencies=dependencies)
+    logger = get_logger("wizard", category="ops", name="ops-routes")
     scheduler = TaskScheduler()
     monitoring = MonitoringManager()
     parser = get_prompt_parser_service()
     workflow_scheduler = WorkflowScheduler(Path(get_repo_root()))
     workspace_service = OpsWorkspaceService()
     markdown_jobs = MarkdownJobService()
+
+    def _template_families() -> dict[str, Any]:
+        return dispatch_list_template_families(
+            logger=logger,
+            corr_id="OPS-TEMPLATE-LIST",
+        )
+
+    def _workflow_templates() -> list[str]:
+        response = dispatch_list_family_templates(
+            family="workflows",
+            logger=logger,
+            corr_id="OPS-WORKFLOW-TEMPLATES",
+        )
+        result = response.get("result") or {}
+        return result.get("templates") or []
 
     @router.get("/session")
     async def get_session(request: Request) -> dict[str, Any]:
@@ -163,7 +183,8 @@ def create_ops_routes(
                 "managed": is_managed_mode(),
                 "status": get_full_config_status(),
             },
-            "workflow_templates": workflow_scheduler.list_templates(),
+            "template_families": (_template_families().get("result") or {}).get("families", []),
+            "workflow_templates": _workflow_templates(),
             "workflow_runs": workflow_scheduler.list_workflows(),
             "workspace_sources": workspace_service.list_sources(limit=50),
             "logs": get_log_stats(),
@@ -191,10 +212,25 @@ def create_ops_routes(
             "queue": scheduler.get_scheduled_queue(limit=limit),
             "runs": scheduler.get_execution_history(limit=min(limit, 100)),
             "settings": scheduler.get_settings(),
-            "workflow_templates": workflow_scheduler.list_templates(),
+            "template_families": (_template_families().get("result") or {}).get("families", []),
+            "workflow_templates": _workflow_templates(),
             "workflow_runs": workflow_scheduler.list_workflows(),
             "workspace_sources": workspace_service.list_sources(limit=100),
         }
+
+    @router.get("/templates")
+    async def list_templates() -> dict[str, Any]:
+        response = _template_families()
+        return response.get("result") or response
+
+    @router.get("/templates/{family}")
+    async def list_templates_by_family(family: str) -> dict[str, Any]:
+        response = dispatch_list_family_templates(
+            family=family,
+            logger=logger,
+            corr_id=f"OPS-TEMPLATE-{family.upper()}",
+        )
+        return response.get("result") or response
 
     @router.get("/workflows")
     async def list_workflows(limit: int = Query(50, ge=1, le=500)) -> dict[str, Any]:

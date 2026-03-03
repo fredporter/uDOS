@@ -18,7 +18,7 @@ class WorkflowScheduler:
     def __init__(self, repo_root: Path):
         self.repo_root = repo_root
         self.workflow_root = repo_root / "memory" / "vault"
-        self.template_root = repo_root / "docs" / "examples" / "udos_creative_pack" / "templates" / "workflows"
+        self.template_root = repo_root / "core" / "framework" / "seed" / "bank" / "templates" / "workflows"
         self.prompt_root = repo_root / "docs" / "examples" / "udos_creative_pack" / "core" / "creative"
         self.parser = WorkflowTemplateParser()
         self.store = WorkflowArtifactStore(self.workflow_root)
@@ -94,6 +94,8 @@ class WorkflowScheduler:
             template_id=payload.get("template_id", ""),
             project=payload.get("project", payload["workflow_id"]),
             goal=payload.get("goal", ""),
+            purpose=payload.get("purpose", ""),
+            inputs=dict(payload.get("inputs", {})),
             constraints=dict(payload.get("constraints", {})),
             phases=phases,
             outputs=list(payload.get("outputs", [])),

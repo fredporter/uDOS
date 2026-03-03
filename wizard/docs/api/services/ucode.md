@@ -43,6 +43,40 @@ uCODE bridge APIs for command dispatch, metadata, and hotkey/keymap configuratio
 - `GET /api/ucode/keymap`
 - `POST /api/ucode/keymap`
 
+## Template Endpoints
+
+These routes reuse the same command flow as:
+- `UCODE TEMPLATE LIST`
+- `UCODE TEMPLATE READ <family> <template>`
+- `UCODE TEMPLATE DUPLICATE <family> <template> [target_name]`
+
+- `GET /api/ucode/templates`
+- `GET /api/ucode/templates/{family}`
+- `GET /api/ucode/templates/{family}/{template_name}`
+- `POST /api/ucode/templates/{family}/{template_name}/duplicate`
+
+### Duplicate Request (example)
+
+```json
+{
+  "target_name": "my-device-template"
+}
+```
+
+Template families currently exposed:
+- `workflows`
+- `missions`
+- `captures`
+- `submissions`
+
+Consumers:
+- Wizard dashboard `templates` route
+- `GET /api/ops/templates`
+- `GET /api/ops/templates/{family}`
+- `GET /api/workflows/templates`
+- `GET /api/workflows/templates/{template_name}`
+- `POST /api/workflows/templates/{template_name}/duplicate`
+
 ### `GET /api/ucode/keymap` Response (example)
 
 ```json

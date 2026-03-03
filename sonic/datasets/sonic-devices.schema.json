@@ -51,6 +51,10 @@
     "media_mode": { "type": "string", "enum": ["none", "htpc", "retro", "unknown"] },
     "udos_launcher": { "type": "string", "enum": ["none", "basic", "advanced", "unknown"] },
     "wizard_profile": { "type": "string" },
-    "media_launcher": { "type": "string" }
+    "media_launcher": { "type": "string" },
+    "settings_template_md": { "type": "string" },
+    "installers_template_md": { "type": "string" },
+    "containers_template_md": { "type": "string" },
+    "drivers_template_md": { "type": "string" }
   }
 }

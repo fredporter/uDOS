@@ -48,6 +48,7 @@ from wizard.routes.ucode_ok_routes import create_ucode_ok_routes
 from wizard.routes.ucode_ok_stream_dispatch import dispatch_ok_stream_command
 from wizard.routes.ucode_route_utils import shell_safe
 from wizard.routes.ucode_setup_story_utils import load_setup_story as _load_setup_story
+from wizard.routes.ucode_template_routes import create_ucode_template_routes
 from wizard.routes.ucode_user_routes import create_ucode_user_routes
 from wizard.services.logging_api import get_logger, new_corr_id
 
@@ -284,6 +285,16 @@ def create_ucode_routes(auth_guard=None):
             run_ok_cloud=_run_ok_cloud,
             ok_cloud_available=_ok_cloud_available,
             record_ok_output=_record_ok_output,
+        )
+    )
+    router.include_router(
+        create_ucode_template_routes(
+            logger=logger,
+            dispatcher=dispatcher,
+            new_corr_id=new_corr_id,
+            set_corr_id=set_corr_id,
+            reset_corr_id=reset_corr_id,
+            dispatch_core=_dispatch_core,
         )
     )
 
