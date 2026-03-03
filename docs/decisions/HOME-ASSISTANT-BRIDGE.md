@@ -1,6 +1,6 @@
 # Home Assistant Bridge Contract
 
-**Status:** Planned for v1.5 stable (Cycle D)
+**Status:** Active optional v1.5 bridge
 
 ---
 
@@ -13,8 +13,9 @@ Expose a minimal contract so Home Assistant can discover uDOS services and inter
 `/api/ha/`
 
 ## Contract Files
-- **Wizard API contract (this doc):** `docs/HOME-ASSISTANT-BRIDGE.md`
+- **Wizard API contract (this doc):** `docs/decisions/HOME-ASSISTANT-BRIDGE.md`
 - **Service definition + routes:** `library/home-assistant/bridge.json`
+- **uHOME runtime/install companion spec:** `docs/specs/UHOME-v1.5.md`
 
 ### Required Routes (v1.5 target)
 - `GET /api/ha/status`
@@ -65,3 +66,6 @@ The bridge is the control plane for uHOME game-controller UX surfaces:
 - DVR rule control
 - ad-processing mode control
 - playback target handoff
+
+For v1.5, the bridge is optional Wizard-owned control-plane support. It is not
+required for a valid baseline `uHOME` install.

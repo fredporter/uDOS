@@ -398,7 +398,7 @@
             variant="success"
             className="px-4 py-2"
           >
-            Activate Dev Mode
+            Enable Dev Extension
           </TerminalButton>
         {:else}
           <TerminalButton
@@ -427,7 +427,7 @@
         </div>
       {/if}
       {#if !canDevMode}
-        <div class="mt-2 text-xs text-amber-300">Dev mode requires admin + dev permissions and a complete /dev framework.</div>
+        <div class="mt-2 text-xs text-amber-300">Dev Mode requires admin and dev permissions plus a complete /dev extension framework.</div>
       {/if}
     </div>
 
@@ -514,7 +514,7 @@
       </div>
     {:else if !devActivated}
       <div class="bg-slate-900/70 border border-slate-700 text-slate-200 p-3 rounded text-sm">
-        Dev Mode is installed but inactive. Activate the Dev extension to enable scripts and tests.
+        Dev Mode is installed but inactive. Enable the Dev extension lane to unlock contributor scripts and tests.
       </div>
     {/if}
 

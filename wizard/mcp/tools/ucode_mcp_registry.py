@@ -1,4 +1,4 @@
-"""Canonical MCP tool registry for uCODE generic and proxy lanes."""
+"""Canonical MCP tool registry for the Vibe uCODE developer lanes."""
 
 from __future__ import annotations
 
@@ -28,13 +28,13 @@ UCODE_MCP_TOOL_REGISTRY: tuple[MCPToolEntry, ...] = (
         name="ucode_tools_list",
         lane=MCPToolLane.GENERIC,
         owner_module="wizard.mcp.tools.ucode_tools",
-        rationale="Extensibility path: dynamic discovery of all uCODE tools.",
+        rationale="Developer lane: list the approved uCODE subset exposed to Vibe.",
     ),
     MCPToolEntry(
         name="ucode_tools_call",
         lane=MCPToolLane.GENERIC,
         owner_module="wizard.mcp.tools.ucode_tools",
-        rationale="Extensibility path: generic invocation for any discovered tool.",
+        rationale="Developer lane: generic invocation for the approved uCODE subset.",
     ),
     MCPToolEntry(
         name="ucode_health",
@@ -55,22 +55,34 @@ UCODE_MCP_TOOL_REGISTRY: tuple[MCPToolEntry, ...] = (
         rationale="Latency/ergonomics path: direct proxy for command help.",
     ),
     MCPToolEntry(
+        name="ucode_verify",
+        lane=MCPToolLane.PROXY,
+        owner_module="wizard.mcp.tools.ucode_proxies",
+        rationale="Latency/ergonomics path: direct proxy for installation verification.",
+    ),
+    MCPToolEntry(
+        name="ucode_repair",
+        lane=MCPToolLane.PROXY,
+        owner_module="wizard.mcp.tools.ucode_proxies",
+        rationale="Latency/ergonomics path: direct proxy for contributor repair flows.",
+    ),
+    MCPToolEntry(
+        name="ucode_config",
+        lane=MCPToolLane.PROXY,
+        owner_module="wizard.mcp.tools.ucode_proxies",
+        rationale="Latency/ergonomics path: direct proxy for developer config inspection.",
+    ),
+    MCPToolEntry(
         name="ucode_run",
         lane=MCPToolLane.PROXY,
         owner_module="wizard.mcp.tools.ucode_proxies",
-        rationale="Latency/ergonomics path: direct proxy for run workflows.",
+        rationale="Latency/ergonomics path: direct proxy for developer script workflows.",
     ),
     MCPToolEntry(
         name="ucode_read",
         lane=MCPToolLane.PROXY,
         owner_module="wizard.mcp.tools.ucode_proxies",
-        rationale="Latency/ergonomics path: direct proxy for read workflows.",
-    ),
-    MCPToolEntry(
-        name="ucode_story",
-        lane=MCPToolLane.PROXY,
-        owner_module="wizard.mcp.tools.ucode_proxies",
-        rationale="Latency/ergonomics path: direct proxy for story workflows.",
+        rationale="Latency/ergonomics path: direct proxy for repo and asset inspection.",
     ),
 )
 

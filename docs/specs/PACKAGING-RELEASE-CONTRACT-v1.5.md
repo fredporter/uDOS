@@ -89,10 +89,19 @@ Specialized release lanes such as Sonic or managed Wizard deployment may extend 
 - current decision docs
 - current install and operator guides
 
+Standalone distributions remain valid where explicitly defined by active specs.
+For v1.5 this may include standalone Sonic and standalone `uHOME` artifacts, so
+long as:
+
+- variant identity is explicit
+- install and verification paths remain documented
+- optional Wizard control surfaces do not become hidden hard dependencies
+- thin-GUI and Steam-console presentation assets remain profile-scoped rather
+  than redefining runtime ownership
+
 ## Canonical Status
 
 This file is the active short-form packaging contract for v1.5.
 
 Historical detail and earlier oversized milestone material were split out of:
 - `docs/specs/PACKAGING-DISTRIBUTION-ARCHITECTURE-v1.4.6.md`
-

@@ -68,6 +68,7 @@ def test_install_summary_resolves_mandatory_core_and_profile_outputs(tmp_path: P
     assert summary["requires_dev"] is True
     assert summary["requires_wizard"] is False
     assert summary["tinycore_tier"] == "core"
+    assert summary["template_workspace"]["editor_library_ref"] == "typo"
 
 
 def test_install_profiles_persists_enabled_state(tmp_path: Path):
@@ -83,3 +84,57 @@ def test_install_profiles_persists_enabled_state(tmp_path: Path):
         "enabled": ["core", "dev", "home"],
         "installed": ["core", "dev", "home"],
     }
+
+
+def test_empire_extension_status_exposes_official_contract_fields(tmp_path: Path):
+    manifest_dir = tmp_path / "distribution" / "profiles"
+    manifest_dir.mkdir(parents=True)
+    payload = {
+        "profiles": [
+            {
+                "profile_id": "core",
+                "label": "Core",
+                "summary": "Base runtime",
+                "mandatory": True,
+                "default_enabled": True,
+                "components": ["ucode"],
+                "package_groups": ["utilities"],
+                "extensions": [],
+                "blockers": [],
+            }
+        ],
+        "extensions": {
+            "empire": {
+                "label": "Empire",
+                "path": "extensions/empire",
+                "profiles": ["home"],
+                "summary": "Official business/data extension",
+            }
+        },
+    }
+    (manifest_dir / "certified-profiles.json").write_text(
+        json.dumps(payload, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    root = tmp_path / "extensions" / "empire"
+    (root / "services").mkdir(parents=True)
+    (root / "api").mkdir(parents=True)
+    (root / "src").mkdir(parents=True)
+    (root / "data").mkdir(parents=True)
+    (root / "config").mkdir(parents=True)
+    (root / "__init__.py").write_text("", encoding="utf-8")
+    (root / "services" / "__init__.py").write_text("", encoding="utf-8")
+    (root / "api" / "__init__.py").write_text("", encoding="utf-8")
+    (root / "src" / "spine.py").write_text("", encoding="utf-8")
+    (root / "data" / "empire.db").write_text("", encoding="utf-8")
+
+    service = ReleaseProfileService(tmp_path)
+    status = service.extension_status("empire")
+
+    assert status["installed"] is True
+    assert status["enabled"] is True
+    assert status["configuration_state"] == "partial"
+    assert status["degraded"] is True
+    assert status["wizard_route"] == "#empire"
+    assert "api-token" in status["missing_prerequisites"]
+    assert status["template_workspace"]["workspace_ref"] == "@memory/bank/typo-workspace"

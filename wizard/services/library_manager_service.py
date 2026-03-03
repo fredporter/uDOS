@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple, Set
 from dataclasses import dataclass
 
+from core.services.container_catalog_service import get_container_catalog_service
 from wizard.services.plugin_factory import APKBuilder, BuildResult
 from wizard.services.system_info_service import LibraryStatus, LibraryIntegration
 
@@ -74,22 +75,14 @@ class LibraryManagerService:
         inventory: Dict[str, Any] = {}
         for integration in status.integrations:
             try:
-                container_path = Path(integration.path) / "container.json"
-                if not container_path.exists():
-                    # Fallback to definition in /library/<name>/container.json
-                    definition_path = self.library_root / integration.name / "container.json"
-                    if definition_path.exists():
-                        container_path = definition_path
-                if not container_path.exists():
+                catalog_entry = self._get_catalog_library_entry(integration.name)
+                manifest_path = self._manifest_path_from_entry(catalog_entry)
+                if manifest_path is None:
                     continue
-                manifest = json.loads(container_path.read_text())
-                deps = {
-                    "apk_dependencies": manifest.get("apk_dependencies", []),
-                    "brew_dependencies": manifest.get("brew_dependencies", []),
-                    "apt_dependencies": manifest.get("apt_dependencies", []),
-                    "pip_dependencies": manifest.get("pip_dependencies", []),
-                    "python_version": manifest.get("python_version", ""),
-                }
+                deps = dict((catalog_entry.metadata.get("package_dependencies") or {}))
+                manifest = self._load_integration_manifest(integration)
+                build = manifest.get("build", {}) if isinstance(manifest, dict) else {}
+                deps["python_version"] = build.get("python_version", "")
                 inventory[integration.name] = {
                     "path": integration.path,
                     "source": integration.source,
@@ -190,13 +183,14 @@ class LibraryManagerService:
         return next((i for i in status.integrations if i.name == name), None)
 
     def _resolve_manifest_path(self, integration: LibraryIntegration) -> Optional[Path]:
+        catalog_entry = self._get_catalog_library_entry(integration.name)
+        manifest_path = self._manifest_path_from_entry(catalog_entry)
+        if manifest_path is not None:
+            return manifest_path
         integration_path = Path(integration.path)
-        container_path = integration_path / "container.json"
-        if container_path.exists():
-            return container_path
-        definition_path = self.library_root / integration.name / "container.json"
-        if definition_path.exists():
-            return definition_path
+        fallback = integration_path / "container.json"
+        if fallback.exists():
+            return fallback
         return None
 
     def _load_integration_manifest(self, integration: LibraryIntegration) -> Dict[str, Any]:
@@ -817,6 +811,21 @@ class LibraryManagerService:
         with open(self.enabled_config_path, "w") as f:
             for plugin in sorted(enabled):
                 f.write(f"{plugin}\n")
+
+    def _get_catalog_library_entry(self, name: str):
+        entry = get_container_catalog_service(self.repo_root).get_entry(name)
+        if entry and entry.kind == "library":
+            return entry
+        return None
+
+    def _manifest_path_from_entry(self, entry) -> Optional[Path]:
+        if not entry:
+            return None
+        manifest_path = entry.metadata.get("manifest_path")
+        if not isinstance(manifest_path, str) or not manifest_path.strip():
+            return None
+        candidate = self.repo_root / manifest_path
+        return candidate if candidate.exists() else None
 
 
 def get_library_manager(repo_root: Optional[Path] = None) -> LibraryManagerService:

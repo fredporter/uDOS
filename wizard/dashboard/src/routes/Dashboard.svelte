@@ -4,6 +4,7 @@
   import { getAdminToken, buildAuthHeaders } from "../lib/services/auth";
 
   let dashboardData = null;
+  let dashboardSummary = null;
   let systemStats = null;
   let logStats = null;
   let githubHealth = null;
@@ -35,6 +36,7 @@
   let nounDownloadStatus = "";
   let nounCachedPath = "";
   let nounDetails = {};
+  let runtimeSaveState = {};
 
   const authHeaders = () => buildAuthHeaders();
 
@@ -75,14 +77,49 @@
     return `${safeUsed} / ${safeTotal}`;
   };
 
+  const runtimeSourceClass = (source) => {
+    if (source === "template_workspace") return "bg-emerald-900/60 text-emerald-100";
+    if (source === "template_workspace_invalid") return "bg-amber-900/60 text-amber-100";
+    return "bg-slate-800 text-slate-200";
+  };
+
+  const runtimeSourceLabel = (source) => {
+    if (source === "template_workspace") return "Typo";
+    if (source === "template_workspace_invalid") return "Typo fallback";
+    if (source === "packaging_manifest") return "Manifest";
+    return source || "Default";
+  };
+
+  const runtimeValue = (component, key) =>
+    dashboardSummary?.workspace_runtime?.components?.[component]?.defaults?.[key]?.value || "";
+
+  const runtimeState = (component, key) =>
+    runtimeSaveState[`${component}:${key}`] || { saving: false, error: null };
+
+  const setRuntimeState = (component, key, next) => {
+    runtimeSaveState = {
+      ...runtimeSaveState,
+      [`${component}:${key}`]: {
+        ...(runtimeSaveState[`${component}:${key}`] || { saving: false, error: null }),
+        ...next,
+      },
+    };
+  };
+
   async function loadDashboard() {
     loading = true;
     error = null;
     try {
-      const res = await apiFetch("/api/index");
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+      const [indexRes, summaryRes] = await Promise.all([
+        apiFetch("/api/index"),
+        apiFetch("/api/dashboard/summary", {
+          headers: authHeaders(),
+        }),
+      ]);
+      if (!indexRes.ok) throw new Error(`HTTP ${indexRes.status}`);
+      const data = await indexRes.json();
       dashboardData = data;
+      dashboardSummary = summaryRes.ok ? await summaryRes.json() : null;
       systemStats = data.system || systemStats;
       logStats = data.log_stats || null;
       await loadSchedulerStatus();
@@ -259,6 +296,34 @@
       schedulerError = null;
     } catch (err) {
       schedulerError = `Failed to update scheduler: ${err.message}`;
+    }
+  }
+
+  async function updateWorkspaceField(componentId, fieldName, value, key) {
+    setRuntimeState(componentId, key, { saving: true, error: null });
+    try {
+      const res = await apiFetch(
+        `/api/settings-unified/template-workspace/${componentId}/settings/field`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            ...authHeaders(),
+          },
+          body: JSON.stringify({
+            field_name: fieldName,
+            value,
+          }),
+        },
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      await loadDashboard();
+      setRuntimeState(componentId, key, { saving: false, error: null });
+    } catch (err) {
+      setRuntimeState(componentId, key, {
+        saving: false,
+        error: err.message || String(err),
+      });
     }
   }
 
@@ -544,6 +609,196 @@
         </div>
       {/if}
     </div>
+
+    {#if dashboardSummary?.workspace_runtime?.components}
+      <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 space-y-5">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h3 class="text-lg font-semibold text-white">Runtime Defaults</h3>
+            <p class="text-sm text-gray-400">
+              Shared Typo workspace defaults across Sonic and uHOME.
+            </p>
+          </div>
+          <div class="text-xs text-gray-400">
+            {dashboardSummary.workspace_runtime.workspace_ref}
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <div class="bg-slate-900/50 border border-slate-700 rounded-lg p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-white font-semibold">Sonic</div>
+                <div class="text-xs text-gray-400">
+                  {dashboardSummary.workspace_runtime.components.sonic.template_workspace_state?.settings?.effective_source || "default"}
+                  settings layer
+                </div>
+              </div>
+              <div class="text-xs text-gray-400">Build, boot, media</div>
+            </div>
+
+            <div class="space-y-2 text-sm">
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-gray-400">Build profile</span>
+                <div class="flex items-center gap-2">
+                  <select
+                    class="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-sm text-white"
+                    value={runtimeValue("sonic", "build_profile")}
+                    disabled={runtimeState("sonic", "build_profile").saving}
+                    on:change={(event) =>
+                      updateWorkspaceField(
+                        "sonic",
+                        "preferred-profile",
+                        event.currentTarget.value,
+                        "build_profile",
+                      )}
+                  >
+                    <option value="alpine-core">alpine-core</option>
+                    <option value="alpine-core+sonic">alpine-core+sonic</option>
+                  </select>
+                  <span class={`px-2 py-1 rounded text-[11px] font-medium ${runtimeSourceClass(dashboardSummary.workspace_runtime.components.sonic.defaults.build_profile.source)}`}>
+                    {runtimeSourceLabel(dashboardSummary.workspace_runtime.components.sonic.defaults.build_profile.source)}
+                  </span>
+                </div>
+              </div>
+              {#if runtimeState("sonic", "build_profile").error}
+                <div class="text-xs text-red-300 text-right">
+                  {runtimeState("sonic", "build_profile").error}
+                </div>
+              {/if}
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-gray-400">Boot route</span>
+                <div class="flex items-center gap-2">
+                  <select
+                    class="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-sm text-white"
+                    value={runtimeValue("sonic", "boot_route")}
+                    disabled={runtimeState("sonic", "boot_route").saving}
+                    on:change={(event) =>
+                      updateWorkspaceField(
+                        "sonic",
+                        "preferred-boot-profile",
+                        event.currentTarget.value,
+                        "boot_route",
+                      )}
+                  >
+                    <option value="udos-alpine">uDOS Alpine Core</option>
+                    <option value="udos-windows-entertainment">Windows Media & Entertainment</option>
+                  </select>
+                  <span class={`px-2 py-1 rounded text-[11px] font-medium ${runtimeSourceClass(dashboardSummary.workspace_runtime.components.sonic.defaults.boot_route.source)}`}>
+                    {runtimeSourceLabel(dashboardSummary.workspace_runtime.components.sonic.defaults.boot_route.source)}
+                  </span>
+                </div>
+              </div>
+              {#if runtimeState("sonic", "boot_route").error}
+                <div class="text-xs text-red-300 text-right">
+                  {runtimeState("sonic", "boot_route").error}
+                </div>
+              {/if}
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-gray-400">Media launcher</span>
+                <div class="flex items-center gap-2">
+                  <select
+                    class="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-sm text-white"
+                    value={runtimeValue("sonic", "media_launcher")}
+                    disabled={runtimeState("sonic", "media_launcher").saving}
+                    on:change={(event) =>
+                      updateWorkspaceField(
+                        "sonic",
+                        "preferred-launcher",
+                        event.currentTarget.value,
+                        "media_launcher",
+                      )}
+                  >
+                    <option value="kodi">Kodi</option>
+                    <option value="wantmymtv">WantMyMTV</option>
+                  </select>
+                  <span class={`px-2 py-1 rounded text-[11px] font-medium ${runtimeSourceClass(dashboardSummary.workspace_runtime.components.sonic.defaults.media_launcher.source)}`}>
+                    {runtimeSourceLabel(dashboardSummary.workspace_runtime.components.sonic.defaults.media_launcher.source)}
+                  </span>
+                </div>
+              </div>
+              {#if runtimeState("sonic", "media_launcher").error}
+                <div class="text-xs text-red-300 text-right">
+                  {runtimeState("sonic", "media_launcher").error}
+                </div>
+              {/if}
+            </div>
+          </div>
+
+          <div class="bg-slate-900/50 border border-slate-700 rounded-lg p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-white font-semibold">uHOME</div>
+                <div class="text-xs text-gray-400">
+                  {dashboardSummary.workspace_runtime.components.uhome.template_workspace_state?.settings?.effective_source || "default"}
+                  settings layer
+                </div>
+              </div>
+              <div class="text-xs text-gray-400">Presentation, node role</div>
+            </div>
+
+            <div class="space-y-2 text-sm">
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-gray-400">Presentation</span>
+                <div class="flex items-center gap-2">
+                  <select
+                    class="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-sm text-white"
+                    value={runtimeValue("uhome", "presentation")}
+                    disabled={runtimeState("uhome", "presentation").saving}
+                    on:change={(event) =>
+                      updateWorkspaceField(
+                        "uhome",
+                        "presentation-mode",
+                        event.currentTarget.value,
+                        "presentation",
+                      )}
+                  >
+                    <option value="thin-gui">Thin GUI</option>
+                    <option value="steam-console">Steam Console</option>
+                  </select>
+                  <span class={`px-2 py-1 rounded text-[11px] font-medium ${runtimeSourceClass(dashboardSummary.workspace_runtime.components.uhome.defaults.presentation.source)}`}>
+                    {runtimeSourceLabel(dashboardSummary.workspace_runtime.components.uhome.defaults.presentation.source)}
+                  </span>
+                </div>
+              </div>
+              {#if runtimeState("uhome", "presentation").error}
+                <div class="text-xs text-red-300 text-right">
+                  {runtimeState("uhome", "presentation").error}
+                </div>
+              {/if}
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-gray-400">Node role</span>
+                <div class="flex items-center gap-2">
+                  <select
+                    class="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-sm text-white"
+                    value={runtimeValue("uhome", "node_role")}
+                    disabled={runtimeState("uhome", "node_role").saving}
+                    on:change={(event) =>
+                      updateWorkspaceField(
+                        "uhome",
+                        "node-role",
+                        event.currentTarget.value,
+                        "node_role",
+                      )}
+                  >
+                    <option value="server">Server</option>
+                    <option value="tv-node">TV Node</option>
+                  </select>
+                  <span class={`px-2 py-1 rounded text-[11px] font-medium ${runtimeSourceClass(dashboardSummary.workspace_runtime.components.uhome.defaults.node_role.source)}`}>
+                    {runtimeSourceLabel(dashboardSummary.workspace_runtime.components.uhome.defaults.node_role.source)}
+                  </span>
+                </div>
+              </div>
+              {#if runtimeState("uhome", "node_role").error}
+                <div class="text-xs text-red-300 text-right">
+                  {runtimeState("uhome", "node_role").error}
+                </div>
+              {/if}
+            </div>
+          </div>
+        </div>
+      </div>
+    {/if}
 
     <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 space-y-4">
       <div class="flex items-start justify-between">

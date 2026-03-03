@@ -38,6 +38,8 @@ After setup:
 - Building tools → `vibe/core/tools/ucode/*.py`
 - Building skills → `vibe/core/skills/ucode/*.md`
 
+The Vibe lane is Dev extension-specific and intentionally narrow. Treat it as contributor tooling layered on top of the standard `ucode` runtime, not as a second full command surface.
+
 **Documentation:**
 - User guides → `wiki/Home.md`
 - Specifications → `docs/specs/`
@@ -56,6 +58,12 @@ ucode UCODE PROFILE LIST
 vibe --help
 vibe --prompt "What tools do you have?"
 ```
+
+Current Vibe skill set:
+- `ucode`
+- `ucode-help`
+- `ucode-setup`
+- `ucode-dev`
 
 ## Python Environment
 
@@ -143,8 +151,9 @@ See `docs/PHASE-A-QUICKREF.md` for templates.
 
 1. Create `vibe/core/skills/ucode/my-skill/SKILL.md`
 2. Write YAML frontmatter + description
-3. Optionally add implementation
-4. Test with the Dev Mode `vibe` shell
+3. Keep it Dev extension-specific and contributor-safe
+4. Add or update the allowlist/MCP exposure before treating it as active
+5. Test with the Dev Mode `vibe` shell
 
 ## Debugging
 

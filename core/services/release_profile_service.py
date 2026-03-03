@@ -7,7 +7,9 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
+from core.services.container_catalog_service import get_container_catalog_service
 from core.services.logging_api import get_repo_root
+from core.services.template_workspace_service import get_template_workspace_service
 
 
 @dataclass(frozen=True)
@@ -44,6 +46,7 @@ DEFAULT_PROFILES: tuple[ReleaseProfile, ...] = (
         label="Home",
         summary="Wizard server, home utilities, paired-device workflows, and curated household services.",
         components=["wizardd", "thin-ui-pairing", "home-services"],
+        extensions=["thin-gui", "sonic"],
         package_groups=["home", "utilities"],
         blockers=["wizard-pairing", "home-service-health", "home-package-verification"],
     ),
@@ -111,18 +114,64 @@ DEFAULT_EXTENSIONS: dict[str, dict[str, Any]] = {
         "path": "extensions/empire",
         "profiles": ["home"],
         "summary": "Operational business/data extension.",
+        "category": "business",
+        "visibility": "official",
+        "runtime_owner": "wizard",
+        "api_prefix": "/api/empire",
+        "wizard_route": "#empire",
+        "callable_from": ["core", "wizard", "extensions", "sonic", "uhome"],
+        "library_refs": ["empire"],
     },
     "dev-mode": {
         "label": "Dev Mode",
         "path": "dev",
         "profiles": ["dev"],
         "summary": "Contributor scaffold and Dev Mode gate.",
+        "category": "developer",
+        "visibility": "public",
+        "runtime_owner": "wizard",
+        "api_prefix": "/api/dev",
+        "wizard_route": "#dev",
+        "callable_from": ["core", "wizard", "extensions"],
     },
     "groovebox": {
         "label": "Groovebox",
         "path": "extensions/groovebox",
         "profiles": ["creator"],
         "summary": "Creator-profile music workflow extension.",
+        "category": "audio",
+        "visibility": "official",
+        "runtime_owner": "shared",
+        "api_prefix": "/api/groovebox",
+        "wizard_route": "#groovebox",
+        "callable_from": ["core", "wizard", "extensions"],
+        "library_refs": ["groovebox"],
+    },
+    "thin-gui": {
+        "label": "Thin GUI",
+        "path": "extensions/thin-gui",
+        "profiles": ["home"],
+        "summary": "Shared launch-intent GUI contract for direct-display and paired UI flows.",
+        "category": "ui",
+        "visibility": "official",
+        "runtime_owner": "shared",
+        "api_prefix": "/api/platform/launch",
+        "wizard_route": "#thin-gui",
+        "callable_from": ["core", "wizard", "extensions", "sonic", "uhome"],
+        "library_refs": ["typo", "micro"],
+    },
+    "sonic": {
+        "label": "Sonic Screwdriver",
+        "path": "sonic",
+        "profiles": ["home"],
+        "summary": "Standalone provisioning and deployment component aligned with shared library and launch contracts.",
+        "category": "utilities",
+        "visibility": "official",
+        "runtime_owner": "shared",
+        "api_prefix": "/api/sonic",
+        "wizard_route": "#sonic",
+        "callable_from": ["core", "wizard", "extensions", "sonic", "uhome"],
+        "library_refs": ["alpine", "distribution"],
     },
 }
 
@@ -134,6 +183,7 @@ class ReleaseProfileService:
         self.repo_root = repo_root or get_repo_root()
         self.manifest_path = self.repo_root / "distribution" / "profiles" / "certified-profiles.json"
         self.state_path = self.repo_root / "memory" / "ucode" / "release-profiles.json"
+        self.extensions_state_path = self.repo_root / "memory" / "ucode" / "extensions-state.json"
 
     def list_profiles(self) -> list[dict[str, Any]]:
         state = self._load_state()
@@ -202,6 +252,9 @@ class ReleaseProfileService:
             "requires_creator": "creator" in resolved,
             "requires_gaming": "gaming" in resolved,
             "tinycore_tier": "wizard" if "home" in resolved else "core",
+            "template_workspace": get_template_workspace_service(
+                self.repo_root
+            ).workspace_contract(),
         }
 
     def set_enabled(self, profile_id: str, enabled: bool) -> dict[str, Any]:
@@ -280,14 +333,76 @@ class ReleaseProfileService:
         meta = extensions.get(extension_id)
         if not meta:
             raise ValueError(f"Unknown extension: {extension_id}")
+        catalog_entry = get_container_catalog_service(self.repo_root).get_entry(extension_id)
         path = self.repo_root / str(meta.get("path", ""))
+        installed = path.exists()
+        enabled = self._extension_enabled(extension_id, installed)
+        configured = installed
+        configuration_state = "configured" if installed else "missing"
+        healthy = installed and enabled
+        degraded = False
+        capabilities: dict[str, bool] = {}
+        missing_prerequisites: list[str] = []
+        wizard_route = f"#{extension_id}"
+        if extension_id == "empire":
+            secrets_path = path / "config" / "empire_secrets.json"
+            configuration_state = "configured" if self._secret_has_key(secrets_path, "empire_api_token") else ("partial" if installed else "missing")
+            configured = configuration_state == "configured"
+            healthy = installed and enabled and (path / "data" / "empire.db").exists()
+            degraded = installed and enabled and (not healthy or not configured)
+            capabilities = {
+                "gui": installed,
+                "imports": (path / "scripts" / "ingest").exists(),
+                "templates": (path / "templates").exists(),
+                "google": self._secret_has_any(
+                    secrets_path,
+                    [
+                        "google_gmail_credentials_path",
+                        "google_gmail_token_path",
+                        "google_places_api_key",
+                    ],
+                ),
+                "hubspot": self._secret_has_key(secrets_path, "hubspot_private_app_token"),
+                "webhooks": True,
+            }
+            if not installed:
+                missing_prerequisites.append("extension-root")
+            if not (path / "__init__.py").exists():
+                missing_prerequisites.append("package-init")
+            if not (path / "data" / "empire.db").exists():
+                missing_prerequisites.append("database")
+            if configuration_state != "configured":
+                missing_prerequisites.append("api-token")
         return {
             "extension_id": extension_id,
             "label": meta.get("label", extension_id.title()),
             "summary": meta.get("summary", ""),
             "profiles": list(meta.get("profiles", [])),
             "path": str(path),
-            "available": path.exists(),
+            "available": installed,
+            "installed": installed,
+            "enabled": enabled,
+            "configured": configured,
+            "configuration_state": configuration_state,
+            "healthy": healthy,
+            "degraded": degraded,
+            "wizard_route": meta.get("wizard_route", wizard_route),
+            "api_prefix": meta.get("api_prefix"),
+            "visibility": meta.get("visibility", "official"),
+            "category": meta.get("category", "general"),
+            "runtime_owner": meta.get("runtime_owner", "shared"),
+            "callable_from": list(meta.get("callable_from", [])),
+            "library_refs": list(meta.get("library_refs", [])),
+            "lens_vars": catalog_entry.lens_vars if catalog_entry else {},
+            "template_workspace": (
+                catalog_entry.metadata.get("template_workspace")
+                if catalog_entry
+                else get_template_workspace_service(self.repo_root).component_contract(
+                    extension_id
+                )
+            ),
+            "capabilities": capabilities,
+            "missing_prerequisites": missing_prerequisites,
         }
 
     def list_extensions(self) -> list[dict[str, Any]]:
@@ -404,6 +519,32 @@ class ReleaseProfileService:
             json.dumps(state, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
         )
+
+    def _extension_enabled(self, extension_id: str, installed: bool) -> bool:
+        if not installed:
+            return False
+        if not self.extensions_state_path.exists():
+            return True
+        try:
+            payload = json.loads(self.extensions_state_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return True
+        extension = payload.get(extension_id, {})
+        if not isinstance(extension, dict):
+            return True
+        return bool(extension.get("enabled", True))
+
+    def _secret_has_key(self, path: Path, key: str) -> bool:
+        if not path.exists():
+            return False
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return False
+        return bool(payload.get(key)) if isinstance(payload, dict) else False
+
+    def _secret_has_any(self, path: Path, keys: list[str]) -> bool:
+        return any(self._secret_has_key(path, key) for key in keys)
 
 
 _service_instance: ReleaseProfileService | None = None

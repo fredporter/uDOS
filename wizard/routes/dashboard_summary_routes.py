@@ -19,10 +19,17 @@ from __future__ import annotations
 
 import urllib.request
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Callable, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 
+from core.services.template_workspace_service import get_template_workspace_service
+from wizard.services.path_utils import get_repo_root
+from wizard.services.sonic_boot_profile_service import get_sonic_boot_profile_service
+from wizard.services.sonic_build_service import get_sonic_build_service
+from wizard.services.sonic_media_console_service import get_sonic_media_console_service
+from wizard.services.uhome_presentation_service import get_uhome_presentation_service
 from wizard.version_utils import get_wizard_server_version
 
 
@@ -92,6 +99,64 @@ def _sync_status() -> dict[str, Any]:
     }
 
 
+def _workspace_runtime_status() -> dict[str, Any]:
+    repo_root = get_repo_root()
+    workspace = get_template_workspace_service(repo_root)
+    sonic_build = get_sonic_build_service(repo_root=repo_root)
+    sonic_media = get_sonic_media_console_service(repo_root=repo_root)
+    sonic_boot = get_sonic_boot_profile_service(repo_root=repo_root)
+    uhome = get_uhome_presentation_service(repo_root=repo_root)
+
+    sonic_media_status = sonic_media.get_status()
+    sonic_boot_status = sonic_boot.get_route_status()
+    uhome_status = uhome.get_status()
+
+    return {
+        "workspace_ref": "@memory/bank/typo-workspace",
+        "components": {
+            "sonic": {
+                "template_workspace": workspace.component_contract("sonic"),
+                "template_workspace_state": workspace.component_snapshot("sonic"),
+                "defaults": {
+                    "build_profile": {
+                        "value": getattr(sonic_build, "default_profile", None),
+                        "source": getattr(
+                            sonic_build, "default_profile_source", "packaging_manifest"
+                        ),
+                    },
+                    "boot_route": {
+                        "value": sonic_boot_status.get("preferred_route_profile_id"),
+                        "source": sonic_boot_status.get("preferred_route_source", "default"),
+                        "detail": sonic_boot_status.get("preferred_route"),
+                    },
+                    "media_launcher": {
+                        "value": sonic_media_status.get("preferred_launcher"),
+                        "source": sonic_media_status.get(
+                            "preferred_launcher_source", "default"
+                        ),
+                    },
+                },
+            },
+            "uhome": {
+                "template_workspace": workspace.component_contract("uhome"),
+                "template_workspace_state": workspace.component_snapshot("uhome"),
+                "defaults": {
+                    "presentation": {
+                        "value": uhome_status.get("preferred_presentation"),
+                        "source": uhome_status.get(
+                            "preferred_presentation_source", "default"
+                        ),
+                    },
+                    "node_role": {
+                        "value": uhome_status.get("node_role"),
+                        "source": uhome_status.get("node_role_source", "default"),
+                    },
+                },
+            },
+        },
+    }
+
+
 # ---------------------------------------------------------------------------
 # Route factory
 # ---------------------------------------------------------------------------
@@ -149,12 +214,14 @@ def create_dashboard_summary_routes(auth_guard: Optional[Callable] = None) -> AP
         cloud    = _probe(_cloud_status, "cloud")
         ha       = _probe(_ha_status, "ha_bridge")
         sync     = _probe(_sync_status, "secret_sync")
+        workspace_runtime = _probe(_workspace_runtime_status, "workspace_runtime")
 
         subsystems = {
             "ollama": ollama,
             "cloud": cloud,
             "ha_bridge": ha,
             "secret_sync": sync,
+            "workspace_runtime": workspace_runtime,
         }
 
         # Overall health: ok if all critical subsystems report ok
@@ -167,6 +234,7 @@ def create_dashboard_summary_routes(auth_guard: Optional[Callable] = None) -> AP
             "version": get_wizard_server_version(),
             "timestamp": ts,
             "subsystems": subsystems,
+            "workspace_runtime": workspace_runtime,
             "summary": {
                 "total": len(subsystems),
                 "healthy": sum(1 for s in subsystems.values() if s.get("ok")),

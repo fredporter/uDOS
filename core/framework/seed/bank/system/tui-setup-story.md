@@ -35,7 +35,7 @@ help: >
   For container deployments: /home/user/uDOS (standard Docker path)
   For local development: ~/Code/uDOS or your actual repo location
 
-  This enables proper path resolution across Core, Wizard, Goblin, and App components.
+  This enables proper path resolution across Core, Wizard, the /dev extension lane, and app components.
   Auto-detected from local setup, but required for container or unusual installations.
 validation: path
 ```
@@ -92,20 +92,20 @@ help: "Your access level. Role 'ghost' forces Ghost Mode."
 default: user
 ```
 ```story
-name: dev_mode_helper_install
-label: Download and Install Dev Mode Helper...?
+name: dev_extension_tooling_install
+label: Prepare Dev Extension Contributor Tooling?
 type: select
 required: true
 options:
-  - yes: Yes (install Ollama, vibe Dev Mode tooling, Mistral2 small/large, Devstral2 small)
+  - yes: Yes (prepare Ollama, vibe contributor tooling, Mistral2 small/large, Devstral2 small)
   - no: No (skip for now)
   - skip: Skip (ask me later)
-help: "Runs SETUP dev to install Ollama + vibe Dev Mode tooling + recommended local models. Operator mode remains the standard runtime."
+help: "Runs SETUP dev to prepare Ollama + vibe contributor tooling + recommended local models. Operator mode remains the standard runtime."
 default: no
 ```
 ```story
 name: mistral_api_key
-label: Mistral API key (for Dev Mode helper)
+label: Mistral API key (for Dev extension tooling)
 type: text
 required: false
 placeholder: "sk-..."

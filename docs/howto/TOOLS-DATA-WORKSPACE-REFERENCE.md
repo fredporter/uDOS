@@ -7,6 +7,14 @@ Status: active how-to reference
 
 Use these tools for binder and vault state, workspace switching, scheduling, script execution, setup, migration, and user context.
 
+Vibe Dev Mode exposes only this contributor subset from the broader category:
+- `ucode_seed`
+- `ucode_config`
+- `ucode_setup`
+- `ucode_run`
+
+Binder, save/load, place, scheduler, script, and user workflows remain part of the full TUI/operator surface.
+
 ## Data and Knowledge Tools
 
 ### `ucode_binder`
@@ -43,8 +51,9 @@ ucode_load(path="vault/backups", restore_date="2026-02-20")
 Install starter templates or seed content.
 
 ```python
-ucode_seed(template="default")
-ucode_seed(template="advanced")
+ucode_seed(action="status")
+ucode_seed(action="install")
+ucode_seed(action="reset")
 ```
 
 ### `ucode_migrate`
@@ -52,9 +61,9 @@ ucode_seed(template="advanced")
 Check, run, or roll back migrations.
 
 ```python
-ucode_migrate(action="check")
-ucode_migrate(action="run")
-ucode_migrate(action="rollback")
+ucode_migrate(direction="status")
+ucode_migrate(direction="up")
+ucode_migrate(direction="down", target="2026-03-01")
 ```
 
 ### `ucode_config`
@@ -63,8 +72,9 @@ Inspect or change config values.
 
 ```python
 ucode_config(action="show")
-ucode_config(action="get", key="vault.path")
-ucode_config(action="set", key="vault.path", value="/data/vault")
+ucode_config(action="get vault.path")
+ucode_config(action="set vault.path /data/vault")
+ucode_config(action="reset")
 ```
 
 ## Workspace and Execution Tools
@@ -108,6 +118,7 @@ Run interactive or quick setup.
 ```python
 ucode_setup(step="wizard")
 ucode_setup(step="quick")
+ucode_setup(step="validate")
 ucode_setup(step="config", confirm=True)
 ```
 
@@ -139,4 +150,4 @@ ucode_user(action="switch", username="alice")
 - seed new work areas
 - run migrations or scheduled jobs
 - change user context before operational work
-
+- use `seed`, `config`, `setup`, and `run` from Vibe only when operating inside the Dev extension lane

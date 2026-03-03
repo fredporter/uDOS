@@ -18,6 +18,7 @@
   let sharedView = false;
   let shareLinkCopied = false;
   let shareResetTimer = null;
+  let extensionToggles = {};
 
   async function loadExtensions() {
     try {
@@ -28,6 +29,9 @@
       const data = await res.json();
       extensions = data.extensions || [];
       summary = data.summary || null;
+      extensionToggles = Object.fromEntries(
+        extensions.map((ext) => [ext.id, ext.enabled ?? ext.present ?? false])
+      );
       if (requestedExtensionId && extensions.some((ext) => ext.id === requestedExtensionId)) {
         selectedExtensionId = requestedExtensionId;
       }
@@ -140,8 +144,23 @@
   }
 
   function openEmpireWeb() {
-    const port = 8991;
-    window.open(`http://127.0.0.1:${port}`, "_blank");
+    navigateTo("empire");
+  }
+
+  async function toggleEmpireEnabled(next) {
+    try {
+      const res = await apiFetch("/api/empire/status/enabled", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...buildAuthHeaders(getAdminToken()) },
+        body: JSON.stringify({ enabled: next }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      extensionToggles = { ...extensionToggles, empire: next };
+      await loadExtensions();
+      await loadEmpireStatus();
+    } catch (err) {
+      error = `Failed to update Empire state: ${err.message}`;
+    }
   }
 
   onMount(() => {
@@ -291,26 +310,36 @@
                   <div class="flex items-center gap-2 flex-wrap">
                     {#if ext.id === "empire"}
                       <!-- Empire-specific actions -->
-                      {#if empireTokenStatus?.token_configured}
+                      <button
+                        class={`px-3 py-1.5 text-white text-sm rounded transition-colors ${extensionToggles.empire ? "bg-gray-700 hover:bg-gray-600" : "bg-amber-600 hover:bg-amber-700"}`}
+                        on:click={() => toggleEmpireEnabled(!extensionToggles.empire)}
+                      >
+                        {extensionToggles.empire ? "Disable" : "Enable"}
+                      </button>
+                      {#if empireTokenStatus?.configured}
                         <button
                           class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded transition-colors"
                           on:click={openEmpireWeb}
                         >
-                          Open Empire
+                            Open Empire
                         </button>
                       {:else}
-                        <button
-                          class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded transition-colors"
-                          on:click={openEmpireWeb}
-                        >
-                          Configure Token
-                        </button>
-                      {/if}
+                          <button
+                            class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded transition-colors"
+                            on:click={openEmpireWeb}
+                          >
+                          Open Setup
+                          </button>
+                        {/if}
                       <span class="text-xs text-gray-500">
-                        {#if empireTokenStatus?.token_configured}
-                          ✓ Token configured
+                        {#if ext.enabled === false}
+                          ○ Disabled
+                        {:else if empireTokenStatus?.healthy}
+                          ✓ Healthy
+                        {:else if empireTokenStatus?.configured}
+                          ⚠ Configured, health pending
                         {:else}
-                          ⚠ Token not set
+                          ⚠ Configuration partial
                         {/if}
                       </span>
                     {:else if ext.id === "dev"}
@@ -318,7 +347,7 @@
                         class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded transition-colors"
                         on:click={() => navigateTo("devmode")}
                       >
-                        Open Dev Mode
+                        Open Dev Extension
                       </button>
                     {:else if ext.id === "groovebox"}
                       <button
@@ -351,8 +380,7 @@
     <!-- Info Note -->
     <div class="mt-8 p-4 bg-gray-900 border border-gray-700 rounded-lg">
       <p class="text-gray-400 text-sm">
-        <strong class="text-gray-300">Note:</strong> Extensions are private submodules.
-        Contact your administrator or check the uDOS documentation to install missing extensions.
+        <strong class="text-gray-300">Note:</strong> Official bundled extensions can be installed, enabled, and operated through the standard v1.5 extension surfaces. Empire is now hosted inside the Wizard dashboard.
       </p>
     </div>
   {/if}

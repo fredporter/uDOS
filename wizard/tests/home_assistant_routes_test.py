@@ -11,7 +11,6 @@ Coverage:
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -69,6 +68,24 @@ def _mock_urlopen_hdhomerun(ip: str = "192.168.1.50") -> MagicMock:
 
 def test_status_when_disabled(monkeypatch):
     _monkeypatch_enabled(monkeypatch, False)
+    monkeypatch.setattr(
+        routes,
+        "get_template_workspace_service",
+        lambda repo_root=None: type(
+            "_Svc",
+            (),
+            {
+                "component_contract": lambda self, component_id: {
+                    "component_id": component_id,
+                    "workspace_ref": "@memory/bank/typo-workspace",
+                },
+                "component_snapshot": lambda self, component_id: {
+                    "component_id": component_id,
+                    "instructions": {"effective_source": "default"},
+                },
+            },
+        )(),
+    )
     _, client = _app()
     res = client.get("/api/ha/status")
     assert res.status_code == 200
@@ -77,6 +94,8 @@ def test_status_when_disabled(monkeypatch):
     assert body["enabled"] is False
     assert body["bridge"] == "udos-ha"
     assert "version" in body
+    assert body["template_workspace"]["component_id"] == "uhome"
+    assert body["template_workspace_state"]["component_id"] == "uhome"
 
 
 def test_status_when_enabled(monkeypatch):
@@ -111,6 +130,24 @@ def test_discover_when_disabled_returns_503(monkeypatch):
 
 def test_discover_when_enabled_returns_entities(monkeypatch):
     _monkeypatch_enabled(monkeypatch, True)
+    monkeypatch.setattr(
+        routes,
+        "get_template_workspace_service",
+        lambda repo_root=None: type(
+            "_Svc",
+            (),
+            {
+                "component_contract": lambda self, component_id: {
+                    "component_id": component_id,
+                    "workspace_ref": "@memory/bank/typo-workspace",
+                },
+                "component_snapshot": lambda self, component_id: {
+                    "component_id": component_id,
+                    "instructions": {"effective_source": "default"},
+                },
+            },
+        )(),
+    )
     _, client = _app()
     res = client.get("/api/ha/discover")
     assert res.status_code == 200
@@ -124,6 +161,8 @@ def test_discover_when_enabled_returns_entities(monkeypatch):
     assert "udos.uhome.ad_processing" in ids
     assert "udos.uhome.playback" in ids
     assert "udos.system" in ids
+    assert body["template_workspace"]["workspace_ref"] == "@memory/bank/typo-workspace"
+    assert body["template_workspace_state"]["component_id"] == "uhome"
 
 
 def test_discover_entity_has_required_fields(monkeypatch):
@@ -410,6 +449,7 @@ class TestUHomeAdProcessing:
     def _patch_wizard_config(self, monkeypatch):
         """Replace WizardConfig with an in-memory store."""
         store: dict[str, str] = {}
+        workspace_store = {"ad_processing_mode": "disabled"}
 
         class FakeConfig:
             def get(self, key, default=None):
@@ -417,6 +457,22 @@ class TestUHomeAdProcessing:
 
             def set(self, key, value):
                 store[key] = value
+
+        class FakeWorkspaceService:
+            def read_fields(self, section, component_id):
+                assert section == "settings"
+                assert component_id == "uhome"
+                return dict(workspace_store)
+
+            def write_user_field(self, section, component_id, field_name, value):
+                assert section == "settings"
+                assert component_id == "uhome"
+                assert field_name == "ad-processing-mode"
+                workspace_store["ad_processing_mode"] = value
+                return {
+                    "effective_source": "user",
+                    "effective_content": f"- ad-processing-mode: {value}\n",
+                }
 
         import wizard.services.uhome_command_handlers as handlers
 
@@ -426,7 +482,13 @@ class TestUHomeAdProcessing:
             FakeConfig,
             raising=False,
         )
+        monkeypatch.setattr(
+            handlers,
+            "get_template_workspace_service",
+            lambda repo_root=None: FakeWorkspaceService(),
+        )
         self._store = store
+        self._workspace_store = workspace_store
 
     def _cmd(self, client, command, params=None):
         return client.post(
@@ -442,6 +504,7 @@ class TestUHomeAdProcessing:
         result = res.json()["result"]
         assert result["command"] == "uhome.ad_processing.get_mode"
         assert result["mode"] == "disabled"
+        assert result["source"] == "template_workspace"
         assert "valid_modes" in result
 
     def test_get_mode_valid_modes_list(self, monkeypatch):
@@ -464,6 +527,8 @@ class TestUHomeAdProcessing:
         result = res.json()["result"]
         assert result["success"] is True
         assert result["mode"] == "comskip_auto"
+        assert result["source"] == "template_workspace"
+        assert self._workspace_store["ad_processing_mode"] == "comskip_auto"
 
     def test_set_mode_persists(self, monkeypatch):
         _monkeypatch_enabled(monkeypatch, True)
@@ -471,6 +536,16 @@ class TestUHomeAdProcessing:
         self._cmd(client, "uhome.ad_processing.set_mode", {"mode": "passthrough"})
         get_res = self._cmd(client, "uhome.ad_processing.get_mode")
         assert get_res.json()["result"]["mode"] == "passthrough"
+
+    def test_get_mode_falls_back_to_wizard_config_when_workspace_invalid(self, monkeypatch):
+        self._workspace_store["ad_processing_mode"] = "invalid"
+        self._store["uhome_ad_processing_mode"] = "comskip_manual"
+        _monkeypatch_enabled(monkeypatch, True)
+        _, client = _app()
+        get_res = self._cmd(client, "uhome.ad_processing.get_mode")
+        result = get_res.json()["result"]
+        assert result["mode"] == "comskip_manual"
+        assert result["source"] == "wizard_config"
 
     def test_set_mode_invalid_returns_error(self, monkeypatch):
         _monkeypatch_enabled(monkeypatch, True)
@@ -492,6 +567,37 @@ class TestUHomeAdProcessing:
 class TestUHomePlayback:
     """uhome.playback.* command dispatch."""
 
+    @pytest.fixture(autouse=True)
+    def _patch_workspace_and_repo(self, monkeypatch, tmp_path):
+        import wizard.services.uhome_command_handlers as handlers
+
+        queue_root = tmp_path / "repo"
+        workspace_store = {
+            "presentation_mode": "thin-gui",
+            "preferred_target_client": "living-room",
+        }
+
+        class FakeWorkspaceService:
+            def read_fields(self, section, component_id):
+                assert section == "settings"
+                assert component_id == "uhome"
+                return dict(workspace_store)
+
+        monkeypatch.setattr(
+            handlers,
+            "get_template_workspace_service",
+            lambda repo_root=None: FakeWorkspaceService(),
+        )
+        monkeypatch.setattr(
+            "core.services.logging_api.get_repo_root",
+            lambda: queue_root,
+            raising=False,
+        )
+        self._workspace_store = workspace_store
+        self._queue_file = (
+            queue_root / "memory" / "bank" / "uhome" / "playback_queue.json"
+        )
+
     def _cmd(self, client, command, params=None):
         return client.post(
             "/api/ha/command",
@@ -510,6 +616,10 @@ class TestUHomePlayback:
         result = res.json()["result"]
         assert result["command"] == "uhome.playback.status"
         assert result["jellyfin_configured"] is False
+        assert result["presentation_mode"] == "thin-gui"
+        assert result["presentation_mode_source"] == "template_workspace"
+        assert result["preferred_target_client"] == "living-room"
+        assert result["preferred_target_client_source"] == "template_workspace"
         assert "note" in result
 
     def test_playback_status_with_jellyfin_reachable(self, monkeypatch):
@@ -551,6 +661,8 @@ class TestUHomePlayback:
         assert session["user"] == "alice"
         assert session["title"] == "Inception"
         assert session["media_type"] == "Movie"
+        assert result["presentation_mode"] == "thin-gui"
+        assert result["preferred_target_client"] == "living-room"
 
     def test_playback_status_jellyfin_unreachable(self, monkeypatch):
         """When Jellyfin URL is set but server is down, reachable=False."""
@@ -570,19 +682,26 @@ class TestUHomePlayback:
         assert result["jellyfin_reachable"] is False
         assert "issue" in result
 
-    def test_playback_handoff_queues_item(self, monkeypatch, tmp_path):
-        """handoff queues an item and returns success."""
+    def test_playback_status_falls_back_when_presentation_invalid(self, monkeypatch):
         _monkeypatch_enabled(monkeypatch, True)
         import wizard.services.uhome_command_handlers as handlers
 
-        queue_file = tmp_path / "playback_queue.json"
+        self._workspace_store["presentation_mode"] = "invalid"
+        self._workspace_store["preferred_target_client"] = ""
+        monkeypatch.setattr(handlers, "_jellyfin_base_url", lambda: "")
 
-        # Replace the handler with our file-isolated stand-in
-        monkeypatch.setattr(
-            handlers,
-            "playback_handoff",
-            lambda params: _fake_playback_handoff(params, queue_file),
-        )
+        _, client = _app()
+        res = self._cmd(client, "uhome.playback.status")
+
+        result = res.json()["result"]
+        assert result["presentation_mode"] == "thin-gui"
+        assert result["presentation_mode_source"] == "template_workspace_invalid"
+        assert result["preferred_target_client"] == "living-room"
+        assert result["preferred_target_client_source"] == "default"
+
+    def test_playback_handoff_queues_item(self, monkeypatch):
+        """handoff queues an item and returns success."""
+        _monkeypatch_enabled(monkeypatch, True)
 
         _, client = _app()
         res = self._cmd(
@@ -596,17 +715,43 @@ class TestUHomePlayback:
         assert result["success"] is True
         assert result["item_id"] == "abc123"
         assert result["target_client"] == "living-room-tv"
+        assert result["source"] == "request"
+        queue = json.loads(self._queue_file.read_text(encoding="utf-8"))
+        assert queue[0]["target_client"] == "living-room-tv"
 
-    def test_playback_handoff_requires_item_id(self, monkeypatch, tmp_path):
+    def test_playback_handoff_uses_workspace_default_target(self, monkeypatch):
+        _monkeypatch_enabled(monkeypatch, True)
+        self._workspace_store["preferred_target_client"] = "theater-node"
+
+        _, client = _app()
+        res = self._cmd(client, "uhome.playback.handoff", {"item_id": "abc123"})
+
+        result = res.json()["result"]
+        assert result["success"] is True
+        assert result["target_client"] == "theater-node"
+        assert result["source"] == "template_workspace"
+        queue = json.loads(self._queue_file.read_text(encoding="utf-8"))
+        assert queue[0]["target_client"] == "theater-node"
+
+    def test_playback_handoff_default_keyword_uses_workspace_target(self, monkeypatch):
+        _monkeypatch_enabled(monkeypatch, True)
+        self._workspace_store["preferred_target_client"] = "den-tv"
+
+        _, client = _app()
+        res = self._cmd(
+            client,
+            "uhome.playback.handoff",
+            {"item_id": "abc123", "target_client": "default"},
+        )
+
+        result = res.json()["result"]
+        assert result["success"] is True
+        assert result["target_client"] == "den-tv"
+        assert result["source"] == "template_workspace"
+
+    def test_playback_handoff_requires_item_id(self, monkeypatch):
         """handoff returns error when item_id is missing."""
         _monkeypatch_enabled(monkeypatch, True)
-        import wizard.services.uhome_command_handlers as handlers
-
-        monkeypatch.setattr(
-            handlers,
-            "playback_handoff",
-            lambda params: _fake_playback_handoff(params, tmp_path / "q.json"),
-        )
 
         _, client = _app()
         res = self._cmd(
@@ -615,46 +760,3 @@ class TestUHomePlayback:
         result = res.json()["result"]
         assert result["success"] is False
         assert "item_id" in result["error"]
-
-
-# ---------------------------------------------------------------------------
-# Inline helper for playback handoff tests (avoids get_repo_root dependency)
-# ---------------------------------------------------------------------------
-
-
-def _fake_playback_handoff(params: dict, queue_file: Path) -> dict:
-    """Minimal stand-in for playback_handoff that writes to a known path."""
-    import uuid
-    from datetime import datetime, timezone
-
-    item_id = str(params.get("item_id") or "").strip()
-    target_client = str(params.get("target_client") or "default").strip()
-
-    if not item_id:
-        return {
-            "command": "uhome.playback.handoff",
-            "success": False,
-            "error": "item_id is required",
-        }
-
-    queue = []
-    if queue_file.exists():
-        queue = json.loads(queue_file.read_text())
-
-    queue.append(
-        {
-            "id": str(uuid.uuid4())[:8],
-            "item_id": item_id,
-            "target_client": target_client,
-            "queued_at": datetime.now(timezone.utc).isoformat(),
-        }
-    )
-    queue_file.parent.mkdir(parents=True, exist_ok=True)
-    queue_file.write_text(json.dumps(queue, indent=2))
-
-    return {
-        "command": "uhome.playback.handoff",
-        "success": True,
-        "item_id": item_id,
-        "target_client": target_client,
-    }

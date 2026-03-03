@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from core.services.json_utils import read_json_file, write_json_file
+from core.services.template_workspace_service import get_template_workspace_service
 from core.services.time_utils import utc_now_iso_z
 from wizard.services.launch_adapters import LaunchAdapterExecution
 from wizard.services.launch_orchestrator import (
@@ -54,12 +55,27 @@ class SonicMediaConsoleService:
     def _write_state(self, payload: dict[str, Any]) -> None:
         write_json_file(self.state_path, payload, indent=2)
 
+    def _preferred_launcher(self) -> tuple[str, str]:
+        try:
+            fields = get_template_workspace_service(self.repo_root).read_fields(
+                "settings", "sonic"
+            )
+            workspace_value = str(fields.get("preferred_launcher") or "").strip().lower()
+            if workspace_value in SUPPORTED_LAUNCHERS:
+                return workspace_value, "template_workspace"
+        except Exception:
+            pass
+        return "kodi", "default"
+
     def get_status(self) -> dict[str, Any]:
         state = self._read_state()
+        preferred_launcher, preferred_source = self._preferred_launcher()
         return {
             "supported_launchers": list(SUPPORTED_LAUNCHERS),
             "active_launcher": state.get("active_launcher"),
             "running": bool(state.get("active_launcher")),
+            "preferred_launcher": preferred_launcher,
+            "preferred_launcher_source": preferred_source,
             "state_path": str(self.state_path),
             "updated_at": state.get("updated_at"),
             "launch_state_namespace": str(self.repo_root / "memory" / "wizard" / "launch"),
@@ -79,6 +95,9 @@ class SonicMediaConsoleService:
                 "description": "Ambient kiosk playback launcher.",
             },
         ]
+        preferred_launcher, _ = self._preferred_launcher()
+        for launcher in launchers:
+            launcher["preferred"] = launcher["id"] == preferred_launcher
         return {
             "count": len(launchers),
             "launchers": launchers,
@@ -87,6 +106,8 @@ class SonicMediaConsoleService:
 
     def start(self, launcher: str) -> dict[str, Any]:
         normalized = (launcher or "").strip().lower()
+        if not normalized:
+            normalized, _ = self._preferred_launcher()
         if normalized not in SUPPORTED_LAUNCHERS:
             raise ValueError(f"Unsupported media launcher: {launcher}")
         intent = LaunchIntent(

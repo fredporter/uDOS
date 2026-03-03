@@ -1,16 +1,22 @@
-# uDOS Sonic Screwdriver v1.1.0 (Draft)
+# Sonic Screwdriver v1.5 Contract
+
+Status: Active
+Updated: 2026-03-03
 
 ## Purpose
 
-Evolve Sonic Screwdriver into a **standalone, decoupleable USB builder** that can be run
-as a utility outside uDOS while remaining fully compatible with uDOS + Alpine.
+Define Sonic Screwdriver as the v1.5 standalone provisioning layer for
+profile-aware installs, with explicit alignment to the canonical `uHOME`
+runtime and Wizard-managed networking.
 
 Key goals:
-- Replace Ventoy with a **custom, multi-partition layout**.
-- Keep uDOS (Alpine TUI) as the smallest self-running control plane.
-- Support Windows 10 gaming + media modes (install or boot-from-stick).
-- Preserve Ubuntu Wizard support (local orchestration only).
-- Expand device database for Windows/media launcher readiness.
+
+- provide a standalone, decoupleable provisioning utility
+- materialize profile-aware install layouts and staged bundles
+- preserve `uHOME Server` and `uHOME TV Node` rollout support for v1.5
+- support thin-GUI and Steam-console presentation packaging for `uHOME`
+- hand off managed networking and control-plane behavior to Wizard
+- keep device database and launch-profile data deterministic
 
 ---
 
@@ -23,119 +29,112 @@ Sonic Screwdriver should run in isolation from uDOS:
 
 ---
 
-## v2 Partition Layout (No Ventoy)
+## v1.5 install lanes
 
-Target: 128 GB USB 3.x (UEFI boot only)
+Sonic provides two active install lanes for v1.5:
 
-```
-[ ESP ]          512 MB   FAT32   (bootloaders + EFI)
-[ UDOS_RO ]      8 GB     squashfs (read-only Alpine + uDOS TUI image)
-[ UDOS_RW ]      8 GB     ext4     (uDOS persistence)
-[ SWAP ]         8 GB     swap     (hibernation + memory pressure)
-[ WIZARD ]       20 GB    ext4     (Ubuntu Wizard image or rootfs)
-[ WIN10 ]        48 GB    NTFS     (Windows 10 install or WTG)
-[ MEDIA ]        28 GB    exFAT    (ROMs, ISOs, media, installers)
-[ CACHE ]        ~7.5 GB  ext4     (logs, downloads, temp)
-```
+- standalone bundle install
+- USB or image install
 
-### Layout Overrides
+The standalone bundle install is the canonical `uHOME Server` lane for v1.5.
+The USB or image lane remains valid for profile-aware node rollout, including
+`uHOME TV Node`.
 
-Partition sizes and formatting are adjustable via:
-- `config/sonic-layout.json` (preferred)
-- `--layout-file` and `--format-mode` in `core/sonic_cli.py`
- - `auto_scale` to fit smaller devices by scaling marked partitions
+Both lanes may be used for:
 
-### v2 Partitioning Script
+- standalone Sonic distribution
+- standalone `uHOME` distribution
+- combined Sonic + `uHOME` distribution
 
-`scripts/partition-layout.sh` consumes the manifest layout and applies GPT partitions,
-validating size totals and enforcing a single remainder partition.
+## USB or image layout contract
 
-### Payload Application
+The USB or image lane uses:
 
-`scripts/apply-payloads-v2.sh` mounts partitions by label and copies payloads from
-`payloads/` based on partition role. Squashfs partitions are written directly.
+- `config/sonic-layout.json`
+- `config/sonic-manifest.json.example`
+- `core/sonic_cli.py`
+- `scripts/partition-layout.sh`
+- `scripts/apply-payloads-v2.sh`
+- `scripts/sonic-stick.sh`
 
-Per-partition overrides can be set with `payload_dir` in `config/sonic-layout.json`.
-The v2 launcher supports `--payloads-dir` to override the base payload root.
-Use `--no-validate-payloads` as an escape hatch to bypass payload validation.
+The default layout remains a profile-capable multi-partition GPT layout. Layout
+values may be adjusted through `config/sonic-layout.json` and the Sonic CLI.
 
-### Windows 10 Modes
-- **install**: store Windows ISO + drivers, installer boots from ESP.
-- **wtg**: Windows To Go style NTFS partition for direct boot (hardware dependent).
+Rules:
 
-### Boot Priority
-1) uDOS Alpine (default)
-2) Windows 10 (gaming / media)
-3) Ubuntu Wizard
+- layouts remain profile-aware
+- install manifests must be reviewable before execution
+- run steps are destructive and must be treated as explicit execution
+- layout-driven installs may bootstrap a node for later Wizard enrollment, but
+  may not define a separate Sonic runtime protocol
+- layouts may package thin GUI, Steam-console UX, or both for the target node
 
----
+## Standalone bundle contract
 
-## uDOS TUI (Smallest Self-Running Form)
+The bundle lane is backed by:
 
-- Alpine Linux base
-- ncurses-first UI
-- Single fullscreen process
-- Controls partitioning, install, boot routing, device scanning
+- `sonic/core/uhome_bundle.py`
+- `sonic/core/uhome_installer.py`
+- `sonic/core/uhome_preflight.py`
 
----
+Bundle responsibilities:
 
-## Windows 10 Gaming + Media Layer
+- preflight hardware validation
+- artifact manifest verification
+- staged install plan generation
+- config and enable steps
+- rollback token support where provided
 
-**Gaming:**
-- Epic Games Launcher + Fortnite
-- GPU drivers + DirectX + VC++ runtimes
-- Telemetry reduced, auto-updates disabled (best effort)
+Current canonical component family for `uHOME` bundle installs:
 
-**Media:**
-- Kodi as 10-foot shell
-- WantMyMTV kiosk launcher
-- Plex optional
-- Remote-first UX
+- `jellyfin`
+- `comskip`
+- `hdhomerun_config`
+- `udos_uhome`
 
-Windows is treated as a sealed console OS with an explicit launcher.
+## Wizard networking alignment
 
----
+Sonic provisions nodes. Wizard owns ongoing network-aware control.
 
-## uDOS Windows Launcher (Provisioned)
+For v1.5:
 
-A uDOS-managed launcher that can:
-- Reboot-to-Windows
-- Maintain Windows boot profile (gaming vs media)
-- Sync launcher metadata to Wizard Server
+- Sonic may bootstrap a `uHOME` node for LAN use or later enrollment
+- Wizard owns `/api/beacon/*` and `/api/ha/*`
+- beacon configuration, tunnel state, and node control remain Wizard-managed
+- baseline `uHOME` must still work LAN-local without beacon or VPN setup
+- Sonic and `uHOME` may be shipped without the full `uDOS/core` runtime package
+  set when used as standalone distributions
 
----
+## Device and launch-profile data
 
-## Sonic Device Database Updates
+Sonic device and launch-profile data remain valid v1.5 inputs for:
 
-Add capability flags to improve guidance for Windows/media readiness:
-- `windows10_boot`: none / install / wtg / unknown
-- `media_mode`: none / htpc / retro / unknown
-- `udos_launcher`: none / basic / advanced / unknown
+- hardware-aware install guidance
+- profile selection
+- launcher and UI bundle planning where those surfaces are active
 
----
+These records must not redefine the `uHOME` runtime scope.
 
-## Svelte UI Shell (Dark)
+## Presentation packaging
 
-A standalone Sonic UI should be built in **Svelte + Tailwind (dark)** for:
-- Boot mode selector (uDOS / Windows / Wizard)
-- Build plans + progress
-- Device database browser
+Sonic may provision the following `uHOME` presentation combinations:
 
----
+- thin GUI only
+- Steam-console only
+- thin GUI plus Steam-console
 
-## Non-Goals
+These remain presentation-layer choices over the same `uHOME` install and node
+contracts.
 
-- No cloud dependencies in core builder
-- No GUI required for build operations
-- No Windows changes outside designated partitions
+## Non-goals
 
----
+- no separate Sonic-owned runtime networking protocol
+- no mandatory Windows gaming or dual-boot requirement for `uHOME`
+- no cloud dependency in the core provisioning lane
 
-## Deliverables
+## Related documents
 
-- Custom partitioning scripts (no Ventoy)
-- Bootloader config for multi-OS layout
-- uDOS TUI minimal image pipeline
-- Windows launcher + mode selector
-- Updated datasets + schema
-- Standalone docs + release packaging
+- `sonic/docs/integration-spec.md`
+- `docs/specs/UHOME-v1.5.md`
+- `docs/decisions/SONIC-DB-SPEC-GPU-PROFILES.md`
+- `wizard/docs/BEACON-IMPLEMENTATION.md`

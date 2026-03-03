@@ -16,6 +16,7 @@
       "label": "Home",
       "summary": "Wizard server, home utilities, paired-device workflows, and curated household services.",
       "components": ["wizardd", "thin-ui-pairing", "home-services"],
+      "extensions": ["thin-gui", "sonic"],
       "package_groups": ["home", "utilities"],
       "blockers": ["wizard-pairing", "home-service-health", "home-package-verification"]
     },
@@ -78,18 +79,65 @@
       "label": "Empire",
       "path": "extensions/empire",
       "profiles": ["home"],
-      "summary": "Operational business/data extension."
+      "summary": "Operational business/data extension.",
+      "category": "business",
+      "visibility": "official",
+      "runtime_owner": "wizard",
+      "api_prefix": "/api/empire",
+      "wizard_route": "#empire",
+      "callable_from": ["core", "wizard", "extensions", "sonic", "uhome"],
+      "library_refs": ["empire"]
     },
     "dev-mode": {
       "label": "Dev Mode",
       "path": "dev",
       "profiles": ["dev"],
-      "summary": "Contributor scaffold and Dev Mode gate."
+      "summary": "Contributor scaffold and Dev Mode gate.",
+      "category": "developer",
+      "visibility": "public",
+      "runtime_owner": "wizard",
+      "api_prefix": "/api/dev",
+      "wizard_route": "#dev",
+      "callable_from": ["core", "wizard", "extensions"]
     },
     "groovebox": {
       "label": "Groovebox",
       "path": "extensions/groovebox",
       "profiles": ["creator"],
-      "summary": "Creator-profile music workflow extension."
+      "summary": "Creator-profile music workflow extension.",
+      "category": "audio",
+      "visibility": "official",
+      "runtime_owner": "shared",
+      "api_prefix": "/api/groovebox",
+      "wizard_route": "#groovebox",
+      "callable_from": ["core", "wizard", "extensions"],
+      "library_refs": ["groovebox"]
+    },
+    "thin-gui": {
+      "label": "Thin GUI",
+      "path": "extensions/thin-gui",
+      "profiles": ["home"],
+      "summary": "Shared launch-intent GUI contract for direct-display and paired UI flows.",
+      "category": "ui",
+      "visibility": "official",
+      "runtime_owner": "shared",
+      "api_prefix": "/api/platform/launch",
+      "wizard_route": "#thin-gui",
+      "callable_from": ["core", "wizard", "extensions", "sonic", "uhome"],
+      "library_refs": ["typo", "micro"]
+    },
+    "sonic": {
+      "label": "Sonic Screwdriver",
+      "path": "sonic",
+      "profiles": ["home"],
+      "summary": "Standalone provisioning and deployment component aligned with shared library and launch contracts.",
+      "category": "utilities",
+      "visibility": "official",
+      "runtime_owner": "shared",
+      "api_prefix": "/api/sonic",
+      "wizard_route": "#sonic",
+      "callable_from": ["core", "wizard", "extensions", "sonic", "uhome"],
+      "library_refs": ["alpine", "distribution"]
     }
   }
+}

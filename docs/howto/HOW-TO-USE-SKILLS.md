@@ -1,6 +1,8 @@
 # How to Use Vibe Skills in uDOS-Vibe
 
-You have **5 uDOS skills** available. Here's how to use them:
+Vibe in the Dev extension lane exposes a small contributor-facing `ucode` subset. It is not the full uDOS operator command surface.
+
+You have **4 uDOS skills** available in this lane:
 
 ## 1. **ucode-help** — Documentation & Command Lookup
 ```
@@ -24,16 +26,7 @@ This will:
 - Initialize vault structure
 ```
 
-## 3. **ucode-story** — Read & Execute Narrative Content
-```
-/ucode-story STORY_ID
-
-Examples:
-/ucode-story intro     → Welcome to uDOS narrative
-/ucode-story tutorial  → Interactive tutorial
-```
-
-## 4. **ucode-dev** — Developer Mode & Debugging
+## 3. **ucode-dev** — Developer Mode & Debugging
 ```
 /ucode-dev
 
@@ -42,16 +35,7 @@ Shows:
 - Skill status
 - Configuration details
 - System diagnostics
-```
-
-## 5. **ucode-logs** — View Diagnostic Logs
-```
-/ucode-logs
-
-Returns:
-- Recent system logs
-- Error messages
-- Performance metrics
+- Recent log and health guidance
 ```
 
 ---
@@ -86,6 +70,8 @@ If you want tools (not skills), use natural language prompts like:
    vibe trust && vibe
    ```
 
+   Only do this inside the active Dev Mode contributor lane. Standard users should stay on `ucode`.
+
 ### Skills Asking for Input?
 Just type what they ask for. Skills are interactive and guide you through workflows.
 
@@ -94,6 +80,8 @@ Ask Vibe:
 ```
 "What tools are available?"
 ```
+
+Expect the contributor subset only, not the full TUI command inventory.
 
 ---
 
@@ -107,6 +95,8 @@ vibe trust && vibe
 # Or try the setup:
 # Type: /ucode-setup
 ```
+
+Use this only when the `dev` profile and `/dev/` extension lane are active.
 
 ### Option B: Use Tools via Natural Language
 ```bash
@@ -126,28 +116,18 @@ vibe trust && vibe
 
 ## What Tools Are Available?
 
-You have 42 uDOS tools:
+You have 10 Vibe-exposed uDOS tools in the Dev extension lane:
 
-### System (6)
-- Health checks, verification, repair, UID management, tokens, viewport
+### Health and Repair (5)
+- Health checks, verification, repair, tokens, command help
 
-### Navigation (5)
-- Map, grid, anchor, goto, find
+### Setup and State (3)
+- Seed, config, setup
 
-### Data (6)
-- Binder, save, load, seed, migrate, config
+### Repo and Asset Operations (2)
+- Run, read
 
-### Execution (4)
-- Place, scheduler, script, user
-
-### Content (6)
-- Draw, sonic, music, empire, destroy, undo
-
-### Bonus (9)
-- Help, setup, run, story, talk, read, play, print, format
-
-### Specialized (5)
-- Watch, export, import, notify, bench
+For binder, story, spatial, gameplay, media, and destructive commands, use the full uDOS TUI instead of Vibe.
 
 ---
 
@@ -168,7 +148,7 @@ You have 42 uDOS tools:
    /ucode-setup
    ```
 
-4. **Read the story/tutorial:**
+4. **Use the full TUI for story/operator workflows:**
    ```
-   /ucode-story intro
+   ucode
    ```

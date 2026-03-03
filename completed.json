@@ -1,6 +1,39 @@
 {
   "completed_milestones": [
     {
+      "id": "v1-5-roadmap-rebaseline",
+      "name": "v1.5 Roadmap Rebaseline Consolidation",
+      "version": "1.5",
+      "completed_date": "2026-03-03",
+      "summary": "Rebased the active roadmap and root trackers onto the current v1.5 release state.",
+      "tasks": [
+        {
+          "id": "rewrite-roadmap-rounds",
+          "name": "Rewrite roadmap into round-based implementation sequence",
+          "completed_date": "2026-03-03",
+          "owner": "Architecture Team"
+        },
+        {
+          "id": "refresh-root-trackers",
+          "name": "Update root task and devlog trackers to the v1.5 rebaseline",
+          "completed_date": "2026-03-03",
+          "owner": "Architecture Team"
+        },
+        {
+          "id": "align-command-docs",
+          "name": "Align high-traffic command docs and examples to shipped `WORKFLOW` and `UCODE` surfaces",
+          "completed_date": "2026-03-03",
+          "owner": "Documentation Team"
+        }
+      ],
+      "metrics": {
+        "roadmap_rounds_defined": 5,
+        "root_trackers_refreshed": 4,
+        "docs_surfaces_aligned": 2
+      },
+      "notes": "Historical milestone detail remains in docs/devlog and .compost."
+    },
+    {
       "id": "v1-4-6-governance",
       "name": "AGENTS.md Governance Standardisation",
       "version": "1.4.6",

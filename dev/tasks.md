@@ -1,6 +1,6 @@
 # tasks.md — Dev Mode Extension Active Tasks
 
-Last Updated: 2026-03-02
+Last Updated: 2026-03-03
 Project: uDOS v1.5 Dev Mode Extension
 
 ---
@@ -74,8 +74,8 @@ Project: uDOS v1.5 Dev Mode Extension
 ## Notes
 
 - `/dev` is the Dev Mode extension framework and governance root only. Runtime logic stays in `wizard/`.
-- Standard runtime is operator-first. Dev tooling remains explicitly activated and permission-gated.
-- Sonic readiness, Library operator workflows, and Dev extension activation are part of the pre-1.5 basework already landed.
+- Standard runtime is operator-first. Dev tooling is implicit only through the active Dev extension lane and remains permission-gated.
+- Local-only working paths under `/dev` are separate from the versioned template scaffold.
 
 ---
 

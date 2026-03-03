@@ -6,6 +6,8 @@ import wizard.routes.platform_routes as platform_routes
 
 class _StubBuildService:
     builds_root = "distribution/builds"
+    default_profile = "workspace-profile"
+    default_profile_source = "template_workspace"
 
     def start_build(self, profile="alpine-core+sonic", build_id=None, source_image=None, output_dir=None):
         return {
@@ -40,6 +42,24 @@ class _StubBuildService:
 
 def _client(monkeypatch):
     monkeypatch.setattr(platform_routes, "get_sonic_build_service", lambda repo_root=None: _StubBuildService())
+    monkeypatch.setattr(
+        platform_routes,
+        "get_template_workspace_service",
+        lambda repo_root=None: type(
+            "_Svc",
+            (),
+            {
+                "component_contract": lambda self, component_id: {
+                    "component_id": component_id,
+                    "workspace_ref": "@memory/bank/typo-workspace",
+                },
+                "component_snapshot": lambda self, component_id: {
+                    "component_id": component_id,
+                    "settings": {"effective_source": "default"},
+                },
+            },
+        )(),
+    )
 
     app = FastAPI()
     app.include_router(platform_routes.create_platform_routes(auth_guard=None))
@@ -73,3 +93,10 @@ def test_platform_sonic_build_endpoints(monkeypatch):
     assert dataset_res.status_code == 200
     assert "dataset_contract" in dataset_res.json()
     assert "checked_at" in dataset_res.json()
+
+    status_res = client.get("/api/platform/sonic/status")
+    assert status_res.status_code == 200
+    assert status_res.json()["template_workspace"]["component_id"] == "sonic"
+    assert status_res.json()["template_workspace_state"]["component_id"] == "sonic"
+    assert status_res.json()["default_build_profile"] == "workspace-profile"
+    assert status_res.json()["default_build_profile_source"] == "template_workspace"

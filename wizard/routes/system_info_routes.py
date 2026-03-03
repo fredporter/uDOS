@@ -11,6 +11,7 @@ Provides API endpoints for:
 from fastapi import APIRouter, Request, HTTPException
 from typing import Callable, Optional
 
+from core.services.template_workspace_service import get_template_workspace_service
 from wizard.services.system_info_service import get_system_info_service
 from wizard.services.path_utils import get_repo_root
 
@@ -77,7 +78,18 @@ def create_system_info_routes(
             "os": system_service.get_os_info().to_dict(),
             "stats": system_service.get_system_stats(),
             "library": system_service.get_library_status().to_dict(),
+            "template_workspace": get_template_workspace_service(
+                get_repo_root()
+            ).workspace_contract(),
         }
+
+    @router.get("/template-workspace")
+    async def get_template_workspace(request: Request):
+        """Get the shared Typo-oriented settings and instructions workspace."""
+        if auth_guard:
+            await auth_guard(request)
+
+        return get_template_workspace_service(get_repo_root()).workspace_contract()
 
     @router.get("/library")
     async def get_library_status(request: Request):

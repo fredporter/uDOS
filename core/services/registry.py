@@ -39,6 +39,8 @@ _service_loaders = {
     'distribution': lambda: _load_distribution_module(),
     'extensions': lambda: _load_extensions_module(),
     'empire': lambda: _load_empire_module(),
+    'container_catalog': lambda: _load_container_catalog_service(),
+    'template_workspace': lambda: _load_template_workspace_service(),
 }
 
 
@@ -189,24 +191,39 @@ def _load_extensions_module():
 
 
 def _load_empire_module():
-    """Load optional private extension (soft-fail when unavailable)."""
+    """Load official Empire extension (soft-fail when unavailable)."""
     repo_root = Path(__file__).resolve().parents[2]
-    if str(repo_root) not in sys.path:
-        sys.path.insert(0, str(repo_root))
+    extensions_root = repo_root / "extensions"
+    if str(extensions_root) not in sys.path:
+        sys.path.insert(0, str(extensions_root))
 
     try:
         import empire  # type: ignore
-        return type('PrivateExtension', (), {
+        return type('EmpireExtension', (), {
             'available': True,
             'module': empire,
             'message': None,
         })()
     except Exception:
-        return type('PrivateExtension', (), {
+        return type('EmpireExtension', (), {
             'available': False,
             'module': None,
             'message': (
-                "Optional private extension not available. "
-                "Install the private extension to enable this module."
+                "Official Empire extension not available. "
+                "Install or restore extensions/empire to enable this module."
             ),
         })()
+
+
+def _load_container_catalog_service():
+    """Load the shared container and extension catalog service."""
+    from core.services.container_catalog_service import get_container_catalog_service
+
+    return get_container_catalog_service()
+
+
+def _load_template_workspace_service():
+    """Load the shared Typo-oriented template workspace service."""
+    from core.services.template_workspace_service import get_template_workspace_service
+
+    return get_template_workspace_service()

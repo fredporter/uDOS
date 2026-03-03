@@ -271,6 +271,10 @@ class WizardServer:
         from wizard.routes.extension_routes import router as extension_router
 
         app.include_router(extension_router)
+        from wizard.routes.empire_routes import create_empire_routes
+
+        empire_router = create_empire_routes(auth_guard=self._authenticate_admin)
+        app.include_router(empire_router)
         from wizard.routes.dashboard_events_routes import create_dashboard_events_routes
 
         dashboard_events_router = create_dashboard_events_routes(

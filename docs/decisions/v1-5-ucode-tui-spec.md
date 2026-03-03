@@ -24,6 +24,7 @@ The v1.5 `ucode` TUI is a teletext-style terminal surface with:
 This TUI is the standard interactive runtime surface for normal users.
 `vibe` remains a Dev Mode contributor surface and is not the default user-facing terminal path.
 Mistral-backed contributor flows are treated as Dev Mode operations rather than the baseline user runtime.
+Dev Mode entry is implicit through the active `dev` extension lane and must not behave like a second default runtime.
 
 ## Architecture
 

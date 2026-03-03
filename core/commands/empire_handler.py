@@ -70,7 +70,7 @@ class EmpireHandler(BaseCommandHandler):
 
     def _empire_root(self) -> Path | None:
         repo_root = get_repo_root()
-        path = Path(repo_root) / "empire"
+        path = Path(repo_root) / "extensions" / "empire"
         return path if path.exists() else None
 
     def _suite_path(self) -> Path | None:
@@ -105,93 +105,59 @@ class EmpireHandler(BaseCommandHandler):
     def _help_text(self) -> str:
         return "\n".join([
             OutputToolkit.banner("EMPIRE"),
-            "EMPIRE START      Start Empire services",
-            "EMPIRE STOP       Stop Empire services",
-            "EMPIRE REBUILD    Rebuild Empire suite assets",
+            "Empire is now an official Wizard-operated extension.",
+            "Use: UCODE EXTENSION VERIFY empire",
+            "Open in Wizard: #empire",
+            "",
+            "Legacy compatibility commands:",
             "EMPIRE INGEST     Ingest raw records into JSONL",
             "EMPIRE NORMALIZE  Normalize + persist records",
-            "EMPIRE SYNC       Refresh overview + sync state",
-            "EMPIRE API        Start/stop Empire API server",
             "EMPIRE EMAIL      Email receive/process scaffolding",
             "EMPIRE HELP       Show this help",
         ])
 
     def _start_empire(self) -> dict:
-        banner = OutputToolkit.banner("EMPIRE START")
-        output_lines = [banner, ""]
-
-        empire_root = self._empire_root()
-        if not empire_root:
-            return {
-                "status": "error",
-                "message": "Empire extension not available",
-                "output": banner + "\n❌ Empire submodule not found",
-            }
-
-        output_lines.append("✅ Empire extension detected")
-        suite_path = self._suite_path()
-        if suite_path:
-            decision = self._prompt_open_suite(suite_path)
-            if decision:
-                output_lines.append(self._open_suite(suite_path))
-            elif decision is False:
-                output_lines.append("Skipped opening Empire Suite")
-            else:
-                output_lines.append("No response; Empire Suite not opened")
-        else:
-            output_lines.append("⚠️  Empire Suite page not found (web/index.html)")
-
-        return {"status": "success", "output": "\n".join(output_lines)}
+        return {
+            "status": "success",
+            "message": "Empire operates from the Wizard GUI",
+            "output": "\n".join(
+                [
+                    OutputToolkit.banner("EMPIRE START"),
+                    "",
+                    "Empire is now Wizard-operated.",
+                    "Use `UCODE EXTENSION VERIFY empire` for status.",
+                    "Open the Wizard dashboard and navigate to `#empire`.",
+                ]
+            ),
+        }
 
     def _stop_empire(self) -> dict:
-        banner = OutputToolkit.banner("EMPIRE STOP")
-        output_lines = [banner, ""]
-
-        empire_root = self._empire_root()
-        if not empire_root:
-            return {
-                "status": "error",
-                "message": "Empire extension not available",
-                "output": banner + "\n❌ Empire submodule not found",
-            }
-
-        output_lines.append("Stopping Empire services...")
-        output_lines.append("✅ Empire stopped (no background services running)")
-        return {"status": "success", "output": "\n".join(output_lines)}
+        return {
+            "status": "success",
+            "message": "Empire runtime is managed through Wizard",
+            "output": "\n".join(
+                [
+                    OutputToolkit.banner("EMPIRE STOP"),
+                    "",
+                    "Empire no longer runs as a standalone core-managed service.",
+                    "Disable or inspect it from Wizard `#empire`.",
+                ]
+            ),
+        }
 
     def _rebuild_empire(self) -> dict:
-        banner = OutputToolkit.banner("EMPIRE REBUILD")
-        output_lines = [banner, ""]
-
-        empire_root = self._empire_root()
-        if not empire_root:
-            return {
-                "status": "error",
-                "message": "Empire extension not available",
-                "output": banner + "\n❌ Empire submodule not found",
-            }
-
-        web_root = empire_root / "web"
-        package_json = web_root / "package.json"
-        if package_json.exists():
-            try:
-                result = subprocess.run(
-                    ["npm", "run", "build"],
-                    cwd=str(web_root),
-                    capture_output=False,
-                    check=False,
-                )
-                if result.returncode != 0:
-                    output_lines.append("❌ Empire build failed")
-                    return {"status": "error", "output": "\n".join(output_lines)}
-                output_lines.append("✅ Empire build complete")
-                return {"status": "success", "output": "\n".join(output_lines)}
-            except Exception as exc:
-                output_lines.append(f"❌ Empire build error: {exc}")
-                return {"status": "error", "output": "\n".join(output_lines)}
-
-        output_lines.append("✅ Empire rebuild skipped (no build system detected)")
-        return {"status": "success", "output": "\n".join(output_lines)}
+        return {
+            "status": "success",
+            "message": "Empire rebuild now lives in the Wizard/dashboard lane",
+            "output": "\n".join(
+                [
+                    OutputToolkit.banner("EMPIRE REBUILD"),
+                    "",
+                    "Empire is being rebuilt as an official Wizard extension.",
+                    "Use the Wizard dashboard route `#empire` and the extension APIs.",
+                ]
+            ),
+        }
 
     def _ingest(self, args: list[str]) -> dict:
         banner = OutputToolkit.banner("EMPIRE INGEST")

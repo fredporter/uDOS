@@ -18,8 +18,8 @@ def test_extension_hot_reload_routes(tmp_path, monkeypatch):
     monkeypatch.setattr(extension_routes, "REPO_ROOT", repo_root)
     monkeypatch.setattr(
         extension_routes,
-        "OFFICIAL_EXTENSIONS",
-        [
+        "_official_extensions",
+        lambda: [
             {
                 "id": "dev",
                 "name": "Dev",
@@ -31,6 +31,13 @@ def test_extension_hot_reload_routes(tmp_path, monkeypatch):
                 "web_port": None,
                 "category": "developer",
                 "visibility": "public",
+                "present": True,
+                "runtime_owner": "wizard",
+                "callable_from": ["core", "wizard"],
+                "library_refs": [],
+                "standalone_capable": False,
+                "lens_vars": {"lens": "repo-library:dev"},
+                "version": "1.0.0",
             },
             {
                 "id": "sonic",
@@ -43,6 +50,13 @@ def test_extension_hot_reload_routes(tmp_path, monkeypatch):
                 "web_port": None,
                 "category": "utilities",
                 "visibility": "public",
+                "present": True,
+                "runtime_owner": "shared",
+                "callable_from": ["core", "wizard", "sonic"],
+                "library_refs": [],
+                "standalone_capable": True,
+                "lens_vars": {"lens": "repo-library:sonic"},
+                "version": "1.0.0",
             },
         ],
     )

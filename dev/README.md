@@ -8,5 +8,12 @@ It exists to provide:
 - roadmap, task, and summary storage
 - extension metadata used to gate Dev Mode activation
 
-It must not contain production runtime code. Wizard owns the live Dev Mode
-runtime and TUI/Dev tooling integration.
+Rules:
+
+- standard runtime remains `ucode`
+- Dev Mode is entered implicitly only after the `dev` profile and `dev-mode` extension are active
+- Wizard GUI owns install, uninstall, activation, and deactivation
+- `/dev` is the versioned distro/template scaffold
+- local mutable contributor data must stay separate from the template truth
+
+It must not contain production runtime code. Wizard owns the live Dev Mode runtime and TUI/Dev tooling integration.

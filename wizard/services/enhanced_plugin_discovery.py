@@ -18,6 +18,7 @@ from pathlib import Path
 import subprocess
 from typing import Any
 
+from core.services.container_catalog_service import get_container_catalog_service
 from core.services.unified_config_loader import get_config
 from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root
@@ -100,6 +101,11 @@ class EnhancedPluginDiscovery:
             "category": "plugin",
         },
         "library": {"path": "library", "tier": "library", "category": "container"},
+        "extensions_root": {
+            "path": "extensions",
+            "tier": "extension",
+            "category": "extension",
+        },
         "extensions_transport": {
             "path": "extensions/transport",
             "tier": "extension",
@@ -115,6 +121,7 @@ class EnhancedPluginDiscovery:
     def __init__(self, repo_root: Path = None):
         """Initialize plugin discovery."""
         self.repo_root = Path(repo_root or get_repo_root())
+        self._explicit_repo_root = repo_root is not None
         self.udos_root = self._get_udos_root()
         self.plugins: dict[str, PluginMetadata] = {}
         self.last_scan = None
@@ -123,6 +130,8 @@ class EnhancedPluginDiscovery:
 
     def _get_udos_root(self) -> Path:
         """Get UDOS_ROOT from env or use repo_root."""
+        if self._explicit_repo_root:
+            return self.repo_root
         udos_root_env = get_config("UDOS_ROOT", "")
         if udos_root_env:
             return Path(udos_root_env).expanduser()
@@ -204,48 +213,32 @@ class EnhancedPluginDiscovery:
         self, library_dir: Path, source_info: dict[str, str]
     ):
         """Discover containerized plugins from library/."""
-        if not library_dir.exists():
-            return
-
-        for container_path in library_dir.iterdir():
-            if not container_path.is_dir():
-                continue
-
-            container_json = container_path / "container.json"
-            if not container_json.exists():
-                continue
-
+        catalog = get_container_catalog_service(self.udos_root)
+        for entry in catalog.list_by_kind("library"):
             try:
-                container_data = json.loads(container_json.read_text())
-                container_meta = container_data.get("container", {})
-                launch_config = container_data.get("launch_config", {})
-
-                plugin_id = container_meta.get("id", container_path.name)
-
+                package_dependencies = entry.metadata.get("package_dependencies", {})
+                plugin_id = entry.entry_id
                 metadata = PluginMetadata(
                     id=plugin_id,
-                    name=container_meta.get("name", plugin_id),
-                    description=container_meta.get("description", ""),
-                    category="container",
+                    name=entry.label or plugin_id,
+                    description=entry.summary,
+                    category=source_info["category"],
                     tier=source_info["tier"],
-                    version=container_meta.get("version", "0.0.0"),
-                    license=container_meta.get("license", "MIT"),
-                    author=container_meta.get("author", ""),
-                    homepage=container_meta.get("homepage", ""),
-                    documentation=container_meta.get("documentation", ""),
-                    source_path=f"library/{container_path.name}",
-                    config_path=f"library/{container_path.name}/container.json",
+                    version=entry.version or "0.0.0",
+                    license=str(entry.metadata.get("license") or "MIT"),
+                    author=str(entry.metadata.get("author") or ""),
+                    homepage=str(entry.metadata.get("homepage") or ""),
+                    documentation=str(entry.metadata.get("documentation") or ""),
+                    source_path=entry.path,
+                    config_path=entry.metadata.get("manifest_path"),
                     installer_type="container",
-                    health_check_url=launch_config.get("health_check_url"),
-                    dependencies=container_data.get("dependencies", {}).get(
-                        "system", []
-                    ),
+                    health_check_url=entry.metadata.get("health_check_url"),
+                    dependencies=list(entry.metadata.get("integration_dependencies") or [])
+                    + list(package_dependencies.get("system_dependencies") or []),
                 )
+                repo_path = Path(entry.metadata.get("resolved_repo_path") or (self.udos_root / entry.path))
+                metadata.git = self._get_git_metadata(repo_path)
 
-                # Get git metadata
-                metadata.git = self._get_git_metadata(container_path)
-
-                # Check if there's a manifest in distribution
                 manifest_path = (
                     self.udos_root
                     / "distribution"
@@ -254,61 +247,42 @@ class EnhancedPluginDiscovery:
                     / "manifest.json"
                 )
                 if manifest_path.exists():
-                    metadata.package_file = str(
-                        manifest_path.relative_to(self.udos_root)
-                    )
+                    metadata.package_file = str(manifest_path.relative_to(self.udos_root))
 
                 self.plugins[plugin_id] = metadata
                 logger.debug(f"[DISCOVERY] Found container: {plugin_id}")
             except Exception as e:
-                logger.error(
-                    f"[DISCOVERY] Error reading container {container_path.name}: {e!s}"
-                )
+                logger.error(f"[DISCOVERY] Error reading container {entry.entry_id}: {e!s}")
 
     def _discover_extensions(self, ext_dir: Path, source_info: dict[str, str]):
         """Discover extensions (transport, API, etc)."""
         if not ext_dir.exists():
             return
 
-        for ext_path in ext_dir.iterdir():
-            if not ext_path.is_dir() or ext_path.name.startswith("."):
+        catalog = get_container_catalog_service(self.udos_root)
+        category = source_info["category"]
+        for entry in catalog.list_by_kind("extension"):
+            entry_path = self.udos_root / entry.path
+            if entry_path.parent != ext_dir:
                 continue
 
-            # Look for version.json or package.json
-            version_file = ext_path / "version.json"
-            package_file = ext_path / "package.json"
-
-            version_data = None
-            if version_file.exists():
-                try:
-                    version_data = json.loads(version_file.read_text())
-                except Exception as e:
-                    logger.error(f"[DISCOVERY] Error reading {version_file}: {e!s}")
-                    continue
-
-            ext_id = ext_path.name
-
             metadata = PluginMetadata(
-                id=ext_id,
-                name=ext_id.replace("-", " ").title(),
-                description=version_data.get("description", "") if version_data else "",
-                category=source_info["category"],
+                id=entry.entry_id,
+                name=entry.label or entry.entry_id.replace("-", " ").title(),
+                description=entry.summary or str(entry.metadata.get("description") or ""),
+                category=category,
                 tier=source_info["tier"],
-                version=version_data.get("version", "0.0.0")
-                if version_data
-                else "0.0.0",
-                license=version_data.get("license", "MIT") if version_data else "MIT",
-                source_path=f"extensions/{ext_dir.name}/{ext_id}",
-                config_path=f"extensions/{ext_dir.name}/{ext_id}/version.json",
+                version=entry.version or "0.0.0",
+                license="MIT",
+                source_path=entry.path,
+                config_path=entry.metadata.get("manifest_path"),
                 installer_type="git",
-                installed=True,
+                installed=entry.available,
             )
+            metadata.git = self._get_git_metadata(entry_path)
 
-            # Get git metadata
-            metadata.git = self._get_git_metadata(ext_path)
-
-            self.plugins[ext_id] = metadata
-            logger.debug(f"[DISCOVERY] Found extension: {ext_id}")
+            self.plugins[entry.entry_id] = metadata
+            logger.debug(f"[DISCOVERY] Found extension: {entry.entry_id}")
 
     def _get_git_metadata(self, plugin_path: Path) -> GitMetadata | None:
         """Extract git metadata from a plugin directory."""

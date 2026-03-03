@@ -1,4 +1,24 @@
-# Sonic Integration Spec - Devices, USB Builder & Media Launcher
+# Sonic Integration Spec - v1.5 Device Catalog and uHOME Install Lanes
+
+Status: Active
+Updated: 2026-03-03
+
+This document aligns Sonic's public integration story to the active v1.5
+`uHOME` scope in `docs/specs/UHOME-v1.5.md`.
+
+For v1.5, Sonic's canonical `uHOME` alignment is:
+
+- a tested standalone bundle installer for `uHOME Server`
+- a bounded USB or image lane that can materialize either `uHOME Server` or
+  `uHOME TV Node`
+- node bootstrap that can hand off to Wizard-managed home-node and beacon
+  networking
+- packaging that may ship `uHOME` with thin GUI, Steam-console UX, or both
+- device-catalog and launch-profile inputs that remain profile-aware rather than
+  defining a separate `uHOME` runtime
+
+Older Sonic hybrid-console or media-launcher briefs may remain in the repo as
+historical exploration, but they are not the active v1.5 source of truth.
 
 ## 1. Device Database Contract
 
@@ -32,7 +52,8 @@ Sonic Screwdriver publishes its curated device catalog via `wizard.routes.sonic_
 - `POST /api/sonic/db/rebuild` – DB rebuild alias.
 - `GET /api/sonic/db/export` – DB export alias.
 
-Consumers should respect the `methods` array to know whether a device supports `windows10_boot`, `media_mode`, `sonic_usb`, or native UEFI boot.
+Consumers should respect the `methods` array to know whether a device supports
+`sonic_usb`, native UEFI boot, or additional profile-specific install methods.
 
 ### Syncing Plan
 1. Build tool (`wizard.routes.sonic_plugin_routes`) exports `devices` so dashboards show current catalog.
@@ -67,46 +88,107 @@ Primary post-plan steps:
 2. `scripts/apply-payloads-v2.sh` mounts partitions and copies from `payloads/`.
 3. `scripts/sonic-stick.sh` (run phase) executes payload application, installs grub/bootloaders, and finalizes Windows payloads (ISO extraction or WTG injection).
 
-Wizard bolt-ons should treat the plan/run APIs as a two-phase contract: the plan command returns a signed manifest JSON plus `sha256(layout)` so a UI can verify the payload before running. The run phase consumes that manifest; it is idempotent but destructive, so the Core TUI should prompt users before executing the plan. Logging from both CLI commands should be captured in `memory/sonic/sonic-flash.log` so `PLUGIN` or `WIZARD` pages can surface execution history.
+Wizard bolt-ons should treat the plan/run APIs as a two-phase contract: the
+plan command returns a manifest JSON plus `sha256(layout)` so a UI can verify
+the payload before running. The run phase consumes that manifest; it is
+idempotent but destructive, so the TUI should prompt users before executing the
+plan. Logging from both CLI commands should be captured in
+`memory/sonic/sonic-flash.log` so `PLUGIN` or `WIZARD` pages can surface
+execution history.
 
-Wizard bolt-ons should treat plan/run as a two-phase API: the plan response is a manifest JSON plus a `sha256` of the layout; the run script is idempotent but destructive so the UI must warn users before launching.
+### v1.5 `uHOME` alignment for USB and image builds
 
-## 3. Windows Gaming & Media Launcher Requirements
+For v1.5, any `uHOME`-aligned USB or image build must:
 
-Sonic expects a Windows payload to include the following bits so Wizard can script the final launcher:
+1. resolve to one deployment role:
+   - `uHOME Server`
+   - `uHOME TV Node`
+2. stay consistent with `docs/specs/UHOME-v1.5.md`
+3. support node bootstrap only up to the point of handing networking control to
+   Wizard-owned surfaces
+4. avoid claiming mandatory dual-boot gaming or Windows media-launcher behavior
+   unless backed by active implementation and acceptance evidence
+5. reuse the same component and config concepts as the standalone bundle lane
+   where practical
+6. support packaging of thin GUI, Steam-console UX, or both as presentation
+   surfaces for the deployed node
 
-### Launch Modes
-| Mode | Details |
-|---|---|
-| `gaming` | Boots Windows with GPU drivers + command shortcuts (Steam, Epic). Maximum perf. |
-| `media` | Boots Kodi/WantMyMTV with limited desktop; remote control friendly. |
-| `wtg` | Windows-to-Go partition for direct boot, used when reinstalling Windows fails. |
+### Wizard networking handoff
 
-### Launch Hooks (Wizard & uDOS)
-1. **Boot profile metadata** stored in `payloads/windows/settings.json`:
-   ```json
-   {
-     "mode": "media",
-     "launcher": "wantmymtv",
-     "auto_repair": true,
-     "sound_profile": "dolby",
-     "device_profile": "dell-precision-7920"
-   }
-   ```
-2. uDOS/Wizard uses `payloads/windows/scripts/launch-windows.sh` to switch boot order, optionally install QoS/driver updates, and update `devices.db` with `windows10_boot` status.
-3. Media player logging writes to `memory/sonic/sonic-media.log` which Wizard monitors to detect playback errors and feed back to the UI.
+Sonic's v1.5 role is to prepare a deployable node. After install, node
+networking and managed control must hand off to Wizard-owned services.
 
-### Media Player Checklist
-- **Kodi**: Must have `kodi-standalone.sh` that sets `KODI_USER_HOME=SONIC_MEDIA_HOME`.
-- **WantMyMTV**: Requires `wmmtv-launcher` to load playlists from `payloads/media/playlists.json`.
-- **Plex (optional)**: Should include a service definition for `plexmediaserver.service` with dependencies on `sonic-media-network.service`.
+For `uHOME` this includes:
 
-Wizard interfaces should expose a “Media Launch” panel that:
-1. Lists available launchers per platform (Kodi, WantMyMTV, Plex).
-2. Provides `Start/Stop` buttons that call `scripts/media-controller.sh <launcher>`.
-3. Shows auto-detected device capabilities (via `/api/sonic/devices?media_mode=htpc`).
+- LAN-local home-node operation by default
+- optional enrollment into Wizard-managed beacon or tunnel flows
+- no Sonic-owned long-running network control protocol
+- no requirement for the full `uDOS/core` runtime in standalone Sonic or
+  standalone `uHOME` distributions
 
-## 4. Wizard Plugin Installation Flow
+## 3. Standalone uHOME bundle installer
+
+The standalone bundle installer is the strongest current `uHOME` install
+surface and is the canonical Sonic lane for `uHOME Server`.
+
+Authoritative code:
+
+- `sonic/core/uhome_bundle.py`
+- `sonic/core/uhome_installer.py`
+- `sonic/core/uhome_preflight.py`
+
+Install contract summary:
+
+- artifact manifest: `uhome-bundle.json`
+- verification: checksum validation per component
+- rollback: optional rollback token and snapshot record support
+- preflight: hardware profile gating
+- plan phases:
+  - `preflight`
+  - `verify`
+  - `stage`
+  - `configure`
+  - `enable`
+  - `finalize`
+
+Current canonical bundle components:
+
+- `jellyfin`
+- `comskip`
+- `hdhomerun_config`
+- `udos_uhome`
+
+Bundle variants may additionally stage:
+
+- thin-GUI presentation assets
+- Steam-console launcher assets
+- both presentation layers side by side
+
+## 4. Home-node and beacon alignment
+
+Sonic must treat `uHOME` node networking as a Wizard contract.
+
+### Home-node rollout expectations
+
+- a `uHOME Server` deployment may advertise or expose Wizard-managed control
+  endpoints after install
+- a `uHOME TV Node` deployment may be prepared as a playback-facing node that
+  later enrolls with the household server and optional Wizard network control
+- a deployment may expose thin GUI, Steam-console UX, or both on the same node
+- Sonic documentation must describe node role selection directly rather than
+  relying on older hybrid-console narratives
+
+### Beacon alignment
+
+When a deployment uses Wizard beacon networking:
+
+- Sonic may install the node with the files and profile needed for later beacon
+  enrollment
+- Wizard routes under `/api/beacon/*` remain the active runtime control surface
+- beacon configuration, tunnel status, quotas, and cache operations remain
+  Wizard-owned
+
+## 5. Wizard plugin installation flow
 
 Plugin installs flowing through the Core `PLUGIN install <id>` command should reuse the same repository index/manifest validation logic that Wizard already exposes:
 
@@ -115,10 +197,37 @@ Plugin installs flowing through the Core `PLUGIN install <id>` command should re
 3. `wizard.services.plugin_repository.PluginRepository` keeps track of available plugins, manifest checksums, and whether a plugin is already installed so the CLI can report upgrade availability.
 4. Add hooks from the Wizard `plugin_repository` into _the same_ Sonic/USB story so plugin install actions can trigger schema validation (`GET /api/sonic/schema`) before enabling new media/USB tooling.
 
-## 5. Sonic Gap Catalog & Roadmap
+## 6. Wizard and Home Assistant control-plane alignment
 
-To keep the Sonic/UWizard capability visible to future milestones:
+For `uHOME`, Wizard integration is bounded to control-plane ownership rather
+than install ownership.
 
-- Track missing APIs and feature gaps (USB builder scripts, device database syncing, Windows media launcher) by updating this doc and linking to `v1.3.1-milestones.md`.
-- Document the Sonic Screwdriver ″gap targets″ for USB flashing (`core/sonic_cli.py plan|run`), the device DB sync webhook (`/api/sonic/sync`), and the Windows media launcher contract (`payloads/windows/settings.json` plus `media-controller.sh`).
-- Surface `memory/sonic/sonic-devices.db` updates (columns `wizard_profile`, `media_launcher`) in the Wizard dashboard so the TUI/Wizard story can display the planned capability list.
+Current `uHOME`-relevant Wizard surfaces:
+
+- Home Assistant bridge routes under `/api/ha/`
+- `uhome.*` command dispatch for tuner, DVR, ad-processing, and playback
+- optional config-controlled bridge enablement
+
+This remains optional for v1.5 and does not define install validity by itself.
+
+## 7. Sonic scope guardrails for v1.5
+
+To keep the active scope stable:
+
+- treat the device catalog and launch-profile decisions as install inputs, not as
+  a replacement for the `uHOME` runtime spec
+- keep older hybrid-console, launcher-heavy, or dual-boot product exploration
+  docs non-canonical unless promoted by active implementation
+- prefer the tested standalone bundle contract when documenting `uHOME Server`
+- keep the USB or image lane profile-aware and bounded when documenting
+  `uHOME TV Node`
+- align node networking and beacon behavior to Wizard's active route and service
+  contracts
+
+## 8. Related documents
+
+- `docs/specs/UHOME-v1.5.md`
+- `docs/decisions/uHOME-spec.md`
+- `docs/decisions/SONIC-DB-SPEC-GPU-PROFILES.md`
+- `docs/decisions/HOME-ASSISTANT-BRIDGE.md`
+- `wizard/docs/BEACON-IMPLEMENTATION.md`

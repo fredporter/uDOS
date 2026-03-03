@@ -32,6 +32,8 @@ class _BuildSvc:
 
 
 class _BootSvc:
+    preferred_route_profile_id = "udos-alpine"
+
     def list_profiles(self):
         return {
             "name": "Sonic Boot Selector",
@@ -43,12 +45,25 @@ class _BootSvc:
         }
 
     def get_route_status(self):
-        return {"active_route": None, "state_path": "/tmp/boot-route.json"}
+        return {
+            "active_route": None,
+            "preferred_route": {"id": self.preferred_route_profile_id, "name": "uDOS Alpine Core"},
+            "preferred_route_profile_id": self.preferred_route_profile_id,
+            "preferred_route_source": "template_workspace",
+            "state_path": "/tmp/boot-route.json",
+        }
 
     def set_reboot_route(self, profile_id, reason=None):
         if profile_id not in {"udos-alpine", "udos-windows-entertainment"}:
             raise KeyError("Unknown boot profile")
         return {"profile_id": profile_id, "reason": reason or "manual route selection"}
+
+    def apply_default_route(self):
+        return {
+            "profile_id": self.preferred_route_profile_id,
+            "reason": "template workspace default route",
+            "source": "template_workspace",
+        }
 
 
 class _SyncSvc:
@@ -93,6 +108,8 @@ def test_sonic_boot_profile_and_reboot_route_endpoints(monkeypatch):
     status = client.get("/api/platform/sonic/boot/route")
     assert status.status_code == 200
     assert "active_route" in status.json()
+    assert status.json()["preferred_route_profile_id"] == "udos-alpine"
+    assert status.json()["preferred_route_source"] == "template_workspace"
 
     route = client.post(
         "/api/platform/sonic/boot/route",
@@ -101,6 +118,11 @@ def test_sonic_boot_profile_and_reboot_route_endpoints(monkeypatch):
     assert route.status_code == 200
     assert route.json()["success"] is True
     assert route.json()["route"]["profile_id"] == "udos-alpine"
+
+    default_route = client.post("/api/platform/sonic/boot/route/default")
+    assert default_route.status_code == 200
+    assert default_route.json()["route"]["profile_id"] == "udos-alpine"
+    assert default_route.json()["route"]["source"] == "template_workspace"
 
     missing = client.post("/api/platform/sonic/boot/route", json={"profile_id": "unknown"})
     assert missing.status_code == 404

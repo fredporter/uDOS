@@ -1,7 +1,7 @@
 """Dev Mode Service for Wizard Server.
 
-Dev Mode is an explicitly activated contributor extension rooted at /dev.
-Wizard owns the runtime logic; /dev provides the remote framework,
+Dev Mode is a contributor extension lane rooted at /dev.
+Wizard owns the runtime logic; /dev provides the versioned framework,
 governance files, and templates that gate contributor workflows.
 """
 
@@ -175,7 +175,7 @@ class DevModeService:
 
     def ensure_active(self) -> Optional[str]:
         if not self.active:
-            return "Dev mode is not active. Activate dev mode from Wizard GUI or run DEV ON in uCODE."
+            return "Dev extension lane is inactive. Enable Dev Mode from Wizard GUI before using contributor tooling."
         return None
 
     def activate(self) -> Dict[str, Any]:
@@ -186,7 +186,7 @@ class DevModeService:
         if self.active:
             return {
                 "status": "already_active",
-                "message": "Dev mode is already active",
+                "message": "Dev extension lane is already active",
                 "uptime_seconds": int(time.time() - self.start_time) if self.start_time else 0,
             }
 
@@ -201,15 +201,15 @@ class DevModeService:
         round_name = f"Dev Milestone {datetime.now().strftime('%Y-%m-%d')}"
         workflow.get_or_create_project(
             round_name,
-            description="Auto-created when DEV MODE is activated.",
+            description="Auto-created when the Dev extension lane is enabled.",
         )
         self.services_status["workflow_manager"] = True
 
-        self._append_dev_log("Dev mode activated")
+        self._append_dev_log("Dev extension lane enabled")
 
         return {
             "status": "activated",
-            "message": "Dev Mode extension activated: /dev framework available in Wizard",
+            "message": "Dev extension lane enabled: /dev framework available in Wizard",
             "dev_root": str(self._dev_root()),
             "timestamp": datetime.now().isoformat(),
         }
@@ -297,7 +297,7 @@ class DevModeService:
 
     def deactivate(self) -> Dict[str, Any]:
         if not self.active:
-            return {"status": "not_active", "message": "Dev mode is not active"}
+            return {"status": "not_active", "message": "Dev extension lane is not active"}
 
         try:
             if self.dashboard_watch_process:

@@ -62,6 +62,82 @@ def _patch_all_healthy(monkeypatch):
     monkeypatch.setattr(mod, "_cloud_status", lambda: {"ready": True, "available_providers": ["mistral"], "primary": "mistral"})
     monkeypatch.setattr(mod, "_ha_status", lambda: {"enabled": True, "status": "ok"})
     monkeypatch.setattr(mod, "_sync_status", lambda: {"drift_issues": 0, "issues": [], "synced": True})
+    monkeypatch.setattr(mod, "get_repo_root", lambda: "/tmp/udos")
+    monkeypatch.setattr(
+        mod,
+        "get_template_workspace_service",
+        lambda repo_root=None: type(
+            "_Workspace",
+            (),
+            {
+                "component_contract": lambda self, component_id: {
+                    "component_id": component_id,
+                    "workspace_ref": "@memory/bank/typo-workspace",
+                },
+                "component_snapshot": lambda self, component_id: {
+                    "component_id": component_id,
+                    "settings": {"effective_source": "user"},
+                },
+            },
+        )(),
+    )
+    monkeypatch.setattr(
+        mod,
+        "get_sonic_build_service",
+        lambda repo_root=None: type(
+            "_BuildSvc",
+            (),
+            {
+                "default_profile": "alpine-core+sonic",
+                "default_profile_source": "template_workspace",
+            },
+        )(),
+    )
+    monkeypatch.setattr(
+        mod,
+        "get_sonic_media_console_service",
+        lambda repo_root=None: type(
+            "_MediaSvc",
+            (),
+            {
+                "get_status": lambda self: {
+                    "preferred_launcher": "kodi",
+                    "preferred_launcher_source": "template_workspace",
+                }
+            },
+        )(),
+    )
+    monkeypatch.setattr(
+        mod,
+        "get_sonic_boot_profile_service",
+        lambda repo_root=None: type(
+            "_BootSvc",
+            (),
+            {
+                "get_route_status": lambda self: {
+                    "preferred_route_profile_id": "udos-alpine",
+                    "preferred_route_source": "template_workspace",
+                    "preferred_route": {"id": "udos-alpine", "name": "uDOS Alpine Core"},
+                }
+            },
+        )(),
+    )
+    monkeypatch.setattr(
+        mod,
+        "get_uhome_presentation_service",
+        lambda repo_root=None: type(
+            "_UHomeSvc",
+            (),
+            {
+                "get_status": lambda self: {
+                    "preferred_presentation": "thin-gui",
+                    "preferred_presentation_source": "template_workspace",
+                    "node_role": "server",
+                    "node_role_source": "template_workspace",
+                }
+            },
+        )(),
+    )
 
 
 def test_summary_returns_200(monkeypatch):
@@ -76,14 +152,34 @@ def test_summary_shape(monkeypatch):
     assert body["ok"] is True
     assert "subsystems" in body
     assert "summary" in body
-    assert set(body["subsystems"].keys()) == {"ollama", "cloud", "ha_bridge", "secret_sync"}
+    assert set(body["subsystems"].keys()) == {
+        "ollama",
+        "cloud",
+        "ha_bridge",
+        "secret_sync",
+        "workspace_runtime",
+    }
 
 
 def test_summary_all_healthy(monkeypatch):
     _patch_all_healthy(monkeypatch)
     body = _client().get("/api/dashboard/summary").json()
-    assert body["summary"]["healthy"] == 4
+    assert body["summary"]["healthy"] == 5
     assert body["summary"]["degraded"] == 0
+
+
+def test_summary_includes_workspace_runtime_defaults(monkeypatch):
+    _patch_all_healthy(monkeypatch)
+    body = _client().get("/api/dashboard/summary").json()
+    runtime = body["workspace_runtime"]
+
+    assert runtime["ok"] is True
+    assert runtime["workspace_ref"] == "@memory/bank/typo-workspace"
+    assert runtime["components"]["sonic"]["defaults"]["build_profile"]["value"] == "alpine-core+sonic"
+    assert runtime["components"]["sonic"]["defaults"]["boot_route"]["value"] == "udos-alpine"
+    assert runtime["components"]["sonic"]["defaults"]["media_launcher"]["value"] == "kodi"
+    assert runtime["components"]["uhome"]["defaults"]["presentation"]["value"] == "thin-gui"
+    assert runtime["components"]["uhome"]["defaults"]["node_role"]["value"] == "server"
 
 
 def test_summary_overall_ok_false_when_ollama_down(monkeypatch):

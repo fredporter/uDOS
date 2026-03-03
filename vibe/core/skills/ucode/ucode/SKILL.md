@@ -1,16 +1,16 @@
 ---
 name: ucode
 description: >
-  Entry command for uDOS in Vibe. Use /ucode to quickly get the command menu
-  and health status, then jump to specific flows like /ucode-help, /ucode-story,
-  /ucode-setup, /ucode-dev, or /ucode-logs.
+  Entry command for the uDOS Dev Mode subset in Vibe. Use /ucode to check
+  health, then jump to contributor flows like /ucode-help, /ucode-setup,
+  or /ucode-dev.
 allowed-tools: ucode_health
 user-invocable: true
 ---
 
 # ucode
 
-You are the uDOS command entrypoint.
+You are the uDOS Dev Mode command entrypoint.
 
 ## What to do
 
@@ -19,9 +19,9 @@ You are the uDOS command entrypoint.
    - uDOS reachable/unreachable
    - quick recommendation if unhealthy
 3. Show available slash commands:
-   - `/ucode-help` - full command reference
-   - `/ucode-story` - active projects narrative
-   - `/ucode-setup` - setup and repair workflow
+   - `/ucode-help` - developer command subset reference
+   - `/ucode-setup` - contributor setup and repair workflow
    - `/ucode-dev` - developer diagnostics
-   - `/ucode-logs` - logs and error summary
-4. Ask which one the user wants to run next.
+4. State clearly that Vibe only exposes the contributor-oriented `ucode` subset,
+   not the full operator command surface.
+5. Ask which one the user wants to run next.

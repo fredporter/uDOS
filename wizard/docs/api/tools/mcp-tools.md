@@ -1,6 +1,8 @@
 # MCP Tools (Wizard + uCODE)
 
-This file documents the initial MCP tool surface exposed to Vibe.
+This file documents the active MCP tool surface exposed to Wizard clients.
+
+For Dev Mode contributor use, Vibe consumes only the reduced `/dev/` extension uCODE subset. It does not expose the full operator command inventory.
 
 ## Wizard Tools
 
@@ -139,13 +141,18 @@ Canonical registry: `wizard/mcp/tools/ucode_mcp_registry.py`
 
 Rationale:
 - Keep `generic` and `proxy` tools separate by design.
-- `generic` is the extensibility path (new tools do not require new MCP endpoints).
-- `proxy` is the latency/ergonomics path (high-volume shortcuts with stable args).
+- `generic` is the Dev extension subset invocation path.
+- `proxy` is the latency/ergonomics path for the highest-volume contributor operations.
 
 Ownership:
 - `generic` lane owner: `wizard/mcp/tools/ucode_tools.py`
 - `proxy` lane owner: `wizard/mcp/tools/ucode_proxies.py`
 - dispatch wrapper owner: `wizard/mcp/mcp_server.py` (`ucode.command` canonical, `ucode.dispatch` deprecated alias)
+
+Dev extension boundary:
+- Vibe uses this lane only when the `dev` profile is active and the `/dev/` extension is installed and enabled.
+- The full TUI/operator `ucode` surface remains outside the Vibe skill lane.
+- Binder, story, spatial, gameplay, media, and destructive commands are intentionally excluded from the Vibe Dev extension subset.
 
 - `ucode.command`
   - Routes raw input (supports `OK`, `:`, `/`) via `/api/ucode/dispatch`.
@@ -155,18 +162,20 @@ Ownership:
   - Temporary compatibility alias that delegates to `ucode.command`.
 
 - `ucode.tools.list` (generic lane)
-  - Enumerates discovered uCODE tools and input schemas.
+  - Enumerates the approved Vibe Dev extension uCODE subset and input schemas.
 
 - `ucode.tools.call` (generic lane)
-  - Generic invocation path for any discovered uCODE tool.
+  - Generic invocation path for the approved Vibe Dev extension uCODE subset.
 
 - `ucode.health` (proxy lane)
 - `ucode.token` (proxy lane)
 - `ucode.help` (proxy lane)
+- `ucode.verify` (proxy lane)
+- `ucode.repair` (proxy lane)
+- `ucode.config` (proxy lane)
 - `ucode.run` (proxy lane)
 - `ucode.read` (proxy lane)
-- `ucode.story` (proxy lane)
-  - High-volume direct proxies for lower-latency and ergonomic access.
+  - High-volume direct proxies for lower-latency contributor access.
 
 ## Notes
 

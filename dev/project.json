@@ -1,30 +1,36 @@
 {
-  "id": "example-project",
-  "name": "Example Project",
-  "description": "Template project configuration",
-  "goal": "Define project objectives and success criteria",
-  "definition_of_done": "List concrete deliverables and acceptance criteria",
+  "id": "dev-mode-extension",
+  "name": "Dev Mode Extension Framework",
+  "description": "Versioned Dev Mode extension scaffold, contributor governance root, and distro template surface for the `dev` profile.",
+  "goal": "Provide a Wizard-gated contributor extension lane that keeps `/dev/` framework content separate from local mutable working data.",
+  "definition_of_done": "Dev Mode install, activation, contributor tracking files, GitHub sync policy, and local-only working areas remain aligned to the v1.5 contract.",
   "constraints": {
-    "budget": null,
-    "max_daily_calls": null,
-    "privacy": "local-first",
-    "deadlines": []
+    "runtime_owner": "wizard",
+    "standard_runtime": "ucode",
+    "contributor_tui": "vibe",
+    "framework_root": "/dev",
+    "local_data_separation": true
   },
   "policy": {
-    "routing_rules": [],
-    "escalation_thresholds": {}
+    "routing_rules": [
+      "Standard users stay on ucode",
+      "Dev Mode is available only through the active dev extension lane",
+      "GitHub sync remains permission-gated and Wizard-managed"
+    ],
+    "required_files": [
+      "AGENTS.md",
+      "DEVLOG.md",
+      "project.json",
+      "tasks.md",
+      "completed.json",
+      "extension.json",
+      "docs/README.md",
+      "docs/DEV-MODE-POLICY.md"
+    ]
   },
-  "promptsets": [],
-  "binders": {
-    "chapter_outline": [],
-    "exports": ["markdown", "json"]
-  },
-  "task_graph": {
-    "tasks": [],
-    "dependencies": []
-  },
-  "guidelines": "1. Define clear objectives\n2. Break down into tasks\n3. Track progress\n4. Document decisions\n5. Review and iterate",
-  "process": "1. Plan → 2. Implement → 3. Test → 4. Document → 5. Review",
-  "created": "YYYY-MM-DD",
-  "updated": "YYYY-MM-DD"
+  "local_only_dirs": ["files", "relecs", "dev-work", "testing"],
+  "guidelines": "1. Keep contributor planning inside /dev\n2. Keep runtime logic in wizard or core\n3. Treat /dev as the versioned template root\n4. Keep local mutable working data separate\n5. Route Dev Mode lifecycle through Wizard",
+  "process": "1. Install extension -> 2. Enable dev profile -> 3. Activate in Wizard -> 4. Use contributor TUI -> 5. Sync contributor work under policy",
+  "created": "2026-03-02",
+  "updated": "2026-03-03"
 }

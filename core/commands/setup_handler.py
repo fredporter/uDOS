@@ -51,7 +51,7 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
             SETUP              Run the setup story (configure local identity)
             SETUP webhook      Interactive GitHub webhook setup
             SETUP <provider>   Setup a specific provider (github, ollama, mistral, etc.)
-            SETUP dev          Install Dev Mode helper tooling
+            SETUP dev          Prepare Dev extension contributor tooling
             SETUP --profile    Show your current setup profile
             SETUP --edit       Edit setup values
             SETUP --clear      Clear setup data (start over)
@@ -88,7 +88,7 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
                     ("Edit setup", "edit", "Update local .env values"),
                     ("Clear setup", "clear", "Reset local setup data"),
                     ("Webhook setup", "webhook", "Configure GitHub webhooks"),
-                    ("Dev Mode helper setup", "dev", "Install Ollama + vibe Dev Mode tooling + recommended models"),
+                    ("Dev extension setup", "dev", "Prepare Ollama + vibe contributor tooling + recommended models"),
                     ("Provider setup", "provider", "Configure provider (github/ollama/mistral/openrouter)"),
                     ("Help", "help", "Show SETUP help"),
                 ],
@@ -434,9 +434,9 @@ Key fields to edit:
         }
 
     def _setup_dev_mode_helper(self, legacy_alias: bool = False) -> Dict:
-        """Install local Dev Mode helper stack (Ollama + vibe + models)."""
+        """Prepare local Dev extension tooling (Ollama + vibe + models)."""
         output: List[str] = []
-        output.append("\n⚙️  SETUP: Installing Dev Mode helpers\n")
+        output.append("\n⚙️  SETUP: Preparing Dev extension contributor tooling\n")
         output.append("=" * 60)
         if legacy_alias:
             output.append("Legacy alias detected: `SETUP vibe` now routes to `SETUP dev`.")
@@ -468,15 +468,15 @@ Key fields to edit:
                 )
             for warning in result.get("warnings", []):
                 output.append(f"  ⚠️  {warning}")
-            output.append("✅ Dev Mode helper setup complete.")
+            output.append("✅ Dev extension contributor tooling setup complete.")
             output.append("Next steps:")
             output.append("  • UCODE PROFILE LIST")
             output.append("  • UCODE OPERATOR STATUS")
-            output.append("  • DEV ON   (only when contributor tooling is needed)")
+            output.append("  • Activate the installed /dev extension lane from Wizard when contributor tooling is needed")
             output.append("🔒 Web gate closed. WIZARD START to manage networking.")
             return {"status": "success", "output": "\n".join(output)}
         except Exception as exc:
-            output.append(f"⚠️  Dev Mode helper setup failed: {exc}")
+            output.append(f"⚠️  Dev extension contributor tooling setup failed: {exc}")
             return {"status": "error", "output": "\n".join(output)}
         finally:
             close_bootstrap_gate(reason="setup-complete")

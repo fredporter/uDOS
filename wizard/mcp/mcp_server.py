@@ -1,6 +1,6 @@
 """Wizard MCP Server
 
-Exposes Wizard + uCODE tools to MCP clients (Vibe) over stdio.
+Exposes Wizard APIs and the Dev extension uCODE subset to MCP clients over stdio.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ except ModuleNotFoundError:  # pragma: no cover - compatibility with older MCP l
 mcp = FastMCP(
     "Wizard MCP",
     instructions=(
-        "Expose Wizard service APIs and a limited uCODE dispatcher for Vibe."
+        "Expose Wizard service APIs and the reduced /dev extension uCODE subset for contributor tooling."
     ),
     json_response=True,
 )
@@ -113,7 +113,7 @@ def _status_line() -> str:
     ghost_tag = " [GHOST MODE]" if ghost_mode else ""
     role_tag = "👻" if ghost_mode else "👤"
 
-    # Wizard / Goblin status
+    # Wizard / legacy Dev endpoint status
     wiz_up = False
     try:
         _client().health()
@@ -123,7 +123,7 @@ def _status_line() -> str:
     gob_up = _is_port_open("127.0.0.1", 8767)
 
     wiz_icon = "🟢" if wiz_up else "🔴"
-    gob_icon = "🟢" if gob_up else "🔴"
+    dev_icon = "🟢" if gob_up else "🔴"
 
     # System stats (best-effort)
     mem = "?"
@@ -136,7 +136,7 @@ def _status_line() -> str:
     except Exception:
         pass
 
-    return f"[{role_tag} {role}] {ghost_tag} [WIZ: {wiz_icon}] [GOB: {gob_icon}] [Mem: {mem}] [CPU: {cpu}] [F1-F8]"
+    return f"[{role_tag} {role}] {ghost_tag} [WIZ: {wiz_icon}] [DEV: {dev_icon}] [Mem: {mem}] [CPU: {cpu}] [F1-F8]"
 
 
 def _emoji_indicator() -> str:
@@ -146,7 +146,7 @@ def _emoji_indicator() -> str:
 
 
 def _toolbar_block() -> str:
-    dev_state = "ON" if get_bool_config("UDOS_DEV_MODE", False) else "OFF"
+    dev_state = "ACTIVE" if get_bool_config("UDOS_DEV_MODE", False) else "INACTIVE"
     commands = ["OK", "BINDER", "FILE", "MAP", "HELP"]
     line1 = "  ⎔ Commands: " + ", ".join(commands[:3]) + " (+2 more)"
     line2 = f"  ↳ DEV: {dev_state}  |  Tip: Use ':' or 'OK' for uCODE, '/' for shell"

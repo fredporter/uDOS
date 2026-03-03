@@ -10,7 +10,7 @@ This document defines the minimum supported baseline for the `ucode` runtime sur
 - offline-first operation
 - local documentation and helper fallback
 
-`vibe` may still be present for Dev Mode, but this spec is centered on the standard `ucode` path.
+`vibe` may still be present for Dev Mode, but only as an installed and activated contributor extension backed by `/dev/`. This spec is centered on the standard `ucode` path.
 
 ## Minimum Requirements
 
@@ -21,7 +21,7 @@ This document defines the minimum supported baseline for the `ucode` runtime sur
 | RAM | 4 GB |
 | Storage | 5 GB free |
 | Network | Optional |
-| Dependencies | Python 3.12+, uDOS runtime, optional Wizard/Dev Mode layers |
+| Dependencies | Python 3.12+, uDOS runtime, optional Wizard layer, optional Dev Mode extension lane |
 
 ## Runtime Pathways
 
@@ -64,3 +64,11 @@ Structured output should expose a stable machine-readable minimum-spec section f
 
 Keep this spec focused on runtime baseline and pathway guarantees.
 Detailed install procedures belong in `docs/INSTALLATION.md` and operator runbooks.
+
+## Dev Mode Boundary
+
+If Dev Mode tooling is installed:
+
+- it remains extension-gated and contributor-only
+- it requires the `/dev/` extension scaffold to be present
+- it must not replace the default `ucode` runtime pathway

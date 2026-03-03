@@ -50,6 +50,7 @@ Each file captures a discrete architectural, design, or technology choice.
 |------|-------|
 | [HOME-ASSISTANT-BRIDGE.md](HOME-ASSISTANT-BRIDGE.md) | uDOS ↔ Home Assistant bridge design |
 | [uHOME-spec.md](uHOME-spec.md) | uHOME home profile decision |
+| [../specs/UHOME-v1.5.md](../specs/UHOME-v1.5.md) | Canonical v1.5 uHOME runtime and install contract |
 
 ## Sonic & Media Stack
 

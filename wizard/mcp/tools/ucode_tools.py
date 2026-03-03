@@ -1,8 +1,8 @@
-"""MCP tool handlers for uDOS tools.
+"""MCP tool handlers for the Vibe-approved uCODE developer subset.
 
 This module provides:
-- register_ucode_tools(): Main function to register all tools with MCP
-- ucode_tool_list(): List all available tools
+- register_ucode_tools(): Main function to register the developer subset with MCP
+- ucode_tool_list(): List all available developer tools
 - ucode_tool_call(): Call a tool by name with arguments
 """
 
@@ -12,6 +12,7 @@ import asyncio
 from typing import Any, Dict, Optional
 
 from vibe.core.tools.base import BaseToolConfig, BaseToolState
+from vibe.core.types import ToolStreamEvent
 
 from .ucode_mcp_registry import MCPToolLane, tool_names
 from .ucode_registry import (
@@ -46,8 +47,23 @@ def _run_async(coro):
         return asyncio.run(coro)
 
 
+async def _invoke_tool(tool, **arguments: Any) -> Dict[str, Any]:
+    """Collect the terminal result from a streaming BaseTool invocation."""
+    result: Dict[str, Any] | None = None
+    async for item in tool.invoke(**arguments):
+        if isinstance(item, ToolStreamEvent):
+            continue
+        if hasattr(item, "model_dump"):
+            result = item.model_dump()
+        else:
+            result = dict(item)
+    if result is None:
+        raise RuntimeError("Tool returned no terminal result")
+    return result
+
+
 async def ucode_tool_list() -> Dict[str, Any]:
-    """List all available ucode tools for MCP.
+    """List the Vibe-approved ucode developer tools for MCP.
 
     Returns:
         Dict with list of tools and their metadata.
@@ -73,10 +89,10 @@ async def ucode_tool_call(
     tool_name: str,
     arguments: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
-    """Call a ucode tool by name with arguments.
+    """Call an approved ucode developer tool by name with arguments.
 
     Args:
-        tool_name: Name of the tool (e.g., "health", "run").
+        tool_name: Name of the tool (e.g., "ucode_health", "ucode_run").
         arguments: Input arguments for the tool.
 
     Returns:
@@ -85,7 +101,7 @@ async def ucode_tool_call(
     if arguments is None:
         arguments = {}
 
-    # Find the tool
+    # Find the tool within the approved developer subset.
     tool_cls = get_tool_by_name(tool_name)
     if not tool_cls:
         tools = discover_ucode_tools()
@@ -102,7 +118,7 @@ async def ucode_tool_call(
         tool = tool_cls(config=config, state=state)
 
         # Call the tool
-        result = await tool.run(**arguments)
+        result = await _invoke_tool(tool, **arguments)
 
         return {
             "status": "success",
@@ -126,19 +142,19 @@ async def ucode_tool_call(
 
 
 def register_ucode_tools(mcp_server) -> None:
-    """Register all ucode tools with MCP server.
+    """Register the approved ucode developer subset with MCP server.
 
     Args:
         mcp_server: FastMCP server instance.
     """
     @mcp_server.tool()
     def ucode_tools_list() -> Dict[str, Any]:
-        """List all available uDOS tools."""
+        """List the Vibe-approved uCODE developer tools."""
         return _run_async(ucode_tool_list())
 
     @mcp_server.tool()
     def ucode_tools_call(tool_name: str, arguments: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Call a uDOS tool by name with arguments."""
+        """Call an approved uCODE developer tool by name with arguments."""
         return _run_async(ucode_tool_call(tool_name, arguments or {}))
 
     registered_names = {"ucode_tools_list", "ucode_tools_call"}

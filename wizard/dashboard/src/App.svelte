@@ -33,8 +33,10 @@
   import Ports from "./routes/Ports.svelte";
   import Extensions from "./routes/Extensions.svelte";
   import Sonic from "./routes/Sonic.svelte";
+  import UHome from "./routes/UHome.svelte";
   import Setup from "./routes/Setup.svelte";
   import ThinGui from "./routes/ThinGui.svelte";
+  import Empire from "./routes/Empire.svelte";
 
   // Route mapping
   const routes = {
@@ -68,8 +70,10 @@
     ports: Ports,
     extensions: Extensions,
     sonic: Sonic,
+    uhome: UHome,
     setup: Setup,
     "thin-gui": ThinGui,
+    empire: Empire,
   };
 
   // Simple hash-based routing
@@ -280,4 +284,3 @@
     </main>
   </div>
 </div>
-

@@ -248,9 +248,82 @@ def test_start_build_uses_packaging_manifest_default_profile(tmp_path, monkeypat
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
     monkeypatch.setattr("wizard.services.sonic_build_service.subprocess.run", _fake_run)
+    monkeypatch.setattr(
+        "wizard.services.sonic_build_service.get_template_workspace_service",
+        lambda repo_root=None: type(
+            "_Svc",
+            (),
+            {"read_fields": lambda self, section, component_id: {}},
+        )(),
+    )
 
     svc = SonicBuildService(repo_root=repo)
     result = svc.start_build(profile=None, build_id="b5")
 
     assert result["profile"] == "alpine-core+sonic"
+    assert svc.default_profile == "manifest-profile"
+    assert svc.default_profile_source == "packaging_manifest"
     assert captured["cmd"] == [str(build_script), "--profile", "manifest-profile", "--build-id", "b5"]
+
+
+def test_start_build_prefers_template_workspace_default_profile(tmp_path, monkeypatch):
+    repo = tmp_path / "repo"
+    build_script = repo / "distribution" / "alpine-core" / "build-sonic-stick.sh"
+    build_dir = repo / "distribution" / "builds" / "b6"
+    build_script.parent.mkdir(parents=True, exist_ok=True)
+    build_dir.mkdir(parents=True, exist_ok=True)
+    build_script.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    build_script.chmod(0o755)
+
+    (repo / "packaging.manifest.json").write_text(
+        json.dumps(
+            {
+                "schema": "udos.packaging.manifest.v2",
+                "platforms": {
+                    "linux": {
+                        "app_bundle": {
+                            "default_profile": "manifest-profile",
+                            "build_script": "distribution/alpine-core/build-sonic-stick.sh",
+                            "builds_root": "distribution/builds",
+                        }
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    _write_manifest(build_dir, artifacts=[])
+
+    captured: dict[str, object] = {}
+
+    def _fake_run(cmd, cwd=None, capture_output=False, text=False, check=False):
+        captured["cmd"] = cmd
+        captured["cwd"] = cwd
+        return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr("wizard.services.sonic_build_service.subprocess.run", _fake_run)
+    monkeypatch.setattr(
+        "wizard.services.sonic_build_service.get_template_workspace_service",
+        lambda repo_root=None: type(
+            "_Svc",
+            (),
+            {
+                "read_fields": lambda self, section, component_id: {
+                    "preferred_profile": "workspace-profile"
+                },
+            },
+        )(),
+    )
+
+    svc = SonicBuildService(repo_root=repo)
+    svc.start_build(profile=None, build_id="b6")
+
+    assert svc.default_profile == "workspace-profile"
+    assert svc.default_profile_source == "template_workspace"
+    assert captured["cmd"] == [
+        str(build_script),
+        "--profile",
+        "workspace-profile",
+        "--build-id",
+        "b6",
+    ]

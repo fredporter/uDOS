@@ -544,12 +544,12 @@ class UCODE:
         )
 
     def _dispatch_with_vibe(self, user_input: str) -> dict[str, Any]:
-        """Three-stage dispatch with Dev-only vibe routing and local operator fallback.
+        """Three-stage dispatch with Dev extension vibe routing and local operator fallback.
 
         Uses command-first dispatch for:
           1. uCODE command matching (fuzzy, confidence scoring)
           2. Shell validation (safety checks)
-          3. Dev-only vibe skill routing
+          3. Dev extension skill routing
           4. Non-dev local operator fallback
           5. Dev-only OK fallback
 
@@ -584,18 +584,17 @@ class UCODE:
             return self._execute_ucode_command(result.command, rest)
 
         elif result.status == "vibe_routed":
-            # Routed to a Vibe skill (device, vault, workspace, etc.)
+            # Routed to a Dev extension Vibe skill from the reduced contributor set.
             skill = result.skill
             action = result.action
 
             self.logger.info(
-                f"Vibe skill routed: {skill}.{action}",
+                f"Dev extension skill routed: {skill}.{action}",
                 extra={"user_input": user_input, "skill": skill, "action": action},
             )
 
-            # For now, show message indicating routing
-            # When Phase 4 services are implemented, route to actual service
-            message = f"Routing to Vibe skill: {skill}"
+            # For now, show message indicating routing to the contributor subset.
+            message = f"Routing to Dev extension skill: {skill}"
             if action:
                 message += f" → {action}"
 
@@ -675,7 +674,7 @@ class UCODE:
         if user_input.startswith("/"):
             return self._handle_slash_input(user_input)
 
-        # Mode 3: Three-stage dispatch chain with Vibe skill routing (v1.4.4)
+        # Mode 3: Three-stage dispatch chain with Dev extension Vibe routing
         return self._dispatch_with_vibe(user_input)
 
     def _dev_mode_active(self) -> bool:
@@ -742,7 +741,7 @@ class UCODE:
                 "Standard runtime uses OPERATOR and UCODE OPERATOR.\n"
                 "Use: OPERATOR <prompt>\n"
                 "Or: UCODE OPERATOR STATUS\n"
-                "Enable DEV ON only when you need contributor tooling."
+                "Use the Wizard-managed /dev extension lane when you need contributor tooling."
             ),
         }
 
@@ -1318,7 +1317,7 @@ class UCODE:
                 self._print_task_progress(phase, f"{label} complete", done_pct)
 
     def _maybe_prompt_dev_setup(self, ai_status: dict[str, Any] | None) -> None:
-        """Prompt once for Dev Mode setup when the dev helper lane is unavailable."""
+        """Prompt once for Dev extension setup when contributor tooling is unavailable."""
         from core.services.unified_config_loader import get_bool_config
 
         if self.quiet or get_bool_config("UDOS_AUTOMATION"):
@@ -1335,7 +1334,7 @@ class UCODE:
             return
         issue = ai_status.get("local_issue") or "setup required"
         choice = self._ask_confirm(
-            question=f"Dev Mode helper unavailable ({issue}). Run SETUP now?",
+            question=f"Dev extension tooling unavailable ({issue}). Run SETUP now?",
             default=True,
             help_text="Yes = run now, No = continue startup, Skip = defer for this launch",
             variant="skip",
@@ -2042,7 +2041,7 @@ class UCODE:
             self.logger.debug(f"[OK] Failed to set prompt context: {exc}")
 
     def _show_operator_startup_sequence(self) -> dict[str, Any]:
-        """Show standard operator summary, with Dev Mode helper status when active."""
+        """Show standard operator summary, with Dev extension status when active."""
         from core.services.ai_provider_handler import get_ai_provider_handler
         from core.services.provider_registry import CoreProviderRegistry
 
@@ -2060,7 +2059,7 @@ class UCODE:
         )
         if not self._dev_mode_active():
             self.renderer.stream_text(
-                "Standard runtime uses OPERATOR and UCODE OPERATOR.\nDEV-only helper tooling remains gated behind DEV ON.",
+                "Standard runtime uses OPERATOR and UCODE OPERATOR.\nContributor tooling remains gated behind the active /dev extension lane.",
                 prefix="operator> ",
             )
             print("")
@@ -2106,7 +2105,7 @@ class UCODE:
                 lines.append(f"   Fallback: {fallback_model} (lightweight open-source)")
         else:
             issue = local_issue or "setup required"
-            lines.append(f"⚠️ Dev Mode helper needs setup: {issue} ({model}, ctx {ctx})")
+            lines.append(f"⚠️ Dev extension tooling needs setup: {issue} ({model}, ctx {ctx})")
             if issue in {
                 "setup required",
                 "ollama down",

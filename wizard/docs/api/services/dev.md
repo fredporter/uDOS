@@ -1,7 +1,7 @@
 # Service: wizard.dev
 
 ## Purpose
-Toggle developer mode (Goblin dev services) and expose status/logs.
+Manage the installed Dev Mode extension lane and expose contributor status, health, restart, clear, and log surfaces.
 
 ## Endpoints (current)
 
@@ -19,13 +19,21 @@ Toggle developer mode (Goblin dev services) and expose status/logs.
 {
   "status": "success",
   "active": true,
-  "goblin_endpoint": "http://127.0.0.1:8767",
-  "goblin_pid": 12345,
+  "dev_root": "/repo/dev",
+  "framework_ready": true,
   "services": {
-    "goblin": true
+    "dev_extension_framework": true,
+    "github_service": true
   }
 }
 ```
+
+## Contract Notes
+
+- Dev Mode is a Wizard-gated contributor extension lane.
+- `/dev/` must exist and contain the required extension framework files.
+- The standard runtime remains `ucode`.
+- `vibe` is Dev Mode contributor tooling only and is not a peer default runtime.
 
 ## MCP Tool Mapping
 
@@ -36,4 +44,3 @@ Toggle developer mode (Goblin dev services) and expose status/logs.
 - `wizard.dev.restart`
 - `wizard.dev.clear`
 - `wizard.dev.logs`
-

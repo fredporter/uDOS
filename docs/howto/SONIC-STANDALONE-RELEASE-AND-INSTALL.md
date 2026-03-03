@@ -1,6 +1,13 @@
 # Sonic Standalone Release and Install Guide
 
-This guide defines the public release/install flow for Sonic Screwdriver as a standalone utility.
+This guide defines the public release/install flow for Sonic Screwdriver as a
+standalone utility.
+
+For v1.5, this standalone lane may be used to ship:
+
+- Sonic by itself
+- `uHOME` by itself through Sonic-provisioned bundles or images
+- a combined Sonic + `uHOME` deployment image
 
 ## Release Artifacts
 
@@ -80,3 +87,5 @@ bash sonic/scripts/sonic-stick.sh --manifest sonic/config/sonic-manifest.json --
 - Publish release checksums and detached signatures alongside artifacts.
 - Include minimum hardware and OS support notes in release notes.
 - Keep release notes aligned with `docs/roadmap.md` Sonic completion state.
+- When targeting `uHOME`, document whether the image exposes thin GUI,
+  Steam-console UX, or both.

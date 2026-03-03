@@ -13,8 +13,13 @@ uDOS v1.5 is reopened as an active rebaseline release. The earlier repository cl
 - the v1.5 `ucode` TUI is the standard interactive user experience
 - Wizard is the browser/service layer subordinate to `ucode`
 - `vibe` is restricted to Dev Mode
+- Dev Mode is valid only when the `/dev/` extension scaffold is present and activated as the `dev-mode` extension
 - Mistral-backed contributor flows are restricted to Dev Mode operations unless explicitly surfaced through Wizard-managed policy
 - Sonic remains independently distributable, but installed-system control is routed through `ucode`
+
+Within the monorepo runtime, these rules remain the default path. Active specs
+may still define standalone Sonic or standalone `uHOME` release variants that
+operate without the full `uDOS/core` runtime package set.
 
 ## Release Profiles
 

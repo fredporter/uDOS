@@ -331,15 +331,15 @@ class MonitoringManager:
         return self.check_health("wizard_core", check)
 
     def check_goblin(self) -> HealthCheck:
-        """Check Goblin dev server health."""
+        """Check the legacy Dev extension runtime endpoint health."""
         if not self._goblin_monitor_enabled():
             health = HealthCheck(
                 service="goblin",
                 status=HealthStatus.HEALTHY.value,
                 response_time_ms=0,
                 timestamp=datetime.now().isoformat(),
-                message="Goblin monitoring disabled",
-                metadata={"disabled": True},
+                message="Legacy Dev extension endpoint monitoring disabled",
+                metadata={"disabled": True, "historical_surface": True},
             )
             self.health_checks["goblin"] = health
             logger.info("[WIZ] Health check: goblin = disabled")
@@ -353,7 +353,7 @@ class MonitoringManager:
             try:
                 resp = requests.get(url, timeout=2)
                 if resp.status_code == 200:
-                    return HealthStatus.HEALTHY, "Goblin healthy", {"status_code": resp.status_code}
+                    return HealthStatus.HEALTHY, "Legacy Dev extension endpoint healthy", {"status_code": resp.status_code}
                 if resp.status_code < 500:
                     return HealthStatus.DEGRADED, f"HTTP {resp.status_code}", {"status_code": resp.status_code}
                 return HealthStatus.UNHEALTHY, f"HTTP {resp.status_code}", {"status_code": resp.status_code}

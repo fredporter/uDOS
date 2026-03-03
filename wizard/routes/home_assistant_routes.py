@@ -22,7 +22,9 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from core.services.template_workspace_service import get_template_workspace_service
 from wizard.services.home_assistant_service import get_ha_service
+from wizard.services.path_utils import get_repo_root
 
 
 class HACommandRequest(BaseModel):
@@ -37,7 +39,12 @@ def create_ha_routes(auth_guard=None):
     @router.get("/status")
     async def ha_status():
         """Return bridge status and version. Always public — returns disabled when off."""
-        return get_ha_service().status()
+        workspace = get_template_workspace_service(get_repo_root())
+        return {
+            **get_ha_service().status(),
+            "template_workspace": workspace.component_contract("uhome"),
+            "template_workspace_state": workspace.component_snapshot("uhome"),
+        }
 
     @router.get("/discover", dependencies=dependencies)
     async def ha_discover():
@@ -48,7 +55,12 @@ def create_ha_routes(auth_guard=None):
                 status_code=503,
                 detail="Home Assistant bridge is disabled. Enable ha_bridge_enabled in Wizard config.",
             )
-        return svc.discover()
+        workspace = get_template_workspace_service(get_repo_root())
+        return {
+            **svc.discover(),
+            "template_workspace": workspace.component_contract("uhome"),
+            "template_workspace_state": workspace.component_snapshot("uhome"),
+        }
 
     @router.post("/command", dependencies=dependencies)
     async def ha_command(payload: HACommandRequest):

@@ -28,6 +28,7 @@ from pydantic import BaseModel
 
 from core.services.destructive_ops import remove_path
 from core.services.integration_registry import get_wizard_secret_sync_map
+from core.services.template_workspace_service import get_template_workspace_service
 from core.services.unified_config_loader import get_config
 from wizard.services.logging_api import get_logger
 from wizard.services.path_utils import get_repo_root, get_wizard_venv_dir
@@ -87,6 +88,15 @@ class UnifiedSettings(BaseModel):
     extensions: list[ExtensionInstaller]
     config_version: str = "v1.1.0"
     wizard_settings: dict[str, Any] = {}
+
+
+class TemplateWorkspaceWriteRequest(BaseModel):
+    content: str
+
+
+class TemplateWorkspaceFieldWriteRequest(BaseModel):
+    field_name: str
+    value: str
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -579,12 +589,57 @@ def create_settings_unified_router(auth_guard=None):
     async def get_settings_status(request: Request = None):
         """Get complete unified settings status."""
         await check_auth(request)
+        workspace = get_template_workspace_service(get_repo_root())
         return {
             "venv": get_venv_status().model_dump(),
             "secrets": get_secrets_config(),
             "extensions": [ext.model_dump() for ext in get_available_extensions()],
+            "template_workspace": workspace.workspace_contract(),
+            "wizard_settings_workspace": workspace.component_snapshot("wizard"),
             "timestamp": datetime.now().isoformat(),
         }
+
+    @router.get("/template-workspace")
+    async def template_workspace_status(request: Request = None):
+        """Get the shared Typo-oriented settings and instructions workspace."""
+        await check_auth(request)
+        return get_template_workspace_service(get_repo_root()).workspace_contract()
+
+    @router.get("/template-workspace/{component_id}/{section}")
+    async def template_workspace_document(
+        component_id: str, section: str, request: Request = None
+    ):
+        """Read the effective Markdown document for a component workspace section."""
+        await check_auth(request)
+        return get_template_workspace_service(get_repo_root()).read_document(
+            section, component_id
+        )
+
+    @router.put("/template-workspace/{component_id}/{section}")
+    async def update_template_workspace_document(
+        component_id: str,
+        section: str,
+        payload: TemplateWorkspaceWriteRequest,
+        request: Request = None,
+    ):
+        """Persist a user-customized Markdown document for a component section."""
+        await check_auth(request)
+        return get_template_workspace_service(get_repo_root()).write_user_document(
+            section, component_id, payload.content
+        )
+
+    @router.put("/template-workspace/{component_id}/{section}/field")
+    async def update_template_workspace_field(
+        component_id: str,
+        section: str,
+        payload: TemplateWorkspaceFieldWriteRequest,
+        request: Request = None,
+    ):
+        """Persist a single Markdown field for a component workspace section."""
+        await check_auth(request)
+        return get_template_workspace_service(get_repo_root()).write_user_field(
+            section, component_id, payload.field_name, payload.value
+        )
 
     # VENV MANAGEMENT
     @router.get("/venv/status")

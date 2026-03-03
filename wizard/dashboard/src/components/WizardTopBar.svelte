@@ -10,6 +10,7 @@
   const topNavRoutes = [
     { id: "dashboard", label: "Wizard" },
     { id: "devices", label: "Devices" },
+    { id: "uhome", label: "uHOME" },
     { id: "library", label: "Library" },
     { id: "sonic", label: "Sonic" },
     { id: "extensions", label: "Extensions" },
@@ -33,6 +34,7 @@
     { id: "anchors", label: "⚓ Anchors" },
     { id: "tables", label: "📊 Tables" },
     { id: "library", label: "📚 Library" },
+    { id: "uhome", label: "🏠 uHOME" },
     { id: "sonic", label: "🧰 Sonic" },
     { separator: true, label: "Services" },
     { id: "repair", label: "🛠 Repair" },

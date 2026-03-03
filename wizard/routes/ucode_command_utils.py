@@ -164,7 +164,7 @@ def prepare_ok_coding_request(
     if not is_dev_mode_active():
         raise HTTPException(
             status_code=409,
-            detail="OK coding commands require active Dev Mode (DEV ON).",
+            detail="OK coding commands require the active Dev extension lane.",
         )
 
     parsed_file_args = parse_ok_file_args(" ".join(parsed.ok_tokens[1:]))

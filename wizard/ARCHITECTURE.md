@@ -1,6 +1,6 @@
-# Wizard Architecture (Production)
+# Wizard Architecture
 
-**Model:** Single production server on 8765 (stable). Experimental work lives in `dev/goblin` on 8767. Wizard stays production-only.
+**Model:** Single Wizard service on 8765 with an optional Dev extension lane rooted at `/dev`.
 
 ---
 
@@ -9,7 +9,7 @@
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                        WIZARD SERVER (8765)                  │
-│                     Status: STABLE v1.1.0.0                  │
+│                     Status: Active v1.5 lane                 │
 │                                                              │
 │  Assistant Gateway  | Plugin Repo  | Web Proxy (stub)        │
 │  Gmail Relay (opt)  | GitHub Monitor/Sync | Port Manager     │
@@ -25,7 +25,7 @@
 └──────────────────────────────────────────────────────────────┘
 ```
 
-Goblin (dev server) is separate: localhost:8767, `/api/v0/*`, experimental only.
+The historical Goblin server is not part of the active v1.5 architecture contract.
 
 ---
 
@@ -38,7 +38,8 @@ wizard/
 │   └── wizard.json            # Production config (committed)
 ├── services/
 │   ├── ai_gateway.py          # Assistant routing (local-first)
-│   ├── dev_mode_service.py    # Dev mode management (Goblin activation/coordination)
+│   ├── dev_mode_service.py    # Dev extension lane activation/status/runtime checks
+│   ├── dev_extension_service.py # /dev framework policy + GitHub contributor sync
 │   ├── github_integration.py  # GitHub CLI ops, issue/PR management
 │   ├── github_monitor.py      # Actions self-healing
 │   ├── github_sync.py         # Safe repo sync (pull/push flag)
@@ -86,13 +87,18 @@ wizard/
 > - `vault/` = distributable markdown scaffold (tracked)
 > - `core/framework/seed/vault/` = canonical starter seed source (tracked)
 > - `memory/vault/` = runtime user vault (local, gitignored)
+>
+> Dev extension contract:
+> - `dev/` = versioned Dev extension framework/template root
+> - `dev/files`, `dev/relecs`, `dev/dev-work`, `dev/testing` = local-only contributor work areas
+> - Wizard owns install/uninstall/enable/disable lifecycle and keeps local mutable state separate from the tracked `dev/` scaffold
 
 ---
 
 ## 🎯 Responsibilities (Production)
 
 - Assistant routing gateway (local-first, policy-controlled cloud burst)
-- Dev Mode management (activate/deactivate Goblin dev server via `/api/dev/*`)
+- Dev extension management (status, enable, disable, restart, logs via `/api/dev/*`)
 - Plugin repository distribution (from repo-level `distribution/`)
 - Web proxy (stubbed, validated; disabled if toggled off)
 - Gmail relay (Wizard-only)
@@ -105,15 +111,15 @@ wizard/
 - Sync queue processing for local mirrors
 - Task scheduling (organic cron under Wizard memory)
 - Workflow management (local projects/tasks)
-- MCP server gateway (AI ↔ Wizard tool bridge)
+- MCP server gateway (Dev extension Vibe ↔ Wizard tool bridge)
 
-Not in Wizard: TUI command handlers, core business logic, runtime execution (lives in Core/Goblin/App as appropriate).
+Not in Wizard: TUI command handlers, core business logic, or the standard operator runtime path (those stay in Core).
 
 ## 📜 MD → HTML + Theme Pack Pipeline
 
 - Wizard owns the renderer service that turns Markdown provenance (`memory/vault/`) into static HTML snapshots under `memory/vault/_site/<theme>` by following the Theme Pack contract (`../docs/Theme-Pack-Contract.md`) and the universal component guidance (`../docs/Universal-Components-Contract.md`).
 - The renderer service must treat exported slots/data as simple objects (HTML strings + metadata) so it can satisfy both Wizard’s static portal (`wizard/portal-static/`) and any SvelteKit preview components. Refer to `wizard/docs/renderer-ui-standards.md` for the implementation boundary.
-- Theme metadata feeds the portal UI, mission reports, and export status endpoints so every lane (portal, CLI, Vibe) agrees on typography tokens (`../docs/CSS-Tokens.md`) and slot names.
+- Theme metadata feeds the portal UI, mission reports, and export status endpoints so every lane (portal, CLI, Dev extension tooling) agrees on typography tokens (`../docs/CSS-Tokens.md`) and slot names.
 
 ## 🎨 Svelte UI Modules
 
@@ -123,20 +129,20 @@ Not in Wizard: TUI command handlers, core business logic, runtime execution (liv
 
 ---
 
-## 🎮 Dev Mode
+## 🎮 Dev Extension Lane
 
-**Activated via:** `DEV MODE activate` (in Core TUI)
-**Controlled by:** `/api/dev/*` routes
-**Backend:** Wizard starts/stops Goblin dev server (localhost:8767)
+**Entry model:** implicit contributor lane behind the active `dev` profile and installed `/dev/` extension
+**Controlled by:** Wizard GUI plus `/api/dev/*` routes
+**Framework root:** `/dev`
 
-Dev Mode includes:
+Dev extension responsibilities include:
 
-- Goblin dev server with experimental features
-- Task scheduling, runtime executor
-- Real-time WebSocket updates
-- Full Wizard API access with dev features
+- contributor status, health, restart, clear, and log surfaces
+- gated Vibe/MCP contributor tooling
+- local scripts/tests/workflows rooted under `/dev/`
+- GitHub contributor sync and release-profile-aware checks
 
-Dev Mode is activated on-demand; Goblin runs independently on port 8767.
+The Dev extension lane is not a second default runtime and must not be described as an explicit normal-user mode switch.
 
 ---
 
@@ -147,7 +153,7 @@ Dev Mode is activated on-demand; Goblin runs independently on port 8767.
 - Plugins: `/api/plugin/list`, `/api/plugin/{id}`, `/api/plugin/{id}/download`
 - Proxy: `/api/web/fetch` (stub, gated by config)
 - GitHub: `/api/github/health`, `/api/github/sync-cli`, `/api/github/issues`, `/api/github/pulls`, `/api/github/context/*` (devlog, roadmap, agents, copilot), `/api/github/logs/{log_type}`
-- Dev Mode: `/api/dev/health`, `/api/dev/status`, `/api/dev/activate`, `/api/dev/deactivate`, `/api/dev/restart`, `/api/dev/logs`
+- Dev extension: `/api/dev/health`, `/api/dev/status`, `/api/dev/activate`, `/api/dev/deactivate`, `/api/dev/restart`, `/api/dev/logs`
 - Binder: `/api/binder/compile`, `/api/binder/chapters`, `/api/binder/export`
 - Console/TUI helpers: `/api/devices`, `/api/logs`, `/api/models/switch`, `/api/services/{service}/{action}`
 - Port Manager: `/api/ports/*` (via router include)
@@ -163,7 +169,6 @@ Authentication: Bearer token required for `/api/*`; rate limits per device. GitH
 | Service             | Port | Access         |
 | ------------------- | ---- | -------------- |
 | Wizard (production) | 8765 | LAN/Internet   |
-| Goblin (dev server) | 8767 | Localhost      |
 | Port Manager API    | 8765 | (under Wizard) |
 
 See also: [extensions/PORT-REGISTRY.md](../extensions/PORT-REGISTRY.md)
@@ -174,7 +179,7 @@ See also: [extensions/PORT-REGISTRY.md](../extensions/PORT-REGISTRY.md)
 
 - Device auth for all production endpoints; rate limits and budgets enforced.
 - GitHub webhook signature validation when secret set.
-- Production only; experimental endpoints belong in Goblin, not Wizard.
+- Dev extension features must remain permissioned behind profile, extension, and admin/dev checks.
 - Private transports only for device↔Wizard payloads; never send data over public Bluetooth beacons.
 
 ---
@@ -182,7 +187,7 @@ See also: [extensions/PORT-REGISTRY.md](../extensions/PORT-REGISTRY.md)
 ## Configuration
 
 - `wizard/config/wizard.json` (committed, versioned) — host/port, rate limits, budgets, service toggles, GitHub sync settings.
-- No dev config here; dev/local experiments happen in `dev/goblin`.
+- Dev extension framework policy and contributor work templates live under `/dev`.
 
 ---
 
@@ -195,17 +200,14 @@ python -m wizard.server           # server + interactive console
 python -m wizard.server --daemon  # daemon mode (no console)
 ```
 
-To activate Dev Mode:
+To use the Dev extension lane:
 
 ```bash
-# Via TUI
-./bin/Launch-uCODE.sh
-> DEV MODE activate
-
-# Via REST API
+# Enable the dev profile and install/activate the /dev extension through Wizard GUI,
+# then use the /api/dev/* routes or the Dev Mode screen for contributor controls.
 curl -X POST http://localhost:8765/api/dev/activate
 ```
 
 ---
 
-_Updated: 2026-02-19 — v1.4.3 consolidated release alignment + vault contract alignment (template `vault/`, seed `core/framework/seed/vault/`, runtime `memory/vault/`)_
+_Updated: 2026-03-03 — v1.5 Dev extension lane alignment_

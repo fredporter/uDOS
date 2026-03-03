@@ -1,37 +1,31 @@
 {
-  "id": "udos-vibe",
-  "name": "uDOS Vibe",
-  "description": "Universal Development Operating System with Vibe-CLI integration",
-  "version": "1.4.6",
-  "goal": "Provide a deterministic, offline-first operating system for creative and development workflows",
-  "definition_of_done": "Production-ready, 100% tested, documented, and deployed across all supported platforms",
+  "id": "udos",
+  "name": "uDOS",
+  "description": "Universal Development Operating System with a `ucode`-first runtime and Wizard-managed integration lanes.",
+  "version": "1.5-rebaseline",
+  "goal": "Provide a deterministic, offline-first operating environment for operator, home, creator, gaming, and development workflows.",
+  "definition_of_done": "Release evidence, docs, tests, and profile verification are complete across the supported v1.5 lanes.",
   "constraints": {
     "python_version": "3.12+",
-    "architecture": "core/wizard separation enforced",
-    "terminology": "OK branding only (no AI terminology)",
-    "testing": "100% pass rate required for milestones"
+    "architecture": "core and Wizard separation enforced",
+    "terminology": "OK branding only",
+    "testing": "release milestones require passing verification and recorded evidence"
   },
   "policy": {
     "routing_rules": [
-      "User → Vibe-CLI → OK Provider → ucode → Core/Wizard"
+      "User -> ucode -> Core or Wizard surfaces",
+      "Dev Mode contributor flows may route through vibe where explicitly allowed"
     ],
-    "escalation_thresholds": {
-      "test_failures": "0% tolerance for milestone completion",
-      "architectural_violations": "immediate fix required"
-    }
+    "release_profiles": ["core", "home", "creator", "gaming", "dev"]
   },
   "components": {
-    "core": "Minimal, deterministic Python-only functionality",
-    "wizard": "Extended, networked functionality with OK Provider integrations",
-    "vibe": "Mistral Vibe-CLI integration layer",
-    "dev": "Development workspace and templates"
+    "core": "Deterministic local runtime and command surface",
+    "wizard": "Managed operations, networked services, APIs, and browser control plane",
+    "vibe": "Dev Mode contributor integration layer",
+    "dev": "Development workspace and governance templates"
   },
-  "task_graph": {
-    "tasks": [],
-    "dependencies": []
-  },
-  "guidelines": "1. Respect core/wizard separation\n2. Use ucode command layer\n3. Follow OK terminology policy\n4. Test before commit\n5. Document architectural decisions",
-  "process": "1. Plan → 2. Implement → 3. Test → 4. Document → 5. Review → 6. Deploy",
+  "guidelines": "1. Respect core and Wizard boundaries\n2. Prefer canonical ucode command surfaces\n3. Keep docs aligned to the active release truth\n4. Record release evidence in devlog and roadmap trackers\n5. Avoid duplicate runtimes for the same subsystem",
+  "process": "1. Check -> 2. Implement -> 3. Harden -> 4. Validate -> 5. Document -> 6. Freeze",
   "created": "2024-01-01",
-  "updated": "2026-02-24"
+  "updated": "2026-03-03"
 }

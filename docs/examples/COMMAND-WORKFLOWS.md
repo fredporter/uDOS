@@ -1,7 +1,7 @@
 ---
 title: Command Examples & Workflows
 description: Practical examples for uDOS core commands
-version: 1.0.0
+version: 1.5-rebaseline
 ---
 
 # uDOS Command Workflows & Examples
@@ -122,6 +122,8 @@ BINDER EXPORT --format pdf     # Export binder
 
 ## Script & Automation
 
+The standard runtime path is `ucode` first. Use `WORKFLOW` for deterministic markdown-first workflows and `UCODE OPERATOR` for local operator planning.
+
 ### RUN - General script execution
 ```bash
 RUN <script.md>                  # Execute uDOS script
@@ -137,15 +139,33 @@ SCRIPT LIST                    # List available scripts
 SCRIPT NEW <name>              # Create new script
 ```
 
-### SCHEDULER - Task scheduling
+### UCODE PROFILE - Certified profile management
 ```bash
-SCHEDULER LIST                 # Show scheduled tasks
-SCHEDULER ADD <name> <command> # Create recurring task
-SCHEDULER RUN <name>           # Execute scheduled task
-SCHEDULER DELETE <name>        # Remove task
+UCODE PROFILE LIST
+UCODE PROFILE SHOW core
+UCODE PROFILE INSTALL creator
+UCODE PROFILE ENABLE home
+UCODE PROFILE VERIFY gaming
 ```
 
-### WORKFLOW - Multi-phase markdown workflow runner
+### UCODE OPERATOR - Local operator planning
+```bash
+UCODE OPERATOR STATUS
+UCODE OPERATOR PLAN install creator profile
+UCODE OPERATOR PLAN verify home profile
+UCODE OPERATOR QUEUE
+```
+
+### UCODE PACKAGE / EXTENSION / REPAIR - Profile-aware maintenance
+```bash
+UCODE EXTENSION LIST
+UCODE EXTENSION VERIFY dev-mode
+UCODE PACKAGE LIST
+UCODE PACKAGE VERIFY creator-base
+UCODE REPAIR STATUS
+```
+
+### WORKFLOW - Multi-phase markdown workflow runtime
 ```bash
 WORKFLOW LIST TEMPLATES
 WORKFLOW NEW WRITING-article article-001 goal="Write release note" audience=operators tone=plain word_limit=600
@@ -153,6 +173,12 @@ WORKFLOW RUN article-001
 WORKFLOW STATUS article-001
 WORKFLOW APPROVE article-001
 WORKFLOW ESCALATE article-001
+```
+
+Typical workflow artifacts are written to:
+
+```text
+memory/vault/workflows/<workflow-id>/
 ```
 
 ### RULE - Conditional automation
@@ -292,12 +318,13 @@ DESTROY --keep data      # Preserve data folder
 
 ### DEV - Development mode
 ```bash
-DEV                    # Toggle dev mode
-DEV STATUS             # Check dev mode status
-DEV LOGS               # Show dev mode logs
-DEV HEALTH             # Dev mode health check
-DEV RESTART            # Restart dev services
-DEV CLEAR              # Clear caches
+DEV STATUS             # Check Dev extension lane status
+DEV ACTIVATE           # Activate the installed Dev extension lane
+DEV DEACTIVATE         # Deactivate the Dev extension lane
+DEV LOGS               # Show Dev Mode logs
+DEV HEALTH             # Dev Mode health check
+DEV RESTART            # Restart Dev extension services
+DEV CLEAR              # Clear Dev extension caches
 ```
 
 ### DRAW - ASCII visualization

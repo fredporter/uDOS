@@ -1,63 +1,56 @@
 # uDOS Command Reference
 
-Version: Core v1.3.16
-Updated: 2026-02-15
+Version: v1.5 rebaseline
+Updated: 2026-03-03
 
-uDOS command ownership is split between offline Core and network-capable Wizard.
+uDOS command ownership is split between deterministic core runtime surfaces and Wizard-managed integration surfaces.
 
-## Core (offline/local)
+## Standard Runtime
 
-Core owns local command surfaces, including:
+The standard user path is `ucode` first.
 
-- system checks: `HEALTH`, `VERIFY`, `REPAIR`
-- runtime/data: `DRAW PAT ...`, `RUN --ts DATA ...`, `READ --ts ...`
-- local TUI/file/workspace operations (`PLACE`, `SEND`, `SAVE/LOAD --state`, `TOKEN`, `GHOST`)
+Primary surfaces:
+
+- `UCODE PROFILE <LIST|SHOW|INSTALL|ENABLE|DISABLE|VERIFY>`
+- `UCODE OPERATOR <STATUS|PLAN <prompt>|QUEUE>`
+- `UCODE EXTENSION <LIST|VERIFY>`
+- `UCODE PACKAGE <LIST|VERIFY>`
+- `UCODE REPAIR STATUS`
+- `WORKFLOW <LIST|NEW|RUN|STATUS|APPROVE|ESCALATE>`
 
 See:
 
 - `docs/howto/UCODE-COMMAND-REFERENCE.md`
-- `docs/howto/commands/system.md`
+- `docs/howto/WORKFLOW-SCHEDULER-QUICKSTART.md`
+- `docs/examples/COMMAND-WORKFLOWS.md`
 
-## Wizard (integration/provider/full checks)
+## Core Ownership
 
-Wizard owns integration/provider/full-system network-aware checks.
+Core owns deterministic local command surfaces, including:
 
-Use:
+- command/runtime validation and repair
+- local workflow execution and vault artifacts
+- file-backed state and offline-first operator flows
+- text-graphics, spatial, and local content tooling
 
-- `WIZARD PROV ...`
-- `WIZARD INTEG ...`
-- `WIZARD CHECK`
-- Vibe automation/task skill surface: `WIZOPS ...` (legacy alias: `WIZARD ...` in Vibe skill mode)
+## Wizard Ownership
+
+Wizard owns:
+
+- managed operations and `/admin`
+- API and MCP integration surfaces
+- network-aware provider and service integrations
+- home, publishing, and managed scheduling follow-on lanes
 
 See:
 
 - `docs/howto/commands/wizard.md`
-- `wiki/Wizard.md`
+- `docs/howto/MANAGED-WIZARD-OPERATIONS.md`
 
-## No-shims policy (v1.3.16)
+## Dev Mode Boundary
 
-Removed top-level core commands are not remapped:
+`vibe` remains available for Dev Mode contributor workflows only. It is not the standard runtime path for v1.5 normal-user operation.
 
-- `SHAKEDOWN`
-- `PATTERN`
-- `DATASET`
-- `INTEGRATION`
-- `PROVIDER`
+## Historical Command Notes
 
-Use migration targets documented in `docs/howto/UCODE-COMMAND-REFERENCE.md`.
-
-## Legacy Pages (Archived)
-
-The following v1.1-era pages were archived to:
-
-- `/.compost/<date>/archive/docs/.archive/2026-02-17-archived-docs/howto/commands/`
-
-Redirect stubs remain at the original paths:
-
-- `docs/howto/commands/navigation.md`
-- `docs/howto/commands/content.md`
-- `docs/howto/commands/interface.md`
-- `docs/howto/commands/maintenance.md`
-- `docs/howto/commands/transport.md`
-- `docs/howto/commands/user.md`
-- `docs/howto/commands/wellbeing.md`
+Older top-level command pages and migration stubs may still exist for reference, but active release guidance should follow the `ucode`-first runtime rule and the current `WORKFLOW` surface.

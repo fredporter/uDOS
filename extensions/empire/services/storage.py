@@ -177,6 +177,103 @@ def ensure_schema(db_path: Path = DEFAULT_DB_PATH) -> None:
         )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_contact_companies_record ON contact_companies(record_id)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_contact_companies_company ON contact_companies(company_id)")
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS documents (
+                document_id TEXT PRIMARY KEY,
+                source TEXT,
+                scope TEXT,
+                binder_id TEXT,
+                source_path TEXT,
+                title TEXT,
+                media_type TEXT,
+                extracted_text TEXT,
+                metadata TEXT,
+                created_at TEXT,
+                updated_at TEXT
+            )
+            """
+        )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_documents_scope ON documents(scope)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_documents_binder_id ON documents(binder_id)")
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS import_jobs (
+                job_id TEXT PRIMARY KEY,
+                scope TEXT,
+                binder_id TEXT,
+                source_kind TEXT,
+                source_path TEXT,
+                status TEXT,
+                records_imported INTEGER DEFAULT 0,
+                documents_created INTEGER DEFAULT 0,
+                started_at TEXT,
+                completed_at TEXT,
+                error TEXT,
+                metadata TEXT
+            )
+            """
+        )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_import_jobs_status ON import_jobs(status)")
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS sync_jobs (
+                sync_job_id TEXT PRIMARY KEY,
+                scope TEXT,
+                binder_id TEXT,
+                connector TEXT,
+                action TEXT,
+                status TEXT,
+                records_imported INTEGER DEFAULT 0,
+                documents_created INTEGER DEFAULT 0,
+                started_at TEXT,
+                completed_at TEXT,
+                error TEXT,
+                metadata TEXT
+            )
+            """
+        )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_sync_jobs_connector ON sync_jobs(connector)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_sync_jobs_status ON sync_jobs(status)")
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS webhook_mappings (
+                mapping_id TEXT PRIMARY KEY,
+                name TEXT,
+                source_system TEXT,
+                event_type TEXT,
+                target_scope TEXT,
+                binder_id TEXT,
+                target_entity TEXT,
+                template_path TEXT,
+                endpoint_secret TEXT,
+                status TEXT,
+                config_json TEXT,
+                created_at TEXT,
+                updated_at TEXT
+            )
+            """
+        )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_webhook_mappings_source ON webhook_mappings(source_system)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_webhook_mappings_status ON webhook_mappings(status)")
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS webhook_deliveries (
+                delivery_id TEXT PRIMARY KEY,
+                mapping_id TEXT,
+                direction TEXT,
+                event_type TEXT,
+                status TEXT,
+                request_payload TEXT,
+                response_payload TEXT,
+                error TEXT,
+                created_at TEXT,
+                FOREIGN KEY(mapping_id) REFERENCES webhook_mappings(mapping_id)
+            )
+            """
+        )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_mapping ON webhook_deliveries(mapping_id)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_status ON webhook_deliveries(status)")
         _ensure_column(conn, "tasks", "source_ref", "TEXT")
         _ensure_column(conn, "tasks", "record_id", "TEXT")
 
@@ -503,4 +600,441 @@ def list_companies(db_path: Path = DEFAULT_DB_PATH, limit: int = 500) -> List[Di
             """,
             (limit,),
         ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def record_document(
+    *,
+    source: str,
+    scope: str,
+    binder_id: Optional[str],
+    source_path: str,
+    title: Optional[str],
+    media_type: str,
+    extracted_text: Optional[str],
+    metadata: Optional[Dict[str, object]] = None,
+    db_path: Path = DEFAULT_DB_PATH,
+) -> str:
+    ensure_schema(db_path)
+    document_id = uuid.uuid4().hex
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.execute(
+            """
+            INSERT INTO documents (
+                document_id, source, scope, binder_id, source_path, title, media_type,
+                extracted_text, metadata, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+            """,
+            (
+                document_id,
+                source,
+                scope,
+                binder_id,
+                source_path,
+                title,
+                media_type,
+                extracted_text,
+                json.dumps(metadata or {}, ensure_ascii=False),
+            ),
+        )
+    return document_id
+
+
+def create_import_job(
+    *,
+    scope: str,
+    binder_id: Optional[str],
+    source_kind: str,
+    source_path: str,
+    metadata: Optional[Dict[str, object]] = None,
+    db_path: Path = DEFAULT_DB_PATH,
+) -> str:
+    ensure_schema(db_path)
+    job_id = uuid.uuid4().hex
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.execute(
+            """
+            INSERT INTO import_jobs (
+                job_id, scope, binder_id, source_kind, source_path, status,
+                started_at, metadata
+            ) VALUES (?, ?, ?, ?, ?, 'running', datetime('now'), ?)
+            """,
+            (
+                job_id,
+                scope,
+                binder_id,
+                source_kind,
+                source_path,
+                json.dumps(metadata or {}, ensure_ascii=False),
+            ),
+        )
+    return job_id
+
+
+def complete_import_job(
+    *,
+    job_id: str,
+    status: str,
+    records_imported: int = 0,
+    documents_created: int = 0,
+    error: Optional[str] = None,
+    metadata: Optional[Dict[str, object]] = None,
+    db_path: Path = DEFAULT_DB_PATH,
+) -> None:
+    ensure_schema(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.execute(
+            """
+            UPDATE import_jobs
+            SET status = ?, records_imported = ?, documents_created = ?,
+                completed_at = datetime('now'), error = ?, metadata = ?
+            WHERE job_id = ?
+            """,
+            (
+                status,
+                records_imported,
+                documents_created,
+                error,
+                json.dumps(metadata or {}, ensure_ascii=False),
+                job_id,
+            ),
+        )
+
+
+def create_sync_job(
+    *,
+    scope: str,
+    binder_id: Optional[str],
+    connector: str,
+    action: str,
+    metadata: Optional[Dict[str, object]] = None,
+    db_path: Path = DEFAULT_DB_PATH,
+) -> str:
+    ensure_schema(db_path)
+    sync_job_id = uuid.uuid4().hex
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.execute(
+            """
+            INSERT INTO sync_jobs (
+                sync_job_id, scope, binder_id, connector, action, status, started_at, metadata
+            ) VALUES (?, ?, ?, ?, ?, 'running', datetime('now'), ?)
+            """,
+            (
+                sync_job_id,
+                scope,
+                binder_id,
+                connector,
+                action,
+                json.dumps(metadata or {}, ensure_ascii=False),
+            ),
+        )
+    return sync_job_id
+
+
+def complete_sync_job(
+    *,
+    sync_job_id: str,
+    status: str,
+    records_imported: int = 0,
+    documents_created: int = 0,
+    error: Optional[str] = None,
+    metadata: Optional[Dict[str, object]] = None,
+    db_path: Path = DEFAULT_DB_PATH,
+) -> None:
+    ensure_schema(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.execute(
+            """
+            UPDATE sync_jobs
+            SET status = ?, records_imported = ?, documents_created = ?,
+                completed_at = datetime('now'), error = ?, metadata = ?
+            WHERE sync_job_id = ?
+            """,
+            (
+                status,
+                records_imported,
+                documents_created,
+                error,
+                json.dumps(metadata or {}, ensure_ascii=False),
+                sync_job_id,
+            ),
+        )
+
+
+def list_documents(db_path: Path = DEFAULT_DB_PATH, limit: int = 100) -> List[Dict[str, object]]:
+    ensure_schema(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """
+            SELECT document_id, source, scope, binder_id, source_path, title, media_type,
+                   created_at, updated_at
+            FROM documents
+            ORDER BY updated_at DESC
+            LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def list_import_jobs(db_path: Path = DEFAULT_DB_PATH, limit: int = 100) -> List[Dict[str, object]]:
+    ensure_schema(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """
+            SELECT job_id, scope, binder_id, source_kind, source_path, status,
+                   records_imported, documents_created, started_at, completed_at, error, metadata
+            FROM import_jobs
+            ORDER BY started_at DESC
+            LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def list_sync_jobs(
+    db_path: Path = DEFAULT_DB_PATH,
+    limit: int = 100,
+    connector: Optional[str] = None,
+) -> List[Dict[str, object]]:
+    ensure_schema(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.row_factory = sqlite3.Row
+        if connector:
+            rows = conn.execute(
+                """
+                SELECT sync_job_id, scope, binder_id, connector, action, status,
+                       records_imported, documents_created, started_at, completed_at, error, metadata
+                FROM sync_jobs
+                WHERE connector = ?
+                ORDER BY started_at DESC
+                LIMIT ?
+                """,
+                (connector, limit),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                """
+                SELECT sync_job_id, scope, binder_id, connector, action, status,
+                       records_imported, documents_created, started_at, completed_at, error, metadata
+                FROM sync_jobs
+                ORDER BY started_at DESC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def get_document(document_id: str, db_path: Path = DEFAULT_DB_PATH) -> Optional[Dict[str, object]]:
+    ensure_schema(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            """
+            SELECT document_id, source, scope, binder_id, source_path, title, media_type,
+                   extracted_text, metadata, created_at, updated_at
+            FROM documents
+            WHERE document_id = ?
+            LIMIT 1
+            """,
+            (document_id,),
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def get_import_job(job_id: str, db_path: Path = DEFAULT_DB_PATH) -> Optional[Dict[str, object]]:
+    ensure_schema(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            """
+            SELECT job_id, scope, binder_id, source_kind, source_path, status,
+                   records_imported, documents_created, started_at, completed_at, error, metadata
+            FROM import_jobs
+            WHERE job_id = ?
+            LIMIT 1
+            """,
+            (job_id,),
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def get_sync_job(sync_job_id: str, db_path: Path = DEFAULT_DB_PATH) -> Optional[Dict[str, object]]:
+    ensure_schema(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            """
+            SELECT sync_job_id, scope, binder_id, connector, action, status,
+                   records_imported, documents_created, started_at, completed_at, error, metadata
+            FROM sync_jobs
+            WHERE sync_job_id = ?
+            LIMIT 1
+            """,
+            (sync_job_id,),
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def upsert_webhook_mapping(
+    *,
+    mapping_id: Optional[str] = None,
+    name: str,
+    source_system: str,
+    event_type: str,
+    target_scope: str,
+    binder_id: Optional[str],
+    target_entity: str,
+    template_path: Optional[str],
+    endpoint_secret: Optional[str],
+    status: str,
+    config_json: Optional[Dict[str, object]] = None,
+    db_path: Path = DEFAULT_DB_PATH,
+) -> str:
+    ensure_schema(db_path)
+    resolved_mapping_id = mapping_id or uuid.uuid4().hex
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.execute(
+            """
+            INSERT INTO webhook_mappings (
+                mapping_id, name, source_system, event_type, target_scope, binder_id,
+                target_entity, template_path, endpoint_secret, status, config_json,
+                created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+            ON CONFLICT(mapping_id) DO UPDATE SET
+                name=excluded.name,
+                source_system=excluded.source_system,
+                event_type=excluded.event_type,
+                target_scope=excluded.target_scope,
+                binder_id=excluded.binder_id,
+                target_entity=excluded.target_entity,
+                template_path=excluded.template_path,
+                endpoint_secret=excluded.endpoint_secret,
+                status=excluded.status,
+                config_json=excluded.config_json,
+                updated_at=datetime('now')
+            """,
+            (
+                resolved_mapping_id,
+                name,
+                source_system,
+                event_type,
+                target_scope,
+                binder_id,
+                target_entity,
+                template_path,
+                endpoint_secret,
+                status,
+                json.dumps(config_json or {}, ensure_ascii=False),
+            ),
+        )
+    return resolved_mapping_id
+
+
+def list_webhook_mappings(db_path: Path = DEFAULT_DB_PATH, limit: int = 100) -> List[Dict[str, object]]:
+    ensure_schema(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """
+            SELECT mapping_id, name, source_system, event_type, target_scope, binder_id,
+                   target_entity, template_path, endpoint_secret, status, config_json,
+                   created_at, updated_at
+            FROM webhook_mappings
+            ORDER BY updated_at DESC
+            LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def get_webhook_mapping(mapping_id: str, db_path: Path = DEFAULT_DB_PATH) -> Optional[Dict[str, object]]:
+    ensure_schema(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            """
+            SELECT mapping_id, name, source_system, event_type, target_scope, binder_id,
+                   target_entity, template_path, endpoint_secret, status, config_json,
+                   created_at, updated_at
+            FROM webhook_mappings
+            WHERE mapping_id = ?
+            LIMIT 1
+            """,
+            (mapping_id,),
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def record_webhook_delivery(
+    *,
+    mapping_id: str,
+    direction: str,
+    event_type: str,
+    status: str,
+    request_payload: Optional[Dict[str, object]] = None,
+    response_payload: Optional[Dict[str, object]] = None,
+    error: Optional[str] = None,
+    db_path: Path = DEFAULT_DB_PATH,
+) -> str:
+    ensure_schema(db_path)
+    delivery_id = uuid.uuid4().hex
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.execute(
+            """
+            INSERT INTO webhook_deliveries (
+                delivery_id, mapping_id, direction, event_type, status,
+                request_payload, response_payload, error, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            """,
+            (
+                delivery_id,
+                mapping_id,
+                direction,
+                event_type,
+                status,
+                json.dumps(request_payload or {}, ensure_ascii=False),
+                json.dumps(response_payload or {}, ensure_ascii=False),
+                error,
+            ),
+        )
+    return delivery_id
+
+
+def list_webhook_deliveries(
+    db_path: Path = DEFAULT_DB_PATH,
+    limit: int = 100,
+    mapping_id: Optional[str] = None,
+) -> List[Dict[str, object]]:
+    ensure_schema(db_path)
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.row_factory = sqlite3.Row
+        if mapping_id:
+            rows = conn.execute(
+                """
+                SELECT delivery_id, mapping_id, direction, event_type, status,
+                       request_payload, response_payload, error, created_at
+                FROM webhook_deliveries
+                WHERE mapping_id = ?
+                ORDER BY created_at DESC
+                LIMIT ?
+                """,
+                (mapping_id, limit),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                """
+                SELECT delivery_id, mapping_id, direction, event_type, status,
+                       request_payload, response_payload, error, created_at
+                FROM webhook_deliveries
+                ORDER BY created_at DESC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
     return [dict(row) for row in rows]

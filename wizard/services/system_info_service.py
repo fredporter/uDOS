@@ -14,6 +14,8 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, asdict
 
+from core.services.container_catalog_service import get_container_catalog_service
+
 
 @dataclass
 class OSInfo:
@@ -259,49 +261,23 @@ class SystemInfoService:
 
         Returns LibraryIntegration or None if not a valid directory.
         """
-        container_json = item_path / "container.json"
-        has_container = container_json.exists()
-        repo_path = None
-
         name = item_path.name
-        description = ""
-        version = ""
-
-        # Read manifest if exists
-        container_type = "local"
-        git_cloned = False
-        git_source = ""
-        git_ref = ""
-
-        if has_container:
-            try:
-                with open(container_json) as f:
-                    manifest = json.load(f)
-                container_meta = manifest.get("container", {})
-                description = container_meta.get("description", "")
-                version = container_meta.get("version", "")
-                repo_path = manifest.get("repo_path")
-                # Git container type detection
-                raw_type = container_meta.get("type", "local")
-                container_type = raw_type if raw_type in ("local", "git", "docker") else "local"
-                if container_type == "git":
-                    git_source = container_meta.get("source", "")
-                    git_ref = container_meta.get("ref", "main")
-                    # Cloned if cloned_at is set or a .git directory exists inside item_path
-                    git_cloned = bool(
-                        container_meta.get("cloned_at")
-                        or (item_path / ".git").exists()
-                    )
-            except Exception:
-                pass
-
-        # Resolve repo path if manifest points elsewhere
-        resolved_path = item_path
-        if repo_path:
-            candidate = Path(repo_path)
-            if not candidate.is_absolute():
-                candidate = self.repo_root / candidate
-            resolved_path = candidate
+        catalog_entry = get_container_catalog_service(self.repo_root).get_entry(name)
+        metadata = (
+            catalog_entry.metadata
+            if catalog_entry and catalog_entry.kind == "library"
+            else {}
+        )
+        resolved_path = Path(metadata.get("resolved_repo_path") or item_path)
+        has_container = bool(metadata.get("manifest_path")) or (item_path / "container.json").exists()
+        description = str(
+            (catalog_entry.summary if catalog_entry else "") or metadata.get("description") or ""
+        )
+        version = str((catalog_entry.version if catalog_entry else "") or "")
+        container_type = str(metadata.get("container_type") or "local")
+        git_cloned = bool(metadata.get("git_cloned"))
+        git_source = str(metadata.get("git_source") or "")
+        git_ref = str(metadata.get("git_ref") or "")
 
         # Check if installed by looking for setup.sh or build output
         installed = self._check_if_installed(resolved_path)

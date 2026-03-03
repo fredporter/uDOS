@@ -1,16 +1,18 @@
 # Dev Mode Policy
 
 ## Scope
-Dev mode is gated by the public developer submodule and admin role permissions.
+Dev mode is gated by the installed `/dev/` extension framework, the `dev` certified profile, and admin role permissions.
 Related: logging policy and diagnostics scaffolding lives in [docs/LOGGING-API-v1.3.md](docs/LOGGING-API-v1.3.md).
 
 ## Rules
-- `/dev/` is a public submodule repo (github.com/fredporter/uDOS-dev).
+- `/dev/` is the versioned Dev Mode extension scaffold and distro template root.
 - Dev mode is only available when `/dev/` exists and contains the Dev extension framework.
 - Dev mode is restricted to users with both `admin` and `dev_mode` permissions.
-- Dev mode enables the `DEV ON` / `DEV OFF` controls and related contributor tooling.
+- Dev mode is entered implicitly through the active Dev extension lane and related contributor tooling.
+- Wizard GUI owns install, uninstall, activation, deactivation, and status.
 - The live runtime remains TUI/Dev tooling based for v1.5; `/dev` does not host a separate server.
 - If `/dev/` is missing or the user is not `admin`, dev mode must be unavailable and return a friendly soft-failure reason.
+- Local mutable working data must stay separate from the versioned `/dev/` template truth.
 
 ## Policy Contract (Gate)
 Dev mode is gated in both Wizard APIs and uCODE clients.
@@ -36,4 +38,14 @@ Dev mode is gated in both Wizard APIs and uCODE clients.
 - uDOS should containerize and overlay UI without modifying upstream repos.
 
 ## Rationale
-The `/dev/` submodule provides the framework, templates, and governance for Dev Mode across core, wizard, extensions, and plugins. It is a public, open-source extension for contributors and serves as the explicit gate for permissioned developer capabilities.
+## Local-Only Working Areas
+
+The following working directories are local-only and not part of the canonical template contract:
+
+- `/dev/files`
+- `/dev/relecs`
+- `/dev/dev-work`
+- `/dev/testing`
+
+## Rationale
+The `/dev/` scaffold provides the framework, templates, governance, and contributor task surfaces for Dev Mode across core, Wizard, extensions, and plugins. It is the explicit gate for permissioned contributor capabilities and keeps local working data separate from the versioned distro template.

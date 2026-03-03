@@ -1,84 +1,76 @@
-# AGENTS.md — Development Workspace
+# AGENTS.md — Dev Mode Extension Framework
 
-Last Updated: 2026-02-24
-Milestone: v1.4.6 Architecture Stabilisation Phase
-Status: Stable
+Last Updated: 2026-03-03
+Milestone: v1.5 Dev Mode Rebaseline
+Status: Active
 
 ---
 
 ## Purpose
 
-The `dev` subsystem contains development roadmaps, tasks, and planning documentation.
+The `/dev` subsystem is the installed Dev Mode extension framework for contributor workflows.
 
-This is a clean workspace for:
-- Development planning
-- Roadmap tracking
-- Task management
-- Milestone coordination
-- Extension/template creation
+It exists for:
+- contributor roadmaps
+- contributor task tracking
+- contributor governance files
+- extension metadata
+- distro/template framework content
 
 ---
 
-## Structure
+## Required Files
 
-```
-dev/
-├── AGENTS.md           (this file)
-├── DEVLOG.md           (development log)
-├── project.json        (dev workspace config)
-├── tasks.md            (active development tasks)
-├── completed.json      (completed milestones)
-└── docs/               (planning docs)
-```
+`/dev` must contain:
+- `AGENTS.md`
+- `DEVLOG.md`
+- `project.json`
+- `tasks.md`
+- `completed.json`
+- `extension.json`
+- `docs/README.md`
+- `docs/DEV-MODE-POLICY.md`
 
 ---
 
 ## Content Policy
 
-dev/ must contain ONLY:
-- Planning documents
-- Roadmaps
-- Task tracking
-- Extension templates
-- Development guides
+`/dev` must contain only:
+- contributor planning
+- contributor governance
+- extension templates and metadata
+- distro-facing Dev Mode framework content
 
-dev/ must NOT contain:
-- Production code
-- Tests
-- Runtime logic
-- Third-party libraries
-- User-facing features
+`/dev` must not contain:
+- primary runtime logic
+- standard-user product planning
+- production subsystem ownership that belongs in `core/` or `wizard/`
 
 ---
 
-## Governance Templates
+## Local vs Remote Split
 
-All governance files in dev/ are templates.
+`/dev` is the versioned extension scaffold and distro template root.
 
-Users may:
-- Copy templates to their own projects
-- Adapt governance structure
-- Define custom workflows
+Local mutable work must remain separate from the remote template truth.
 
-Users must NOT:
-- Modify dev/ templates for their projects
-- Use dev/ as a workspace
-- Store project data in dev/
+Allowed local-only working directories:
+- `dev/files`
+- `dev/relecs`
+- `dev/dev-work`
+- `dev/testing`
+
+These are working areas only, not the canonical extension template payload.
 
 ---
 
-## OK Agent Behaviour Constraints
+## Runtime Boundary
 
-When working in dev:
-
-- Do not generate production code
-- Do not create runtime logic
-- Keep templates generic
-- Avoid implementation details
-- Focus on process and structure
-
-If code is needed → implement in core or wizard.
-If documentation is needed → docs/ or wiki/.
+- Dev Mode is an extension lane, not the default runtime.
+- `ucode` remains the standard runtime path.
+- `vibe` is contributor-only Dev Mode tooling.
+- Wizard owns Dev Mode install, uninstall, activation, deactivation, and GitHub sync behavior.
+- If runtime logic is needed, implement it in `wizard/` or `core/`, not in `/dev/`.
 
 ---
 

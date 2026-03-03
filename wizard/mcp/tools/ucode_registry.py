@@ -1,9 +1,9 @@
-"""Auto-discover and registry for all uDOS tools.
+"""Registry for the Vibe-facing uCODE developer subset.
 
 This module provides:
-- discover_ucode_tools(): Find all BaseTool subclasses in vibe.core.tools.ucode
+- discover_ucode_tools(): Find approved BaseTool subclasses in vibe.core.tools.ucode
 - get_tool_schema(): Generate MCP-compatible JSON schema for a tool
-- list_all_tools(): Get complete list with descriptions and schemas
+- list_all_tools(): Get the approved developer tool list with descriptions and schemas
 """
 
 from __future__ import annotations
@@ -16,19 +16,32 @@ from typing import Any, Dict, Optional, Type
 from vibe.core.tools.base import BaseTool
 
 
-# All ucode modules to scan
+# Only expose the Vibe Dev Mode subset through MCP.
 UCODE_MODULES = [
     "vibe.core.tools.ucode.system",
-    "vibe.core.tools.ucode.spatial",
     "vibe.core.tools.ucode.data",
     "vibe.core.tools.ucode.workspace",
     "vibe.core.tools.ucode.content",
-    "vibe.core.tools.ucode.specialized",
 ]
+
+ALLOWED_UCODE_TOOL_NAMES = frozenset(
+    {
+        "ucode_health",
+        "ucode_verify",
+        "ucode_repair",
+        "ucode_token",
+        "ucode_help",
+        "ucode_config",
+        "ucode_seed",
+        "ucode_setup",
+        "ucode_run",
+        "ucode_read",
+    }
+)
 
 
 def discover_ucode_tools() -> Dict[str, Type[BaseTool]]:
-    """Auto-discover all ucode tools from UCODE_MODULES.
+    """Auto-discover the approved developer ucode tools from UCODE_MODULES.
 
     Returns:
         Dict mapping tool names to tool classes.
@@ -48,7 +61,8 @@ def discover_ucode_tools() -> Dict[str, Type[BaseTool]]:
                 ):
                     # Get the tool name from the class
                     tool_name = obj.get_name() if hasattr(obj, "get_name") else name.lower()
-                    tools[tool_name] = obj
+                    if tool_name in ALLOWED_UCODE_TOOL_NAMES:
+                        tools[tool_name] = obj
         except Exception as e:
             # Non-fatal: skip this module but surface the failure so operators
             # can diagnose missing dependencies or broken tool modules.
@@ -117,7 +131,7 @@ def get_tool_description(tool_cls: Type[BaseTool]) -> str:
 
 
 def list_all_tools() -> Dict[str, Dict[str, Any]]:
-    """List all available ucode tools with metadata.
+    """List all Vibe-approved ucode tools with metadata.
 
     Returns:
         Dict mapping tool names to {"class": Type, "description": str, "schema": Dict}
@@ -139,7 +153,7 @@ def get_tool_by_name(name: str) -> Optional[Type[BaseTool]]:
     """Get a tool class by name.
 
     Args:
-        name: Tool name (e.g., "health", "run", "read").
+        name: Tool name (e.g., "ucode_health", "ucode_run", "ucode_read").
 
     Returns:
         Tool class, or None if not found.

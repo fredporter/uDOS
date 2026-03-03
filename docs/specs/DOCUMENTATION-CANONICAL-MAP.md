@@ -76,6 +76,24 @@ It should not be the long-term home for:
 
 - `docs/v1-4-workflow-PLAN.md`
 
+## Current Canonical uHOME Docs
+
+### Decision
+
+- `docs/decisions/uHOME-spec.md`
+
+### Spec
+
+- `docs/specs/UHOME-v1.5.md`
+
+### Supporting decision
+
+- `docs/decisions/HOME-ASSISTANT-BRIDGE.md`
+
+### Sonic integration companion
+
+- `sonic/docs/integration-spec.md`
+
 ## Current Assessment
 
 ### Accurate and relevant

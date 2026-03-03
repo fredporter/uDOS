@@ -1,0 +1,23 @@
+{
+  "label": "Thin GUI",
+  "summary": "Shared launch-intent GUI contract for direct-display, paired control, and home-node handoff flows.",
+  "description": "Thin GUI is the shared lightweight presentation shell used by uHOME, Sonic, and extension entrypoints.",
+  "category": "ui",
+  "visibility": "official",
+  "runtime_owner": "shared",
+  "execution_model": "shared-component-v1",
+  "standalone_capable": true,
+  "api_prefix": "/api/platform/launch",
+  "wizard_route": "#thin-gui",
+  "callable_from": [
+    "core",
+    "wizard",
+    "extensions",
+    "sonic",
+    "uhome"
+  ],
+  "library_refs": [
+    "typo",
+    "micro"
+  ]
+}

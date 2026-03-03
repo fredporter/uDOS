@@ -199,7 +199,7 @@ stored in the Wizard keystore.
 USAGE:
   SETUP              Run setup story (interactive questions)
   SETUP <provider>   Setup a provider (github, ollama, mistral, etc.)
-  SETUP dev          Install Dev Mode helper tooling
+  SETUP dev          Prepare Dev extension contributor tooling
   SETUP --profile    Show your current setup
   SETUP --edit       Edit setup manually
   SETUP --clear      Clear all setup data
@@ -210,7 +210,7 @@ PROVIDERS:
   SETUP ollama       Setup local Ollama AI model
   SETUP mistral      Configure Mistral AI provider
   SETUP openrouter   Configure OpenRouter gateway
-  SETUP dev          Install Ollama + vibe Dev Mode tooling + recommended local models
+  SETUP dev          Prepare Ollama + vibe contributor tooling + recommended local models
 
 LOCAL SETTINGS (.env):
     USER_NAME          Username
@@ -233,7 +233,7 @@ EXAMPLES:
   SETUP                     # Start interactive setup
   SETUP github              # Setup GitHub authentication
   SETUP ollama              # Setup local Ollama
-  SETUP dev                 # Install Dev Mode helper tooling
+  SETUP dev                 # Prepare Dev extension contributor tooling
   SETUP --profile           # View current settings
   SETUP --clear && SETUP    # Reset and reconfigure
   nano .env                 # Manual editing

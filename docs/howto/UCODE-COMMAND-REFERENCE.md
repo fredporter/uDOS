@@ -92,6 +92,8 @@ vibe
 # → Executes shell command via Dev Mode tooling
 ```
 
+Dev Mode use is valid only when the `dev` profile is enabled and the `/dev/` extension scaffold is installed and activated through Wizard-managed controls. `vibe` is not a peer standard runtime.
+
 ### 4. Shell/Script Execution
 ```bash
 # Direct execution

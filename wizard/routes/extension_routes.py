@@ -1,90 +1,102 @@
-"""
-Extension detection routes for Wizard Server.
-
-Reports which official uDOS extensions are present on the local system.
-Extensions are private submodules and only appear if installed.
-"""
+"""Extension detection routes for Wizard Server."""
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, Request
 
+from core.services.container_catalog_service import get_container_catalog_service
 from wizard.services.extension_hot_reload_service import get_extension_hot_reload_service
+from wizard.services.empire_extension_service import get_empire_extension_service
 from wizard.services.path_utils import get_repo_root
 
 REPO_ROOT = get_repo_root()
 
-# Official uDOS extensions (submodules)
-# visibility: "private" = Extensions page only (if installed), "public" = both Plugins + Extensions
-OFFICIAL_EXTENSIONS = [
-    {
-        "id": "empire",
-        "name": "Empire",
-        "description": "Commercial business extension: contacts, email, data enrichment",
-        "icon": "🏛",
-        "path": "empire",
-        "main_file": "src/spine.py",
-        "api_prefix": "/api/empire",
-        "web_port": 8991,
-        "category": "business",
-        "visibility": "private",
-    },
-    {
-        "id": "dev",
-        "name": "Dev Mode",
-        "description": "Developer tooling, debugging, and internal utilities",
-        "icon": "🧌",
-        "path": "dev",
-        "main_file": "__init__.py",
-        "api_prefix": "/api/dev",
-        "web_port": None,
-        "category": "developer",
-        "visibility": "public",
-    },
-    {
-        "id": "groovebox",
-        "name": "Groovebox",
-        "description": "Audio sample library and playback tools",
-        "icon": "🎛",
-        "path": "groovebox",
-        "main_file": "docs/groovebox.md",
-        "api_prefix": "/api/groovebox",
-        "web_port": None,
-        "category": "audio",
-        "visibility": "private",
-    },
-    {
-        "id": "sonic",
-        "name": "Sonic Screwdriver",
-        "description": "Multi-tool utilities for data transformation and scripting",
-        "icon": "🔧",
-        "path": "sonic",
-        "main_file": "__init__.py",
-        "api_prefix": "/api/sonic",
-        "web_port": None,
-        "category": "utilities",
-        "visibility": "public",
-    },
-]
+ICON_MAP = {
+    "business": "🏛",
+    "developer": "🧌",
+    "audio": "🎛",
+    "utilities": "🔧",
+    "ui": "🖥",
+    "general": "📦",
+}
 
 
-def _check_extension_present(ext: Dict[str, Any]) -> bool:
-    """Check if extension submodule is present on the local system."""
-    ext_path = REPO_ROOT / ext["path"]
-    if not ext_path.exists() or not ext_path.is_dir():
-        return False
-    # Check for main file to ensure it's not an empty submodule
-    main_file = ext_path / ext["main_file"]
-    return main_file.exists()
+def _official_extensions() -> list[dict[str, Any]]:
+    catalog = get_container_catalog_service(REPO_ROOT)
+    items: list[dict[str, Any]] = []
+    for entry in catalog.list_by_kind("extension"):
+        items.append(
+            {
+                "id": entry.entry_id,
+                "name": entry.label,
+                "description": entry.summary,
+                "icon": ICON_MAP.get(entry.category, "📦"),
+                "path": entry.path,
+                "main_file": _watch_file_for_extension(entry.entry_id, entry.path),
+                "api_prefix": entry.api_prefix,
+                "web_port": None,
+                "category": entry.category,
+                "visibility": entry.visibility,
+                "runtime_owner": entry.execution.runtime_owner,
+                "callable_from": entry.execution.callable_from,
+                "library_refs": entry.metadata.get("library_refs", []),
+                "template_workspace": entry.metadata.get("template_workspace"),
+                "standalone_capable": entry.execution.standalone_capable,
+                "present": entry.available,
+                "lens_vars": entry.lens_vars,
+                "version": entry.version,
+            }
+        )
+    return items
+
+
+def _watch_file_for_extension(entry_id: str, path: str) -> str:
+    normalized = entry_id.strip().lower()
+    if normalized == "sonic":
+        return "README.md"
+    if normalized == "thin-gui":
+        return "package.json"
+    if path == "dev":
+        return "__init__.py"
+    return "__init__.py"
 
 
 def _get_extension_status(ext: Dict[str, Any]) -> Dict[str, Any]:
     """Get full status for an extension."""
-    present = _check_extension_present(ext)
-    ext_path = REPO_ROOT / ext["path"]
+    if ext["id"] == "empire":
+        payload = get_empire_extension_service().status_payload()
+        return {
+            "id": "empire",
+            "name": ext["name"],
+            "description": ext["description"],
+            "icon": ext["icon"],
+            "category": ext["category"],
+            "present": payload["installed"],
+            "installed": payload["installed"],
+            "available": payload["available"],
+            "enabled": payload["enabled"],
+            "configured": payload["configured"],
+            "configuration_state": payload["configuration_state"],
+            "healthy": payload["healthy"],
+            "degraded": payload["degraded"],
+            "version": payload["version"],
+            "path": payload["path"],
+            "wizard_route": payload["wizard_route"],
+            "capabilities": payload["capabilities"],
+            "missing_prerequisites": payload["missing_prerequisites"],
+            "api_prefix": ext["api_prefix"],
+            "web_port": ext["web_port"],
+            "visibility": ext.get("visibility", "official"),
+            "runtime_owner": ext.get("runtime_owner", "wizard"),
+            "callable_from": ext.get("callable_from", []),
+            "library_refs": ext.get("library_refs", []),
+            "template_workspace": ext.get("template_workspace"),
+            "standalone_capable": ext.get("standalone_capable", False),
+            "lens_vars": ext.get("lens_vars", {}),
+        }
+    present = bool(ext.get("present"))
 
     result = {
         "id": ext["id"],
@@ -93,23 +105,26 @@ def _get_extension_status(ext: Dict[str, Any]) -> Dict[str, Any]:
         "icon": ext["icon"],
         "category": ext["category"],
         "present": present,
+        "installed": present,
+        "available": present,
+        "enabled": present,
+        "configured": present,
+        "configuration_state": "configured" if present else "missing",
+        "healthy": present,
+        "degraded": False,
         "api_prefix": ext["api_prefix"],
         "web_port": ext["web_port"],
-        "visibility": ext.get("visibility", "public"),
+        "visibility": ext.get("visibility", "official"),
+        "runtime_owner": ext.get("runtime_owner", "shared"),
+        "callable_from": ext.get("callable_from", []),
+        "library_refs": ext.get("library_refs", []),
+        "template_workspace": ext.get("template_workspace"),
+        "standalone_capable": ext.get("standalone_capable", False),
+        "lens_vars": ext.get("lens_vars", {}),
     }
 
     if present:
-        # Try to get version info
-        version_file = ext_path / "version.json"
-        if version_file.exists():
-            try:
-                import json
-                version_data = json.loads(version_file.read_text())
-                result["version"] = version_data.get("version", "unknown")
-            except Exception:
-                result["version"] = "unknown"
-        else:
-            result["version"] = "dev"
+        result["version"] = ext.get("version") or "dev"
 
     return result
 
@@ -119,19 +134,11 @@ router = APIRouter(prefix="/api/extensions", tags=["extensions"])
 
 @router.get("/list")
 async def list_extensions(request: Request, visibility: Optional[str] = None) -> Dict[str, Any]:
-    """List all official extensions and their availability.
-
-    Args:
-        visibility: Filter by visibility ("public", "private", or None for all)
-    """
+    """List all official extensions and their availability."""
     extensions = []
-    for ext in OFFICIAL_EXTENSIONS:
+    for ext in _official_extensions():
         ext_status = _get_extension_status(ext)
-        # Filter by visibility if specified
         if visibility and ext_status["visibility"] != visibility:
-            continue
-        # For private extensions, only show if present on local system
-        if ext_status["visibility"] == "private" and not ext_status["present"]:
             continue
         extensions.append(ext_status)
 
@@ -150,7 +157,7 @@ async def list_extensions(request: Request, visibility: Optional[str] = None) ->
 @router.get("/status/{extension_id}")
 async def extension_status(extension_id: str, request: Request) -> Dict[str, Any]:
     """Get detailed status for a specific extension."""
-    for ext in OFFICIAL_EXTENSIONS:
+    for ext in _official_extensions():
         if ext["id"] == extension_id:
             return _get_extension_status(ext)
 
@@ -159,28 +166,15 @@ async def extension_status(extension_id: str, request: Request) -> Dict[str, Any
 
 @router.get("/empire/token-status")
 async def empire_token_status(request: Request) -> Dict[str, Any]:
-    """Check if Empire API token is configured."""
-    ext_path = REPO_ROOT / "empire"
-    secrets_file = ext_path / "config" / "empire_secrets.json"
-    key_file = ext_path / "config" / ".empire_key"
-
-    has_secrets = secrets_file.exists()
-    has_key = key_file.exists()
-
-    token_configured = False
-    if has_secrets:
-        try:
-            import json
-            secrets = json.loads(secrets_file.read_text())
-            token_configured = bool(secrets.get("empire_api_token"))
-        except Exception:
-            pass
-
+    """Check if Empire token/config state is configured."""
+    payload = get_empire_extension_service().status_payload()
     return {
-        "present": (ext_path / "src" / "spine.py").exists(),
-        "key_file_exists": has_key,
-        "secrets_file_exists": has_secrets,
-        "token_configured": token_configured,
+        "present": payload["installed"],
+        "enabled": payload["enabled"],
+        "configured": payload["configured"],
+        "configuration_state": payload["configuration_state"],
+        "token_configured": payload["configuration_state"] == "configured",
+        "healthy": payload["healthy"],
     }
 
 
@@ -188,7 +182,7 @@ async def empire_token_status(request: Request) -> Dict[str, Any]:
 async def hot_reload_extensions(request: Request) -> Dict[str, Any]:
     """Run extension hot-reload scan and emit changed extension ids."""
     svc = get_extension_hot_reload_service(repo_root=REPO_ROOT)
-    result = svc.hot_reload(OFFICIAL_EXTENSIONS)
+    result = svc.hot_reload(_official_extensions())
     return {"success": True, **result}
 
 

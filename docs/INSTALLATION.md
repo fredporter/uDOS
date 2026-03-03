@@ -98,6 +98,8 @@ Use `--tier 1|2|3` to test hardline gating for a requested tier.
 
 ### 5. Dev Mode Tooling Installation
 - **Install global vibe runtime**: Only when the `dev` profile is selected
+- **Wizard-managed extension lane**: Dev Mode is installed and removed through Wizard GUI lifecycle controls
+- **Framework gate**: Requires `/dev/` plus `/dev/extension.json`
 - **uDOS integration**: Creates `.vibe/` symlinks for contributor tools/skills
 - **Standard runtime**: `ucode` remains the primary entry point
 - **Core dependencies**: Installs Python packages from `pyproject.toml`
@@ -156,7 +158,15 @@ uDOS/
 ├── .env                      # Your configuration (DO NOT COMMIT)
 ├── .vibe/
 │   ├── tools -> ../vibe/core/tools/ucode
-│   └── skills -> ../vibe/core/skills/ucode
+│   └── skills -> ../vibe/core/skills/ucode   # Dev extension contributor subset only
+├── dev/                      # Dev Mode extension framework/template root
+│   ├── extension.json
+│   ├── AGENTS.md
+│   ├── DEVLOG.md
+│   ├── project.json
+│   ├── tasks.md
+│   ├── completed.json
+│   └── docs/
 ├── memory/
 │   ├── vault/               # Your personal vault (seeded from template)
 │   ├── logs/                # Runtime logs
@@ -198,7 +208,17 @@ uDOS/
 - Multiple OK providers
 - Team/shared usage
 - Advanced integrations
+
+## Vibe Dev Extension
+
+The Vibe lane is intentionally small and contributor-only.
+
+- It is enabled only for the `dev` profile with the `/dev/` extension installed and active.
+- It is not a second full operator runtime.
+- It exposes only a reduced skill set for development work: `ucode`, `ucode-help`, `ucode-setup`, and `ucode-dev`.
+- Binder, story, spatial, gameplay, media, and destructive flows stay in the standard `ucode` TUI.
 - LAN gateway features
+- Dev Mode extension install/uninstall and activation lifecycle
 
 ### Lazy Loading
 The wizard is **not required** for core functionality:
@@ -349,6 +369,8 @@ export UDOS_AUTOMATION=1
 ## Uninstallation
 
 ### Remove Dev Mode tooling
+Use Wizard GUI to uninstall or deactivate the Dev Mode extension first. Remove global `vibe` tooling only after the `dev-mode` extension lane has been disabled.
+
 ```bash
 uv tool uninstall mistral-vibe
 ```

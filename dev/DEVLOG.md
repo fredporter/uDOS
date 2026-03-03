@@ -1,6 +1,6 @@
 # DEVLOG.md — Dev Mode Extension Log
 
-Last Updated: 2026-03-02
+Last Updated: 2026-03-03
 Project: uDOS v1.5 Dev Mode Extension
 Status: Active
 
@@ -13,6 +13,23 @@ This log tracks implementation progress, key decisions, and verification work fo
 ---
 
 ## Entries
+
+### 2026-03-03: Dev Mode Spec Audit Alignment
+
+**Status:** Completed
+
+**Changes:**
+- aligned `/dev` governance docs and manifest to the canonical Dev Mode spec
+- updated install/setup docs so Dev Mode is treated as a Wizard-managed extension lifecycle
+- clarified that `/dev` is the versioned framework and distro template root
+- scaffolded local-only working directories under `/dev` to make the template vs local split explicit
+
+**Testing:**
+- Documentation and scaffold audit pass only
+
+**Next Steps:**
+- keep Wizard GUI and contributor flows aligned to the implicit Dev extension entry model
+- continue GitHub sync consolidation inside the Dev extension service
 
 ### 2026-03-02: Dev Extension Runtime Rebaseline
 

@@ -963,9 +963,25 @@ class UcodeHandler(BaseCommandHandler):
             lines = [
                 f"Extension: {extension['label']} ({extension['extension_id']})",
                 f"Profiles: {', '.join(extension['profiles']) or '(none)'}",
-                f"Available: {'yes' if extension['available'] else 'no'}",
+                f"Installed: {'yes' if extension.get('installed', extension['available']) else 'no'}",
+                f"Enabled: {'yes' if extension.get('enabled', extension['available']) else 'no'}",
+                f"Configured: {extension.get('configuration_state', 'configured' if extension['available'] else 'missing')}",
+                f"Health: {'healthy' if extension.get('healthy') else ('degraded' if extension.get('degraded') else 'pending')}",
                 f"Path: {extension['path']}",
             ]
+            if extension.get("wizard_route"):
+                lines.append(f"Wizard route: {extension['wizard_route']}")
+            if extension.get("capabilities"):
+                enabled_caps = [
+                    name if ok else f"{name}-pending"
+                    for name, ok in extension["capabilities"].items()
+                ]
+                lines.append(f"Capabilities: {', '.join(enabled_caps)}")
+            if extension.get("missing_prerequisites"):
+                lines.append(
+                    "Missing prerequisites: "
+                    + ", ".join(extension["missing_prerequisites"])
+                )
             return {"status": "success", "extension": extension, "output": "\n".join(lines)}
 
         raise CommandError(

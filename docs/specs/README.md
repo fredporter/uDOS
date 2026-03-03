@@ -18,6 +18,7 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 - `docs/specs/3DWORLD-EXTENSION-SPEC-v1.5.0.md` — containerized 3D world extension contract (draft lane toward v1.5)
 - `docs/specs/WORKFLOW-SCHEDULER-v1.5.md` — core workflow scheduler contract for v1.5
 - `docs/specs/OFFLINE-ASSIST-STANDARD-v1.5.md` — canonical offline assist and `uLogic` standard for v1.5, grounded in the `udos_ulogic_pack` reference scaffold
+- `docs/specs/UHOME-v1.5.md` — canonical v1.5 home profile runtime and Sonic install contract
 - `docs/specs/FORMATTING-SPEC-v1.4.md` — canonical formatting and `.compost` archival contract
 - `docs/specs/TYPESCRIPT-MARKDOWN-RUNTIME-CONTRACT.md` — active TypeScript markdown runtime contract
 - `docs/specs/PACKAGING-RELEASE-CONTRACT-v1.5.md` — active packaging and release contract
@@ -41,6 +42,7 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 
 - `docs/releases/v1.4.3-release-notes.md` — consolidated v1.4+ release notes
 - `docs/roadmap.md` — canonical roadmap
+- `docs/specs/V1-5-SHAKEDOWN-CHECKLIST.md` — consolidated v1.5 spec-to-runtime shakedown tracker
 - `docs/decisions/v1-5-workflow.md` — workflow architecture decision
 - `docs/decisions/v1-5-offline-assist.md` — offline assist architecture decision
 - `docs/howto/WORKFLOW-SCHEDULER-QUICKSTART.md` — operator workflow quickstart
@@ -49,4 +51,5 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 
 - Add/maintain stable platform contracts in **Main Specs**.
 - Keep round-by-round or migration-specific documents in **Detailed / Historical Execution Specs**.
+- Keep release audit state in `docs/specs/V1-5-SHAKEDOWN-CHECKLIST.md` rather than duplicating checklist fragments across roadmap and devlog files.
 - When in doubt, update this index and `docs/README.md` together.

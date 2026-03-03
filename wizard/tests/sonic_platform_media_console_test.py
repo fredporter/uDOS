@@ -79,6 +79,7 @@ class _WindowsSvc:
 
 class _MediaSvc:
     active_launcher = None
+    preferred_launcher = "kodi"
 
     def list_launchers(self):
         return {
@@ -92,9 +93,13 @@ class _MediaSvc:
             "supported_launchers": ["kodi", "wantmymtv"],
             "active_launcher": self.active_launcher,
             "running": self.active_launcher is not None,
+            "preferred_launcher": self.preferred_launcher,
+            "preferred_launcher_source": "template_workspace",
         }
 
     def start(self, launcher):
+        if not launcher:
+            launcher = self.preferred_launcher
         if launcher not in {"kodi", "wantmymtv"}:
             raise ValueError("Unsupported media launcher")
         self.active_launcher = launcher
@@ -114,6 +119,24 @@ def _client(monkeypatch):
     monkeypatch.setattr(platform_routes, "get_sonic_service", lambda repo_root=None: _OpsSvc())
     monkeypatch.setattr(platform_routes, "get_sonic_windows_launcher_service", lambda repo_root=None: _WindowsSvc())
     monkeypatch.setattr(platform_routes, "get_sonic_media_console_service", lambda repo_root=None: media)
+    monkeypatch.setattr(
+        platform_routes,
+        "get_template_workspace_service",
+        lambda repo_root=None: type(
+            "_Svc",
+            (),
+            {
+                "component_contract": lambda self, component_id: {
+                    "component_id": component_id,
+                    "workspace_ref": "@memory/bank/typo-workspace",
+                },
+                "component_snapshot": lambda self, component_id: {
+                    "component_id": component_id,
+                    "settings": {"effective_source": "default"},
+                },
+            },
+        )(),
+    )
 
     app = FastAPI()
     app.include_router(platform_routes.create_platform_routes(auth_guard=None))
@@ -134,6 +157,7 @@ def test_sonic_media_console_workflows(monkeypatch):
     status = client.get("/api/platform/sonic/media/status")
     assert status.status_code == 200
     assert status.json()["running"] is True
+    assert "preferred_launcher" in status.json()
 
     invalid = client.post("/api/platform/sonic/media/start", json={"launcher": "bad"})
     assert invalid.status_code == 400
@@ -141,3 +165,10 @@ def test_sonic_media_console_workflows(monkeypatch):
     stop = client.post("/api/platform/sonic/media/stop")
     assert stop.status_code == 200
     assert stop.json()["state"]["active_launcher"] is None
+
+
+def test_sonic_media_console_start_uses_blank_launcher_payload(monkeypatch):
+    client = _client(monkeypatch)
+
+    start = client.post("/api/platform/sonic/media/start", json={"launcher": ""})
+    assert start.status_code == 200

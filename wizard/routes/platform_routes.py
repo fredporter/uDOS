@@ -16,6 +16,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from sonic.core.verify import verify_sonic_ready
 
+from core.services.template_workspace_service import get_template_workspace_service
 from wizard.services.launch_session_service import get_launch_session_service
 from wizard.services.sonic_adapters import to_sync_status_payload
 from wizard.services.sonic_bridge_service import get_sonic_bridge_service
@@ -30,6 +31,7 @@ from wizard.services.sonic_windows_gaming_profile_service import (
 )
 from wizard.services.sonic_windows_launcher_service import get_sonic_windows_launcher_service
 from wizard.services.theme_extension_service import get_theme_extension_service
+from wizard.services.uhome_presentation_service import get_uhome_presentation_service
 
 AuthGuard = Optional[Callable]
 
@@ -63,6 +65,10 @@ class SonicWindowsModeRequest(BaseModel):
 
 class SonicMediaStartRequest(BaseModel):
     launcher: str
+
+
+class UHomePresentationStartRequest(BaseModel):
+    presentation: str = ""
 
 
 class SonicLinuxLauncherActionRequest(BaseModel):
@@ -169,11 +175,21 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
     sonic_gaming = get_sonic_windows_gaming_profile_service(repo_root=repo_root)
     sonic_windows = get_sonic_windows_launcher_service(repo_root=repo_root)
     themes = get_theme_extension_service(repo_root=repo_root)
+    uhome_presentation = get_uhome_presentation_service(repo_root=repo_root)
     launch_sessions = get_launch_session_service(repo_root=repo_root)
 
     @router.get("/sonic/status")
     async def sonic_status():
-        return sonic.get_status()
+        workspace = get_template_workspace_service(resolved_repo_root)
+        return {
+            **sonic.get_status(),
+            "default_build_profile": sonic_builds.default_profile,
+            "default_build_profile_source": getattr(
+                sonic_builds, "default_profile_source", "packaging_manifest"
+            ),
+            "template_workspace": workspace.component_contract("sonic"),
+            "template_workspace_state": workspace.component_snapshot("sonic"),
+        }
 
     @router.get("/sonic/artifacts")
     async def sonic_artifacts(limit: int = Query(200, ge=1, le=1000)):
@@ -297,8 +313,15 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
             except Exception:
                 sync_status = None
 
+        workspace = get_template_workspace_service(resolved_repo_root)
         return {
             "sonic": status,
+            "default_build_profile": sonic_builds.default_profile,
+            "default_build_profile_source": getattr(
+                sonic_builds, "default_profile_source", "packaging_manifest"
+            ),
+            "template_workspace": workspace.component_contract("sonic"),
+            "template_workspace_state": workspace.component_snapshot("sonic"),
             "dashboard": {"route": "#sonic", "wizard_gui_hosted": True},
             "latest_build": latest_build,
             "latest_release_readiness": release_readiness,
@@ -333,6 +356,14 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
         except KeyError as exc:
             raise HTTPException(status_code=404, detail=str(exc))
 
+    @router.post("/sonic/boot/route/default")
+    async def sonic_boot_route_default():
+        try:
+            route = sonic_boot.apply_default_route()
+            return {"success": True, "route": route}
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail=str(exc))
+
     @router.get("/sonic/windows/launcher")
     async def sonic_windows_launcher_status():
         return sonic_windows.get_status()
@@ -360,6 +391,31 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
     @router.get("/sonic/media/status")
     async def sonic_media_status():
         return sonic_media.get_status()
+
+    @router.get("/uhome/status")
+    async def uhome_status():
+        workspace = get_template_workspace_service(resolved_repo_root)
+        return {
+            "presentation": uhome_presentation.get_status(),
+            "template_workspace": workspace.component_contract("uhome"),
+            "template_workspace_state": workspace.component_snapshot("uhome"),
+        }
+
+    @router.get("/uhome/presentation/status")
+    async def uhome_presentation_status():
+        return uhome_presentation.get_status()
+
+    @router.post("/uhome/presentation/start")
+    async def uhome_presentation_start(payload: UHomePresentationStartRequest):
+        try:
+            state = uhome_presentation.start(payload.presentation)
+            return {"success": True, "state": state}
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @router.post("/uhome/presentation/stop")
+    async def uhome_presentation_stop():
+        return {"success": True, "state": uhome_presentation.stop()}
 
     @router.get("/launch/sessions")
     async def list_launch_sessions(

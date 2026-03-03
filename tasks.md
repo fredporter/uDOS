@@ -1,84 +1,83 @@
 # tasks.md — uDOS Active Tasks
 
-Last Updated: 2026-02-24
-Version: v1.4.6
+Last Updated: 2026-03-03
+Version: v1.5 rebaseline
+Status: Active
 
 ---
 
 ## Active Tasks
 
-### High Priority
+### Round 1 — Spec and Command Surface Shakedown
 
-- [x] Implement AGENTS.md governance standardisation
-  - Status: Completed
+- [ ] Build the consolidated v1.5 shakedown checklist from `docs/specs/README.md`
+  - Status: In Progress
   - Owner: Architecture Team
-  - Completed: 2026-02-24
+  - Notes: Each active spec must map to an implemented surface, an explicit deferred lane, or a monitor-only decision
+  - Tracking: `docs/specs/V1-5-SHAKEDOWN-CHECKLIST.md`
 
-- [x] Fix Vibe-CLI double response issue
-  - Status: Completed
-  - Owner: Vibe Team
-  - Completed: 2026-02-24
-  - Notes: CommandEngine HARD STOP implemented
-
-- [x] Implement Provider Abstraction Contract
-  - Status: Completed (partial)
-  - Owner: Wizard Team
-  - Completed: 2026-02-24
-  - Notes: AIProviderHandler created and working
-
-- [ ] FIX CRITICAL: PermissionHandler class definition
-  - Status: Blocked
-  - Owner: Core Team
-  - Priority: CRITICAL
-  - Notes: Missing PermissionHandler class causes NameError
-
-- [ ] Create unit tests for central handlers
-  - Status: Not Started
-  - Owner: Testing Team
-  - Priority: HIGH
-  - Notes: test_permission_handler.py, test_ai_provider_handler.py, test_unified_config_loader.py (0% coverage)
-
-- [ ] Complete config loader migration
-  - Status: In Progress (30%)
-  - Owner: Core Team
-  - Priority: HIGH
-  - Notes: 100+ remaining os.getenv() calls to replace
-
-### Medium Priority
-
-- [ ] Audit codebase for "AI" terminology violations
-  - Status: Not Started
+- [ ] Finish docs/examples drift cleanup for shipped command surfaces
+  - Status: In Progress
   - Owner: Documentation Team
-  - Notes: Replace with OK terminology
+  - Notes: Prioritize `WORKFLOW`, `UCODE PROFILE`, `UCODE OPERATOR`, profile install/verify, and `ucode`-first runtime guidance
 
-- [ ] Validate all tests passing
+### Round 2 — Core Workflow and Offline Assist Hardening
+
+- [ ] Expand `WORKFLOW` template coverage and strengthen phase/variable validation
   - Status: Not Started
-  - Owner: Testing Team
-  - Notes: Run full test suite after governance implementation
+  - Owner: Core Team
+  - Priority: High
 
-### Backlog
-
-- [ ] Implement deterministic command router
+- [ ] Promote stable offline assist runtime pieces from `docs/examples/udos_ulogic_pack/` into canonical core modules
   - Status: Not Started
-  - Owner: Vibe Team
-  - Notes: Command-first execution model
+  - Owner: Core Team
+  - Priority: High
+  - Notes: Preserve the stdlib-only core boundary and avoid parallel command systems
 
-- [ ] Add provider registry with capability routing
+### Round 3 — Wizard Orchestration Integration
+
+- [ ] Complete Wizard workflow orchestration on top of the core workflow state and artifact contract
   - Status: Not Started
   - Owner: Wizard Team
-  - Notes: Multi-provider support
+  - Priority: High
+  - Notes: Queue policy, execution windows, API/MCP surfaces, and `/admin` views must build on `core/workflows/`
 
----
+- [ ] Continue home-lane bridge closure within Wizard service ownership boundaries
+  - Status: Not Started
+  - Owner: Wizard Team
+  - Priority: Medium
 
-## Blocked Tasks
+### Round 4 — Profile Acceptance and Packaging Closure
 
-None currently
+- [ ] Close creator profile blockers and collect acceptance evidence
+  - Status: In Progress
+  - Owner: Creator Team
+  - Priority: High
+  - Notes: Track against `docs/decisions/v1-5-creator-blocker-matrix.md`
+
+- [ ] Finish gaming/home/core/dev profile install, verify, repair, and rollback evidence
+  - Status: Not Started
+  - Owner: Release Team
+  - Priority: High
+
+### Round 5 — TUI Hardening and Release Freeze
+
+- [ ] Harden the standard `ucode` TUI path against the v1.5 terminal contract
+  - Status: Not Started
+  - Owner: Runtime Team
+  - Priority: High
+
+- [ ] Produce final release readiness summary and freeze evidence
+  - Status: Not Started
+  - Owner: Release Team
+  - Priority: High
 
 ---
 
 ## Notes
 
-All tasks align with v1.4.6 Architecture Stabilisation Phase goals.
+- Historical v1.4.x stabilization work is complete and should remain in `completed.json` or `docs/devlog/`.
+- Active sequencing lives in `docs/roadmap.md`.
 
 ---
 

@@ -7,6 +7,15 @@ Status: active how-to reference
 
 Use these tools for health checks, verification, repair, identity, access, and terminal capability checks.
 
+Vibe Dev Mode exposes only the contributor subset from this page:
+- `ucode_health`
+- `ucode_verify`
+- `ucode_repair`
+- `ucode_help`
+- `ucode_token`
+
+The full TUI also exposes `ucode_uid` and `ucode_viewport`.
+
 ## Tools
 
 ### `ucode_health`
@@ -27,8 +36,9 @@ Verify installation integrity and dependencies.
 
 Example calls:
 ```python
-ucode_verify(check="")
-ucode_verify(check="dependencies")
+ucode_verify(target="")
+ucode_verify(target="install")
+ucode_verify(target="config")
 ```
 
 ### `ucode_repair`
@@ -37,9 +47,10 @@ Repair configuration or runtime state.
 
 Example calls:
 ```python
-ucode_repair(target="all")
-ucode_repair(target="config")
-ucode_repair(target="db")
+ucode_repair(action="")
+ucode_repair(action="--install")
+ucode_repair(action="--config")
+ucode_repair(action="--vault")
 ```
 
 ### `ucode_help`
@@ -71,7 +82,8 @@ Example calls:
 ```python
 ucode_token(action="generate")
 ucode_token(action="list")
-ucode_token(action="revoke", token_id="abc")
+ucode_token(action="generate", name="dev-session")
+ucode_token(action="revoke", name="dev-session")
 ```
 
 ### `ucode_viewport`
@@ -89,4 +101,4 @@ ucode_viewport()
 - verify install drift before release or repair
 - rotate tokens or identity values
 - inspect terminal capabilities before rendering rich output
-
+- use the Vibe Dev Mode subset when you need contributor-safe setup and repair operations instead of the full operator surface

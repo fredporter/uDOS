@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from core.services.logging_manager import get_logger
+from core.services.template_workspace_service import get_template_workspace_service
 
 _log = get_logger("wizard.uhome-handlers")
 
@@ -192,23 +193,48 @@ def dvr_cancel(params: dict[str, Any]) -> dict[str, Any]:
 # ------------------------------------------------------------------
 
 _AD_MODE_KEY = "uhome_ad_processing_mode"
+_AD_MODE_FIELD = "ad-processing-mode"
 _AD_MODES = {"disabled", "comskip_auto", "comskip_manual", "passthrough"}
+_PRESENTATION_MODES = {"thin-gui", "steam-console"}
+_DEFAULT_PRESENTATION_MODE = "thin-gui"
+_DEFAULT_TARGET_CLIENT = "living-room"
 
 
 def ad_get_mode(params: dict[str, Any]) -> dict[str, Any]:
-    """Return the current ad-processing mode from Wizard config."""
+    """Return the current ad-processing mode from template workspace or Wizard config."""
     mode = "disabled"
+    source = "default"
     try:
-        from wizard.services.wizard_config import WizardConfig
-        mode = str(WizardConfig().get(_AD_MODE_KEY, "disabled") or "disabled")
+        fields = get_template_workspace_service().read_fields("settings", "uhome")
+        workspace_mode = str(fields.get("ad_processing_mode") or "").strip().lower()
+        if workspace_mode in _AD_MODES:
+            mode = workspace_mode
+            source = "template_workspace"
+        elif workspace_mode:
+            source = "template_workspace_invalid"
     except Exception:
         pass
 
-    return {"command": "uhome.ad_processing.get_mode", "mode": mode, "valid_modes": sorted(_AD_MODES)}
+    if source != "template_workspace":
+        try:
+            from wizard.services.wizard_config import WizardConfig
+            config_mode = str(WizardConfig().get(_AD_MODE_KEY, mode) or mode).strip().lower()
+            if config_mode in _AD_MODES:
+                mode = config_mode
+                source = "wizard_config"
+        except Exception:
+            pass
+
+    return {
+        "command": "uhome.ad_processing.get_mode",
+        "mode": mode,
+        "source": source,
+        "valid_modes": sorted(_AD_MODES),
+    }
 
 
 def ad_set_mode(params: dict[str, Any]) -> dict[str, Any]:
-    """Set the ad-processing mode in Wizard config."""
+    """Set the ad-processing mode in template workspace and sync Wizard config."""
     mode = str(params.get("mode") or "").strip().lower()
     if mode not in _AD_MODES:
         return {
@@ -218,6 +244,9 @@ def ad_set_mode(params: dict[str, Any]) -> dict[str, Any]:
         }
 
     try:
+        get_template_workspace_service().write_user_field(
+            "settings", "uhome", _AD_MODE_FIELD, mode
+        )
         from wizard.services.wizard_config import WizardConfig
         cfg = WizardConfig()
         cfg.set(_AD_MODE_KEY, mode)
@@ -228,7 +257,12 @@ def ad_set_mode(params: dict[str, Any]) -> dict[str, Any]:
             "error": str(exc),
         }
 
-    return {"command": "uhome.ad_processing.set_mode", "success": True, "mode": mode}
+    return {
+        "command": "uhome.ad_processing.set_mode",
+        "success": True,
+        "mode": mode,
+        "source": "template_workspace",
+    }
 
 
 # ------------------------------------------------------------------
@@ -243,13 +277,51 @@ def _jellyfin_base_url() -> str:
         return ""
 
 
+def _uhome_workspace_fields() -> dict[str, str]:
+    try:
+        return get_template_workspace_service().read_fields("settings", "uhome")
+    except Exception:
+        return {}
+
+
+def _workspace_choice(
+    workspace_fields: dict[str, str],
+    field_name: str,
+    default: str,
+    valid_values: set[str] | None = None,
+) -> tuple[str, str]:
+    raw_value = str(workspace_fields.get(field_name) or "").strip()
+    if not raw_value:
+        return default, "default"
+    value = raw_value.lower() if valid_values is not None else raw_value
+    if valid_values is not None and value not in valid_values:
+        return default, "template_workspace_invalid"
+    return value, "template_workspace"
+
+
 def playback_status(params: dict[str, Any]) -> dict[str, Any]:
     """Return playback status, probing Jellyfin if configured."""
+    workspace_fields = _uhome_workspace_fields()
+    presentation_mode, presentation_mode_source = _workspace_choice(
+        workspace_fields,
+        "presentation_mode",
+        _DEFAULT_PRESENTATION_MODE,
+        valid_values=_PRESENTATION_MODES,
+    )
+    preferred_target_client, preferred_target_client_source = _workspace_choice(
+        workspace_fields,
+        "preferred_target_client",
+        _DEFAULT_TARGET_CLIENT,
+    )
     base_url = _jellyfin_base_url()
     result: dict[str, Any] = {
         "command": "uhome.playback.status",
         "jellyfin_configured": bool(base_url),
         "active_sessions": [],
+        "presentation_mode": presentation_mode,
+        "presentation_mode_source": presentation_mode_source,
+        "preferred_target_client": preferred_target_client,
+        "preferred_target_client_source": preferred_target_client_source,
     }
 
     if not base_url:
@@ -289,7 +361,15 @@ def playback_status(params: dict[str, Any]) -> dict[str, Any]:
 def playback_handoff(params: dict[str, Any]) -> dict[str, Any]:
     """Queue a playback handoff event (deferred to next playback session)."""
     item_id = str(params.get("item_id") or "").strip()
-    target_client = str(params.get("target_client") or "default").strip()
+    workspace_fields = _uhome_workspace_fields()
+    default_target, default_target_source = _workspace_choice(
+        workspace_fields,
+        "preferred_target_client",
+        _DEFAULT_TARGET_CLIENT,
+    )
+    requested_target = str(params.get("target_client") or "").strip()
+    use_default_target = not requested_target or requested_target.lower() == "default"
+    target_client = default_target if use_default_target else requested_target
 
     if not item_id:
         return {
@@ -319,6 +399,7 @@ def playback_handoff(params: dict[str, Any]) -> dict[str, Any]:
             "success": True,
             "item_id": item_id,
             "target_client": target_client,
+            "source": default_target_source if use_default_target else "request",
         }
     except Exception as exc:
         return {

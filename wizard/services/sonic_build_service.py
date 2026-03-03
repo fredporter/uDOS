@@ -14,6 +14,7 @@ from core.services.packaging_build_metadata_service import (
     resolve_sonic_builds_root,
 )
 from core.services.packaging_manifest_service import load_packaging_manifest
+from core.services.template_workspace_service import get_template_workspace_service
 from sonic.core.verify import verify_detached_signature, verify_release_bundle
 
 
@@ -23,7 +24,14 @@ class SonicBuildService:
         self.packaging_manifest = load_packaging_manifest(self.repo_root)
         platforms_linux = ((self.packaging_manifest.get("platforms") or {}).get("linux") or {})
         sonic_stick = dict(platforms_linux.get("app_bundle") or {})
-        self.default_profile = str(sonic_stick.get("default_profile") or "alpine-core+sonic")
+        manifest_default_profile = str(
+            sonic_stick.get("default_profile") or "alpine-core+sonic"
+        )
+        workspace_default_profile = self._workspace_default_profile()
+        self.default_profile = workspace_default_profile or manifest_default_profile
+        self.default_profile_source = (
+            "template_workspace" if workspace_default_profile else "packaging_manifest"
+        )
         self.build_script = self.repo_root / str(
             sonic_stick.get("build_script") or "distribution/alpine-core/build-sonic-stick.sh"
         )
@@ -32,6 +40,16 @@ class SonicBuildService:
             self.release_version = resolve_release_version(self.repo_root)
         except Exception:
             self.release_version = "unknown"
+
+    def _workspace_default_profile(self) -> str | None:
+        try:
+            fields = get_template_workspace_service(self.repo_root).read_fields(
+                "settings", "sonic"
+            )
+        except Exception:
+            return None
+        value = str(fields.get("preferred_profile") or "").strip()
+        return value or None
 
     def _load_manifest(self, build_dir: Path) -> Dict[str, Any]:
         manifest_path = build_dir / "build-manifest.json"

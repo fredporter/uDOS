@@ -11,9 +11,11 @@ def test_ucode_mcp_registry_generic_and_proxy_sets_are_canonical() -> None:
         "ucode_health",
         "ucode_token",
         "ucode_help",
+        "ucode_verify",
+        "ucode_repair",
+        "ucode_config",
         "ucode_run",
         "ucode_read",
-        "ucode_story",
     }
 
 
