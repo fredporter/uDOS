@@ -58,6 +58,13 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
     async def empire_documents(limit: int = Query(50, ge=1, le=500)) -> dict[str, Any]:
         return {"documents": get_empire_extension_service().list_documents(limit=limit)}
 
+    @router.get("/documents/{document_id}")
+    async def empire_document_detail(document_id: str) -> dict[str, Any]:
+        payload = get_empire_extension_service().get_document(document_id)
+        if not payload:
+            raise HTTPException(status_code=404, detail="Document not found")
+        return payload
+
     @router.get("/import/jobs")
     async def empire_import_jobs(limit: int = Query(50, ge=1, le=500)) -> dict[str, Any]:
         return {"jobs": get_empire_extension_service().list_import_jobs(limit=limit)}

@@ -306,20 +306,35 @@ class EmpireExtensionService:
 
     def list_templates(self) -> list[dict[str, str]]:
         self.mappings_root.mkdir(parents=True, exist_ok=True)
+        self.workflows_root.mkdir(parents=True, exist_ok=True)
         items: list[dict[str, str]] = []
-        for path in sorted(self.mappings_root.glob("*.md")):
-            items.append(
-                {
-                    "name": path.name,
-                    "path": str(path.relative_to(self.extension_root)),
-                    "kind": "mapping",
-                }
-            )
+        for root, kind in (
+            (self.mappings_root, "mapping"),
+            (self.workflows_root, "workflow"),
+            (self.templates_root, "template"),
+        ):
+            if not root.exists():
+                continue
+            for path in sorted(root.rglob("*.md")):
+                if root == self.templates_root and path.is_relative_to(self.mappings_root):
+                    continue
+                items.append(
+                    {
+                        "name": path.name,
+                        "path": str(path.relative_to(self.extension_root)),
+                        "kind": kind,
+                    }
+                )
         return items
 
     def list_documents(self, limit: int = 100) -> list[dict[str, Any]]:
         storage = self._import_module("empire.services.storage")
         return [self._normalize_row_payload(row) for row in storage.list_documents(self.db_path, limit=limit)]
+
+    def get_document(self, document_id: str) -> dict[str, Any] | None:
+        storage = self._import_module("empire.services.storage")
+        payload = storage.get_document(document_id, db_path=self.db_path)
+        return self._normalize_row_payload(payload) if payload else None
 
     def list_import_jobs(self, limit: int = 100) -> list[dict[str, Any]]:
         storage = self._import_module("empire.services.storage")

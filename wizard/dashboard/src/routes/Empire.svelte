@@ -29,9 +29,11 @@
   let templates = [];
   let selectedTemplate = "templates/mappings/default-contact-master.md";
   let templateContent = "";
+  let selectedTemplateKind = "mapping";
   let binders = [];
   let importJobs = [];
   let documents = [];
+  let selectedDocument = null;
   let importPath = "@inbox";
   let importRunning = false;
   let collatingDocumentId = "";
@@ -102,6 +104,22 @@
     return delivery?.error || delivery?.status || "No delivery result";
   }
 
+  function templateKindTone(kind) {
+    if (kind === "workflow") return "bg-emerald-900 text-emerald-200";
+    if (kind === "mapping") return "bg-blue-900 text-blue-200";
+    return "bg-gray-800 text-gray-300";
+  }
+
+  function templateGroups(entries) {
+    const groups = {};
+    for (const entry of entries || []) {
+      const kind = entry.kind || "template";
+      if (!groups[kind]) groups[kind] = [];
+      groups[kind].push(entry);
+    }
+    return Object.entries(groups);
+  }
+
   async function loadJson(url, fallback) {
     const res = await apiFetch(url);
     if (!res.ok) {
@@ -114,7 +132,7 @@
     loading = true;
     error = "";
     try {
-      const [statusPayload, overviewPayload, recordsPayload, companiesPayload, tasksPayload, eventsPayload, accountsPayload, connectorsPayload, webhookMappingsPayload, webhookDeliveriesPayload, templatesPayload, templatePayload, bindersPayload, importJobsPayload, documentsPayload] =
+      const [statusPayload, overviewPayload, recordsPayload, companiesPayload, tasksPayload, eventsPayload, accountsPayload, connectorsPayload, webhookMappingsPayload, webhookDeliveriesPayload, templatesPayload, bindersPayload, importJobsPayload, documentsPayload] =
         await Promise.all([
           loadJson("/api/empire/status", {}),
           loadJson("/api/empire/overview", {}),
@@ -127,7 +145,6 @@
           loadJson("/api/empire/webhooks/mappings?limit=20", {}),
           loadJson("/api/empire/webhooks/deliveries?limit=20", {}),
           loadJson("/api/empire/templates", {}),
-          loadJson(`/api/empire/templates/read?path=${encodeURIComponent(selectedTemplate)}`, {}),
           loadJson("/api/empire/scope/binders", {}),
           loadJson("/api/empire/import/jobs?limit=10", {}),
           loadJson("/api/empire/documents?limit=10", {}),
@@ -143,10 +160,29 @@
       webhookMappings = webhookMappingsPayload.mappings || [];
       webhookDeliveries = webhookDeliveriesPayload.deliveries || [];
       templates = templatesPayload.templates || [];
-      templateContent = templatePayload.content || "";
+      if (!templates.find((entry) => entry.path === selectedTemplate) && templates.length) {
+        selectedTemplate = templates[0].path;
+      }
+      const activeTemplate = templates.find((entry) => entry.path === selectedTemplate);
+      selectedTemplateKind = activeTemplate?.kind || "template";
+      if (selectedTemplate) {
+        const templatePayload = await loadJson(`/api/empire/templates/read?path=${encodeURIComponent(selectedTemplate)}`, {});
+        templateContent = templatePayload.content || "";
+      } else {
+        templateContent = "";
+      }
       binders = bindersPayload.binders || [];
       importJobs = importJobsPayload.jobs || [];
       documents = documentsPayload.documents || [];
+      if (selectedDocument) {
+        const documentStillVisible = documents.find((document) => document.document_id === selectedDocument.document_id);
+        if (!documentStillVisible) {
+          selectedDocument = null;
+        }
+      }
+      if (!selectedDocument && documents.length) {
+        selectedDocument = await loadJson(`/api/empire/documents/${encodeURIComponent(documents[0].document_id)}`, {});
+      }
     } catch (err) {
       error = err.message || String(err);
     } finally {
@@ -157,7 +193,19 @@
   async function openTemplate(path) {
     selectedTemplate = path;
     const payload = await loadJson(`/api/empire/templates/read?path=${encodeURIComponent(path)}`, {});
+    const activeTemplate = templates.find((entry) => entry.path === path);
+    selectedTemplateKind = activeTemplate?.kind || "template";
     templateContent = payload.content || "";
+  }
+
+  async function openDocument(documentId) {
+    error = "";
+    try {
+      const payload = await loadJson(`/api/empire/documents/${encodeURIComponent(documentId)}`, {});
+      selectedDocument = payload;
+    } catch (err) {
+      error = err.message || String(err);
+    }
   }
 
   async function saveTemplate() {
@@ -544,7 +592,7 @@
   {:else if activeTab === "imports"}
     <div class="rounded-lg border border-gray-700 bg-gray-900 p-4">
       <h2 class="mb-3 text-lg font-semibold">Imports</h2>
-      <p class="text-sm text-gray-400">Empire imports now run through Wizard-owned APIs. File picking, PDF extraction, and binder-targeted intake are the next rebuild slice on top of this route.</p>
+      <p class="text-sm text-gray-400">Empire imports run through Wizard-owned jobs with scoped intake, PDF extraction, document review, and collation into task notes or workflow stubs.</p>
       <div class="mt-4 grid gap-3 md:grid-cols-2">
         <div class="rounded border border-gray-800 bg-gray-950 p-3">
           <div class="font-medium">Supported</div>
@@ -573,8 +621,8 @@
         </select>
       </div>
       <div class="mt-4 rounded border border-gray-800 bg-gray-950 p-3">
-        <div class="font-medium">Planned rebuild lanes</div>
-        <div class="mt-2 text-sm text-gray-400">Inline file picker, extract pipeline, source provenance, and import job review will land on top of this official route instead of separate Empire scripts.</div>
+        <div class="font-medium">Import review</div>
+        <div class="mt-2 text-sm text-gray-400">Recent jobs, extracted documents, scope provenance, and collation review now live inside the main Empire route so intake stays in the same managed flow as CRM and connector work.</div>
       </div>
       <div class="mt-4 grid gap-4 lg:grid-cols-2">
         <div class="rounded border border-gray-800 bg-gray-950 p-3">
@@ -606,23 +654,52 @@
           </div>
         </div>
         <div class="rounded border border-gray-800 bg-gray-950 p-3">
-          <div class="mb-2 font-medium">Recent Documents</div>
+          <div class="mb-2 flex items-center justify-between gap-2">
+            <div class="font-medium">Recent Documents</div>
+            {#if selectedDocument}
+              <div class="text-xs text-gray-500">Reviewing {selectedDocument.document_id}</div>
+            {/if}
+          </div>
           <div class="space-y-2">
             {#each documents as document}
-              <div class="rounded border border-gray-800 bg-gray-900 p-2 text-sm">
+              <div class={`rounded border p-2 text-sm ${selectedDocument?.document_id === document.document_id ? "border-blue-700 bg-blue-950/30" : "border-gray-800 bg-gray-900"}`}>
                 <div class="flex items-center justify-between gap-2">
                   <div>{document.title || document.source_path}</div>
-                  <button
-                    class="rounded bg-emerald-600 px-2 py-1 text-xs text-white disabled:opacity-50"
-                    disabled={collatingDocumentId === document.document_id}
-                    on:click={() => collateDocument(document.document_id)}
-                  >
-                    {collatingDocumentId === document.document_id ? "Collating..." : "Collate"}
-                  </button>
+                  <div class="flex gap-2">
+                    <button class="rounded bg-gray-800 px-2 py-1 text-xs text-gray-200" on:click={() => openDocument(document.document_id)}>Review</button>
+                    <button
+                      class="rounded bg-emerald-600 px-2 py-1 text-xs text-white disabled:opacity-50"
+                      disabled={collatingDocumentId === document.document_id}
+                      on:click={() => collateDocument(document.document_id)}
+                    >
+                      {collatingDocumentId === document.document_id ? "Collating..." : "Collate"}
+                    </button>
+                  </div>
                 </div>
                 <div class="mt-1 text-xs text-gray-400">{document.media_type} · {document.scope}</div>
               </div>
             {/each}
+            {#if selectedDocument}
+              <div class="rounded border border-blue-800 bg-blue-950/30 p-3 text-xs text-gray-200">
+                <div class="font-medium text-white">{selectedDocument.title || selectedDocument.document_id}</div>
+                <div class="mt-1">Document: {selectedDocument.document_id}</div>
+                <div>Source: {selectedDocument.source_path || "unknown"}</div>
+                <div>Scope: {selectedDocument.scope}{selectedDocument.binder_id ? `:${selectedDocument.binder_id}` : ""}</div>
+                <div>Media: {selectedDocument.media_type || "unknown"}</div>
+                <div class="mt-2 text-[11px] uppercase tracking-[0.18em] text-blue-200">Document metadata</div>
+                {#if selectedDocument.metadata}
+                  <pre class="mt-2 overflow-x-auto rounded border border-blue-900/60 bg-slate-950/60 p-2 text-[11px] text-gray-300">{formatJson(selectedDocument.metadata)}</pre>
+                {/if}
+                {#if selectedDocument.extracted_text}
+                  <div class="mt-3 text-[11px] uppercase tracking-[0.18em] text-blue-200">Extracted text</div>
+                  <pre class="mt-2 max-h-72 overflow-auto rounded border border-blue-900/60 bg-slate-950/60 p-2 text-[11px] text-gray-300">{selectedDocument.extracted_text}</pre>
+                {/if}
+              </div>
+            {:else}
+              <div class="rounded border border-gray-800 bg-gray-900 p-3 text-sm text-gray-500">
+                No document selected yet.
+              </div>
+            {/if}
           </div>
         </div>
       </div>
@@ -632,10 +709,23 @@
       <div class="rounded-lg border border-gray-700 bg-gray-900 p-4">
         <h2 class="mb-3 text-lg font-semibold">Templates</h2>
         <div class="space-y-2">
-          {#each templates as template}
-            <button class={`w-full rounded border px-3 py-2 text-left text-sm ${selectedTemplate === template.path ? "border-blue-500 bg-blue-950/40" : "border-gray-800 bg-gray-950"}`} on:click={() => openTemplate(template.path)}>
-              {template.name}
-            </button>
+          {#each templateGroups(templates) as [kind, entries]}
+            <div class="rounded border border-gray-800 bg-gray-950 p-2">
+              <div class="mb-2 flex items-center justify-between">
+                <div class="text-xs uppercase tracking-[0.18em] text-gray-500">{kind}</div>
+                <span class={`rounded-full px-2 py-0.5 text-[10px] ${templateKindTone(kind)}`}>{entries.length}</span>
+              </div>
+              <div class="space-y-2">
+                {#each entries as template}
+                  <button class={`w-full rounded border px-3 py-2 text-left text-sm ${selectedTemplate === template.path ? "border-blue-500 bg-blue-950/40" : "border-gray-800 bg-gray-900"}`} on:click={() => openTemplate(template.path)}>
+                    <div class="flex items-center justify-between gap-2">
+                      <span>{template.name}</span>
+                      <span class={`rounded-full px-2 py-0.5 text-[10px] ${templateKindTone(template.kind)}`}>{template.kind}</span>
+                    </div>
+                  </button>
+                {/each}
+              </div>
+            </div>
           {/each}
         </div>
       </div>
@@ -643,7 +733,7 @@
         <div class="mb-3 flex items-center justify-between gap-2">
           <div>
             <h2 class="text-lg font-semibold">Typo Editor</h2>
-            <div class="text-xs text-gray-400">{selectedTemplate}</div>
+            <div class="text-xs text-gray-400">{selectedTemplate} · {selectedTemplateKind}</div>
           </div>
           <button class="rounded bg-blue-600 px-3 py-1.5 text-sm text-white disabled:opacity-50" disabled={isSaving} on:click={saveTemplate}>
             {isSaving ? "Saving..." : "Save Template"}

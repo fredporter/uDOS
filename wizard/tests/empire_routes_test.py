@@ -20,6 +20,7 @@ def _seed_empire_root(repo_root: Path) -> EmpireExtensionService:
     (root / "data").mkdir(parents=True)
     (root / "config").mkdir(parents=True)
     (root / "templates" / "mappings").mkdir(parents=True)
+    (root / "workflows").mkdir(parents=True)
     (root / "__init__.py").write_text("", encoding="utf-8")
     (root / "services" / "__init__.py").write_text("", encoding="utf-8")
     (root / "api" / "__init__.py").write_text("", encoding="utf-8")
@@ -30,6 +31,7 @@ def _seed_empire_root(repo_root: Path) -> EmpireExtensionService:
         encoding="utf-8",
     )
     (root / "templates" / "mappings" / "default.md").write_text("# Template\n", encoding="utf-8")
+    (root / "workflows" / "intake-review.md").write_text("# WORKFLOW: Intake Review\n", encoding="utf-8")
     secrets = root / "config" / "empire_secrets.json"
     secrets.write_text('{"empire_api_token":"token"}\n', encoding="utf-8")
 
@@ -110,11 +112,46 @@ def test_empire_routes_expose_status_and_templates(tmp_path, monkeypatch):
 
     templates = client.get("/api/empire/templates")
     assert templates.status_code == 200
-    assert templates.json()["templates"][0]["name"] == "default.md"
+    names = {entry["name"] for entry in templates.json()["templates"]}
+    kinds = {entry["kind"] for entry in templates.json()["templates"]}
+    assert "default.md" in names
+    assert "intake-review.md" in names
+    assert "mapping" in kinds
+    assert "workflow" in kinds
 
     read_res = client.get("/api/empire/templates/read", params={"path": "templates/mappings/default.md"})
     assert read_res.status_code == 200
     assert "# Template" in read_res.json()["content"]
+
+
+def test_empire_document_detail_route_reads_document(tmp_path, monkeypatch):
+    _seed_empire_root(tmp_path)
+
+    class _ServiceWithDocument:
+        def get_document(self, document_id: str):
+            return {
+                "document_id": document_id,
+                "title": "Inbox Intake",
+                "source_path": "@inbox/intake.pdf",
+                "scope": "master",
+                "binder_id": None,
+                "media_type": "application/pdf",
+                "metadata": {"pages": 2},
+                "extracted_text": "First page summary",
+            }
+
+    monkeypatch.setattr(empire_routes, "get_empire_extension_service", lambda: _ServiceWithDocument())
+
+    app = FastAPI()
+    app.include_router(empire_routes.create_empire_routes())
+    client = TestClient(app)
+
+    response = client.get("/api/empire/documents/doc-42")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["document_id"] == "doc-42"
+    assert payload["title"] == "Inbox Intake"
+    assert payload["metadata"]["pages"] == 2
 
 
 def test_extension_routes_keep_empire_visible_as_official_extension(tmp_path, monkeypatch):
