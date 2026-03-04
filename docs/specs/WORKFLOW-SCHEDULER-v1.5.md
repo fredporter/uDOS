@@ -300,7 +300,7 @@ WORKFLOW ESCALATE <workflow_id>
 - Architecture decision:
   - `docs/decisions/v1-5-workflow.md`
 - Roadmap and progress:
-  - `docs/roadmap.md`
+  - `docs/STATUS.md`
 - Operator usage:
   - `docs/howto/WORKFLOW-SCHEDULER-QUICKSTART.md`
 - Example templates:

@@ -90,7 +90,7 @@ def test_gateway_ucode_dispatch(mock_post, gateway_module):
 def test_gateway_providers_list(mock_get, gateway_module):
     """Test providers_list() calls correct endpoint."""
     mock_response = MagicMock()
-    mock_response.json.return_value = {"providers": ["openai", "ollama"]}
+    mock_response.json.return_value = {"providers": ["openai", "gpt4all"]}
     mock_get.return_value = mock_response
 
     gw = gateway_module.WizardGateway(base_url="http://test:8000")
@@ -98,4 +98,4 @@ def test_gateway_providers_list(mock_get, gateway_module):
 
     mock_get.assert_called_once()
     assert "/api/providers" in mock_get.call_args[0][0]
-    assert result == {"providers": ["openai", "ollama"]}
+    assert result == {"providers": ["openai", "gpt4all"]}

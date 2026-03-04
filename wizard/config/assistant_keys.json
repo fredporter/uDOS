@@ -1,6 +1,6 @@
 {
   "profile": "default",
-  "description": "Example AI provider key references. Values are stored in secrets.tomb and resolved by key_id.",
+  "description": "Example provider key references. Values are stored in secrets.tomb and resolved by key_id.",
   "providers": {
     "mistral": {
       "key_id": "IUvYKyQcVs6Rdcflb1fE9XvfhhGfkoPe",
@@ -21,10 +21,6 @@
     "openrouter": {
       "key_id": "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",
       "endpoint": "https://openrouter.ai/api/v1"
-    },
-    "ollama": {
-      "key_id": "ai-ollama-local",
-      "endpoint": "http://127.0.0.1:11434"
     }
   }
 }

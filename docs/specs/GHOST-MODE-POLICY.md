@@ -23,7 +23,7 @@ During pre-launch testing through v1.4.x, Ghost Mode will:
 Starting with v1.5.0, Ghost Mode will enforce read-only behavior as documented below.
 
 ## Scope
-This policy applies to `/core`, `/dev`, all submodules, and `wizard-server`.
+This policy applies to `/core`, the `@dev` workspace at `/dev`, all submodules, and `wizard-server`.
 
 ## Definitions
 **Ghost Mode:** A safe, read-only operating mode with demo content only. No write operations, no power commands, and no direct online access.
@@ -66,7 +66,7 @@ In Ghost Mode, write-capable commands are blocked or forced into dry-run mode.
 - File editing commands (`FILE NEW`, `FILE EDIT`, `SAVE`, `LOAD`)
 
 ## Required Components (Strict)
-1. `ollama` installed
+1. local logic runtime installed
 2. standard `ucode` runtime installed
 3. at least one supported local OK model available for offline-safe operation
 4. any extra contributor-facing model lanes are optional and profile-driven
@@ -79,7 +79,7 @@ In Ghost Mode, write-capable commands are blocked or forced into dry-run mode.
 ## Routing Contract
 1. `/core` uses the standard `ucode` runtime path as the baseline router.
 2. `wizard-server` can extend or override routing as an addon.
-3. `/core` and `/dev` must not make online requests directly.
+3. `/core` and the `@dev` workspace must not make online requests directly.
 4. All online calls must route through `wizard-server`.
 
 ## Wizard Config: Agents, Status, And Providers
@@ -89,7 +89,7 @@ In Ghost Mode, write-capable commands are blocked or forced into dry-run mode.
 
 **Offline provider list order:**
 1. Default local OK model set (primary)
-2. Other Ollama models (secondary)
+2. Other local models (secondary)
 
 **Online provider list order:**
 1. OpenRouter

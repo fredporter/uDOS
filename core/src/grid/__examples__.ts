@@ -150,7 +150,7 @@ const dashboardExample = (): string => {
       ],
       stats: {
         "API Quota": "230/250 calls",
-        "ollama Models": "5 loaded",
+        "local Models": "5 loaded",
         "Active Sessions": "2",
         "Node Status": "✓ Online",
       },

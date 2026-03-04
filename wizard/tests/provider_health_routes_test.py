@@ -12,7 +12,7 @@ class _StubProviderHealthService:
             "healthy": 1,
             "degraded": 1,
             "checks": [
-                {"provider_id": "ollama", "available": True, "status": "healthy"},
+                {"provider_id": "gpt4all", "available": True, "status": "healthy"},
                 {"provider_id": "openai", "available": False, "status": "degraded"},
             ],
         }
@@ -32,11 +32,21 @@ def _client(monkeypatch):
     )
     monkeypatch.setattr(
         provider_routes,
-        "get_popular_models",
-        lambda include_installed=True: [
-            {"name": "mistral", "category": "general", "installed": True},
-            {"name": "devstral-small-2", "category": "coding", "installed": False},
-        ],
+        "get_logic_assist_service",
+        lambda *_args, **_kwargs: type(
+            "_LogicAssist",
+            (),
+            {
+                "get_status": lambda self: {
+                    "local": {
+                        "ready": True,
+                        "model": "devstral-small-2.gguf",
+                        "model_path": "/tmp/models/devstral-small-2.gguf",
+                        "runtime": "gpt4all",
+                    }
+                }
+            },
+        )(),
     )
     app = FastAPI()
     app.include_router(provider_routes.create_provider_routes(auth_guard=None))
@@ -63,11 +73,11 @@ def test_provider_health_monitoring_routes(monkeypatch):
     assert history.json()["count"] == 1
 
 
-def test_provider_routes_use_canonical_ollama_model_catalog(monkeypatch):
+def test_provider_routes_expose_gpt4all_status(monkeypatch):
     client = _client(monkeypatch)
-    res = client.get("/api/providers/ollama/models/available")
+    res = client.get("/api/providers/gpt4all/status")
     assert res.status_code == 200
     payload = res.json()
     assert payload["success"] is True
-    assert [item["name"] for item in payload["models"]] == ["mistral", "devstral-small-2"]
-    assert payload["categories"] == ["coding", "general"]
+    assert payload["logic"]["runtime"] == "gpt4all"
+    assert payload["logic"]["model"] == "devstral-small-2.gguf"

@@ -136,7 +136,7 @@ type PluginType =
   "permissions": {
     "network": {
       "allowed": true,
-      "domains": ["api.openai.com", "ollama.local"]
+      "domains": ["api.openai.com", "local-model.internal"]
     }
   }
 }
@@ -307,18 +307,18 @@ def verify_plugin_signature(manifest: dict) -> bool:
 
 ## 6. Example Manifests
 
-### Container Plugin (Ollama)
+### Container Plugin (Local Runtime)
 
 ```json
 {
   "$schema": "https://udos.dev/schemas/plugin-manifest-v1.3.json",
-  "id": "ai.ollama.container",
-  "name": "Ollama",
+  "id": "com.udos.local-runtime.container",
+  "name": "Local Runtime",
   "version": "0.1.0",
-  "description": "Local LLM inference engine",
+  "description": "Local model inference engine",
   "author": {
-    "name": "Ollama Team",
-    "url": "https://ollama.ai"
+    "name": "uDOS Local Runtime Team",
+    "url": "https://udos.dev"
   },
   "license": "MIT",
   "main": "container.json",
@@ -330,11 +330,11 @@ def verify_plugin_signature(manifest: dict) -> bool:
   "permissions": {
     "filesystem": {
       "read": [],
-      "write": ["/tmp/ollama-models"]
+      "write": ["/tmp/local-models"]
     },
     "network": {
       "allowed": true,
-      "domains": ["ollama.ai", "huggingface.co"]
+      "domains": ["models.local", "huggingface.co"]
     }
   },
   "dependencies": {
@@ -384,7 +384,7 @@ def verify_plugin_signature(manifest: dict) -> bool:
 
 ```mermaid
 graph TD
-    A[User: wizard install ollama] --> B[Wizard: Fetch manifest]
+    A[User: wizard install local-runtime] --> B[Wizard: Fetch manifest]
     B --> C{Signature Valid?}
     C -->|No| D[Reject + Error]
     C -->|Yes| E{Permissions OK?}
@@ -411,8 +411,8 @@ GET /api/plugin/list
 {
   "plugins": [
     {
-      "id": "ai.ollama.container",
-      "name": "Ollama",
+      "id": "com.udos.local-runtime.container",
+      "name": "Local Runtime",
       "version": "0.1.0",
       "installed": true
     }
@@ -426,7 +426,7 @@ POST /api/plugin/install
 Content-Type: application/json
 
 {
-  "id": "ai.ollama.container",
+  "id": "com.udos.local-runtime.container",
   "approve_permissions": true
 }
 ```

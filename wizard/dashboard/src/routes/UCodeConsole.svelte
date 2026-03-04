@@ -165,7 +165,7 @@
           name: `LOGIC ${item.name}`,
           help_text: item.help_text,
           syntax: item.syntax,
-          category: "AI",
+          category: "OK",
         }));
         return;
       }
@@ -176,7 +176,7 @@
           name: `LOGIC ${item.name}`,
           help_text: item.help_text,
           syntax: item.syntax,
-          category: "AI",
+          category: "OK",
         }));
       return;
     }
@@ -1034,7 +1034,7 @@
             <select class="select wiz-terminal-input" bind:value={okProfile}>
               <option value="core">core</option>
               <option value="dev" disabled={!okStatus?.dev_mode_active}>
-                dev {okStatus?.dev_mode_active ? "" : "(extension inactive)"}
+                dev {okStatus?.dev_mode_active ? "" : "(@dev inactive)"}
               </option>
             </select>
           </label>
@@ -1045,7 +1045,7 @@
             <div class="text-xs text-gray-300">{okSaveStatus}</div>
           {/if}
           {#if !okStatus?.dev_mode_active}
-            <div class="text-xs text-amber-200">Coding assistant model is locked until the Dev extension lane is active.</div>
+            <div class="text-xs text-amber-200">Coding assistant model is locked until the @dev workspace lane is active.</div>
           {/if}
           <div class="divider"></div>
           <label class="field">
@@ -1140,10 +1140,10 @@
     </section>
 
     <section class="panel">
-      <div class="panel-header">Dev Extension</div>
+      <div class="panel-header">@dev Workspace</div>
       <div class="panel-body">
         <div class="status-row">
-          <span class="label">Extension state</span>
+          <span class="label">Workspace state</span>
           <span>{devStatus?.active ? "active" : "inactive"}</span>
         </div>
         {#if devRequirements}
@@ -1157,15 +1157,15 @@
           </div>
         {/if}
         <div class="button-row">
-          <button class="ghost-btn wiz-terminal-btn" disabled={!canDevMode} on:click={() => handleDevToggle(true)}>Enable Extension</button>
-          <button class="ghost-btn wiz-terminal-btn" disabled={!canDevMode} on:click={() => handleDevToggle(false)}>Disable Extension</button>
+          <button class="ghost-btn wiz-terminal-btn" disabled={!canDevMode} on:click={() => handleDevToggle(true)}>Activate @dev</button>
+          <button class="ghost-btn wiz-terminal-btn" disabled={!canDevMode} on:click={() => handleDevToggle(false)}>Deactivate @dev</button>
           <button class="ghost-btn wiz-terminal-btn" disabled={!canDevMode} on:click={handleDevRestart}>Restart</button>
         </div>
         {#if devGateError}
           <div class="text-xs text-amber-200">{devGateError}</div>
         {/if}
         {#if !canDevMode}
-          <div class="text-xs text-amber-200">Dev Mode requires admin role and a complete @dev framework payload.</div>
+          <div class="text-xs text-amber-200">Dev Mode requires admin role and a complete @dev workspace payload.</div>
         {/if}
       </div>
     </section>

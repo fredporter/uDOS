@@ -2067,7 +2067,7 @@ class UCODE:
             with open(path, encoding="utf-8") as handle:
                 return json.load(handle)
         except Exception as exc:
-            self.logger.warning("[AI] Failed to load ok_modes.json: %s", exc)
+            self.logger.warning("[OK] Failed to load ok_modes.json: %s", exc)
             return {"modes": {}}
 
     def _write_dev_mode_config(self, config: dict[str, Any]) -> None:
@@ -2240,7 +2240,7 @@ class UCODE:
 
     def _show_operator_startup_sequence(self) -> dict[str, Any]:
         """Show standard operator summary, with Dev extension status when active."""
-        from core.services.ai_provider_handler import get_ai_provider_handler
+        from core.services.ok_provider_handler import get_ok_provider_handler
         from core.services.provider_registry import CoreProviderRegistry
 
         CoreProviderRegistry.auto_register_vibe()
@@ -2269,8 +2269,8 @@ class UCODE:
                 "cloud_direct": False,
             }
 
-        # Use unified AI provider handler (replaces scattered status checks)
-        handler = get_ai_provider_handler()
+        # Use unified OK provider handler (replaces scattered status checks)
+        handler = get_ok_provider_handler()
         local_status = handler.check_local_provider()
         cloud_status_obj = handler.check_cloud_provider()
 
@@ -2279,9 +2279,8 @@ class UCODE:
             "ready": local_status.is_available,
             "issue": local_status.issue,
             "model": local_status.default_model,
-            "local_endpoint": local_status.details.get(
-                "endpoint", "http://127.0.0.1:11434"
-            ),
+            "model_path": local_status.details.get("model_path"),
+            "runtime": local_status.details.get("runtime", "gpt4all"),
         }
         cloud_status = {
             "ready": cloud_status_obj.is_available,
@@ -2293,12 +2292,15 @@ class UCODE:
         fallback_model = self._get_dev_mode_fallback_model()
         ctx = self._get_dev_mode_context_window()
         local_issue = logic_status.get("issue") or None
-        endpoint = logic_status.get("local_endpoint", "http://127.0.0.1:11434")
+        model_path = logic_status.get("model_path", "")
+        runtime = logic_status.get("runtime", "gpt4all")
 
         lines = []
         if logic_status.get("ready"):
             lines.append(f"✅ Logic Assist local lane ready ({model}, ctx {ctx}, timeout 30s)")
-            lines.append(f"   Local endpoint: {endpoint}")
+            lines.append(f"   Local runtime: {runtime}")
+            if model_path:
+                lines.append(f"   Model path: {model_path}")
             if fallback_model:
                 lines.append(f"   Fallback: {fallback_model} (lightweight open-source)")
         else:
@@ -2308,10 +2310,11 @@ class UCODE:
                 "setup required",
                 "local runtime down",
                 "missing model",
-                "vibe-cli missing",
+                "gpt4all package unavailable",
+                "gpt4all model missing",
             }:
                 lines.append("Tip: SETUP dev")
-            if issue == "missing model":
+            if issue in {"missing model", "gpt4all model missing"}:
                 lines.append("Tip: place the configured GPT4All model file in the logic-assist model directory")
             if issue == "port blocked":
                 lines.append("Tip: REPAIR port (auto-fix config)")
@@ -2346,7 +2349,7 @@ class UCODE:
         }
 
     def _format_ai_status_line(self, label: str, status: dict[str, Any]) -> str:
-        """Format a single AI mode status line."""
+        """Format a single OK mode status line."""
         if status.get("ready"):
             return f"  ✅ {label}: ready"
         issues = status.get("issues") or []

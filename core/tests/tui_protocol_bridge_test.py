@@ -18,6 +18,7 @@ def test_protocol_bridge_hello_returns_ready_and_banner() -> None:
     assert packets[0]["type"] == "result"
     assert packets[0]["value"]["status"] == "ready"
     assert packets[0]["value"]["canvas_width"] == 78
+    assert packets[0]["value"]["actions"][0]["job"] == "status"
     assert packets[1]["type"] == "event"
     assert packets[1]["event"]["kind"] == "teletext"
 
@@ -33,7 +34,11 @@ def test_protocol_bridge_run_emits_result_and_done_packets() -> None:
         }
     )
     assert packets[0]["type"] == "result"
+    assert packets[1]["event"]["kind"] == "progress"
+    assert packets[1]["event"]["status"] == "running"
     assert any(packet.get("type") == "event" for packet in packets)
+    assert packets[-2]["event"]["kind"] == "progress"
+    assert packets[-2]["event"]["status"] == "done"
     assert packets[-1]["type"] == "done"
     assert packets[-1]["ok"] is True
 

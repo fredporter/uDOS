@@ -3,7 +3,7 @@
 Dispatches user input through:
 1. uCODE command matching (high confidence)
 2. Shell passthrough (syntax safe)
-3. Vibe skill fallback (AI handling)
+3. Vibe skill fallback (OK handling)
 """
 
 from __future__ import annotations

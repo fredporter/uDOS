@@ -34,6 +34,10 @@ Each file captures a discrete architectural, design, or technology choice.
 | [../specs/WORKFLOW-SCHEDULER-v1.5.md](../specs/WORKFLOW-SCHEDULER-v1.5.md) | Canonical workflow scheduler runtime contract derived from the v1.5 decision |
 | [../specs/OFFLINE-ASSIST-STANDARD-v1.5.md](../specs/OFFLINE-ASSIST-STANDARD-v1.5.md) | Canonical offline assist runtime contract derived from the v1.5 decision |
 
+Planning note:
+- historical milestone plans were removed from the active decisions tree; current sequencing lives in the local `@dev` roadmap/devlog lane
+- contributor-facing decisions now live under `dev/docs/decisions/`
+
 ## OK Provider & Model Runtime
 
 | File | Topic |

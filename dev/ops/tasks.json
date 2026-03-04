@@ -1,0 +1,58 @@
+{
+  "version": "1.0",
+  "workspace": "@dev",
+  "owner": "uDOS",
+  "updated": "2026-03-04",
+  "source_markdown": "tasks.md",
+  "active_missions": [
+    {
+      "id": "dev-workspace-consolidation",
+      "title": "Complete the @dev operations consolidation",
+      "status": "in_progress",
+      "lane": "dev",
+      "priority": "high",
+      "artifacts": [
+        "dev/ops/",
+        "dev/docs/",
+        "dev/goblin/"
+      ]
+    },
+    {
+      "id": "wizard-dev-service-alignment",
+      "title": "Align Wizard Dev Mode services to the @dev operations model",
+      "status": "in_progress",
+      "lane": "wizard",
+      "priority": "high",
+      "artifacts": [
+        "wizard/services/dev_mode_service.py",
+        "wizard/services/dev_extension_service.py",
+        "wizard/dashboard/src/routes/DevMode.svelte"
+      ]
+    },
+    {
+      "id": "goblin-overlay-testing",
+      "title": "Expand Goblin as the contributor overlay test lane",
+      "status": "in_progress",
+      "lane": "dev",
+      "priority": "medium",
+      "artifacts": [
+        "dev/goblin/tests/",
+        "dev/goblin/scenarios/",
+        "dev/goblin/test-vault/"
+      ]
+    },
+    {
+      "id": "editor-tooling-alignment",
+      "title": "Unify Codex, Copilot, and VS Code contributor instructions",
+      "status": "in_progress",
+      "lane": "dev",
+      "priority": "medium",
+        "artifacts": [
+          ".github/copilot-instructions.md",
+          "dev/ops/templates/uDOS-dev.code-workspace",
+          ".vscode/settings.json",
+          "dev/ops/templates/"
+        ]
+    }
+  ]
+}

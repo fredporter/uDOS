@@ -27,6 +27,7 @@ const (
 )
 
 type actionItem struct {
+	key   string
 	title string
 	desc  string
 	job   string
@@ -61,15 +62,15 @@ type Model struct {
 
 func actionItems() []list.Item {
 	return []list.Item{
-		actionItem{title: "1. Status", desc: "System status and route health", job: "status"},
-		actionItem{title: "2. Workflow Templates", desc: "List workflow templates", job: "workflow.templates"},
-		actionItem{title: "3. Workflow Runs", desc: "List workflow runs", job: "workflow.runs"},
-		actionItem{title: "4. Knowledge Templates", desc: "List template families", job: "knowledge.templates"},
-		actionItem{title: "5. Research Notes", desc: "List persisted research notes", job: "knowledge.research.list"},
-		actionItem{title: "6. Health", desc: "Run runtime health checks", job: "health.status"},
-		actionItem{title: "7. Repair Status", desc: "Show Python and runtime status", job: "repair.status"},
-		actionItem{title: "8. Sonic Status", desc: "Show Sonic runtime status", job: "sonic.status"},
-		actionItem{title: "9. Custom Command", desc: "Enter a full ucode command", job: "custom.command"},
+		actionItem{key: "1", title: "1. Status", desc: "System status and route health", job: "status"},
+		actionItem{key: "2", title: "2. Workflow Templates", desc: "List workflow templates", job: "workflow.templates"},
+		actionItem{key: "3", title: "3. Workflow Runs", desc: "List workflow runs", job: "workflow.runs"},
+		actionItem{key: "4", title: "4. Knowledge Templates", desc: "List template families", job: "knowledge.templates"},
+		actionItem{key: "5", title: "5. Research Notes", desc: "List persisted research notes", job: "knowledge.research.list"},
+		actionItem{key: "6", title: "6. Health", desc: "Run runtime health checks", job: "health.status"},
+		actionItem{key: "7", title: "7. Repair Status", desc: "Show Python and runtime status", job: "repair.status"},
+		actionItem{key: "8", title: "8. Sonic Status", desc: "Show Sonic runtime status", job: "sonic.status"},
+		actionItem{key: "9", title: "9. Custom Command", desc: "Enter a full ucode command", job: "custom.command"},
 	}
 }
 
@@ -127,9 +128,16 @@ func waitForBackend(client *backend.Client) tea.Cmd {
 
 func (m Model) Init() tea.Cmd {
 	hello := protocol.Message{
-		V:    1,
-		Type: "hello",
-		ID:   backend.RequestID("hello"),
+		V:      1,
+		Type:   "hello",
+		ID:     backend.RequestID("hello"),
+		Client: &protocol.ClientInfo{Name: "udos-tui", Version: "0.2.0"},
+		Caps: &protocol.ClientCaps{
+			TTY:   true,
+			Width: m.theme.CanvasWidth,
+			Color: "256",
+			Paste: "bracketed",
+		},
 	}
 	return tea.Batch(
 		m.spinner.Tick,
@@ -162,6 +170,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.msg.Type == "result" {
 			m.statusLine = fmt.Sprintf("request %s accepted", msg.msg.ID)
 			if value, ok := msg.msg.Value.(map[string]interface{}); ok {
+				if status, ok := value["status"].(string); ok && status == "ready" {
+					m.statusLine = "backend ready"
+					if actions, ok := value["actions"].([]interface{}); ok {
+						m.list.SetItems(actionsToListItems(actions))
+					}
+				}
 				if jobID, ok := value["job_id"].(string); ok {
 					m.currentJobID = jobID
 				}
@@ -172,7 +186,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.viewport.SetContent(m.renderEvents())
 		}
 		if msg.msg.Type == "done" {
-			m.statusLine = fmt.Sprintf("job %s finished", msg.msg.ID)
+			if msg.msg.OK {
+				m.statusLine = fmt.Sprintf("job %s finished", msg.msg.ID)
+			} else {
+				m.statusLine = fmt.Sprintf("job %s failed", msg.msg.ID)
+				if msg.msg.Error != "" {
+					m.lastError = msg.msg.Error
+				}
+			}
 		}
 		return m, waitForBackend(m.backend)
 	case tea.KeyMsg:
@@ -296,6 +317,35 @@ func (m Model) renderEvents() string {
 		rendered = append(rendered, render.RenderEvent(m.theme, event))
 	}
 	return strings.Join(rendered, "\n\n")
+}
+
+func actionsToListItems(raw []interface{}) []list.Item {
+	items := make([]list.Item, 0, len(raw))
+	for idx, entry := range raw {
+		action, ok := entry.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		key, _ := action["key"].(string)
+		label, _ := action["label"].(string)
+		job, _ := action["job"].(string)
+		title := label
+		if key != "" {
+			title = fmt.Sprintf("%s. %s", key, label)
+		} else if label != "" {
+			title = fmt.Sprintf("%d. %s", idx+1, label)
+		}
+		items = append(items, actionItem{
+			key:   key,
+			title: title,
+			desc:  fmt.Sprintf("Run %s", job),
+			job:   job,
+		})
+	}
+	if len(items) == 0 {
+		return actionItems()
+	}
+	return items
 }
 
 func min(a, b int) int {

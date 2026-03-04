@@ -1,7 +1,7 @@
 # Documentation Archive
 
-**Date**: 2026-02-22
-**Context**: TUI migration to Vibe-only architecture + documentation cleanup
+Updated: 2026-03-04
+Context: superseded root docs, retired milestone notes, and historic architecture material
 
 ## Archive Structure
 
@@ -64,18 +64,19 @@ v1.4.0 kickoff and execution docs (milestone complete).
 
 ---
 
+## v1.5 Rule
+
+- `docs/` contains active runtime/operator documentation.
+- `dev/docs/` contains active contributor-facing `@dev` documentation.
+- `wiki/` contains short orientation pages only.
+- Superseded but still useful history belongs here in `docs/.compost/`.
+
 ## How to Access
 
 Archived docs remain git-tracked and accessible:
 ```bash
-# View archive
-ls docs/.archive/
-
-# Read archived doc
-cat docs/.archive/tui-legacy-2026-02/TUI-SMART-FIELDS-GUIDE.md
-
-# Git history
-git log -- docs/.archive/historic/PHASE-A-READY.md
+ls docs/.compost/
+git log -- docs/.compost/
 ```
 
 ## When to Archive
@@ -89,11 +90,8 @@ Documents move to archive when:
 ## Active Documentation
 
 Current docs remain in:
-- `/docs/` - Root-level guides, installation, architecture
-- `/docs/decisions/` - Active decision records and contracts
-- `/docs/specs/` - Current v1.4.x+ specifications
-- `/docs/howto/` - User guides and references
-- `/docs/dev/` - Developer documentation
-- `/wiki/` - Wiki pages
+- `/docs/` - active operator/runtime guides and contracts
+- `/dev/docs/` - active contributor `@dev` docs
+- `/wiki/` - short repo orientation pages
 
-See `/docs/README.md` for documentation index.
+See `/docs/README.md` for the active docs index.

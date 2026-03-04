@@ -4,7 +4,7 @@ Updated: 2026-03-04
 
 `dev/docs/` is the contributor documentation root for the v1.5 `@dev` workspace.
 
-Root `docs/` is reserved for runtime, operator, feature, and product-facing documentation. If a document is about contributor workflows, Dev Mode governance, Goblin, GitHub sync, or the `vibe` contributor lane, it belongs here.
+Root `docs/` is reserved for runtime, operator, feature, and product-facing documentation. If a document is about contributor workflows, Dev Mode governance, Goblin, GitHub sync, Codex/Copilot/VS Code contributor setup, or the `vibe` contributor lane, it belongs here.
 
 ## Canonical Map
 
@@ -12,6 +12,16 @@ Root `docs/` is reserved for runtime, operator, feature, and product-facing docu
   `DEV-MODE-POLICY.md`
 - Workspace contract:
   `specs/DEV-WORKSPACE-SPEC.md`
+- Contributor operations:
+  `../ops/README.md`
+- Contributor decisions:
+  `decisions/README.md`
+- Contributor roadmap:
+  `roadmap/ROADMAP.md`
+- Contributor devlog index:
+  `devlog/README.md`
+- Contributor task-management index:
+  `tasks/README.md`
 - Contributor onboarding:
   `howto/GETTING-STARTED.md`
 - Dev Mode tooling setup:
@@ -26,8 +36,10 @@ Root `docs/` is reserved for runtime, operator, feature, and product-facing docu
 The public, versioned `@dev` payload is intentionally small:
 
 - `/dev` governance files
+- `dev/ops/`
 - `dev/docs/`
 - `dev/goblin/`
+- `dev/goblin/tests/`
 
 Everything else under `/dev` is local working state unless explicitly promoted into the tracked payload.
 

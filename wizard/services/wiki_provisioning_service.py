@@ -166,7 +166,7 @@ class WikiProvisioningService:
                     icon="🔌",
                     order=5,
                     pages=[
-                        "ollama-local-ai",
+                        "local-logic-assist",
                         "mistral-vibe-setup",
                         "meshcore-deployment",
                         "plugin-installation",
@@ -341,17 +341,17 @@ class WikiProvisioningService:
                 ),
                 # Integrations
                 WikiPage(
-                    slug="ollama-local-ai",
-                    title="Ollama Local AI",
+                    slug="local-logic-assist",
+                    title="Local Logic Assist",
                     category="integrations",
-                    description="Setting up Ollama for local AI models",
+                    description="Setting up the local logic-assist runtime",
                     status="draft",
                 ),
                 WikiPage(
                     slug="mistral-vibe-setup",
                     title="Mistral Vibe Setup",
                     category="integrations",
-                    description="Configuring Mistral Vibe for offline AI",
+                    description="Configuring Mistral Vibe for offline OK use",
                     status="draft",
                 ),
                 WikiPage(

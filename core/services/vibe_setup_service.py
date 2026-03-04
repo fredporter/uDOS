@@ -11,6 +11,8 @@ from typing import Any
 from dotenv import load_dotenv, set_key
 
 from core.services.logging_manager import get_logger
+from core.services.paths import get_memory_root, get_vault_root
+from core.services.path_service import get_repo_root
 from core.services.unified_config_loader import get_config
 
 _logger = get_logger(__name__)
@@ -25,7 +27,7 @@ class VipeSetupService:
     def __init__(self):
         """Initialize setup service."""
         self.logger = get_logger("vibe-setup-service")
-        self.repo_root = Path(__file__).resolve().parent.parent.parent
+        self.repo_root = get_repo_root()
         self.env_file = self.repo_root / ".env"
 
     def ensure_vault_root(self, vault_path: str | None = None) -> dict[str, Any]:
@@ -37,9 +39,8 @@ class VipeSetupService:
         Returns:
             Dict with status and vault root path
         """
-        # Default vault location
         if vault_path is None:
-            vault_path = str(self.repo_root / "vault")
+            vault_path = str(get_vault_root())
 
         vault_root = Path(vault_path)
         vault_root.mkdir(parents=True, exist_ok=True)
@@ -86,7 +87,7 @@ class VipeSetupService:
         Returns:
             Dict with status and binder root path
         """
-        vault_root = get_config("VAULT_ROOT", str(self.repo_root / "vault"))
+        vault_root = get_config("VAULT_ROOT", str(get_vault_root()))
         binder_root = Path(vault_root) / "@binders"
 
         try:
@@ -143,6 +144,7 @@ class VipeSetupService:
             "message": "uDOS initialized successfully",
             "vault_root": vault_result.get("vault_root"),
             "binder_root": binder_result.get("binder_root"),
+            "memory_root": str(get_memory_root()),
         }
 
 

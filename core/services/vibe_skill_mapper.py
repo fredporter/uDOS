@@ -330,7 +330,7 @@ HELP_SKILL = SkillContract(
 
 BINDER_SKILL = SkillContract(
     name="binder",
-    description="Unified workflow and task management (missions, tasks, milestones, AI ingestion)",
+    description="Unified workflow and task management (missions, tasks, milestones, OK ingestion)",
     actions={
         "list": SkillAction(
             name="list",
@@ -404,7 +404,7 @@ BINDER_SKILL = SkillContract(
         ),
         "ai_summary": SkillAction(
             name="ai_summary",
-            description="Get AI-ready task summary for mission",
+            description="Get OK-ready task summary for mission",
             args=["mission_id"],
             optional_args=[],
             returns_type="ai_summary",

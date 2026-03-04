@@ -18,8 +18,8 @@ This spec defines the canonical Python operating model for uDOS v1.5.
 
 ### Runtime
 
-- `./bin/ucode`
-- `./bin/wizardd`
+- `./bin/udos`
+- `./bin/udos wizard start`
 - `uv run ./uDOS.py ...`
 
 ### Tests
@@ -69,7 +69,7 @@ Transitional exceptions must be explicit in the stdlib audit allowlist until rem
 - root `pyproject.toml` is the source of truth for pytest defaults
 - package-owned tests remain in `core/tests/` and `wizard/tests/`
 - cross-cutting tests remain in `tests/`
-- `/dev/` may document test workflow policy but does not own the executable pytest wrappers
+- the `@dev` workspace may document test workflow policy but does not own the executable pytest wrappers
 
 ## Verification Surface
 

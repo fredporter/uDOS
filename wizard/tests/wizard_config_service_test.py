@@ -23,12 +23,22 @@ def test_load_wizard_config_data_merges_defaults(tmp_path):
     assert payload == {"port": 8765, "debug": True}
 
 
-def test_load_wizard_config_data_migrates_ai_gateway_flag(tmp_path):
+def test_load_wizard_config_data_reads_logic_assist_flag(tmp_path):
     config_path = tmp_path / "wizard.json"
-    config_path.write_text('{"ai_gateway_enabled": true}', encoding="utf-8")
+    config_path.write_text('{"logic_assist_enabled": true}', encoding="utf-8")
     payload = load_wizard_config_data(path=config_path)
-    assert payload["ai_gateway_enabled"] is True
-    assert payload["ok_gateway_enabled"] is True
+    assert payload["logic_assist_enabled"] is True
+
+
+def test_load_wizard_config_data_reads_ok_budget_fields(tmp_path):
+    config_path = tmp_path / "wizard.json"
+    config_path.write_text(
+        '{"ok_budget_daily": 12.5, "ok_budget_monthly": 250.0}',
+        encoding="utf-8",
+    )
+    payload = load_wizard_config_data(path=config_path)
+    assert payload["ok_budget_daily"] == 12.5
+    assert payload["ok_budget_monthly"] == 250.0
 
 
 def test_save_wizard_config_data_roundtrip(tmp_path):

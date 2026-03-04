@@ -19,17 +19,17 @@ def get_udos_root() -> Path:
 
 def get_memory_root() -> Path:
     """Return UDOS memory root."""
-    return get_path_config("UDOS_MEMORY_ROOT") or (get_udos_root() / "memory")
+    return (get_path_config("UDOS_MEMORY_ROOT") or (get_udos_root() / "memory")).resolve()
 
 
 def get_vault_root() -> Path:
     """Return vault root (VAULT_ROOT or memory/vault)."""
-    return get_path_config("VAULT_ROOT") or (get_memory_root() / "vault")
+    return (get_path_config("VAULT_ROOT") or (get_memory_root() / "vault")).resolve()
 
 
 def get_vault_md_root() -> Path:
     """Return vault markdown root (VAULT_MD_ROOT or VAULT_ROOT)."""
-    return get_path_config("VAULT_MD_ROOT") or get_vault_root()
+    return (get_path_config("VAULT_MD_ROOT") or get_vault_root()).resolve()
 
 
 def get_wizard_config_dir() -> Path:
@@ -44,4 +44,4 @@ def get_core_config_dir() -> Path:
 
 def get_private_memory_dir() -> Path:
     """Return private memory directory for sensitive files."""
-    return get_memory_root() / "private"
+    return (get_memory_root() / "private").resolve()

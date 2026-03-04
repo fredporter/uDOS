@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from core.services.ai_provider_handler import get_ai_provider_handler
 from core.services.json_utils import read_json_file, write_json_file
 from core.services.logging_api import get_repo_root
 from core.services.unified_config_loader import get_bool_config
+from wizard.services.logic_assist_service import get_logic_assist_service
 
 _OK_MODES_PATH_SEGMENTS = ("core", "config", "ok_modes.json")
 
@@ -16,7 +16,7 @@ def _ok_modes_path():
     return get_repo_root().joinpath(*_OK_MODES_PATH_SEGMENTS)
 
 
-def load_ai_modes_config() -> dict[str, Any]:
+def load_ok_modes_config() -> dict[str, Any]:
     try:
         return read_json_file(_ok_modes_path(), default={"modes": {}})
     except Exception:
@@ -39,7 +39,7 @@ def is_dev_mode_active() -> bool:
 
 
 def get_ok_default_models() -> dict[str, str]:
-    config = load_ai_modes_config()
+    config = load_ok_modes_config()
     mode = (config.get("modes") or {}).get("ofvibe", {})
     default_models = mode.get("default_models") or {}
     core_model = default_models.get("core") or "mistral-small-latest"
@@ -65,7 +65,7 @@ def resolve_ok_model(requested_model: str | None, purpose: str = "general") -> s
 
 
 def ok_auto_fallback_enabled() -> bool:
-    config = load_ai_modes_config()
+    config = load_ok_modes_config()
     mode = (config.get("modes") or {}).get("ofvibe", {})
     return bool(mode.get("auto_fallback", True))
 
@@ -80,36 +80,26 @@ def get_ok_context_window() -> int:
 
 
 def get_ok_local_status() -> dict[str, Any]:
-    """Check local Ollama status via the unified AI provider handler.
+    """Return local status from the v1.5 logic-assist runtime."""
+    status = get_logic_assist_service().get_status()["local"]
+    model = status.get("model") or get_ok_default_model()
+    raw_issue = (status.get("issue") or "").strip().lower()
 
-    Delegates to ``AIProviderHandler.check_local_provider()`` — the single
-    source of truth for local-provider health — and maps its result back to
-    the established dict contract consumed by ``ucode_ok_routes``.
-    """
-    config = load_ai_modes_config()
-    mode = (config.get("modes") or {}).get("ofvibe", {})
-    endpoint = mode.get("ollama_endpoint", "http://127.0.0.1:11434")
-
-    status = get_ai_provider_handler().check_local_provider()
-    model = status.default_model or get_ok_default_model()
-
-    # Normalise issue strings to the established API contract so callers
-    # (including the Vue dashboard) don't need updating.
     issue: str | None = None
-    if not status.is_available:
-        raw = status.issue or ""
-        if "model" in raw and ("not loaded" in raw or "missing" in raw):
+    if not status.get("ready"):
+        if "model missing" in raw_issue:
             issue = "missing model"
-        else:
-            issue = "ollama down"
+        elif raw_issue:
+            issue = "local runtime down"
 
     return {
-        "ready": status.is_available,
+        "ready": bool(status.get("ready")),
         "issue": issue,
         "model": model,
-        "ollama_endpoint": endpoint,
+        "runtime": status.get("runtime", "gpt4all"),
+        "model_path": status.get("model_path"),
         "detail": None,
-        "models": status.loaded_models,
+        "models": [model] if model else [],
     }
 
 

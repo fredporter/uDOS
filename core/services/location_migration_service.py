@@ -22,15 +22,16 @@ import time
 from typing import Any
 
 from core.services.logging_api import get_logger
-from core.services.paths import get_vault_root
+from core.services.path_service import get_repo_root
+from core.services.paths import get_memory_root, get_vault_root
 
 logger = get_logger("location_migration")
 
-SPATIAL_SCHEMA_PATH = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spatial" / "schema.sql"
-MEMORY_SPATIAL_DIR = Path("memory") / "bank" / "spatial"
-DEFAULT_ANCHOR_REGISTRY = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spatial" / "anchors.default.json"
-DEFAULT_PLACE_CATALOG = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spatial" / "places.default.json"
-DEFAULT_LOCATIONS_SEED = Path(__file__).parents[2] / "v1-3" / "core" / "src" / "spatial" / "locations-seed.default.json"
+SPATIAL_SCHEMA_PATH = get_repo_root() / "v1-3" / "core" / "src" / "spatial" / "schema.sql"
+MEMORY_SPATIAL_DIR = get_memory_root() / "bank" / "spatial"
+DEFAULT_ANCHOR_REGISTRY = get_repo_root() / "v1-3" / "core" / "src" / "spatial" / "anchors.default.json"
+DEFAULT_PLACE_CATALOG = get_repo_root() / "v1-3" / "core" / "src" / "spatial" / "places.default.json"
+DEFAULT_LOCATIONS_SEED = get_repo_root() / "v1-3" / "core" / "src" / "spatial" / "locations-seed.default.json"
 
 PLACE_REF_RE = re.compile(
     r"^(?P<anchor>[^:]+)"
@@ -102,12 +103,7 @@ class LocationMigrator:
                      (defaults to memory/bank/locations/)
         """
         if data_dir is None:
-            # Try: memory/bank/locations/
-            data_dir = Path("memory/bank/locations")
-            if not data_dir.exists():
-                # Fallback to absolute path from root
-                root = Path(__file__).parent.parent.parent
-                data_dir = root / "memory" / "bank" / "locations"
+            data_dir = get_memory_root() / "bank" / "locations"
 
         self.data_dir = Path(data_dir)
         self.json_path = self.data_dir / "locations.json"

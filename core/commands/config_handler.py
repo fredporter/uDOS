@@ -198,7 +198,7 @@ class ConfigHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixi
 
     def _edit_config(self, filename: str) -> dict:
         """Open config file in editor."""
-        config_dir = Path(__file__).parent.parent.parent / "wizard" / "config"
+        config_dir = get_repo_root() / "wizard" / "config"
         config_file = config_dir / filename
 
         if not config_file.exists():

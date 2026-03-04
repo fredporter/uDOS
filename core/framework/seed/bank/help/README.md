@@ -17,7 +17,7 @@ help_templates/
 ├── _index.json                    # Template catalog and metadata
 ├── system_commands.json           # System administration commands
 ├── file_commands.json             # File operations
-├── assistant_commands.json        # AI assistant commands
+├── assistant_commands.json        # OK assistant commands
 ├── grid_commands.json             # Grid management
 └── README.md                      # This file
 ```
@@ -111,7 +111,7 @@ When adding commands to new categories:
 - **v1.0.12**: Initial help templates system
   - System commands template
   - File operations template
-  - AI assistant template
+  - OK assistant template
   - Grid management template
   - Template index and documentation
 

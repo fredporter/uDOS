@@ -1,40 +1,45 @@
 # uDOS Wiki Home
 
-Welcome. This wiki is the fast path for orientation.
+Updated: 2026-03-04
+Status: v1.5 orientation map
 
-Use it to understand what uDOS is, where to start, and where to go next.
-For implementation detail, contracts, and runbooks, use `docs/`.
+This wiki is the short orientation layer for the repo.
+
+Use it to understand the main runtime lanes and find the right canonical doc quickly.
+Detailed contracts, runbooks, and release guidance live in `docs/`.
+Contributor-only `@dev` workspace policy lives in `dev/docs/`.
 
 ## Start Here
 
 - [Installation](Installation.md)
+- [Architecture](ARCHITECTURE.md)
 - [Core](Core.md)
 - [Wizard](Wizard.md)
 - [Modes and Policy](Modes-and-Policy.md)
-- [Self-Healing](Self-Healing.md)
 
-## Quick Navigation
+## Canonical Entrypoints
 
-- New operator: [Installation](Installation.md) -> [Core](Core.md) -> [Wizard](Wizard.md)
-- Working with runtime behavior: [Architecture](ARCHITECTURE.md) -> [TypeScript Runtime](TypeScript-Runtime.md)
-- Gameplay/runtime lane context: [TUI Z-Layer and TOYBOX](TUI-Z-Layer-and-TOYBOX.md)
-- Development tools: [Dev Tools](Dev-Tools.md)
-
-## Go Deeper in Docs
-
-- Canonical docs index: [../docs/README.md](../docs/README.md)
-- Active roadmap: [../docs/roadmap.md](../docs/roadmap.md)
+- Docs front door: [../docs/README.md](../docs/README.md)
+- Docs index: [../docs/INDEX.md](../docs/INDEX.md)
+- Public status: [../docs/STATUS.md](../docs/STATUS.md)
 - Specs catalog: [../docs/specs/README.md](../docs/specs/README.md)
-- How-to guides: [../docs/howto/](../docs/howto/)
-- Architecture decisions: [../docs/decisions/](../docs/decisions/)
-- Troubleshooting: [../docs/troubleshooting/README.md](../docs/troubleshooting/README.md)
+- Decisions catalog: [../docs/decisions/README.md](../docs/decisions/README.md)
+- Contributor workspace docs: [../dev/docs/README.md](../dev/docs/README.md)
 
-## Keep in Mind
+## Quick Paths
 
-- Wiki pages stay intentionally short.
-- `docs/` is the source of truth for detailed behavior and contracts.
+- New operator:
+  [Installation](Installation.md) -> [Core](Core.md) -> [Wizard](Wizard.md)
+- Runtime boundaries:
+  [Architecture](ARCHITECTURE.md) -> [Modes and Policy](Modes-and-Policy.md)
+- Gameplay and spatial context:
+  [TUI Z-Layer and TOYBOX](TUI-Z-Layer-and-TOYBOX.md)
+- Contributor tools and `@dev`:
+  [Dev Tools](Dev-Tools.md)
 
-## Contributing
+## Rules
 
-- [Contributing Guide](../CONTRIBUTING.md)
-- [Credits](credits.md)
+- Wiki pages stay short.
+- Root `docs/` is the source of truth for active runtime/operator documentation.
+- `dev/docs/` is the source of truth for contributor-facing `@dev` material.
+- Superseded docs belong in `docs/.compost/`, not beside active v1.5 pages.

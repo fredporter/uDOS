@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatic OS detection and hardware profiling
   - Environment configuration (.env) with auto-generated security tokens
   - Vault structure initialization and Obsidian integration checks
-  - Optional component installation (micro editor, Ollama with model selection)
+  - Optional component installation (micro editor, local model runtime with model selection)
   - Separate installation modes: full, core-only, wizard-only, update
   - Interactive model selection with download progress
   - Health check and installation summary

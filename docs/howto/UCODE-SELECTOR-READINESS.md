@@ -62,7 +62,7 @@ Current reference command path:
 
 ```bash
 FILE SELECT --workspace @sandbox
-FILE SELECT --files readme.md,docs/roadmap.md
+FILE SELECT --files readme.md,docs/STATUS.md
 ```
 
 Note:

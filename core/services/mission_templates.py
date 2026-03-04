@@ -2,7 +2,7 @@
 Mission & Task Templates for uDOS Workflow System
 
 Templates for quickly creating new projects with pre-configured mission definitions,
-task structures, and seed data suitable for AI ingestion and import handling.
+task structures, and seed data suitable for OK ingestion and import handling.
 """
 
 import json

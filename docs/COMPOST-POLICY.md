@@ -36,9 +36,12 @@ uDOS uses a single global runtime archive at `/.compost`.
 - Runtime commands and maintenance handlers should write to `/.compost`.
 - `/.compost` is local-only and ignored by git.
 - `docs/.archive/` is local-only, untracked, and should be treated as migration input only.
+- Git-tracked documentation archive material belongs in `docs/.compost/`.
+- Root `docs/` and `wiki/` should keep only active v1.5-facing pages.
 
 ## Operator Notes
 
 - Do not hard-delete first. Prefer moving into `/.compost/<date>/trash` or `/.compost/<date>/archive`.
 - Keep `/.compost` out of release artifacts and source commits.
 - If old folders reappear (`.archive`, `.backup`, `.tmp`, `.temp`), run `COMPOST` and remove the roots.
+- If an old doc is retained for history, move it to `docs/.compost/` and remove it from active indexes/sidebar navigation.

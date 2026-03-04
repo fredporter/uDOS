@@ -26,6 +26,7 @@ from urllib.parse import urlparse
 import uuid
 
 from core.services.logging_api import get_logger, get_repo_root
+from core.services.paths import get_memory_root, get_vault_md_root, get_vault_root
 from core.services.rate_limit_helpers import guard_wizard_endpoint
 from core.services.stdlib_http import HTTPError, http_post
 from core.services.unified_config_loader import get_process_env
@@ -165,10 +166,16 @@ class ConfigSyncManager:
                 env_dict['UDOS_ROOT'] = str(self.repo_root.resolve())
                 logger.info(f"[LOCAL] Set UDOS_ROOT={env_dict['UDOS_ROOT']}")
 
-            # Ensure VAULT_ROOT exists (default to repo_root/memory/vault)
+            if 'UDOS_MEMORY_ROOT' not in env_dict:
+                env_dict['UDOS_MEMORY_ROOT'] = str(get_memory_root())
+                logger.info(f"[LOCAL] Set UDOS_MEMORY_ROOT={env_dict['UDOS_MEMORY_ROOT']}")
+
             if 'VAULT_ROOT' not in env_dict:
-                env_dict['VAULT_ROOT'] = str((self.repo_root / "memory" / "vault").resolve())
+                env_dict['VAULT_ROOT'] = str(get_vault_root())
                 logger.info(f"[LOCAL] Set VAULT_ROOT={env_dict['VAULT_ROOT']}")
+            if 'VAULT_MD_ROOT' not in env_dict:
+                env_dict['VAULT_MD_ROOT'] = str(get_vault_md_root())
+                logger.info(f"[LOCAL] Set VAULT_MD_ROOT={env_dict['VAULT_MD_ROOT']}")
 
             # Write .env file
             self._write_env_file(env_dict)
@@ -198,9 +205,16 @@ class ConfigSyncManager:
                 env_dict['UDOS_ROOT'] = str(self.repo_root.resolve())
                 logger.info(f"[LOCAL] Set UDOS_ROOT={env_dict['UDOS_ROOT']}")
 
+            if 'UDOS_MEMORY_ROOT' not in env_dict:
+                env_dict['UDOS_MEMORY_ROOT'] = str(get_memory_root())
+                logger.info(f"[LOCAL] Set UDOS_MEMORY_ROOT={env_dict['UDOS_MEMORY_ROOT']}")
+
             if 'VAULT_ROOT' not in env_dict:
-                env_dict['VAULT_ROOT'] = str((self.repo_root / "memory" / "vault").resolve())
+                env_dict['VAULT_ROOT'] = str(get_vault_root())
                 logger.info(f"[LOCAL] Set VAULT_ROOT={env_dict['VAULT_ROOT']}")
+            if 'VAULT_MD_ROOT' not in env_dict:
+                env_dict['VAULT_MD_ROOT'] = str(get_vault_md_root())
+                logger.info(f"[LOCAL] Set VAULT_MD_ROOT={env_dict['VAULT_MD_ROOT']}")
 
             self._write_env_file(env_dict)
             return True, "✅ Updated .env"

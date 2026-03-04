@@ -8,6 +8,7 @@ from typing import Callable, Awaitable, Optional
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
+from core.services.path_service import get_repo_root
 from core.services.permission_handler import Permission
 from core.services.user_service import get_user_manager
 from wizard.services.dev_extension_service import get_dev_extension_service
@@ -40,8 +41,9 @@ class TestRunRequest(BaseModel):
 
 def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
     router = APIRouter(prefix="/api/dev", tags=["dev-mode"])
-    dev_mode = get_dev_mode_service()
-    dev_extension = get_dev_extension_service()
+    repo_root = get_repo_root()
+    dev_mode = get_dev_mode_service(repo_root=repo_root)
+    dev_extension = get_dev_extension_service(repo_root=repo_root)
     logger = get_logger("wizard", category="dev-mode", name="dev")
 
     def _ensure_admin_dev_access():
@@ -83,6 +85,47 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
         status = dev_mode.get_status()
         status["extension"] = dev_extension.status()
         return status
+
+    @router.get("/ops")
+    async def get_ops_status(request: Request):
+        if auth_guard:
+            await auth_guard(request)
+        _ensure_admin_dev_access()
+        _ensure_dev_submodule()
+        logger.debug("Dev ops status requested")
+        return dev_mode.get_ops_summary()
+
+    @router.get("/ops/files")
+    async def list_ops_files(request: Request, area: str = "ops", path: str = ""):
+        if auth_guard:
+            await auth_guard(request)
+        _ensure_admin_dev_access()
+        _ensure_dev_submodule()
+        result = dev_mode.list_browser_entries(area=area, rel_path=path)
+        if result.get("status") == "error":
+            detail = result.get("message", "Unable to list files")
+            if "Unknown area" in detail or "not allowed" in detail:
+                raise HTTPException(status_code=400, detail=detail)
+            if "not found" in detail:
+                raise HTTPException(status_code=404, detail=detail)
+            raise HTTPException(status_code=400, detail=detail)
+        return result
+
+    @router.get("/ops/read")
+    async def read_ops_file(request: Request, area: str = "ops", path: str = ""):
+        if auth_guard:
+            await auth_guard(request)
+        _ensure_admin_dev_access()
+        _ensure_dev_submodule()
+        result = dev_mode.read_browser_file(area=area, rel_path=path)
+        if result.get("status") == "error":
+            detail = result.get("message", "Unable to read file")
+            if "Unknown area" in detail or "not allowed" in detail:
+                raise HTTPException(status_code=400, detail=detail)
+            if "not found" in detail:
+                raise HTTPException(status_code=404, detail=detail)
+            raise HTTPException(status_code=400, detail=detail)
+        return result
 
     @router.post("/activate")
     async def activate_dev_mode(request: Request):

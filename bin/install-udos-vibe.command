@@ -5,9 +5,9 @@
 # Get the directory where this script lives
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Run the cross-platform installer
+# Run the canonical launcher install flow
 export UDOS_AUTO_LAUNCH_VIBE=1
-"$SCRIPT_DIR/install-udos-vibe.sh" "$@"
+"$SCRIPT_DIR/udos" install "$@"
 status=$?
 
 echo

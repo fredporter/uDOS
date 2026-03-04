@@ -5,7 +5,7 @@
 
 ## 1) Goals
 - Standardize **OK modes** for consistent behavior across TUI, App, and extensions.
-- Keep **offline-first** routing as the default (Ollama local models).
+- Keep **offline-first** routing as the default (local GPT4All models).
 - Provide Core access via the Wizard completion endpoint with strict policy controls.
 - Enforce Ghost Mode policy in `docs/specs/GHOST-MODE-POLICY.md`.
 
@@ -27,7 +27,7 @@
 - **Behavior:** concise, precise, low randomness
 - **Preset:** `temperature ~0.2`
 
-## 3) Local Model Defaults (Ollama)
+## 3) Local Model Defaults (GPT4All)
 
 Default local set for OK operation:
 - **Chat / summaries:** `mistral-small`
@@ -39,7 +39,7 @@ Optional local alternatives:
 - **Tiny / minimal:** `gemma2:2b`
 - **Coding:** `starcoder2:3b` or `qwen2.5-coder:7b` (if available)
 
-Defaults map to `library/ollama/container.json` (or equivalent) and are enforced as **local-first**.
+Defaults map to the configured local runtime profile and are enforced as **local-first**.
 
 ## 4) Core Access (Wizard API)
 
@@ -66,7 +66,7 @@ Notes:
 ## 5) Offline-First Policy (Required)
 
 Routing priority:
-1. **Local Ollama** (default, always try first)
+1. **Local GPT4All** (default, always try first)
 2. **Cloud burst** (optional, only when explicitly allowed by policy)
 
 Hard rules:

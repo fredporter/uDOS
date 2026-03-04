@@ -83,7 +83,7 @@ For v1.5, this decision governs:
 
 ## Related Documents
 
-- `docs/roadmap.md`
+- `docs/STATUS.md`
 - `docs/decisions/VAULT-MEMORY-CONTRACT.md`
 - `docs/decisions/WIZARD-SERVICE-SPLIT-MAP.md`
 - `docs/specs/RUNTIME-INTERFACE-SPEC.md`

@@ -395,7 +395,7 @@
 
   const wizardToggleFields = [
     {
-      key: "ok_gateway_enabled",
+      key: "logic_assist_enabled",
       label: "Logic Assist Gateway",
       description: "Enable Wizard-managed logic-assist routing and provider access",
     },

@@ -103,7 +103,7 @@ def main() -> int:
     lines = COMPOSE_FILE.read_text(encoding="utf-8").splitlines()
     services = _parse_services(lines)
 
-    required_services = {"wizard", "ollama", "mission-scheduler", "home-assistant", "groovebox"}
+    required_services = {"wizard", "mission-scheduler", "home-assistant", "groovebox"}
     missing_services = sorted(list(required_services - set(services.keys())))
 
     expected_profiles = {

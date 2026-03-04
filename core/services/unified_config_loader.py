@@ -7,7 +7,7 @@ Loads configuration in priority order:
   1. .env file (environment variables) — highest priority
   2. config.toml — application settings
   3. wizard.json — wizard server config
-  4. ok_modes.json — AI provider config
+  4. ok_modes.json — OK provider config
   5. provider_setup_flags.json — provider state
   6. Defaults — built-in defaults
 
@@ -43,9 +43,11 @@ import json
 import logging
 import os
 from pathlib import Path
+import re
 from typing import Any, Literal
 
 logger = logging.getLogger(__name__)
+_ENV_REF_RE = re.compile(r"\$\{([^}]+)\}")
 
 
 @dataclass
@@ -66,7 +68,7 @@ class UnifiedConfigLoader:
       - .env → environment variables (highest priority)
       - core/config/config.toml → application settings (TOML)
       - wizard/config/wizard.json → wizard server config
-      - core/config/ok_modes.json → AI provider config
+      - core/config/ok_modes.json → OK provider config
       - wizard/config/provider_setup_flags.json → provider state
       - Built-in defaults
     """
@@ -74,7 +76,9 @@ class UnifiedConfigLoader:
     # Default configuration values
     DEFAULTS = {
         "UDOS_ROOT": None,  # Must be set at runtime
+        "UDOS_MEMORY_ROOT": None,
         "VAULT_ROOT": None,
+        "VAULT_MD_ROOT": None,
         "WIZARD_BASE_URL": "http://localhost:8765",
         "WIZARD_PORT": "8765",
         "USER_NAME": "ghost",
@@ -86,7 +90,6 @@ class UnifiedConfigLoader:
         "UDOS_TUI_INVERT_HEADERS": "0",
         "UDOS_NO_ANSI": "0",
         "NO_COLOR": "0",
-        "OLLAMA_HOST": "http://127.0.0.1:11434",
         "VIBE_PRIMARY_PROVIDER": "local",
         "VIBE_SECONDARY_PROVIDER": "cloud",
     }
@@ -204,11 +207,32 @@ class UnifiedConfigLoader:
         if not value:
             return default
 
-        # Expand environment variables
-        expanded = os.path.expandvars(str(value))
+        expanded = self._expand_config_value(str(value))
         expanded = os.path.expanduser(expanded)
 
         return Path(expanded)
+
+    def _expand_config_value(self, raw: str) -> str:
+        """Expand ${KEY} placeholders using process env, loaded config, and defaults."""
+        expanded = str(raw)
+        for _ in range(5):
+            updated = _ENV_REF_RE.sub(self._replace_config_reference, expanded)
+            if updated == expanded:
+                break
+            expanded = updated
+        return expanded
+
+    def _replace_config_reference(self, match: re.Match[str]) -> str:
+        key = match.group(1)
+        if key in os.environ and os.environ[key]:
+            return os.environ[key]
+        if key in self._all_values:
+            value = self._all_values[key].value
+            return "" if value is None else str(value)
+        if key in self.DEFAULTS:
+            value = self.DEFAULTS[key]
+            return "" if value is None else str(value)
+        return match.group(0)
 
     def get_dynamic(self, key_name: str | None, default: str = "") -> str:
         """Get configuration value using a dynamic key name.

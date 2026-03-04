@@ -20,7 +20,7 @@ def dispatch_ok_command(
     logger: Any,
     ok_history: List[Dict[str, Any]],
     ok_model: Optional[str],
-    load_ai_modes_config: Callable[[], Dict[str, Any]],
+    load_ok_modes_config: Callable[[], Dict[str, Any]],
     write_ok_modes_config: Callable[[Dict[str, Any]], None],
     ok_auto_fallback_enabled: Callable[[], bool],
     get_ok_default_model: Callable[[], str],
@@ -62,7 +62,7 @@ def dispatch_ok_command(
 
     if ok_mode == "FALLBACK":
         toggle = ok_tokens[1].lower() if len(ok_tokens) > 1 else ""
-        config = load_ai_modes_config()
+        config = load_ok_modes_config()
         modes = config.setdefault("modes", {})
         ofvibe = modes.setdefault("logic_assist", {})
         if toggle in {"on", "true", "yes"}:

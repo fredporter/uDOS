@@ -72,6 +72,5 @@ Dispatch should keep:
 
 This file is the active short-form dispatch contract.
 
-The older versioned spec path remains only as a redirect stub:
-- `docs/specs/UCODE-COMMAND-DISPATCH-v1.4.4.md`
-
+The older versioned dispatch brief has been retired into:
+- `docs/.compost/historic/2026-03-04-retired-plan-and-spec-relics/UCODE-COMMAND-DISPATCH-v1.4.4.md`

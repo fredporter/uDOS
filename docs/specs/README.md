@@ -45,7 +45,7 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 ## Release Context
 
 - `docs/releases/v1.4.3-release-notes.md` — consolidated v1.4+ release notes
-- `docs/roadmap.md` — canonical roadmap
+- `docs/STATUS.md` — public status page
 - `docs/specs/V1-5-SHAKEDOWN-CHECKLIST.md` — consolidated v1.5 spec-to-runtime shakedown tracker
 - `docs/decisions/v1-5-workflow.md` — workflow architecture decision
 - `docs/decisions/v1-5-offline-assist.md` — offline assist architecture decision
@@ -55,5 +55,5 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 
 - Add/maintain stable platform contracts in **Main Specs**.
 - Keep round-by-round or migration-specific documents in **Detailed / Historical Execution Specs**.
-- Keep release audit state in `docs/specs/V1-5-SHAKEDOWN-CHECKLIST.md` rather than duplicating checklist fragments across roadmap and devlog files.
+- Keep release audit state in `docs/specs/V1-5-SHAKEDOWN-CHECKLIST.md` rather than duplicating checklist fragments across public status and local devlog files.
 - When in doubt, update this index and `docs/README.md` together.

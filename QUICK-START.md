@@ -1,223 +1,31 @@
-# Quick Start: uDOS v1.5 Rebaseline
+# Quick Start
 
-`ucode` is now the standard runtime entry point. Use `vibe` only when Dev Mode is explicitly enabled.
+Use this page as the thin root entry only. The detailed operator guides live under `docs/`.
 
-## 📦 Installation
+## Install
 
-### First Time Setup
-
-**macOS (easiest):**
-1. Double-click `bin/install-udos-vibe.command` in Finder
-2. Follow the prompts
-
-**macOS/Linux (terminal):**
 ```bash
-cd /path/to/uDOS-vibe
+git clone https://github.com/fredporter/uDOS.git
+cd uDOS
 ./bin/install-udos-vibe.sh
 ```
 
-The installer will:
-- ✓ Detect your OS and hardware
-- ✓ Install uv (Python package manager)
-- ✓ Set up your `.env` configuration
-- ✓ Install Dev Mode tooling only when the `dev` profile is selected
-- ✓ Optionally install micro editor, Obsidian, and Ollama
-- ✓ Create vault structure and symlinks
+Manual and profile-specific setup lives in [docs/INSTALLATION.md](docs/INSTALLATION.md).
 
-**Installation options:**
+## Bootstrap
+
 ```bash
-./bin/install-udos-vibe.sh           # Full install (core + wizard)
-./bin/install-udos-vibe.sh --core    # Core only (minimal)
-./bin/install-udos-vibe.sh --wizard  # Add wizard to existing
-./bin/install-udos-vibe.sh --update  # Update existing install
+ucode SETUP
+ucode STATUS
+ucode UCODE PROFILE LIST
+ucode UCODE OPERATOR STATUS
 ```
 
-📚 **Detailed installation guide**: [docs/INSTALLATION.md](docs/INSTALLATION.md)
+## Next Docs
 
----
-
-## 🚀 Start ucode
-
-After installation:
-```bash
-cd /path/to/uDOS
-./bin/ucode
-```
-
-First time? Run the setup story:
-```
-SETUP
-```
-
-Then inspect the supported release lanes:
-```
-UCODE PROFILE LIST
-UCODE OPERATOR STATUS
-```
-
----
-
-## 🎯 What You Can Do Right Now
-
-### 1️⃣ **Check System Health**
-In Vibe chat, type:
-```
-Check the system health
-```
-
-Or use the skills:
-```
-/ucode-help health
-```
-
-### 2️⃣ **Get Help with Commands**
-```
-What commands are available?
-```
-
-Or use the help skill directly:
-```
-/ucode-help
-```
-
-### 3️⃣ **Set Up Your Environment**
-```
-/ucode-setup
-```
-
-This will ask you for:
-- Username
-- Timezone
-- Location
-- And initialize your vault
-
-### 4️⃣ **Run a Script**
-```
-Run the backup script
-```
-
-Or ask:
-```
-Execute my custom script
-```
-
-### 5️⃣ **Read Files from Vault**
-```
-Read the mission notes
-```
-
-Or:
-```
-Show me the content from vault
-```
-
-### 6️⃣ **See Your Status**
-```
-What's the current system status?
-```
-
----
-
-## 📚 Available Slash Commands (Skills)
-
-Use these like `/help` in chat:
-
-```
-/ucode-help        → Get documentation
-/ucode-setup       → Run interactive setup
-/ucode-story       → Read narrative content
-/ucode-dev         → Developer tools & info
-/ucode-logs        → View system logs
-```
-
----
-
-## 🔧 Available Tools (42 Total)
-
-### Core System Commands
-- **health** — `Check the system health`
-- **verify** — `Verify everything is installed correctly`
-- **repair** — `Fix any broken configurations`
-- **setup** — `Run the setup wizard`
-- **help** — `Get documentation`
-- **config** — `Manage configuration`
-
-### File & Data Commands
-- **read** — `Read a file` / `Show me the vault content`
-- **save** — `Save to vault`
-- **load** — `Load from vault`
-- **find** — `Search for something`
-- **import** — `Import data`
-- **export** — `Export data`
-
-### Script & Automation Commands
-- **run** — `Execute a script`
-- **script** — `Manage scripts`
-- **scheduler** — `Schedule tasks`
-- **watch** — `Monitor a file or process`
-
-### Creative & Expression Commands
-- **draw** — `Create ASCII art`
-- **story** — `Read a story`
-- **talk** — `Chat with a character`
-- **play** — `Play a game`
-- **music** — `Play music`
-- **sonic** — `Audio / USB boot`
-
-### Navigation Commands
-- **map** — `Show spatial map`
-- **goto** — `Navigate to location`
-- **anchor** — `Bookmark a location`
-
-### User & Identity Commands
-- **user** — `Manage user profile`
-- **uid** — `Manage user/device ID`
-- **token** — `Generate auth tokens`
-
-### System Management
-- **binder** — `Manage knowledge binders`
-- **destroy** — `Clean up/delete things`
-- **undo** — `Undo recent changes`
-- **migrate** — `Run data migrations`
-- **notify** — `Send notifications`
-- **bench** — `Performance benchmarks`
-
----
-
-## 🎮 Natural Language Examples
-
-### Just ask in chat:
-```
-"What is the health of my system?"
-→ Uses ucode_health tool
-
-"Show me the available commands with examples"
-→ Uses ucode_help tool
-
-"Run my backup script with full backup"
-→ Uses ucode_run tool with arguments
-
-"What's in my vault?"
-→ Uses ucode_read and ucode_binder tools
-
-"I need to initialize everything"
-→ Uses ucode_setup tool
-
-"Create a scheduled task for every day"
-→ Uses ucode_scheduler tool
-
-"What happened recently?"
-→ Uses ucode_logs tool
-
-"Help me understand uDOS"
-→ Uses ucode_story and ucode_help tools
-```
-
----
-
-## 💡 Pro Tips
-
-1. **Use natural language** — You don't need to memorize exact command names
+- Public docs: [docs/README.md](docs/README.md)
+- Installation: [docs/INSTALLATION.md](docs/INSTALLATION.md)
+- Contributor workspace: [dev/docs/README.md](dev/docs/README.md)
 2. **Use skills for guided workflows** — `/ucode-setup`, `/ucode-help`
 3. **Use prompts for quick facts** — "Check my health", "What tools are available?"
 4. **Combine with context** — Vibe will use multiple tools intelligently

@@ -9,7 +9,7 @@ from __future__ import annotations
 import requests
 
 from core.services.unified_config_loader import get_config
-from wizard.services.ai_context_store import write_context_bundle
+from wizard.services.ok_context_store import write_ok_context_bundle
 from wizard.services.logging_api import get_logger
 
 logger = get_logger("wizard.mistral-api")
@@ -27,7 +27,7 @@ class MistralAPI:
         if not self.api_key:
             raise RuntimeError("MISTRAL_API_KEY not configured")
 
-        context_path = write_context_bundle()
+        context_path = write_ok_context_bundle()
         context = ""
         try:
             context = context_path.read_text()

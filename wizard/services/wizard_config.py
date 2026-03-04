@@ -22,14 +22,14 @@ class WizardConfig:
     requests_per_minute: int = 60
     requests_per_hour: int = 1000
 
-    ai_budget_daily: float = 10.0
-    ai_budget_monthly: float = 100.0
+    ok_budget_daily: float = 10.0
+    ok_budget_monthly: float = 100.0
 
     plugin_repo_enabled: bool = True
     plugin_auto_update: bool = False
 
     web_proxy_enabled: bool = True
-    ok_gateway_enabled: bool = False
+    logic_assist_enabled: bool = False
 
     github_webhook_secret: Optional[str] = None
     github_webhook_secret_key_id: Optional[str] = None
@@ -56,8 +56,6 @@ class WizardConfig:
                 data = json.loads(path.read_text(encoding="utf-8"))
                 if not isinstance(data, dict):
                     return cls()
-                if "ok_gateway_enabled" not in data and "ai_gateway_enabled" in data:
-                    data["ok_gateway_enabled"] = data.get("ai_gateway_enabled")
                 return cls.from_dict(data)
             except (json.JSONDecodeError, OSError, ValueError):
                 return cls()
@@ -89,8 +87,6 @@ def load_wizard_config_data(
         data = json.loads(config_path.read_text(encoding="utf-8"))
         if not isinstance(data, dict):
             return merged
-        if "ok_gateway_enabled" not in data and "ai_gateway_enabled" in data:
-            data["ok_gateway_enabled"] = data.get("ai_gateway_enabled")
         merged.update(data)
         return merged
     except (json.JSONDecodeError, OSError):

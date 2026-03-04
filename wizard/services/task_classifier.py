@@ -56,7 +56,7 @@ class Privacy(Enum):
     """Privacy levels."""
 
     PRIVATE = "private"  # Never share (credentials, personal data)
-    INTERNAL = "internal"  # OK to share with AI providers (company internal)
+    INTERNAL = "internal"  # OK to share with OK providers (company internal)
     PUBLIC = "public"  # OK to publish
 
 

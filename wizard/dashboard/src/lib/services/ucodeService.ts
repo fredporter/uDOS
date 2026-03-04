@@ -127,7 +127,7 @@ export async function setUCodeUserRole(userId, role) {
 }
 
 /**
- * Fetch provider dashboard (AI provider info)
+ * Fetch provider dashboard (OK provider info)
  */
 export async function fetchProviderDashboard() {
   try {

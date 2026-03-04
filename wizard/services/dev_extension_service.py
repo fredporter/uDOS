@@ -13,6 +13,7 @@ import subprocess
 from pathlib import Path
 from typing import Any, Optional
 
+from core.services.path_service import get_repo_root
 from core.services.permission_handler import Permission
 from core.services.release_profile_service import get_release_profile_service
 from core.services.user_service import get_user_manager
@@ -28,23 +29,33 @@ class DevExtensionService:
     REQUIRED_FILES: tuple[str, ...] = (
         "README.md",
         "AGENTS.md",
-        "DEVLOG.md",
-        "project.json",
-        "tasks.md",
-        "completed.json",
         "extension.json",
+        "ops/README.md",
+        "ops/AGENTS.md",
+        "ops/DEVLOG.md",
+        "ops/project.json",
+        "ops/tasks.md",
+        "ops/tasks.json",
+        "ops/completed.json",
+        "ops/templates/uDOS-dev.code-workspace",
+        "ops/templates/copilot-instructions.md",
         "docs/README.md",
         "docs/DEV-MODE-POLICY.md",
+        "docs/decisions/README.md",
+        "docs/devlog/README.md",
+        "docs/roadmap/ROADMAP.md",
+        "docs/tasks/README.md",
         "docs/specs/DEV-WORKSPACE-SPEC.md",
         "docs/howto/GETTING-STARTED.md",
         "docs/howto/VIBE-Setup-Guide.md",
         "docs/features/GITHUB-INTEGRATION.md",
         "goblin/README.md",
+        "goblin/tests/README.md",
     )
     LOCAL_ONLY_DIRS: tuple[str, ...] = ("files", "relecs", "dev-work", "testing")
 
     def __init__(self, repo_root: Path | None = None) -> None:
-        self.repo_root = repo_root or Path(__file__).resolve().parents[2]
+        self.repo_root = Path(repo_root) if repo_root else get_repo_root()
         self.logger = get_logger("dev-extension-service")
         self.profile_service = get_release_profile_service()
         self.dev_mode_service = get_dev_mode_service()
@@ -100,8 +111,32 @@ class DevExtensionService:
             "missing_files": missing_files,
             "framework_ready": self.dev_root.exists() and not missing_files,
             "local_only_dirs": ignored,
-            "tracked_sync_paths": ["docs", "goblin"],
+            "tracked_sync_paths": [
+                "ops",
+                "docs",
+                "docs/decisions",
+                "docs/devlog",
+                "docs/roadmap",
+                "docs/tasks",
+                "goblin",
+                "goblin/tests",
+            ],
             "remote_framework_only": True,
+            "goblin_layers": {
+                "server": str(self.dev_root / "goblin" / "server"),
+                "seed": str(self.dev_root / "goblin" / "seed"),
+                "scenarios": str(self.dev_root / "goblin" / "scenarios"),
+                "test_vault": str(self.dev_root / "goblin" / "test-vault"),
+                "tests": str(self.dev_root / "goblin" / "tests"),
+            },
+            "ops_paths": {
+                "root": str(self.dev_root / "ops"),
+                "project": str(self.dev_root / "ops" / "project.json"),
+                "tasks": str(self.dev_root / "ops" / "tasks.md"),
+                "tasks_json": str(self.dev_root / "ops" / "tasks.json"),
+                "completed": str(self.dev_root / "ops" / "completed.json"),
+                "devlog": str(self.dev_root / "ops" / "DEVLOG.md"),
+            },
         }
 
     def _read_extension_manifest(self) -> dict[str, Any]:
@@ -292,8 +327,9 @@ class DevExtensionService:
 _dev_extension_service: DevExtensionService | None = None
 
 
-def get_dev_extension_service() -> DevExtensionService:
+def get_dev_extension_service(repo_root: Path | None = None) -> DevExtensionService:
     global _dev_extension_service
-    if _dev_extension_service is None:
-        _dev_extension_service = DevExtensionService()
+    resolved_root = Path(repo_root) if repo_root else get_repo_root()
+    if _dev_extension_service is None or _dev_extension_service.repo_root != resolved_root:
+        _dev_extension_service = DevExtensionService(repo_root=resolved_root)
     return _dev_extension_service

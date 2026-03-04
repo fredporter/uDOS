@@ -53,6 +53,6 @@ For v1.5, this decision governs:
 
 ## Related Documents
 
-- `docs/roadmap.md`
+- `docs/STATUS.md`
 - `docs/decisions/SONIC-DB-SPEC-GPU-PROFILES.md`
 - `docs/decisions/alpine-linux-spec.md`

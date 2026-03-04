@@ -1,145 +1,37 @@
 # Dev Tools
 
-**Version:** v1.4.4+
-**Last Updated:** 2026-02-22
+Updated: 2026-03-04
+Status: contributor lane summary
 
-The **Dev** directory contains development tools, scripts, and testing utilities for uDOS.
+In v1.5, contributor tooling is organized under the `@dev` workspace.
 
----
+## What `@dev` Means
 
-## What's in Dev?
+- mount path: `/dev`
+- tracked payload: `dev/ops/`, `dev/docs/`, and `dev/goblin/`
+- local-only sprawl: `dev/files/`, `dev/relecs/`, `dev/dev-work/`, `dev/testing/`
+- activation path: Wizard Dev Mode controls and `/api/dev/*`
 
-```
-dev/
-  __init__.py
-  README.md
-  bin/              # Utility scripts
-  docs/             # Development documentation
-  examples/         # Code examples
-  scripts/          # Build and test scripts
-  tests/            # Test suites
-  tools/            # Development tools
-```
+## Canonical Contributor Docs
 
-> The exact contents can change across versions. Use the repo tree as the source of truth.
+- [../dev/docs/README.md](../dev/docs/README.md)
+- [../dev/docs/DEV-MODE-POLICY.md](../dev/docs/DEV-MODE-POLICY.md)
+- [../dev/docs/specs/DEV-WORKSPACE-SPEC.md](../dev/docs/specs/DEV-WORKSPACE-SPEC.md)
+- [../dev/docs/features/GITHUB-INTEGRATION.md](../dev/docs/features/GITHUB-INTEGRATION.md)
+- [../dev/docs/howto/GETTING-STARTED.md](../dev/docs/howto/GETTING-STARTED.md)
 
----
+## Repo Split
 
-## Key Tools
+- Root `docs/`:
+  operator/runtime docs only
+- `dev/docs/`:
+  contributor policy, workflow, Goblin, and GitHub lane docs
+- `wiki/`:
+  short orientation pages only
 
-### Build Tools
+## Related Files
 
-Development helpers live in `dev/` and module directories. Use repo scripts as available.
-
-### Testing
-
-Test suites are organized by module:
-
-```bash
-# Run specific tests
-python -m pytest dev/tests/
-
-# Run a shakedown script (if present)
-python uDOS.py
-```
-
-### Examples
-
-Sample code demonstrating uDOS features:
-
-```
-dev/examples/
-  basic-commands/
-  document-execution/
-  extension-samples/
-```
-
----
-
-## Development Workflow
-
-### 1. Setup Development Environment
-
-```bash
-# Install uv if not present
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Install dependencies
-uv sync
-
-# Or install as editable
-uv pip install -e .
-```
-
-### 2. Make Changes
-
-Follow the [AGENTS.md](../AGENTS.md) guidelines for Python code and documentation standards.
-
-### 3. Test Changes
-
-```bash
-# Run tests with uv
-uv run pytest
-
-# Manual testing via Vibe CLI
-vibe
-# User: "/bash ucode HELP"
-
-# Or direct shell commands
-ucode HELP
-ucode STATUS
-```
-
-### 4. Document Changes
-
-Update relevant documentation in `docs/` and `wiki/`. Follow documentation guidelines in [AGENTS.md](../AGENTS.md).
-
----
-
-## Development Standards
-
-### Code Organization
-
-- **vibe/:** Mistral Vibe CLI (upstream submodule)
-- **core/:** Command infrastructure (stdlib Python only)
-- **wizard/:** MCP server + web services (networking, AI routing)
-- **sonic/:** Bootable USB tooling
-- **dev/:** Development tools and tests
-
-### Logging
-
-Always use the centralized logger:
-
-```python
-from core.services.logging_manager import get_logger
-
-logger = get_logger(__name__)
-```
-
-### Version Management
-
-Never hardcode versions:
-
-```bash
-python -m core.version
-```
-
----
-
-## Available Tasks
-
-VS Code tasks are configured for common operations:
-
-- **Run uDOS Interactive** — Launch uDOS
-- **Run Shakedown Test** — Full system test
-- **Check Virtual Environment** — Verify setup
-
-See `.vscode/tasks.json` for all available tasks.
-
----
-
-## Next Steps
-
-- **[Style Guide](../dev/docs/Style-Guide.md)** — Coding standards
-- **[Architecture](Architecture.md)** — System design
-- **[Contributors](Contributors.md)** — How to contribute
+- Workspace file:
+  [../dev/ops/templates/uDOS-dev.code-workspace](../dev/ops/templates/uDOS-dev.code-workspace)
+- Contributing guide:
+  [../CONTRIBUTING.md](../CONTRIBUTING.md)

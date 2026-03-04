@@ -42,7 +42,7 @@ PUBLIC_PROVIDER_DEFINITIONS: Dict[str, Dict[str, Any]] = {
     },
     "anthropic": {
         "name": "Anthropic",
-        "description": "Claude AI models",
+        "description": "Claude models",
         "type": "api_key",
         "automation": "manual",
         "cli_required": False,
@@ -51,7 +51,7 @@ PUBLIC_PROVIDER_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "config_key": "ANTHROPIC_API_KEY",
     },
     "mistral": {
-        "name": "Mistral AI",
+        "name": "Mistral",
         "description": "Mistral models via API",
         "type": "api_key",
         "automation": "manual",
@@ -82,7 +82,7 @@ PUBLIC_PROVIDER_DEFINITIONS: Dict[str, Dict[str, Any]] = {
     },
     "gemini": {
         "name": "Google Gemini",
-        "description": "Google's AI models",
+        "description": "Google models",
         "type": "api_key",
         "automation": "manual",
         "cli_required": False,
@@ -132,11 +132,11 @@ OAUTH_PROVIDER_DEFINITIONS: Dict[str, Dict[str, Any]] = {
 WIZARD_SECRET_SYNC_MAP: Dict[str, Dict[str, Any]] = {
     "github_token": {"providers": ["github"], "toggles": ["github_push_enabled"]},
     "github_webhook_secret": {"providers": ["github"], "toggles": ["github_push_enabled"]},
-    "mistral_api_key": {"providers": ["mistral"], "toggles": ["ok_gateway_enabled"]},
-    "openrouter_api_key": {"providers": ["openrouter"], "toggles": ["ok_gateway_enabled"]},
-    "openai_api_key": {"providers": ["openai"], "toggles": ["ok_gateway_enabled"]},
-    "anthropic_api_key": {"providers": ["anthropic"], "toggles": ["ok_gateway_enabled"]},
-    "gemini_api_key": {"providers": ["gemini"], "toggles": ["ok_gateway_enabled"]},
+    "mistral_api_key": {"providers": ["mistral"], "toggles": ["logic_assist_enabled"]},
+    "openrouter_api_key": {"providers": ["openrouter"], "toggles": ["logic_assist_enabled"]},
+    "openai_api_key": {"providers": ["openai"], "toggles": ["logic_assist_enabled"]},
+    "anthropic_api_key": {"providers": ["anthropic"], "toggles": ["logic_assist_enabled"]},
+    "gemini_api_key": {"providers": ["gemini"], "toggles": ["logic_assist_enabled"]},
     "nounproject_api_key": {"providers": ["nounproject"], "toggles": []},
     "nounproject_api_secret": {"providers": ["nounproject"], "toggles": []},
 }
@@ -161,7 +161,7 @@ WIZARD_REQUIRED_VARIABLES: Dict[str, Dict[str, Any]] = {
     },
     "mistral_api_key": {
         "name": "Mistral API Key (Optional)",
-        "description": "API key for cloud AI features via Mistral",
+        "description": "API key for cloud OK features via Mistral",
         "env_var": "MISTRAL_API_KEY",
         "required": False,
         "documentation": "https://docs.mistral.ai/",

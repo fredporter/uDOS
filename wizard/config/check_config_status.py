@@ -19,7 +19,6 @@ REQUIRED_KEYS: Dict[str, List[Tuple[str, ...]]] = {
         ("GEMINI_API_KEY",),
         ("OPENAI_API_KEY",),
         ("MISTRAL_API_KEY",),
-        ("OLLAMA_HOST",),
     ],
     "oauth_providers.json": [
         ("google", "client_id"),

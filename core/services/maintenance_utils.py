@@ -96,12 +96,9 @@ MARKDOWN_LIBRARY_SUFFIXES = {
 DEV_LOCAL_WORK_DIRS = {"files", "relecs", "dev-work", "testing"}
 DEV_REQUIRED_ROOT_NAMES = {
     "AGENTS.md",
-    "DEVLOG.md",
-    "project.json",
-    "tasks.md",
-    "completed.json",
     "extension.json",
     "README.md",
+    "ops",
     "docs",
     "files",
     "relecs",

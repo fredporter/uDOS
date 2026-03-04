@@ -84,7 +84,7 @@ def create_provider_routes(auth_guard=None):
 
         if config.get("github_push_enabled"):
             enabled.add("github")
-        if config.get("ok_gateway_enabled"):
+        if config.get("logic_assist_enabled"):
             enabled.update([
                 "openai",
                 "anthropic",
@@ -116,11 +116,9 @@ def create_provider_routes(auth_guard=None):
 
     def check_provider_status(provider_id: str) -> dict[str, object]:
         """Check if a provider is configured and working."""
-        from core.services.ai_provider_handler import get_ai_provider_handler
+        logic_status = get_logic_assist_service(get_repo_root()).get_status()
 
-        # Use the v1.5 logic-assist runtime for GPT4All local status.
         if provider_id == "gpt4all":
-            logic_status = get_logic_assist_service(get_repo_root()).get_status()
             local_status = logic_status["local"]
             return {
                 "provider_id": "gpt4all",
@@ -137,17 +135,27 @@ def create_provider_routes(auth_guard=None):
             }
 
         if provider_id == "mistral":
-            handler = get_ai_provider_handler()
-            ai_status = handler.check_cloud_provider()
+            network_status = logic_status["network"]
+            available = set(network_status.get("available_providers") or [])
+            unavailable = set(network_status.get("unavailable_providers") or [])
+            is_configured = "mistral" in available or "mistral" in unavailable
+            is_available = "mistral" in available
+            issue = None
+            if not is_available:
+                issue = (
+                    network_status.get("issue")
+                    if not network_status.get("ready")
+                    else "provider API key not configured"
+                )
             return {
                 "provider_id": "mistral",
                 "name": "Mistral",
-                "configured": ai_status.is_configured,
-                "available": ai_status.is_available,
+                "configured": is_configured,
+                "available": is_available,
                 "cli_installed": None,
                 "needs_restart": False,
                 "enabled": "mistral" in _get_enabled_providers(),
-                "issue": ai_status.issue,
+                "issue": issue,
             }
 
         # Fall back to original check_provider_status logic for other providers

@@ -68,7 +68,7 @@ For v1.5, this decision governs:
 
 ## Related Documents
 
-- `docs/roadmap.md`
+- `docs/STATUS.md`
 - `docs/decisions/UDOS-ALPINE-THIN-GUI-RUNTIME-SPEC.md`
 - `docs/decisions/uHOME-spec.md`
 - `docs/specs/UHOME-v1.5.md`

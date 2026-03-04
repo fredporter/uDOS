@@ -53,7 +53,7 @@ def default_policy() -> TierPolicy:
     return TierPolicy(
         providers={
             "tier1_local": (
-                ProviderConfig(provider_id="ollama:local", tier="tier1_local", supports=["text"]),
+                ProviderConfig(provider_id="gpt4all:local", tier="tier1_local", supports=["text"]),
             ),
             "tier2_cloud": (
                 ProviderConfig(provider_id="ok-provider:standard", tier="tier2_cloud", supports=["text"]),

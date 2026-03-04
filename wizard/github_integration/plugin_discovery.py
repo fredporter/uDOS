@@ -66,7 +66,7 @@ class PluginDiscovery:
 
     WIZARD_PATHS = {
         "library/wizard": {
-            "ollama": ("ollama", "Local LLM runtime"),
+            "gpt4all": ("gpt4all", "Local logic runtime"),
             "mistral-vibe": ("mistral-vibe", "Offline AI interface"),
             "gemini-cli": ("gemini-cli", "Google AI CLI"),
             "nethack": ("nethack", "Roguelike game"),

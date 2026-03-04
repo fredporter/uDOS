@@ -41,8 +41,8 @@ def create_setup_wizard_routes(
                 },
                 {
                     "step": 3,
-                    "name": "AI Features",
-                    "description": "Set up AI/Mistral features (optional)",
+                    "name": "OK Features",
+                    "description": "Set up OK/Mistral features (optional)",
                 },
                 {
                     "step": 4,

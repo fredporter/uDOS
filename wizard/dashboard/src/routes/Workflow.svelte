@@ -32,9 +32,10 @@
 
   async function loadProjects() {
     try {
-      const res = await apiFetch("/api/workflow/projects");
+      const res = await apiFetch("/api/workflows/projects");
       if (res.ok) {
-        projects = await res.json();
+        const data = await res.json();
+        projects = data.projects || [];
       }
     } catch (err) {
       console.error("Failed to load projects:", err);
@@ -44,11 +45,12 @@
   async function loadTasks(projectId = null) {
     try {
       const url = projectId
-        ? `/api/workflow/tasks?project_id=${projectId}`
-        : "/api/workflow/tasks";
+        ? `/api/workflows/tasks?project_id=${projectId}`
+        : "/api/workflows/tasks";
       const res = await apiFetch(url);
       if (res.ok) {
-        tasks = await res.json();
+        const data = await res.json();
+        tasks = data.tasks || [];
       }
       loading = false;
     } catch (err) {
@@ -59,7 +61,7 @@
 
   async function createProject() {
     try {
-      const res = await apiFetch("/api/workflow/projects", {
+      const res = await apiFetch("/api/workflows/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newProject),
@@ -75,10 +77,13 @@
 
   async function createTask() {
     try {
-      const res = await apiFetch("/api/workflow/tasks", {
+      const res = await apiFetch("/api/workflows/tasks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newTask),
+        body: JSON.stringify({
+          ...newTask,
+          project_id: selectedProject,
+        }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       showNewTask = false;
@@ -91,7 +96,7 @@
 
   async function updateTaskStatus(taskId, status) {
     try {
-      const res = await apiFetch(`/api/workflow/tasks/${taskId}/status`, {
+      const res = await apiFetch(`/api/workflows/tasks/${taskId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),

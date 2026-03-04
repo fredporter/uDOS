@@ -116,6 +116,6 @@ This is the same v1.5 `DESTROY`/`RESTORE` rule used across the main runtime.
 
 - Publish release checksums and detached signatures alongside artifacts.
 - Include minimum hardware and OS support notes in release notes.
-- Keep release notes aligned with `docs/roadmap.md` Sonic completion state.
+- Keep release notes aligned with `docs/STATUS.md` and local `@dev` release evidence.
 - When targeting `uHOME`, document whether the image exposes thin GUI,
   Steam-console UX, or both.

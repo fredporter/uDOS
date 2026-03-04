@@ -154,7 +154,7 @@
     </div>
     <div class="wizard-status-line cli-meta">
       <span class="commands-line">⎔ Commands: OK, BINDER, FILE (+2 more)</span>
-      <span class="dev-line">↳ DEV: {devState} | Tip: '?' or 'OK' for AI, '/' for commands</span>
+      <span class="dev-line">↳ DEV: {devState} | Tip: '?' or 'OK' for help, '/' for commands</span>
     </div>
   </div>
 </div>

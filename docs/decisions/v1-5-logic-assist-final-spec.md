@@ -7,13 +7,13 @@ Offline-First Architecture with GPT4All Local Assist + Wizard Network API Budget
 Status
 
 uDOS v1.5 is the new official standard.
-It replaces prior local model integrations (including Ollama) and formalizes:
+It replaces prior local model integrations and formalizes:
 	•	✅ GPT4All as the sole local offline assist model layer
 	•	✅ Wizard Network as the only online routing + budget control layer
 	•	✅ Deterministic uLogic engine as execution authority
 	•	✅ Advanced project/mission workflow templates and utilities as core runtime features
 
-Ollama is no longer required or supported in the default stack.
+Legacy local runtime integrations are no longer required or supported in the default stack.
 
 ⸻
 
@@ -80,9 +80,9 @@ Responsibilities:
 
 ⸻
 
-3. Removal of Ollama
+3. Removal of legacy local runtime integrations
 
-uDOS v1.5 officially deprecates Ollama.
+uDOS v1.5 officially removes the previous local runtime integrations.
 
 Reasons:
 	•	GPT4All provides optimized desktop runtime
@@ -91,7 +91,7 @@ Reasons:
 	•	Smaller dependency surface
 	•	Unified local model management
 
-Any references to Ollama in earlier versions are considered legacy.
+Any references to prior local runtime integrations in earlier versions are considered legacy.
 
 ⸻
 
@@ -382,7 +382,7 @@ Any nondeterministic behavior must be:
 
 uDOS v1.5 is compliant if:
 	•	GPT4All is the sole local model
-	•	Ollama removed
+	•	legacy local runtime removed
 	•	Wizard Network is the only API route
 	•	Offline logic fully functional
 	•	Budget tiers enforced
@@ -401,4 +401,3 @@ uDOS v1.5 delivers:
 	•	Auditable system state
 	•	Advanced workflow templating
 	•	Hybrid cognition with strict governance
-

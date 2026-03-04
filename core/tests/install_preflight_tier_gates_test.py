@@ -82,7 +82,7 @@ def test_preflight_auto_selects_tier2_for_supported_host() -> None:
     assert result["auto_tier"] == "tier2"
     assert result["selected_tier"] == "tier2"
     assert result["local_models_allowed"] is True
-    assert result["ollama_recommended_models"] == [
+    assert result["local_recommended_models"] == [
         "devstral-small-2",
         "mistral",
         "llama3.2",
@@ -107,7 +107,7 @@ def test_preflight_auto_selects_tier3_for_gpu_host_with_vram() -> None:
     assert result["auto_tier"] == "tier3"
     assert result["selected_tier"] == "tier3"
     assert result["local_models_allowed"] is True
-    assert result["ollama_recommended_models"] == [
+    assert result["local_recommended_models"] == [
         "mistral",
         "devstral-small-2",
         "llama3.2",

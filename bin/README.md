@@ -77,10 +77,10 @@ This directory contains installation and setup scripts for uDOS-vibe.
    - Installs wizard dependencies
    - Sets up config and secrets
 
-7. **Ollama (optional)**
-   - Guides Ollama installation
-   - Offers model selection
-   - Configures preferences
+7. **Local logic runtime (optional)**
+   - Guides GPT4All setup
+   - Verifies local model availability
+   - Configures local runtime preferences
 
 8. **Health Check**
    - Verifies all components

@@ -26,14 +26,14 @@ from wizard.services.setup_profiles import (
     sync_metrics_from_profile,
     increment_moves,
 )
-from wizard.services.ai_profile_service import (
-    add_knowledge_entry as _add_ai_knowledge_entry,
-    add_quest as _add_ai_quest,
-    add_skill as _add_ai_skill,
-    load_profile as _load_ai_profile,
-    load_template as _load_ai_profile_template,
-    render_system_prompt as _render_ai_system_prompt,
-    save_profile as _save_ai_profile,
+from wizard.services.ok_profile_service import (
+    add_knowledge_entry as _add_ok_knowledge_entry,
+    add_quest as _add_ok_quest,
+    add_skill as _add_ok_skill,
+    load_profile as _load_ok_profile,
+    load_template as _load_ok_profile_template,
+    render_system_prompt as _render_ok_system_prompt,
+    save_profile as _save_ok_profile,
 )
 
 from wizard.services.path_utils import get_repo_root, get_memory_dir
@@ -45,7 +45,7 @@ from wizard.routes.setup_wizard_routes import create_setup_wizard_routes
 from core.services.story_service import parse_story_document
 from wizard.routes.setup_profile_routes import create_setup_profile_routes
 from wizard.routes.setup_story_routes import create_setup_story_routes
-from wizard.routes.setup_ai_profile_routes import create_setup_ai_profile_routes
+from wizard.routes.setup_ok_profile_routes import create_setup_ok_profile_routes
 from wizard.routes.setup_route_utils import (
     apply_capabilities_to_wizard_config as _apply_capabilities_to_wizard_config,
     apply_setup_defaults as _apply_setup_defaults,
@@ -152,14 +152,14 @@ def create_setup_routes(auth_guard=None):
     )
 
     router.include_router(
-        create_setup_ai_profile_routes(
-            load_template=_load_ai_profile_template,
-            load_profile=_load_ai_profile,
-            save_profile=_save_ai_profile,
-            add_quest=_add_ai_quest,
-            add_skill=_add_ai_skill,
-            add_knowledge_entry=_add_ai_knowledge_entry,
-            render_system_prompt=_render_ai_system_prompt,
+        create_setup_ok_profile_routes(
+            load_template=_load_ok_profile_template,
+            load_profile=_load_ok_profile,
+            save_profile=_save_ok_profile,
+            add_quest=_add_ok_quest,
+            add_skill=_add_ok_skill,
+            add_knowledge_entry=_add_ok_knowledge_entry,
+            render_system_prompt=_render_ok_system_prompt,
             mark_variable_configured=setup_state.mark_variable_configured,
         )
     )

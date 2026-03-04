@@ -1,6 +1,6 @@
 {
-  "category": "AI Assistant",
-  "description": "AI-powered assistance and development commands",
+  "category": "OK Assistant",
+  "description": "OK-powered assistance and development commands",
   "commands": {
     "OK": {
       "name": "OK",
@@ -9,8 +9,8 @@
         "OK ASK <question>",
         "OK DEV <task>"
       ],
-      "description": "AI assistant command router and help",
-      "detailed": "OK provides access to AI-powered assistance through OK Assistant (ASK) and GitHub Copilot (DEV). Without parameters, shows available options.",
+      "description": "OK assistant command router and help",
+      "detailed": "OK provides access to OK-powered assistance through OK Assistant (ASK) and GitHub Copilot (DEV). Without parameters, shows available options.",
       "parameters": [],
       "examples": [
         {
@@ -29,7 +29,7 @@
       "related": ["ASK", "READ", "KNOWLEDGE"],
       "notes": [
         "Requires API keys for full functionality",
-        "ASK uses OK Assistant AI with knowledge base integration",
+        "ASK uses OK Assistant with knowledge base integration",
         "DEV uses GitHub Copilot CLI with project context"
       ],
       "version_added": "1.0.5"
@@ -40,14 +40,14 @@
         "ASK <question>",
         "OK ASK <question>"
       ],
-      "description": "Query OK Assistant AI with knowledge base integration",
-      "detailed": "ASK sends questions to Google's OK Assistant AI, enriched with local knowledge base content for more relevant responses.",
+      "description": "Query OK Assistant with knowledge base integration",
+      "detailed": "ASK sends questions to OK Assistant, enriched with local knowledge base content for more relevant responses.",
       "parameters": [
         {
           "name": "question",
           "type": "string",
           "optional": false,
-          "description": "Question to ask the AI"
+          "description": "Question to ask the OK Assistant"
         }
       ],
       "examples": [
@@ -75,8 +75,8 @@
         "READ",
         "READ <panel>"
       ],
-      "description": "AI analysis of panel content",
-      "detailed": "READ uses AI to analyze and provide insights about panel content, suggesting next actions or identifying patterns.",
+      "description": "OK analysis of panel content",
+      "detailed": "READ uses OK analysis to provide insights about panel content, suggesting next actions or identifying patterns.",
       "parameters": [
         {
           "name": "panel",

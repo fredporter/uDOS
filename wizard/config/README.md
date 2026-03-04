@@ -43,9 +43,11 @@ curl http://localhost:8765/api/config/wizard
 The `file_locations` section controls where Wizard stores local data:
 
 - `memory_root` — Default location for `memory/` (relative to repo root or absolute path)
+- `vault_root` — Default location for `memory/vault/` (relative to repo root or absolute path)
 - `repo_root` — Repo root override (`auto` uses uDOS.py marker)
 - `repo_root_actual` — Read-only, detected local uDOS root
 - `memory_root_actual` — Read-only, resolved local memory path
+- `vault_root_actual` — Read-only, resolved user vault path
 
 ### Templates in Public Repo
 

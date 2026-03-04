@@ -40,7 +40,7 @@ class OSInfo:
 class LibraryIntegration:
     """Single library integration status."""
 
-    name: str  # "ollama", "mistral-vibe", "meshcore", etc.
+    name: str  # "gpt4all", "mistral-vibe", "meshcore", etc.
     path: str  # Path in /library or /dev/library
     source: str  # "library" or "dev_library"
     enabled: bool  # If activated

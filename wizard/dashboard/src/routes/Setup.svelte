@@ -293,7 +293,7 @@
       return { label: "Configure Docs", action: openConfig };
     }
     if (id === 4) {
-      return { label: "Configure AI", action: openConfig };
+      return { label: "Configure OK", action: openConfig };
     }
     if (id === 5) {
       return { label: "Configure HubSpot", action: openConfig };

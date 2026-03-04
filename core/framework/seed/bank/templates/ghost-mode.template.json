@@ -22,7 +22,7 @@
   "SETUP_REQUIREMENTS": {
     "MISTRAL_API_KEY_REQUIRED": true,
     "REQUIRED_LOCAL_DEPS": [
-      "ollama",
+      "gpt4all",
       "vibe-cli"
     ],
     "REQUIRED_MODELS": [

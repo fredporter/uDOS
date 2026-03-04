@@ -19,21 +19,21 @@ def get_memory_dir() -> Path:
     """Return the memory/ directory path, creating it if it doesn't exist."""
     config = _load_wizard_config()
     locations = config.get("file_locations", {}) if isinstance(config, dict) else {}
-    memory_root = locations.get("memory_root", "memory")
-    memory_dir = _resolve_repo_path(memory_root)
+    configured = get_config("UDOS_MEMORY_ROOT") or locations.get("memory_root")
+    memory_dir = _resolve_repo_path(configured) if configured else (get_repo_root() / "memory")
     memory_dir.mkdir(parents=True, exist_ok=True)
     return memory_dir
 
 
 def get_vault_dir() -> Path:
     """Return the vault directory path, creating it if it doesn't exist."""
-    env_root = get_config("VAULT_ROOT")
-    if env_root:
-        vault_dir = Path(env_root).expanduser()
-        if not vault_dir.is_absolute():
-            vault_dir = get_repo_root() / vault_dir
+    config = _load_wizard_config()
+    locations = config.get("file_locations", {}) if isinstance(config, dict) else {}
+    configured = get_config("VAULT_ROOT") or locations.get("vault_root")
+    if configured:
+        vault_dir = _resolve_repo_path(configured)
     else:
-        vault_dir = get_repo_root() / "memory" / "vault"
+        vault_dir = get_memory_dir() / "vault"
     vault_dir.mkdir(parents=True, exist_ok=True)
     return vault_dir
 

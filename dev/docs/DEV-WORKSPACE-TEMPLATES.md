@@ -6,7 +6,7 @@ These templates are safe defaults for the v1.5 `@dev` workspace.
 
 ## Workspace Template
 
-Use [ucode-dev.code-workspace](/Users/fredbook/Code/uDOS/ucode-dev.code-workspace) as the canonical contributor workspace.
+Use [uDOS-dev.code-workspace](/Users/fredbook/Code/uDOS/dev/ops/templates/uDOS-dev.code-workspace) as the canonical contributor workspace.
 
 Expected folders:
 

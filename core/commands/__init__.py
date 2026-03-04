@@ -263,10 +263,10 @@ def __getattr__(name):
 
         return InteractiveMenuMixin
     # Integration handlers (library-backed)
-    elif name == "AIHandler":
-        from .ai_handler import AIHandler
+    elif name == "OKHandler":
+        from .ok_handler import OKHandler
 
-        return AIHandler
+        return OKHandler
     elif name == "HomeHandler":
         from .home_handler import HomeHandler
 
@@ -362,7 +362,7 @@ __all__ = [
     # UI Mixins
     "InteractiveMenuMixin",
     # Integration handlers (library-backed)
-    "AIHandler",
+    "OKHandler",
     "HomeHandler",
     "ExportHandler",
     "MeshHandler",

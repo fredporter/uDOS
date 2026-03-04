@@ -202,6 +202,22 @@ function test_env_creation() {
 # ── Test 5: Vault Separation ─────────────────────────────────
 function test_vault_separation() {
     test_header "Vault Data Separation"
+    local env_file="$REPO_ROOT/.env"
+    local runtime_memory="$REPO_ROOT/memory"
+    local runtime_vault="$runtime_memory/vault"
+
+    if [[ -f "$env_file" ]]; then
+        local env_memory env_vault
+        env_memory="$(grep -E '^UDOS_MEMORY_ROOT=' "$env_file" | tail -n1 | cut -d= -f2- | tr -d '\"' | tr -d \"'\")"
+        env_vault="$(grep -E '^VAULT_ROOT=' "$env_file" | tail -n1 | cut -d= -f2- | tr -d '\"' | tr -d \"'\")"
+        if [[ -n "$env_memory" ]]; then
+            runtime_memory="${env_memory//\$\{UDOS_ROOT\}/$REPO_ROOT}"
+        fi
+        if [[ -n "$env_vault" ]]; then
+            runtime_vault="${env_vault//\$\{UDOS_MEMORY_ROOT\}/$runtime_memory}"
+            runtime_vault="${runtime_vault//\$\{UDOS_ROOT\}/$REPO_ROOT}"
+        fi
+    fi
 
     # Check vault template exists and is separate
     if [[ -d "$REPO_ROOT/vault" ]]; then
@@ -211,7 +227,6 @@ function test_vault_separation() {
     fi
 
     # Check runtime vault location
-    local runtime_vault="$REPO_ROOT/memory/vault"
     test_info "Runtime vault should be at: $runtime_vault"
 
     if [[ -d "$runtime_vault" ]]; then
@@ -303,12 +318,7 @@ function test_nonblocking_failures() {
         test_info "Obsidian may be installed"
     fi
 
-    # Ollama is optional
-    if ! command -v ollama &> /dev/null; then
-        test_pass "System works without Ollama (optional)"
-    else
-        test_info "Ollama is installed"
-    fi
+    test_info "Local logic-assist runtime uses GPT4All model files"
 
     test_pass "Optional components correctly identified as non-blocking"
 }
@@ -362,21 +372,31 @@ function test_security_tokens() {
 # ── Test 9: Update Scenario ──────────────────────────────────
 function test_update_scenario() {
     test_header "Update Scenario"
+    local env_file="$REPO_ROOT/.env"
+    local has_vault=false
+    local runtime_vault="$REPO_ROOT/memory/vault"
 
     test_info "Simulating update on existing installation..."
 
     # Check if this looks like an existing installation
     local has_env=false
-    local has_vault=false
-
     if [[ -f "$REPO_ROOT/.env" ]]; then
         has_env=true
         test_info "Existing .env detected"
     fi
 
-    if [[ -d "$REPO_ROOT/memory/vault" ]]; then
+    if [[ -f "$env_file" ]]; then
+        local env_vault
+        env_vault="$(grep -E '^VAULT_ROOT=' "$env_file" | tail -n1 | cut -d= -f2- | tr -d '\"' | tr -d \"'\")"
+        if [[ -n "$env_vault" ]]; then
+            runtime_vault="${env_vault//\$\{UDOS_ROOT\}/$REPO_ROOT}"
+            runtime_vault="${runtime_vault//\$\{UDOS_MEMORY_ROOT\}/$REPO_ROOT/memory}"
+        fi
+    fi
+
+    if [[ -d "$runtime_vault" ]]; then
         has_vault=true
-        test_info "Existing vault detected"
+        test_info "Existing vault detected at $runtime_vault"
     fi
 
     if [[ "$has_env" == true ]] || [[ "$has_vault" == true ]]; then
@@ -413,7 +433,7 @@ function test_destroy_repair_markers() {
 
     if [[ -f "$REPO_ROOT/.gitignore" ]]; then
         if grep -q "^memory/" "$REPO_ROOT/.gitignore"; then
-            test_pass "User vault (memory/vault/) protected via .gitignore"
+            test_pass "User memory/vault storage protected via .gitignore"
         fi
 
         if grep -q "^\.env$" "$REPO_ROOT/.gitignore"; then
@@ -450,7 +470,6 @@ function test_installer_options() {
         "core"
         "wizard"
         "update"
-        "skip-ollama"
     )
 
     for opt in "${expected_options[@]}"; do

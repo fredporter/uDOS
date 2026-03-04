@@ -11,9 +11,10 @@
 
   async function loadTasks() {
     try {
-      const res = await apiFetch("/api/tasks/all");
+      const res = await apiFetch("/api/tasks/status");
       if (res.ok) {
-        tasks = await res.json();
+        const data = await res.json();
+        tasks = data.tasks || [];
       }
     } catch (err) {
       console.error("Failed to load tasks:", err);
@@ -35,10 +36,16 @@
 
   async function createTask() {
     try {
-      const res = await apiFetch("/api/tasks/create", {
+      const res = await apiFetch("/api/tasks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newTask),
+        body: JSON.stringify({
+          name: newTask.name,
+          description: newTask.command,
+          cron_expression: newTask.schedule,
+          kind: "command",
+          payload: { command: newTask.command },
+        }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       showCreateForm = false;
@@ -188,7 +195,7 @@
               <div class="flex items-start justify-between mb-2">
                 <div>
                   <h4 class="text-white font-medium">{task.name}</h4>
-                  <p class="text-gray-400 text-sm mt-1">{task.command}</p>
+                  <p class="text-gray-400 text-sm mt-1">{task.payload?.command || task.description}</p>
                 </div>
                 <span
                   class="px-2 py-1 rounded text-xs border {getStateBadgeClass(

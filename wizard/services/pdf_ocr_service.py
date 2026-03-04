@@ -1,7 +1,7 @@
 """PDF OCR Service for Wizard Server
 ==================================
 
-Converts PDF files to Markdown using Mistral AI OCR technology.
+Converts PDF files to Markdown using Mistral OCR technology.
 Wrapper around pdf-ocr-obsidian library for Wizard Server integration.
 
 Features:

@@ -15,7 +15,7 @@ submit_requires_admin: false
 Quick setup: 5 essential fields for your local .env file.
 
 **Extended settings** (API keys, cloud services, etc.) are configured later via Wizard.
-Mistral API key can be provided at first run to unlock local/online AI stabilization.
+Mistral API key can be provided at first run to unlock local/online OK assistance.
 
 This story also runs the hot reload/self-heal verification described in `v1.3.1-milestones.md` so `REPAIR`, `REBOOT`, and `PLUGIN` keep logging healthy stats to `memory/logs/health-training.log` as part of the v1.1+ roadmap.
 
@@ -45,10 +45,10 @@ name: setup_vault_md_root
 label: Configure vault root (VAULT_ROOT)
 type: text
 required: true
-placeholder: "/Users/yourname/Code/uDOS/memory/vault"
+placeholder: "${UDOS_MEMORY_ROOT}/vault"
 help: >
   Path to your vault root (Markdown vault). This is used for storage, indexing,
-  and task history. Defaults to repo_root/memory/vault if not set.
+  and task history. Defaults to UDOS_MEMORY_ROOT/vault if not set.
 validation: path
 ```
 

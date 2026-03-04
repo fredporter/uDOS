@@ -1,51 +1,18 @@
-# Beacon Portal (Overview)
+# Beacon
 
-**Version:** v1.4.3
-**Last Updated:** 2026-02-19
-**Status:** Concept / Deferred in v1.4.3 release scope
-**Owner:** uDOS Engineering
+Updated: 2026-03-04
+Status: short feature summary
 
-> This is the single Beacon summary page. It is intentionally concise; detailed design references live in `docs/specs/` and `docs/decisions/`.
-
----
+Beacon remains a Wizard-adjacent networking concept in the broader platform, not the main v1.5 baseline.
 
 ## Purpose
 
-A **Beacon** is a minimal Wi‑Fi node that announces presence and routes nearby devices to a **Wizard** gateway when available. It is intentionally dumb, replaceable, and local‑first.
+Beacon is the lightweight presence and routing layer.
+Wizard remains the decision and service layer behind it.
 
-**Motto:** Beacon announces; Wizard decides.
+## Canonical Docs
 
----
-
-## Principles
-
-- **Presence over capacity** — be discoverable, not data‑heavy
-- **Single responsibility** — Beacon connects; Wizard computes
-- **Local‑first** — no WAN required
-- **Graceful degradation** — Beacon still signals intent when Wizard is offline
-
----
-
-## Connectivity Model
-
-```
-Device → Beacon (Wi‑Fi) → Wizard (optional)
-```
-
-All layers are optional:
-- ✅ Device only (offline)
-- ✅ Device + Beacon (local Wi‑Fi)
-- ✅ Device + Beacon + Wizard (gateway features)
-
----
-
-## Operating Modes (High‑Level)
-
-- **Private‑Home** — trusted devices, familiar Wi‑Fi, optional sharing
-- **Public‑Secure** — isolated clients, captive portal, rate limits
-
----
-
-## Status
-
-Beacon is **not part of the current baseline** by default. It remains a design‑level concept and may be activated in later milestones.
+- Feature overview:
+  [../docs/features/beacon-portal.md](../docs/features/beacon-portal.md)
+- VPN/tunnel notes:
+  [../docs/features/beacon-vpn-tunnel.md](../docs/features/beacon-vpn-tunnel.md)

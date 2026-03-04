@@ -1,6 +1,6 @@
 # Providers UI Data Model
 
-Contract for the Providers dashboard (AI + local).
+Contract for the Providers dashboard (OK + local).
 
 ## Data Sources
 
@@ -19,7 +19,7 @@ Contract for the Providers dashboard (AI + local).
   "providers": [
     {
       "id": "mistral",
-      "name": "Mistral AI",
+      "name": "Mistral",
       "type": "api_key",
       "enabled": true,
       "status": {

@@ -13,6 +13,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException
 
 from core.services.logging_api import reset_corr_id, set_corr_id
+from core.services.path_service import get_repo_root
 from core.services.unified_config_loader import get_bool_config, get_config
 from wizard.routes.command_capability_utils import (
     check_command_capabilities,
@@ -53,6 +54,18 @@ from wizard.routes.ucode_setup_story_utils import load_setup_story as _load_setu
 from wizard.routes.ucode_template_routes import create_ucode_template_routes
 from wizard.routes.ucode_user_routes import create_ucode_user_routes
 from wizard.services.logging_api import get_logger, new_corr_id
+
+
+def _build_local_logic_assist(profile, model: str | None = None):
+    from wizard.services.local_model_gpt4all import GPT4AllLocalAssist
+    from wizard.services.logic_assist_profile import load_logic_assist_profile
+
+    resolved_profile = profile or load_logic_assist_profile()
+    if model:
+        payload = resolved_profile.to_dict()
+        payload["local_model_name"] = model
+        resolved_profile = resolved_profile.__class__(**payload)
+    return GPT4AllLocalAssist(resolved_profile, get_repo_root())
 
 
 def _default_allowlist() -> set[str]:
@@ -118,8 +131,7 @@ def create_ucode_routes(auth_guard=None):
         return run_cloud_with_fallback(prompt)
 
     def _run_ok_local(prompt: str, model: str | None = None) -> str:
-        from wizard.services.ai_profile_service import render_system_prompt
-        from wizard.services.local_model_gpt4all import GPT4AllLocalAssist
+        from wizard.services.ok_profile_service import render_system_prompt
         from wizard.services.logic_assist_profile import load_logic_assist_profile
 
         prompt_upper = (prompt or "").strip().upper()
@@ -133,11 +145,7 @@ def create_ucode_routes(auth_guard=None):
             else "general"
         )
         profile = load_logic_assist_profile()
-        if model:
-            payload = profile.to_dict()
-            payload["local_model_name"] = model
-            profile = profile.__class__(**payload)
-        local_assist = GPT4AllLocalAssist(profile, Path(__file__).resolve().parents[2])
+        local_assist = _build_local_logic_assist(profile, model=model)
         return local_assist.generate(prompt, system=render_system_prompt(mode))
 
     def _ok_cloud_available() -> bool:
@@ -216,7 +224,7 @@ def create_ucode_routes(auth_guard=None):
             logger=logger,
             ok_history=ok_history,
             ok_model=payload.ok_model,
-            load_ai_modes_config=_load_logic_modes_config,
+            load_ok_modes_config=_load_logic_modes_config,
             write_ok_modes_config=_write_logic_modes_config,
             ok_auto_fallback_enabled=_logic_auto_fallback_enabled,
             get_ok_default_model=_get_logic_default_model,

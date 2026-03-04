@@ -4,7 +4,7 @@ v1.4.4 Stdlib Core Python Command Integration Tests
 Tests all P0 command handlers against integration criteria:
 - Command lifecycle (parsing -> execution -> response)
 - State persistence across commands
-- Error handling per ERROR-HANDLING-v1.4.4 contract
+- Error handling per the active command/runtime contract
 - Help text generation
 - Display rendering consistency
 
@@ -161,7 +161,7 @@ class TestCommandLifecycle(unittest.TestCase):
 
 
 class TestErrorHandling(unittest.TestCase):
-    """Test error handling per ERROR-HANDLING-v1.4.4 contract."""
+    """Test error handling per the active command/runtime contract."""
 
     def test_invalid_command_error(self):
         """Test CommandError for invalid input."""

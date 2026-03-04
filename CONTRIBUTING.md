@@ -6,8 +6,10 @@ uDOS v1.5 is in active restructure. Contributions should follow the runtime spli
 
 - read `AGENTS.md`
 - read `dev/AGENTS.md` for contributor workspace rules
+- read `dev/ops/AGENTS.md` for contributor operations rules
 - use root `docs/` for runtime, operator, and public product docs
 - use `dev/docs/` for contributor-only Dev Mode, Goblin, `vibe`, and GitHub integration docs
+- use `dev/ops/` for contributor mission state, workspace templates, and completion tracking
 
 ## Environment
 
@@ -20,7 +22,7 @@ UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard --dev
 Open the contributor workspace:
 
 ```bash
-code ucode-dev.code-workspace
+code dev/ops/templates/uDOS-dev.code-workspace
 ```
 
 Workspace folders:

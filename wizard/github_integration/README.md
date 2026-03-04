@@ -136,7 +136,7 @@ client.repo_exists("owner", "repo")  # Returns True/False
 ## Examples
 
 See also:
-- [Phase 2 Complete Documentation](../docs/devlog/2026-01-phase-2-complete.md)
+- [Current Devlog](../../dev/ops/DEVLOG.md)
 - [GitHub Integration Spec](../docs/specs/wizard-github-integration.md)
 - [Test Suite](../wizard/github_integration/test_github_integration.py)
 

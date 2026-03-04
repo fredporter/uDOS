@@ -10,8 +10,8 @@ def _repo_root() -> Path:
 def test_wizard_startup_script_targets_server_runtime_only():
     script = (_repo_root() / "wizard" / "web" / "start_wizard_web.sh").read_text(encoding="utf-8")
 
-    assert "bin/wizardd" in script
-    assert "wizardd\" start" in script or "wizardd start" in script
+    assert "bin/udos" in script
+    assert "udos\" wizard start" in script or "udos wizard start" in script
     assert "wizard.web.app" not in script
     assert "start_web_server" not in script
 

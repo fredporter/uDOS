@@ -122,6 +122,26 @@ class WorkflowManager:
         conn.close()
         return projects
 
+    def list_tasks(self, project_id: int | None = None) -> List[Dict[str, Any]]:
+        if project_id is not None:
+            return self.get_project_tasks(project_id)
+
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute(
+            """SELECT t.*, p.name AS project_name, GROUP_CONCAT(tg.name) as tags
+               FROM tasks t
+               LEFT JOIN projects p ON t.project_id = p.id
+               LEFT JOIN task_tags tt ON t.id = tt.task_id
+               LEFT JOIN tags tg ON tt.tag_id = tg.id
+               GROUP BY t.id
+               ORDER BY t.priority, t.created_at"""
+        )
+        tasks = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        return tasks
+
     def _coerce_workflow_id(self, workflow_id: str | int) -> int:
         if isinstance(workflow_id, int):
             return workflow_id

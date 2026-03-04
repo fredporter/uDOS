@@ -172,15 +172,15 @@
         "version": null
       },
       {
-        "id": "ollama",
-        "name": "Ollama Local AI",
+        "id": "gpt4all",
+        "name": "GPT4All Local Runtime",
         "author": "uDOS Dev",
         "license": "MIT",
         "license_note": null,
-        "repository": "https://ollama.com/download",
+        "repository": "https://github.com/nomic-ai/gpt4all",
         "original_repo": null,
-        "description": "Run LLMs locally - offline AI for uDOS Vibe CLI. No cloud, no API keys, full privacy.",
-        "location": "library/ollama",
+        "description": "Local GPT4All runtime for the offline uDOS logic-assist path.",
+        "location": "library/gpt4all",
         "wizard_only": false,
         "version": null
       }
@@ -367,7 +367,7 @@
       "markdown-to-pdf",
       "songscribe",
       "meshcore",
-      "ollama"
+      "gpt4all"
     ],
     "Apache-2.0": [
       "mistral-vibe",

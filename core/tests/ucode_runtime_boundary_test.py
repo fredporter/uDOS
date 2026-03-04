@@ -35,7 +35,7 @@ def test_core_modules_import_with_system_python_no_venv():
 
 def test_wizard_env_check_emits_install_guidance_when_missing(tmp_path: Path):
     script = (_repo_root() / "wizard" / "web" / "start_wizard_web.sh").read_text(encoding="utf-8")
-    assert "bin/wizardd" in script
+    assert "bin/udos" in script
     assert "wizard.web.app" not in script
 
 

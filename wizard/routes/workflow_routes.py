@@ -2,6 +2,7 @@
 Workflow management routes for Wizard Server.
 """
 
+from enum import Enum
 from typing import Callable, Awaitable, Optional
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
@@ -12,7 +13,7 @@ from wizard.routes.ucode_template_dispatch import (
     read_template as dispatch_read_template,
 )
 from wizard.services.logging_api import get_logger
-from wizard.services.workflow_manager import WorkflowManager
+from wizard.services.workflow_manager import TaskStatus, WorkflowManager
 from wizard.services.task_scheduler import TaskScheduler
 
 AuthGuard = Optional[Callable[[Request], Awaitable[str]]]
@@ -31,6 +32,20 @@ def create_workflow_routes(auth_guard: AuthGuard = None) -> APIRouter:
         template_id: Optional[str] = None
         workflow_id: Optional[str] = None
 
+    class ProjectCreate(BaseModel):
+        name: str
+        description: Optional[str] = None
+
+    class ProjectTaskCreate(BaseModel):
+        title: str
+        project_id: int | str | None = None
+        description: Optional[str] = None
+        priority: int | str = 5
+        tags: list[str] = []
+
+    class ProjectTaskStatusUpdate(BaseModel):
+        status: str
+
     class TemplateDuplicateRequest(BaseModel):
         target_name: Optional[str] = None
 
@@ -39,6 +54,104 @@ def create_workflow_routes(auth_guard: AuthGuard = None) -> APIRouter:
         if auth_guard:
             await auth_guard(request)
         return {"status": "ok", "workflow_manager": "ready"}
+
+    @router.get("/projects")
+    async def list_projects(request: Request):
+        if auth_guard:
+            await auth_guard(request)
+        try:
+            projects = manager.list_projects()
+            return {"status": "success", "projects": projects, "count": len(projects)}
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=str(exc))
+
+    @router.post("/projects")
+    async def create_project(request: Request, payload: ProjectCreate):
+        if auth_guard:
+            await auth_guard(request)
+        try:
+            project_id = manager.create_project(
+                name=payload.name,
+                description=payload.description or "",
+            )
+            return manager.get_workflow(project_id)
+        except Exception as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @router.get("/tasks")
+    async def list_project_tasks(request: Request, project_id: Optional[int] = None):
+        if auth_guard:
+            await auth_guard(request)
+        try:
+            tasks = manager.list_tasks(project_id=project_id)
+            return {"status": "success", "tasks": tasks, "count": len(tasks)}
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=str(exc))
+
+    @router.post("/tasks")
+    async def create_project_task(request: Request, payload: ProjectTaskCreate):
+        if auth_guard:
+            await auth_guard(request)
+        try:
+            if payload.project_id is None:
+                raise HTTPException(status_code=400, detail="project_id is required")
+
+            project_id = int(str(payload.project_id).strip())
+            priority_map = {"low": 7, "medium": 5, "high": 3, "urgent": 1}
+            priority_raw = payload.priority
+            priority = (
+                priority_map.get(priority_raw.lower(), 5)
+                if isinstance(priority_raw, str)
+                else int(priority_raw)
+            )
+            task_id = manager.create_task(
+                project_id=project_id,
+                title=payload.title,
+                description=payload.description or "",
+                priority=priority,
+                tags=payload.tags or [],
+            )
+            tasks = manager.get_project_tasks(project_id)
+            task = next((item for item in tasks if int(item["id"]) == int(task_id)), None)
+            return {
+                "status": "success",
+                "task": task,
+                "workflow_id": str(project_id),
+            }
+        except HTTPException:
+            raise
+        except Exception as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @router.patch("/tasks/{task_id}/status")
+    async def update_project_task_status(
+        request: Request,
+        task_id: int,
+        payload: ProjectTaskStatusUpdate,
+    ):
+        if auth_guard:
+            await auth_guard(request)
+        try:
+            normalized = (payload.status or "").strip().lower()
+            status_map = {
+                "not-started": TaskStatus.NOT_STARTED,
+                "not_started": TaskStatus.NOT_STARTED,
+                "in-progress": TaskStatus.IN_PROGRESS,
+                "in_progress": TaskStatus.IN_PROGRESS,
+                "completed": TaskStatus.COMPLETED,
+                "blocked": TaskStatus.BLOCKED,
+                "deferred": TaskStatus.DEFERRED,
+            }
+            status = status_map.get(normalized)
+            if status is None:
+                valid = ", ".join(sorted(item.value for item in TaskStatus))
+                raise HTTPException(status_code=400, detail=f"Invalid status. Expected one of: {valid}")
+            manager.update_task_status(task_id, status)
+            return {"status": "success", "task_id": str(task_id), "task_status": status.value}
+        except HTTPException:
+            raise
+        except Exception as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
 
     @router.post("/create")
     async def create_workflow(request: Request, workflow: WorkflowCreate):

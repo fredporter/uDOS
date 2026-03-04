@@ -16,7 +16,7 @@ This zip contains:
 ## Design notes
 - Markdown is the canonical artifact format.
 - Every phase writes to `vault/workflows/<workflow-id>/...`
-- Providers are abstracted behind `providers/base.py` and can be implemented for OpenAI, Anthropic, OpenRouter, Ollama, etc.
+- Providers are abstracted behind `providers/base.py` and can be implemented for OpenAI, Anthropic, OpenRouter, GPT4All, etc.
 - Rotation is deterministic: choose tier by policy, validate output, escalate if needed.
 
 ## This is scaffolding

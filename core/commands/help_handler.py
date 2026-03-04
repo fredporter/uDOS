@@ -22,9 +22,9 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         self._metadata_synced = False
 
     GHOST_TEST_COMMANDS = [
-        "AI TEST mistral",
-        "AI TEST claude",
-        "AI TEST status",
+        "OK TEST mistral",
+        "OK TEST claude",
+        "OK TEST status",
         "TEST all",
         "TEST core",
     ]

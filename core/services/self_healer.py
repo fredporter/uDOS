@@ -21,18 +21,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 import importlib
-import json
 from pathlib import Path
-import shutil
 import ssl
 import subprocess
 import sys
 import threading
 import time
 from typing import Any
-import urllib.error
-from urllib.parse import urlparse
-import urllib.request
 
 from core.services.logging_api import get_logger
 from core.tui.ui_elements import Spinner
@@ -127,7 +122,7 @@ class SelfHealer:
         self._check_configuration()
         self._check_ports()
         self._check_permissions()
-        self._check_ollama()
+        self._check_logic_assist()
         self._check_ts_runtime()  # Add TS runtime check
 
         # Attempt repairs if auto_repair is enabled
@@ -373,112 +368,49 @@ class SelfHealer:
                     details={"runtime_dist": str(runtime_dist)}
                 ))
 
-    def _check_ollama(self) -> None:
-        """Check if local Ollama is reachable and attempt to self-heal if enabled."""
+    def _check_logic_assist(self) -> None:
+        """Check the v1.5 local logic-assist lane."""
         if self.component not in {"core", "wizard"}:
             return
 
-        from core.services.unified_config_loader import get_bool_config, get_config
+        fields = self._load_logic_assist_fields()
+        model_name = (fields.get("local_model_name") or "").strip()
+        model_path = self._get_logic_assist_model_path(fields)
 
-        if not get_bool_config("UDOS_OLLAMA_AUTOSTART", default=True):
-            return
-
-        host = self._sanitize_loopback_ollama_host(get_config("OLLAMA_HOST", ""))
-        if not host:
-            return
-
-        if self._ollama_reachable(host):
-            self._check_ollama_default_model(host)
-            return
-
-        if not shutil.which("ollama"):
+        if importlib.util.find_spec("gpt4all") is None:
             self.issues.append(Issue(
                 type=IssueType.MISSING_DEPENDENCY,
                 severity=IssueSeverity.WARNING,
-                description="Ollama CLI not installed",
+                description="GPT4All package not installed",
                 component=self.component,
-                repairable=False,
-                repair_action="install Ollama or set OLLAMA_HOST to a running server",
-                details={"host": host}
+                repairable=True,
+                auto_repairable=True,
+                repair_action="install_logic_assist_dependencies",
+                details={
+                    "runtime": fields.get("local_runtime", "gpt4all"),
+                    "model": model_name,
+                    "model_path": str(model_path) if model_path else "",
+                },
             ))
             return
 
-        self.issues.append(Issue(
-            type=IssueType.CONFIG_ERROR,
-            severity=IssueSeverity.WARNING,
-            description="Ollama server not running",
-            component=self.component,
-            repairable=True,
-            auto_repairable=True,
-            repair_action="start_ollama",
-            details={"host": host}
-        ))
-
-    def _check_ollama_default_model(self, host: str) -> None:
-        """Ensure configured local default model exists in Ollama model list."""
-        from core.services.unified_config_loader import get_config
-
-        default_model = (
-            get_config("OLLAMA_DEFAULT_MODEL", "").strip()
-            or get_config("VIBE_ASK_MODEL", "").strip()
-            or "devstral-small-2"
-        )
-        if not default_model:
+        if not model_name or model_path is None:
             return
 
-        try:
-            with urllib.request.urlopen(f"{host}/api/tags", timeout=2) as resp:
-                payload = json.loads(resp.read().decode("utf-8"))
-        except Exception:
-            return
-
-        models = [
-            str(entry.get("name", "")).strip()
-            for entry in payload.get("models", [])
-            if isinstance(entry, dict)
-        ]
-        normalized = set()
-        for name in models:
-            if not name:
-                continue
-            normalized.add(name)
-            normalized.add(name.split(":", 1)[0])
-        target = default_model.split(":", 1)[0]
-        if default_model in normalized or target in normalized:
-            return
-
-        self.issues.append(Issue(
-            type=IssueType.CONFIG_ERROR,
-            severity=IssueSeverity.WARNING,
-            description=f"Configured default Ollama model missing: {default_model}",
-            component=self.component,
-            repairable=True,
-            auto_repairable=True,
-            repair_action="pull_ollama_model",
-            details={
-                "host": host,
-                "model": default_model,
-                "available_models": sorted(normalized),
-            },
-        ))
-
-    def _sanitize_loopback_ollama_host(self, raw_host: str | None) -> str:
-        """Return normalized loopback Ollama host or empty string when disallowed."""
-        host = (raw_host or "http://127.0.0.1:11434").strip().rstrip("/")
-        parsed = urlparse(host if "://" in host else f"http://{host}")
-        hostname = (parsed.hostname or "").strip().lower()
-        if hostname not in self._LOOPBACK_HOSTS:
-            return ""
-        scheme = parsed.scheme or "http"
-        port = parsed.port or 11434
-        return f"{scheme}://{hostname}:{port}"
-
-    def _ollama_reachable(self, host: str) -> bool:
-        try:
-            with urllib.request.urlopen(f"{host}/api/tags", timeout=2) as resp:
-                return resp.status == 200
-        except (urllib.error.URLError, OSError, ValueError):
-            return False
+        if not model_path.exists():
+            self.issues.append(Issue(
+                type=IssueType.CONFIG_ERROR,
+                severity=IssueSeverity.WARNING,
+                description=f"Configured GPT4All model missing: {model_name}",
+                component=self.component,
+                repairable=False,
+                repair_action="place_configured_model",
+                details={
+                    "runtime": fields.get("local_runtime", "gpt4all"),
+                    "model": model_name,
+                    "model_path": str(model_path),
+                },
+            ))
 
     def _attempt_repair(self, issue: Issue) -> bool:
         """Attempt to repair an issue.
@@ -498,10 +430,8 @@ class SelfHealer:
                 return self._repair_permission(issue)
             elif issue.type == IssueType.CONFIG_ERROR and issue.repair_action == "build_ts_runtime":
                 return self._repair_ts_runtime(issue)
-            elif issue.type == IssueType.CONFIG_ERROR and issue.repair_action == "start_ollama":
-                return self._repair_ollama(issue)
-            elif issue.type == IssueType.CONFIG_ERROR and issue.repair_action == "pull_ollama_model":
-                return self._repair_ollama_model(issue)
+            elif issue.repair_action == "install_logic_assist_dependencies":
+                return self._repair_logic_assist_setup(issue)
             elif issue.type == IssueType.CONFIG_ERROR and issue.repair_action:
                 # Ask user before applying config-related fixes
                 if self._confirm_repair(issue):
@@ -616,54 +546,16 @@ class SelfHealer:
             logger.error(f"[HEAL] TS runtime build error: {e}")
             return False
 
-    def _repair_ollama(self, issue: Issue) -> bool:
-        """Start Ollama server if installed."""
-        host = issue.details.get("host") or "http://127.0.0.1:11434"
+    def _repair_logic_assist_setup(self, issue: Issue) -> bool:
+        """Run the v1.5 logic-assist setup helper."""
         try:
-            subprocess.Popen(
-                ["ollama", "serve"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                start_new_session=True,
-            )
+            from core.services.logic_assist_setup import run_logic_assist_setup
+
+            run_logic_assist_setup(self.repo_root)
         except Exception as exc:
-            logger.warning(f"[HEAL] Ollama auto-start failed: {exc}")
+            logger.warning(f"[HEAL] Logic-assist setup failed: {exc}")
             return False
-
-        for _ in range(20):
-            time.sleep(0.5)
-            if self._ollama_reachable(host):
-                return True
-
-        logger.warning("[HEAL] Ollama did not start in time")
-        return False
-
-    def _repair_ollama_model(self, issue: Issue) -> bool:
-        """Pull missing default Ollama model and verify availability."""
-        model = str(issue.details.get("model", "")).strip()
-        host = str(issue.details.get("host", "")).strip() or "http://127.0.0.1:11434"
-        if not model:
-            return False
-        if not shutil.which("ollama"):
-            return False
-
-        try:
-            proc = subprocess.run(
-                ["ollama", "pull", model],
-                check=False,
-                capture_output=True,
-                text=True,
-                timeout=600,
-            )
-        except Exception as exc:
-            logger.warning(f"[HEAL] Ollama model pull failed: {exc}")
-            return False
-
-        if proc.returncode != 0:
-            logger.warning(f"[HEAL] Ollama model pull exited {proc.returncode}: {proc.stderr.strip()}")
-            return False
-
-        return self._ollama_reachable(host)
+        return importlib.util.find_spec("gpt4all") is not None
 
     def _repair_command(self, command: str) -> bool:
         """Run a shell command for repair (e.g., pip install)."""
@@ -739,6 +631,25 @@ class SelfHealer:
         """Check if installed version matches requirement."""
         # Simple version check (can be enhanced)
         return installed.startswith(required.split(".")[0])
+
+    def _load_logic_assist_fields(self) -> dict[str, str]:
+        from core.services.template_workspace_service import (
+            get_template_workspace_service,
+        )
+
+        workspace = get_template_workspace_service(self.repo_root)
+        snapshot = workspace.read_document("settings", "logic-assist")
+        return workspace.parse_fields(str(snapshot.get("effective_content") or ""))
+
+    def _get_logic_assist_model_path(self, fields: dict[str, str]) -> Path | None:
+        model_name = (fields.get("local_model_name") or "").strip()
+        model_root = (fields.get("local_model_path") or "memory/models/gpt4all").strip()
+        if not model_name:
+            return None
+        model_dir = Path(model_root)
+        if not model_dir.is_absolute():
+            model_dir = self.repo_root / model_dir
+        return model_dir / model_name
 
     def _generate_summary(
         self, repaired: list[Issue], remaining: list[Issue]

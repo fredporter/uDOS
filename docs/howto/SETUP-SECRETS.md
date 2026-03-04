@@ -65,8 +65,10 @@ UDOS_LOCATION=San Francisco
 OS_TYPE=mac
 
 # Paths
-UDOS_ROOT=/Users/fredrick/Code/uDOS-vibe
-VAULT_ROOT=${UDOS_ROOT}/memory/vault
+UDOS_ROOT=/Users/fredrick/Code/uDOS
+UDOS_MEMORY_ROOT=${UDOS_ROOT}/memory
+VAULT_ROOT=${UDOS_MEMORY_ROOT}/vault
+VAULT_MD_ROOT=${VAULT_ROOT}
 
 # Configuration flags (non-sensitive)
 UDOS_LOG_LEVEL=INFO
@@ -305,4 +307,3 @@ This ensures:
 - `wizard/tools/check_secrets_tomb.py` — Status tool
 - `wizard/tools/reset_secrets_tomb.py` — Reset tool
 - `wizard/tools/secret_store_cli.py` — CLI management
-

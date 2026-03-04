@@ -60,7 +60,7 @@ class ProviderRotation:
         return True
 
     def _instantiate(self, cfg: ProviderConfig) -> ProviderBase:
-        # TODO: Replace with your real provider factory (OpenAI/Anthropic/Ollama/etc).
+        # TODO: Replace with your real provider factory (OpenAI/Anthropic/GPT4All/etc).
         # For now, return mock for text-only tiers.
         return MockTextProvider(cfg)
 
@@ -71,7 +71,7 @@ def default_policy() -> TierPolicy:
         tier_order=("tier1_local", "tier2_cloud", "tier3_high"),
         providers={
             "tier1_local": (
-                ProviderConfig(provider_id="ollama:local", tier="tier1_local", supports=["text"]),
+                ProviderConfig(provider_id="gpt4all:local", tier="tier1_local", supports=["text"]),
             ),
             "tier2_cloud": (
                 ProviderConfig(provider_id="cloud:standard", tier="tier2_cloud", supports=["text"]),

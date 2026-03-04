@@ -1,54 +1,67 @@
 from __future__ import annotations
 
-from urllib.error import URLError
+from pathlib import Path
 
 from core.services.self_healer import SelfHealer
 
 
-def test_sanitize_loopback_ollama_host_accepts_localhost() -> None:
+def test_get_logic_assist_model_path_uses_repo_relative_root() -> None:
     healer = SelfHealer(component="core", auto_repair=False)
-    assert (
-        healer._sanitize_loopback_ollama_host("http://localhost:11434")
-        == "http://localhost:11434"
+    fields = {
+        "local_model_name": "model.gguf",
+        "local_model_path": "memory/models/gpt4all",
+    }
+    assert healer._get_logic_assist_model_path(fields) == (
+        healer.repo_root / "memory" / "models" / "gpt4all" / "model.gguf"
     )
 
 
-def test_sanitize_loopback_ollama_host_blocks_non_loopback() -> None:
-    healer = SelfHealer(component="core", auto_repair=False)
-    assert healer._sanitize_loopback_ollama_host("https://ollama.example.com") == ""
-
-
-def test_check_ollama_default_model_adds_missing_model_issue(monkeypatch) -> None:
-    class _Response:
-        status = 200
-
-        def __enter__(self) -> "_Response":
-            return self
-
-        def __exit__(self, exc_type, exc, tb) -> bool:
-            return False
-
-        def read(self) -> bytes:
-            return b'{"models":[{"name":"mistral:latest"}]}'
-
-    monkeypatch.setenv("OLLAMA_DEFAULT_MODEL", "devstral-small-2")
-    monkeypatch.setattr("core.services.self_healer.urllib.request.urlopen", lambda *_args, **_kwargs: _Response())
-
-    healer = SelfHealer(component="core", auto_repair=False)
-    healer._check_ollama_default_model("http://127.0.0.1:11434")
-
-    issue = next((item for item in healer.issues if item.repair_action == "pull_ollama_model"), None)
-    assert issue is not None
-    assert issue.details["model"] == "devstral-small-2"
-
-
-def test_check_ollama_default_model_skips_when_tags_unreachable(monkeypatch) -> None:
-    monkeypatch.setenv("OLLAMA_DEFAULT_MODEL", "devstral-small-2")
+def test_check_logic_assist_adds_missing_model_issue(monkeypatch) -> None:
     monkeypatch.setattr(
-        "core.services.self_healer.urllib.request.urlopen",
-        lambda *_args, **_kwargs: (_ for _ in ()).throw(URLError("offline")),
+        SelfHealer,
+        "_load_logic_assist_fields",
+        lambda self: {
+            "local_runtime": "gpt4all",
+            "local_model_name": "devstral-small-2.gguf",
+            "local_model_path": "memory/models/gpt4all",
+        },
     )
+    monkeypatch.setattr("core.services.self_healer.importlib.util.find_spec", lambda name: object())
 
     healer = SelfHealer(component="core", auto_repair=False)
-    healer._check_ollama_default_model("http://127.0.0.1:11434")
-    assert healer.issues == []
+    healer._check_logic_assist()
+
+    issue = next(
+        (item for item in healer.issues if item.repair_action == "place_configured_model"),
+        None,
+    )
+    assert issue is not None
+    assert issue.details["model"] == "devstral-small-2.gguf"
+
+
+def test_check_logic_assist_adds_missing_package_issue(monkeypatch) -> None:
+    model_root = Path("/tmp/gpt4all")
+    monkeypatch.setattr(
+        SelfHealer,
+        "_load_logic_assist_fields",
+        lambda self: {
+            "local_runtime": "gpt4all",
+            "local_model_name": "devstral-small-2.gguf",
+            "local_model_path": str(model_root),
+        },
+    )
+    monkeypatch.setattr("core.services.self_healer.importlib.util.find_spec", lambda name: None)
+
+    healer = SelfHealer(component="core", auto_repair=False)
+    healer._check_logic_assist()
+
+    issue = next(
+        (
+            item
+            for item in healer.issues
+            if item.repair_action == "install_logic_assist_dependencies"
+        ),
+        None,
+    )
+    assert issue is not None
+    assert issue.details["runtime"] == "gpt4all"

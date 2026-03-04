@@ -524,7 +524,7 @@ EXAMPLES:
                 "Local logic-assist assets (Vibe CLI)",
                 root_parent / "library" / "mistral-vibe",
             ),
-            ("Legacy Ollama container", root_parent / "library" / "ollama"),
+            ("Legacy local model container", root_parent / "library" / "local-models"),
         ]
 
     def _clean_runtime_targets(self) -> tuple[list[str], list[str]]:

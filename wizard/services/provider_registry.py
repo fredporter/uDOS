@@ -4,10 +4,10 @@ Manages provider capabilities, routing, fallback chains, and performance telemet
 for Vibe-CLI OK Agent interactions.
 
 This extends core/services/provider_registry.py with Vibe-specific multi-provider
-routing logic (Ollama, Mistral, OpenAI, Anthropic, Gemini).
+routing logic (Mistral, OpenAI, Anthropic, Gemini).
 
 Architecture Rules (from vibe/AGENTS.md):
-- Local-first routing (prefer Ollama when available)
+- Capability-based routing across supported providers
 - Capability-based selection (match task to provider strengths)
 - Graceful fallback on provider failure
 - Performance telemetry for routing decisions
@@ -17,8 +17,6 @@ Usage:
     from wizard.services.provider_registry import VibeProviderRegistry
 
     registry = VibeProviderRegistry()
-    registry.register_ollama_provider(endpoint="http://localhost:11434")
-
     # Get provider for task
     provider, model = registry.select_provider_for_task("code")
 
@@ -165,18 +163,7 @@ class VibeProviderRegistry:
         Returns:
             ProviderCapabilities with sensible defaults
         """
-        if provider_type == ProviderType.OLLAMA:
-            return ProviderCapabilities(
-                provider_type=provider_type,
-                models=["devstral-small-2", "mistral", "llama3.2", "qwen3"],
-                strengths=[TaskMode.CODE, TaskMode.CONVERSATION],
-                cost="free",
-                latency="fast",
-                context_window=8192,
-                supports_streaming=True,
-                local=True,
-            )
-        elif provider_type == ProviderType.MISTRAL:
+        if provider_type == ProviderType.MISTRAL:
             return ProviderCapabilities(
                 provider_type=provider_type,
                 models=["mistral-small-latest", "mistral-large-latest"],
@@ -240,7 +227,7 @@ class VibeProviderRegistry:
 
         Args:
             mode: Task mode (code, conversation, etc.)
-            prefer_local: Prefer local providers (Ollama) when available
+            prefer_local: Prefer local providers when available
             user_override: User-specified provider override
 
         Returns:

@@ -51,7 +51,7 @@ The following variables moved **from `.env` to `config.toml`**:
 - `UDOS_COMPOST_MAX_BYTES` → `[app.cleanup].compost_max_bytes`
 - `UDOS_COMPOST_MAX_MB` → `[app.cleanup].compost_max_mb`
 - `UDOS_COMPOST_RESERVE_MB` → `[app.cleanup].compost_reserve_mb`
-- `OLLAMA_HOST` → `[app.services].ollama_host`
+- `LOGIC_ASSIST_MODEL_PATH` → local logic-assist template field or runtime config
 - `VIBE_STREAM_DELAY_MS` → `[app.services].stream_delay_ms`
 
 ### Development
@@ -62,7 +62,6 @@ The following variables moved **from `.env` to `config.toml`**:
 - `UDOS_HOME_ROOT_ENFORCE` → `[dev].home_root_enforce`
 - `UDOS_SKIP_DEP_CHECK` → `[dev].skip_dep_check`
 - `UDOS_DISABLE_DEP_WARNING_MONITOR` → `[dev].disable_warning_monitor`
-- `UDOS_OLLAMA_AUTOSTART` → `[dev].ollama_autostart`
 - `UDOS_SESSION_ID` → `[dev].session_id`
 
 ### Providers
@@ -124,5 +123,5 @@ python uDOS.py
 
 ## See Also
 
-- `docs/devlog/2026-02-24-testing-phase-verification.md` - Environment audit
+- `dev/files/docs/devlog/2026-02-24-testing-phase-verification.md` - Environment audit
 - `docs/specs/ENV-STRUCTURE-V1.1.0.md` - Full specification (if exists)

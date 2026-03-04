@@ -15,5 +15,5 @@ Use the local startup script to run the canonical Wizard server runtime:
 That script delegates to the canonical daemon launcher:
 
 ```bash
-./bin/wizardd start
+./bin/udos wizard start
 ```

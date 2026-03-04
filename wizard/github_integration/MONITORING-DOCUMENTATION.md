@@ -141,21 +141,19 @@ print(f"Message: {health.message}")
 - Response time (creates alert if > threshold)
 - Automatic unhealthy alert on 500+ status codes
 
-#### 2. Ollama Health
+#### 2. Goblin Health
 
 ```python
-# Check Ollama model server
-health = monitoring.check_ollama(
-    endpoint="http://127.0.0.1:11434"
-)
+# Check legacy Dev extension runtime
+health = monitoring.check_goblin()
 
-print(f"Models Available: {health.metadata['models']}")
+print(f"Mode: {health.metadata.get('disabled', False)}")
 ```
 
 **Checks:**
-- HTTP GET to `/api/tags` endpoint
-- Number of available models
-- Connection status
+- Optional legacy Dev extension endpoint health
+- Connection status when enabled
+- Disabled-state reporting when monitoring is off
 
 #### 3. GitHub API Health
 
@@ -321,7 +319,6 @@ for service, status in all_limits.items():
 |---------|-----------|--------|
 | GitHub API (unauthenticated) | 60 requests/hour | Public rate limit |
 | GitHub API (authenticated) | 5000/hour | Standard user limit |
-| Ollama API | No limit | Local service |
 | OpenRouter | Custom | Depends on account |
 
 ---
@@ -464,7 +461,7 @@ HEALTH
 #
 # Service Health Details:
 # wizard_server      ✅ Healthy    45.2ms    Server responding
-# ollama             ✅ Healthy    125.8ms   3 models available
+# goblin             ✅ Healthy    125.8ms   Legacy Dev extension endpoint healthy
 # github_api         ✅ Healthy    890.5ms   4800/5000 requests remaining
 ```
 
@@ -491,7 +488,7 @@ ALERTS RESOLVE alert-1705243600000
 # ─────────────────  ──────────────  ─────────  ────────────  ───────────────────
 # alert-1705243600   rate_limit      warning    github_api    Rate limit: 500/5000 remaining
 # alert-1705243500   cost_budget     warning    openrouter    Daily cost: $8.50/$10.00 (85.0%)
-# alert-1705243400   health_check    error      ollama        Service down
+# alert-1705243400   health_check    error      goblin        Service down
 ```
 
 ### RATELIMIT - Rate Limit Status
@@ -506,7 +503,7 @@ RATELIMIT
 # Service          Limit    Remaining  Usage %  Resets At
 # ─────────────────  ────────  ─────────  ────────  ──────────────────
 # github_api         5000     4500       10.0%    2026-01-14 18:00
-# ollama             ∞        ∞          0.0%     Never
+# goblin             n/a      n/a        n/a      n/a
 ```
 
 ### COSTS - Cost Monitoring
@@ -563,7 +560,7 @@ async def monitor_continuously():
     while True:
         # Check all services
         wizard_health = monitoring.check_wizard_server()
-        ollama_health = monitoring.check_ollama()
+        goblin_health = monitoring.check_goblin()
         github_health = monitoring.check_github_api(token=os.getenv("GITHUB_TOKEN"))
 
         # Get summary
@@ -693,20 +690,20 @@ monitoring = MonitoringManager(
 
 ### Common Issues
 
-#### 1. "Could not connect to Ollama"
+#### 1. "Could not connect to Goblin"
 
-**Symptom:** Ollama health check fails
+**Symptom:** Goblin health check fails
 
 **Solutions:**
 ```bash
-# Check if Ollama is running
-curl http://127.0.0.1:11434/api/tags
+# Check if Goblin is running
+curl http://127.0.0.1:8767/health
 
-# Start Ollama
-ollama serve
+# Enable monitoring only if Goblin is expected
+export GOBLIN_MONITOR=1
 
 # Check logs
-tail -f /var/log/ollama/ollama.log
+tail -f memory/logs/wizard.log
 ```
 
 #### 2. "GitHub API rate limit exceeded"

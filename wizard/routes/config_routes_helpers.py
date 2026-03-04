@@ -17,6 +17,7 @@ from wizard.services.path_utils import (
     get_memory_dir,
     get_repo_root,
     get_test_runs_dir,
+    get_vault_dir,
 )
 from wizard.services.wizard_config import load_wizard_config_data, save_wizard_config_data
 
@@ -417,11 +418,13 @@ class ConfigRouteHelpers:
             return content
         content.setdefault("file_locations", {})
         content["file_locations"].setdefault("memory_root", "memory")
+        content["file_locations"].setdefault("vault_root", "memory/vault")
         content["file_locations"].setdefault("artifacts_root", ".artifacts")
         content["file_locations"].setdefault("test_runs_root", ".artifacts/test-runs")
         content["file_locations"].setdefault("repo_root", "auto")
         content["file_locations"]["repo_root_actual"] = str(get_repo_root())
         content["file_locations"]["memory_root_actual"] = str(get_memory_dir())
+        content["file_locations"]["vault_root_actual"] = str(get_vault_dir())
         content["file_locations"]["logs_root_actual"] = str(get_logs_dir())
         content["file_locations"]["artifacts_root_actual"] = str(get_artifacts_dir())
         content["file_locations"]["test_runs_root_actual"] = str(get_test_runs_dir())

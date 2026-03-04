@@ -31,24 +31,24 @@ def test_health_returns_200():
     assert body["bridge"] == "udos-wizard"
     assert "version" in body
     assert "timestamp" in body
-    assert "ollama_running" in body
+    assert "logic_local_ready" in body
 
 
-def test_health_ollama_running_true(monkeypatch):
+def test_health_logic_local_ready_true(monkeypatch):
     import wizard.routes.dashboard_summary_routes as mod
     monkeypatch.setattr(
-        mod, "_ollama_status",
-        lambda: {"running": True, "version": "0.3.0"},
+        mod, "_logic_local_status",
+        lambda: {"ready": True, "runtime": "gpt4all", "model": "devstral-small-2.gguf"},
     )
     body = _client().get("/api/dashboard/health").json()
-    assert body["ollama_running"] is True
+    assert body["logic_local_ready"] is True
 
 
-def test_health_ollama_running_false(monkeypatch):
+def test_health_logic_local_ready_false(monkeypatch):
     import wizard.routes.dashboard_summary_routes as mod
-    monkeypatch.setattr(mod, "_ollama_status", lambda: {"running": False})
+    monkeypatch.setattr(mod, "_logic_local_status", lambda: {"ready": False})
     body = _client().get("/api/dashboard/health").json()
-    assert body["ollama_running"] is False
+    assert body["logic_local_ready"] is False
 
 
 # ---------------------------------------------------------------------------
@@ -58,7 +58,11 @@ def test_health_ollama_running_false(monkeypatch):
 
 def _patch_all_healthy(monkeypatch):
     import wizard.routes.dashboard_summary_routes as mod
-    monkeypatch.setattr(mod, "_ollama_status", lambda: {"running": True, "version": "0.3.0"})
+    monkeypatch.setattr(
+        mod,
+        "_logic_local_status",
+        lambda: {"ready": True, "runtime": "gpt4all", "model": "devstral-small-2.gguf"},
+    )
     monkeypatch.setattr(mod, "_cloud_status", lambda: {"ready": True, "available_providers": ["mistral"], "primary": "mistral"})
     monkeypatch.setattr(mod, "_ha_status", lambda: {"enabled": True, "status": "ok"})
     monkeypatch.setattr(mod, "_sync_status", lambda: {"drift_issues": 0, "issues": [], "synced": True})
@@ -153,7 +157,7 @@ def test_summary_shape(monkeypatch):
     assert "subsystems" in body
     assert "summary" in body
     assert set(body["subsystems"].keys()) == {
-        "ollama",
+        "logic_local",
         "cloud",
         "ha_bridge",
         "secret_sync",
@@ -182,23 +186,21 @@ def test_summary_includes_workspace_runtime_defaults(monkeypatch):
     assert runtime["components"]["uhome"]["defaults"]["node_role"]["value"] == "server"
 
 
-def test_summary_overall_ok_false_when_ollama_down(monkeypatch):
+def test_summary_overall_ok_false_when_logic_local_down(monkeypatch):
     import wizard.routes.dashboard_summary_routes as mod
-    # _ollama_status raises when Ollama is unreachable; _probe catches → ok=False
-    monkeypatch.setattr(mod, "_ollama_status", lambda: (_ for _ in ()).throw(RuntimeError("connection refused")))
+    monkeypatch.setattr(mod, "_logic_local_status", lambda: (_ for _ in ()).throw(RuntimeError("model missing")))
     monkeypatch.setattr(mod, "_cloud_status", lambda: {"ready": True, "available_providers": [], "primary": None})
     monkeypatch.setattr(mod, "_ha_status", lambda: {"enabled": False, "status": "disabled"})
     monkeypatch.setattr(mod, "_sync_status", lambda: {"drift_issues": 0, "issues": [], "synced": True})
     body = _client().get("/api/dashboard/summary").json()
-    # ollama is a critical subsystem — overall ok should be False
     assert body["ok"] is False
-    assert body["subsystems"]["ollama"]["ok"] is False
+    assert body["subsystems"]["logic_local"]["ok"] is False
 
 
 def test_summary_non_critical_failure_does_not_degrade_ok(monkeypatch):
     """HA bridge down or secret sync failing doesn't mark overall ok=False."""
     import wizard.routes.dashboard_summary_routes as mod
-    monkeypatch.setattr(mod, "_ollama_status", lambda: {"running": True, "version": "0.3.0"})
+    monkeypatch.setattr(mod, "_logic_local_status", lambda: {"ready": True, "runtime": "gpt4all"})
     monkeypatch.setattr(mod, "_cloud_status", lambda: {"ready": True, "available_providers": ["mistral"], "primary": "mistral"})
     # Non-critical subsystems raise
     monkeypatch.setattr(mod, "_ha_status", lambda: (_ for _ in ()).throw(RuntimeError("bridge offline")))
@@ -212,7 +214,7 @@ def test_summary_non_critical_failure_does_not_degrade_ok(monkeypatch):
 
 def test_summary_subsystem_error_propagates_message(monkeypatch):
     import wizard.routes.dashboard_summary_routes as mod
-    monkeypatch.setattr(mod, "_ollama_status", lambda: {"running": True})
+    monkeypatch.setattr(mod, "_logic_local_status", lambda: {"ready": True})
     monkeypatch.setattr(mod, "_cloud_status", lambda: {"ready": False, "available_providers": [], "primary": None})
     monkeypatch.setattr(mod, "_ha_status", lambda: (_ for _ in ()).throw(ConnectionError("ha unreachable")))
     monkeypatch.setattr(mod, "_sync_status", lambda: {"drift_issues": 0, "issues": [], "synced": True})
@@ -224,7 +226,7 @@ def test_summary_subsystem_error_propagates_message(monkeypatch):
 
 def test_summary_cloud_details_exposed(monkeypatch):
     import wizard.routes.dashboard_summary_routes as mod
-    monkeypatch.setattr(mod, "_ollama_status", lambda: {"running": True})
+    monkeypatch.setattr(mod, "_logic_local_status", lambda: {"ready": True})
     monkeypatch.setattr(mod, "_cloud_status", lambda: {
         "ready": True, "available_providers": ["mistral", "openai"], "primary": "mistral"
     })
@@ -238,7 +240,7 @@ def test_summary_cloud_details_exposed(monkeypatch):
 
 def test_summary_sync_drift_reported(monkeypatch):
     import wizard.routes.dashboard_summary_routes as mod
-    monkeypatch.setattr(mod, "_ollama_status", lambda: {"running": True})
+    monkeypatch.setattr(mod, "_logic_local_status", lambda: {"ready": True})
     monkeypatch.setattr(mod, "_cloud_status", lambda: {"ready": True, "available_providers": [], "primary": None})
     monkeypatch.setattr(mod, "_ha_status", lambda: {"enabled": False, "status": "disabled"})
     monkeypatch.setattr(mod, "_sync_status", lambda: {

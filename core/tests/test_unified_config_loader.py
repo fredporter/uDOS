@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from core.services.unified_config_loader import ConfigValue, get_config_loader
+from core.services.unified_config_loader import ConfigValue, UnifiedConfigLoader, get_config_loader
 
 
 @pytest.fixture
@@ -161,6 +161,21 @@ class TestGetters:
             del os.environ["MY_TEST_VAR"]
             del os.environ["TEST_PATH_VAR"]
 
+    def test_get_path_expands_udos_root_placeholders_from_dotenv(self, tmp_path):
+        repo = tmp_path / "repo"
+        repo.mkdir(parents=True)
+        (repo / ".env").write_text(
+            "UDOS_ROOT=/tmp/udos-root\n"
+            "UDOS_MEMORY_ROOT=${UDOS_ROOT}/memory\n"
+            "VAULT_ROOT=${UDOS_MEMORY_ROOT}/vault\n",
+            encoding="utf-8",
+        )
+
+        loader = UnifiedConfigLoader(repo_root=repo)
+
+        assert loader.get_path("UDOS_MEMORY_ROOT") == Path("/tmp/udos-root/memory")
+        assert loader.get_path("VAULT_ROOT") == Path("/tmp/udos-root/memory/vault")
+
 
 class TestConfigSources:
     """Test config loading from different sources."""
@@ -214,22 +229,19 @@ class TestConfiguration:
             del os.environ["SOURCE_TEST"]
 
 
-class TestOllamaConfig:
-    """Test Ollama-specific configuration."""
+class TestLogicAssistConfig:
+    """Test logic-assist related configuration access."""
 
-    def test_get_ollama_endpoint(self, loader):
-        """Should be able to get Ollama endpoint."""
-        endpoint = loader.get("OLLAMA_ENDPOINT")
-        assert endpoint is None or isinstance(endpoint, str)
+    def test_get_logic_assist_model_path(self, loader):
+        path = loader.get("LOGIC_ASSIST_MODEL_PATH")
+        assert path is None or isinstance(path, str)
 
-    def test_get_ollama_timeout(self, loader):
-        """Should be able to get Ollama timeout."""
-        timeout = loader.get_int("OLLAMA_TIMEOUT", default=30)
+    def test_get_logic_assist_timeout_default(self, loader):
+        timeout = loader.get_int("LOGIC_ASSIST_TIMEOUT", default=30)
         assert isinstance(timeout, int)
 
-    def test_ollama_models_config(self, loader):
-        """Should be able to get configured Ollama models."""
-        config = loader.get("OLLAMA_MODELS")
+    def test_logic_assist_model_name_config(self, loader):
+        config = loader.get("LOGIC_ASSIST_MODEL")
         assert config is None or isinstance(config, str)
 
 

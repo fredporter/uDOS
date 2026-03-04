@@ -72,7 +72,7 @@ BINDER IMPORT-RESEARCH <binder_id> <note_id> research
 ```
 
 Operator guidance remains the standard path for ambiguous natural-language
-requests. Dev-only contributor fallback belongs to the `/dev` extension lane.
+requests. Dev-only contributor fallback belongs to the `@dev` workspace lane rooted at `/dev`.
 
 ## Open-Box Runtime Notes
 

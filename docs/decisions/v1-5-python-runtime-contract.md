@@ -46,17 +46,17 @@ v1.5 needs one operator rule instead of multiple near-equivalents.
 
 ### Dev Extension
 
-- `/dev/` owns contributor governance, docs, and workflow policy
-- `/dev/` does not own production runtime execution
-- `/dev/` does not become a second Python command surface
+- the `@dev` workspace at `/dev` owns contributor governance, docs, and workflow policy
+- the `@dev` workspace does not own production runtime execution
+- the `@dev` workspace does not become a second Python command surface
 
 ## Allowed Invocation Styles
 
 Preferred:
 
 - `uv run --project . ...`
-- `./bin/ucode ...`
-- `./bin/wizardd ...`
+- `./bin/udos ...`
+- `./bin/udos wizard ...`
 - `./scripts/run_pytest.sh ...`
 
 Allowed when a concrete interpreter path is required by an editor/debug/task integration:
@@ -68,13 +68,13 @@ Allowed when a concrete interpreter path is required by an editor/debug/task int
 - committed `venv/` references in active launchers, workspace config, or docs
 - per-submodule repo-local virtualenv ownership for `core/` or `wizard/`
 - implicit Wizard dependency installation during normal `ucode` launch
-- moving production runtime entrypoints into `/dev/`
+- moving production runtime entrypoints into the `@dev` workspace
 
 ## Test Ownership
 
 - executable pytest wrappers live in root `scripts/`
 - pytest discovery defaults live in root `pyproject.toml`
-- contributor test policy and workflow guidance may live in `/dev/`
+- contributor test policy and workflow guidance may live in the `@dev` workspace
 
 ## Enforcement
 

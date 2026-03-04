@@ -13,10 +13,7 @@
       ``wizard.services.cloud_provider_executor.get_cloud_availability()``
     - Provider policy contracts (auth, request/response shape, failover):
       ``core.services.cloud_provider_policy``
-    - Ollama local provider (still active, no replacement needed):
-      ``_call_ollama()`` in this module remains valid.
-
-Handles all interactions with OK Providers (Ollama, Mistral, OpenAI, Anthropic, Gemini).
+Handles all interactions with OK Providers (Mistral, OpenAI, Anthropic, Gemini).
 Enforces timeout guards, stream handling, response normalisation, and error recovery.
 
 Architecture Rules (from vibe/AGENTS.md):
@@ -45,7 +42,6 @@ logger = logging.getLogger("vibe.provider-engine")
 class ProviderType(str, Enum):
     """Supported provider types."""
 
-    OLLAMA = "ollama"
     MISTRAL = "mistral"
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
@@ -106,7 +102,7 @@ class ProviderEngine:
         """Call provider with timeout guards and response normalisation.
 
         Args:
-            provider_type: Provider to use (ollama, mistral, etc.)
+            provider_type: Provider to use (mistral, openai, anthropic, gemini)
             model: Model identifier
             prompt: User prompt
             system: System message (optional)
@@ -128,11 +124,7 @@ class ProviderEngine:
             )
 
             # Route to provider-specific handler
-            if provider_type == ProviderType.OLLAMA.value:
-                raw_response = await self._call_ollama(
-                    model, prompt, system, stream, effective_timeout, **kwargs
-                )
-            elif provider_type == ProviderType.MISTRAL.value:
+            if provider_type == ProviderType.MISTRAL.value:
                 raw_response = await self._call_mistral(
                     model, prompt, system, stream, effective_timeout, **kwargs
                 )
@@ -200,84 +192,6 @@ class ProviderEngine:
                 status=ProviderStatus.ERROR,
                 execution_time=execution_time,
             )
-
-    async def _call_ollama(
-        self,
-        model: str,
-        prompt: str,
-        system: str | None,
-        stream: bool,
-        timeout: int,
-        **kwargs,
-    ) -> str:
-        """Call Ollama provider with proper stream handling.
-
-        Critical Fix:
-        - Explicitly close response streams to prevent hanging
-        - Handle both /api/chat and /api/generate endpoints
-        - Detect API format and adapt accordingly
-        """
-        import aiohttp
-
-        endpoint = kwargs.pop("endpoint", "http://127.0.0.1:11434")
-
-        messages = []
-        if system:
-            messages.append({"role": "system", "content": system})
-        messages.append({"role": "user", "content": prompt})
-
-        # Try /api/chat first (newer Ollama versions)
-        payload = {
-            "model": model,
-            "messages": messages,
-            "stream": False,  # Stream handling fix: always use False for now
-            "options": {
-                "temperature": kwargs.get("temperature", 0.2),
-                "top_p": kwargs.get("top_p", 0.95),
-            },
-        }
-
-        async with aiohttp.ClientSession() as session:
-            try:
-                async with asyncio.timeout(timeout):
-                    async with session.post(
-                        f"{endpoint}/api/chat", json=payload
-                    ) as resp:
-                        resp.raise_for_status()
-                        data = await resp.json()
-                        return data["message"]["content"]
-
-            except (aiohttp.ClientResponseError, KeyError):
-                # Fallback to /api/generate for older Ollama
-                self.logger.info(
-                    "[OLLAMA] /api/chat failed, trying /api/generate fallback"
-                )
-
-                prompt_parts = []
-                for msg in messages:
-                    role = msg.get("role", "user")
-                    content = msg.get("content", "")
-                    if role == "system":
-                        prompt_parts.append(f"System: {content}")
-                    elif role == "user":
-                        prompt_parts.append(f"User: {content}")
-
-                combined_prompt = "\n\n".join(prompt_parts)
-
-                payload_legacy = {
-                    "model": model,
-                    "prompt": combined_prompt,
-                    "stream": False,
-                    "options": payload["options"],
-                }
-
-                async with asyncio.timeout(timeout):
-                    async with session.post(
-                        f"{endpoint}/api/generate", json=payload_legacy
-                    ) as resp:
-                        resp.raise_for_status()
-                        data = await resp.json()
-                        return data.get("response", "")
 
     async def _call_mistral(
         self,

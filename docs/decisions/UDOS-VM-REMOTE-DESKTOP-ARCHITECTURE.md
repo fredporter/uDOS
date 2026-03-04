@@ -72,7 +72,7 @@ This document remains a monitor-only or extension-oriented platform reference fo
 
 ## Related Documents
 
-- `docs/roadmap.md`
+- `docs/STATUS.md`
 - `docs/decisions/WIZARD-SERVICE-SPLIT-MAP.md`
 - `docs/decisions/alpine-linux-spec.md`
 - `docs/decisions/UDOS-PYTHON-CORE-STDLIB-PROFILE.md`

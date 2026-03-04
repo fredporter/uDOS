@@ -1,6 +1,6 @@
 # Wizard Architecture
 
-**Model:** Single Wizard service on 8765 with an optional Dev extension lane rooted at `/dev`.
+**Model:** Single Wizard service on 8765 with an optional `@dev` contributor workspace rooted at `/dev`.
 
 ---
 
@@ -39,7 +39,7 @@ wizard/
 ├── services/
 │   ├── ai_gateway.py          # Assistant routing (local-first)
 │   ├── dev_mode_service.py    # Dev extension lane activation/status/runtime checks
-│   ├── dev_extension_service.py # /dev framework policy + GitHub contributor sync
+│   ├── dev_extension_service.py # @dev framework policy + GitHub contributor sync
 │   ├── github_integration.py  # GitHub CLI ops, issue/PR management
 │   ├── github_monitor.py      # Actions self-healing
 │   ├── github_sync.py         # Safe repo sync (pull/push flag)
@@ -131,15 +131,15 @@ Not in Wizard: TUI command handlers, core business logic, or the standard operat
 
 ## 🎮 Dev Extension Lane
 
-**Entry model:** implicit contributor lane behind the active `dev` profile and installed `/dev/` extension
+**Entry model:** implicit contributor lane behind the active `dev` profile and installed `@dev` workspace
 **Controlled by:** Wizard GUI plus `/api/dev/*` routes
-**Framework root:** `/dev`
+**Framework root:** `@dev` at `/dev`
 
 Dev extension responsibilities include:
 
 - contributor status, health, restart, clear, and log surfaces
 - gated Vibe/MCP contributor tooling
-- local scripts/tests/workflows rooted under `/dev/`
+- local scripts/tests/workflows rooted under the `@dev` workspace
 - GitHub contributor sync and release-profile-aware checks
 
 The Dev extension lane is not a second default runtime and must not be described as an explicit normal-user mode switch.
@@ -187,7 +187,7 @@ See also: [extensions/PORT-REGISTRY.md](../extensions/PORT-REGISTRY.md)
 ## Configuration
 
 - `wizard/config/wizard.json` (committed, versioned) — host/port, rate limits, budgets, service toggles, GitHub sync settings.
-- Dev extension framework policy and contributor work templates live under `/dev`.
+- Dev extension framework policy and contributor work templates live under `@dev`.
 
 ---
 
@@ -202,7 +202,7 @@ UV_PROJECT_ENVIRONMENT=.venv uv run python -m wizard.server --daemon  # daemon m
 To use the Dev extension lane:
 
 ```bash
-# Enable the dev profile and install/activate the /dev extension through Wizard GUI,
+# Enable the dev profile and install/activate the @dev workspace through Wizard GUI,
 # then use the /api/dev/* routes or the Dev Mode screen for contributor controls.
 curl -X POST http://localhost:8765/api/dev/activate
 ```

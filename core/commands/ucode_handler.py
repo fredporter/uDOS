@@ -33,6 +33,7 @@ from core.services.python_runtime_contract import (
     CANONICAL_PYTHON_VERSION,
     detect_python_runtime_status,
 )
+from core.services.path_service import get_repo_root
 from core.ulogic import (
     ResearchRequest,
     enrich_document,
@@ -58,7 +59,7 @@ class UcodeHandler(BaseCommandHandler):
 
     def __init__(self) -> None:
         super().__init__()
-        self.repo_root = Path(__file__).resolve().parents[2]
+        self.repo_root = get_repo_root()
         from core.services.unified_config_loader import get_config
 
         env_ucode_root = get_config("UDOS_UCODE_ROOT", "").strip()

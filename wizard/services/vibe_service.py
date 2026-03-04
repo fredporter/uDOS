@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Generator, List, Optional
 
-from wizard.services.ai_context_store import write_context_bundle
+from wizard.services.ok_context_store import write_ok_context_bundle
 from wizard.services.local_model_gpt4all import GPT4AllLocalAssist
 from wizard.services.logging_api import get_logger
 from wizard.services.logic_assist_profile import load_logic_assist_profile
@@ -84,7 +84,7 @@ class VibeService:
         return "\n\n---\n\n".join(context)
 
     def load_default_context(self) -> str:
-        context_path = write_context_bundle()
+        context_path = write_ok_context_bundle()
         try:
             data = json.loads(context_path.read_text(encoding="utf-8"))
         except Exception:

@@ -7,17 +7,18 @@
 - `Wizard GUI` is the only GUI host for uDOS features.
 - `uDOS` is the underlying TS/Python runtime.
 
-## Dev Submodule Contract (`/dev`)
+## `@dev` Workspace Contract
 
-`/dev` is the private development scaffold. Goblin is not a standalone runtime product.
+The `@dev` workspace lives at `/dev`. Goblin is not a standalone runtime product.
 
 Required scaffold for Wizard Dev Mode:
 
-- `/dev/goblin/scripts/` for dev scripts
-- `/dev/goblin/tests/` for dev tests
-- `/dev/goblin/wizard-sandbox/` for GUI-bound development outputs
+- `dev/goblin/` for distributable contributor fixtures
+- `dev/dev-work/` for local-only dev scripts
+- `dev/testing/` for local-only dev tests
+- `dev/files/` for local-only GUI-bound development outputs
 
-Wizard Dev Mode APIs execute scripts/tests from this scaffold only.
+Wizard Dev Mode APIs execute contributor scripts/tests from the `@dev` workspace only.
 
 ## Groovebox Contract
 

@@ -2,7 +2,7 @@
 Admin Secret Contract
 
 Provides a stable interface for accessing admin/cloud provider secrets
-from the uDOS vault. Used by AI provider handlers to check for API keys.
+from the uDOS vault. Used by OK provider handlers to check for API keys.
 """
 
 from __future__ import annotations

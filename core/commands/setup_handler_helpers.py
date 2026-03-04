@@ -6,6 +6,7 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 
+from core.services.path_service import get_repo_root
 from core.services.unified_config_loader import get_config
 
 
@@ -26,8 +27,7 @@ def detect_udos_root(reference_file: Path | None = None, logger=None) -> Path:
             )
 
     try:
-        current_file = (reference_file or Path(__file__)).resolve()
-        candidate = current_file.parent.parent.parent
+        candidate = get_repo_root()
         marker = candidate / "uDOS.py"
         if marker.exists():
             if logger:
@@ -96,6 +96,11 @@ def save_setup_to_env(env_file: Path, data: dict, logger=None) -> bool:
         try:
             udos_root = detect_udos_root(reference_file=Path(__file__), logger=logger)
             data["udos_root"] = str(udos_root)
+            memory_root = (udos_root / "memory").resolve()
+            vault_root = (memory_root / "vault").resolve()
+            data["udos_memory_root"] = str(memory_root)
+            data["vault_root"] = str(vault_root)
+            data["vault_md_root"] = str(vault_root)
         except RuntimeError as exc:
             if logger:
                 logger.warning(f"[LOCAL] UDOS_ROOT detection failed: {exc}")
@@ -109,6 +114,9 @@ def save_setup_to_env(env_file: Path, data: dict, logger=None) -> bool:
             "install_os_type": "OS_TYPE",
             "user_password": "USER_PASSWORD",
             "udos_root": "UDOS_ROOT",
+            "udos_memory_root": "UDOS_MEMORY_ROOT",
+            "vault_root": "VAULT_ROOT",
+            "vault_md_root": "VAULT_MD_ROOT",
         }
 
         existing = {}
@@ -144,8 +152,16 @@ def save_setup_to_env(env_file: Path, data: dict, logger=None) -> bool:
             existing["USER_ID"] = f'"{scramble_uid(uid)}"'
 
         if "UDOS_ROOT" not in existing:
-            repo_root = Path(__file__).parent.parent.parent.resolve()
+            repo_root = get_repo_root()
             existing["UDOS_ROOT"] = f'"{repo_root!s}"'
+        if "UDOS_MEMORY_ROOT" not in existing:
+            existing["UDOS_MEMORY_ROOT"] = f'"{Path(existing["UDOS_ROOT"].strip(chr(34)).strip(chr(39))) / "memory"!s}"'
+        if "VAULT_ROOT" not in existing:
+            memory_root = Path(existing["UDOS_MEMORY_ROOT"].strip(chr(34)).strip(chr(39)))
+            existing["VAULT_ROOT"] = f'"{memory_root / "vault"!s}"'
+        if "VAULT_MD_ROOT" not in existing:
+            vault_root = Path(existing["VAULT_ROOT"].strip(chr(34)).strip(chr(39)))
+            existing["VAULT_MD_ROOT"] = f'"{vault_root!s}"'
 
         wizard_key = existing.get("WIZARD_KEY", "").strip().strip('"\'')
         if not wizard_key:

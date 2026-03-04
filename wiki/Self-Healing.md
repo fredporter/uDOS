@@ -1,40 +1,26 @@
-# Self‑Healing (Housekeeping)
+# Self-Healing
 
-**Version:** v1.4.4+
-**Last Updated:** 2026-02-22
-**Status:** Maintenance Utility
+Updated: 2026-03-04
+Status: short maintenance map
 
-Self‑healing is a housekeeping tool that checks common issues and can apply safe fixes. It is not a feature surface; it keeps the system stable.
+Self-healing and repair flows are maintenance surfaces, not a separate product lane.
 
----
+## Use Cases
 
-## Purpose
+- runtime drift
+- missing local dependencies
+- config and setup recovery
+- Wizard readiness and repair checks
 
-- Detect missing deps, port conflicts, and config drift
-- Provide a safe repair path before running TUI or Wizard
-- Keep developer environments consistent
+## Canonical Docs
 
----
+- Managed operations:
+  [../docs/howto/MANAGED-WIZARD-OPERATIONS.md](../docs/howto/MANAGED-WIZARD-OPERATIONS.md)
+- Admin secret recovery:
+  [../docs/howto/WIZARD-ADMIN-SECRET-CONTRACT-RECOVERY.md](../docs/howto/WIZARD-ADMIN-SECRET-CONTRACT-RECOVERY.md)
+- Compost and cleanup behavior:
+  [../docs/COMPOST-POLICY.md](../docs/COMPOST-POLICY.md)
 
-## Use
+## Rule
 
-```bash
-./bin/udos-self-heal.sh
-./bin/udos-self-heal.sh wizard
-./bin/udos-self-heal.sh --no-repair
-```
-
-> If scripts or paths differ in your build, use `HELP` or check `/bin/` for the current entrypoint.
-
----
-
-## Where It Lives
-
-- CLI wrapper: `bin/udos-self-heal.sh`
-- Service logic: `core/services/self_healer.py` (if present)
-
----
-
-## Notes
-
-Self‑healing should be **safe by default** and **transparent** about changes it makes. Treat it as a maintenance routine, not a user‑facing feature.
+Self-healing should stay safe by default, auditable, and explicit about any mutation it performs.

@@ -65,8 +65,8 @@ def get_fallback_dashboard_html() -> str:
             </div>
 
             <div class="endpoint">
-                <h3>🤖 AI Models</h3>
-                <p>Available AI models for routing</p>
+                <h3>🤖 OK Models</h3>
+                <p>Available OK models for routing</p>
                 <div class="code">/api/ai/models</div>
             </div>
 

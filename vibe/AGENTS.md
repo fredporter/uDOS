@@ -53,7 +53,7 @@ Vibe operates in:
 - CLI contexts (via bin/vibe)
 
 Vibe requires:
-- Either local models (Ollama) OR cloud credentials
+- Either local logic runtime access (GPT4All) OR cloud credentials
 - Skill definitions in vibe/core/skills/
 - Valid provider configuration
 
@@ -143,7 +143,7 @@ If provider logic is needed → route through wizard.
 ## Known Issues (To Be Fixed)
 
 1. Vibe-CLI hanging/blocking (stream not closing properly)
-2. Ollama integration failures (timeout/context issues)
+2. Local logic runtime integration failures (timeout/context issues)
 3. Double response (ucode + provider both executing)
 4. Provider selection not deterministic
 

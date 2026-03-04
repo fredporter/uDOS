@@ -14,17 +14,20 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List
 from datetime import datetime, timezone
 
+from core.services.path_service import get_repo_root
 from wizard.services.logging_api import get_logger
 from wizard.services.workflow_manager import WorkflowManager
 from wizard.services.vibe_service import VibeService
-from wizard.services.ai_context_store import write_context_bundle
+from wizard.services.ok_context_store import write_ok_context_bundle
 
 
 class DevModeService:
     """Manages Wizard dev workspace mode (/dev scripts/tests)."""
 
-    def __init__(self, wizard_root: Optional[Path] = None):
-        self.wizard_root = wizard_root or Path(__file__).parent.parent.parent
+    def __init__(self, repo_root: Optional[Path] = None):
+        self.repo_root = Path(repo_root) if repo_root else get_repo_root()
+        # Keep the legacy attribute name for compatibility with existing call sites.
+        self.wizard_root = self.repo_root
         self.logger = get_logger("dev-mode-service")
 
         self.active = False
@@ -47,10 +50,79 @@ class DevModeService:
         return self._dev_root() / "dev-work" / "scripts"
 
     def _tests_root(self) -> Path:
+        return self._dev_root() / "goblin" / "tests"
+
+    def _ops_root(self) -> Path:
+        return self._dev_root() / "ops"
+
+    def _local_tests_root(self) -> Path:
         return self._dev_root() / "testing" / "tests"
 
     def _sandbox_root(self) -> Path:
         return self._dev_root() / "files" / "wizard-sandbox"
+
+    def _goblin_root(self) -> Path:
+        return self._dev_root() / "goblin"
+
+    def _docs_root(self) -> Path:
+        return self._dev_root() / "docs"
+
+    def _ops_devlog_path(self) -> Path:
+        return self._ops_root() / "DEVLOG.md"
+
+    def _ops_project_path(self) -> Path:
+        return self._ops_root() / "project.json"
+
+    def _ops_tasks_path(self) -> Path:
+        return self._ops_root() / "tasks.md"
+
+    def _ops_tasks_json_path(self) -> Path:
+        return self._ops_root() / "tasks.json"
+
+    def _ops_completed_path(self) -> Path:
+        return self._ops_root() / "completed.json"
+
+    def _roadmap_path(self) -> Path:
+        return self._docs_root() / "roadmap" / "ROADMAP.md"
+
+    def _decisions_root(self) -> Path:
+        return self._docs_root() / "decisions"
+
+    def _devlog_index_path(self) -> Path:
+        return self._docs_root() / "devlog" / "README.md"
+
+    def _task_index_path(self) -> Path:
+        return self._docs_root() / "tasks" / "README.md"
+
+    def get_ops_summary(self) -> Dict[str, Any]:
+        requirements = self.check_requirements(force=False)
+        ops_paths = {
+            "root": str(self._ops_root()),
+            "devlog": str(self._ops_devlog_path()),
+            "project": str(self._ops_project_path()),
+            "tasks": str(self._ops_tasks_path()),
+            "tasks_json": str(self._ops_tasks_json_path()),
+            "completed": str(self._ops_completed_path()),
+            "workspace": str(self._ops_root() / "templates" / "uDOS-dev.code-workspace"),
+            "copilot": str(self._ops_root() / "templates" / "copilot-instructions.md"),
+            "scheduler": str(self._ops_root() / "scheduler"),
+            "workflows": str(self._ops_root() / "workflows"),
+            "utils": str(self._ops_root() / "utils"),
+        }
+        files = {
+            name: {"path": path, "present": Path(path).exists()}
+            for name, path in ops_paths.items()
+        }
+        return {
+            "workspace_alias": "@dev",
+            "active": self.active,
+            "ops": {
+                "root": ops_paths["root"],
+                "files": files,
+            },
+            "requirements_ready": bool(requirements.get("framework_ready")),
+            "tracked_sync_paths": requirements.get("tracked_sync_paths", {}),
+        }
 
     def _framework_manifest(self) -> Path:
         return self._dev_root() / "extension.json"
@@ -75,18 +147,28 @@ class DevModeService:
         markers = [
             dev_root / "README.md",
             dev_root / "AGENTS.md",
-            dev_root / "DEVLOG.md",
-            dev_root / "project.json",
-            dev_root / "tasks.md",
-            dev_root / "completed.json",
             self._framework_manifest(),
+            self._ops_root() / "README.md",
+            self._ops_root() / "AGENTS.md",
+            self._ops_devlog_path(),
+            self._ops_project_path(),
+            self._ops_tasks_path(),
+            self._ops_tasks_json_path(),
+            self._ops_completed_path(),
+            self._ops_root() / "templates" / "uDOS-dev.code-workspace",
+            self._ops_root() / "templates" / "copilot-instructions.md",
             dev_root / "docs" / "README.md",
             dev_root / "docs" / "DEV-MODE-POLICY.md",
             dev_root / "docs" / "specs" / "DEV-WORKSPACE-SPEC.md",
+            dev_root / "docs" / "decisions" / "README.md",
+            dev_root / "docs" / "devlog" / "README.md",
+            dev_root / "docs" / "roadmap" / "ROADMAP.md",
+            dev_root / "docs" / "tasks" / "README.md",
             dev_root / "docs" / "howto" / "GETTING-STARTED.md",
             dev_root / "docs" / "howto" / "VIBE-Setup-Guide.md",
             dev_root / "docs" / "features" / "GITHUB-INTEGRATION.md",
             dev_root / "goblin" / "README.md",
+            dev_root / "goblin" / "tests" / "README.md",
         ]
         return all(path.exists() for path in markers)
 
@@ -104,6 +186,13 @@ class DevModeService:
         if not str(candidate).startswith(str(root.resolve())):
             return None
         return candidate
+
+    def _browser_roots(self) -> Dict[str, Path]:
+        return {
+            "ops": self._ops_root(),
+            "docs": self._docs_root(),
+            "goblin": self._goblin_root(),
+        }
 
     def _append_dev_log(self, message: str) -> None:
         try:
@@ -129,6 +218,7 @@ class DevModeService:
         dev_root = self._dev_root()
         scripts_root = self._scripts_root()
         tests_root = self._tests_root()
+        local_tests_root = self._local_tests_root()
         sandbox_root = self._sandbox_root()
 
         present = self._dev_template_present()
@@ -150,17 +240,38 @@ class DevModeService:
             "dev_template_present": present,
             "scripts_root": str(scripts_root),
             "tests_root": str(tests_root),
+            "local_tests_root": str(local_tests_root),
             "sandbox_root": str(sandbox_root),
             "framework_manifest": str(self._framework_manifest()),
             "framework_manifest_present": self._framework_manifest().exists(),
             "dev_commands_manifest": str(self._dev_commands_manifest()),
             "dev_commands_manifest_present": self._dev_commands_manifest().exists(),
+            "ops_root": str(self._ops_root()),
             "script_count": script_count,
             "test_count": test_count,
             "framework_ready": present,
             "tracked_sync_paths": {
-                "docs": str(self._dev_root() / "docs"),
-                "goblin": str(self._dev_root() / "goblin"),
+                "ops": str(self._ops_root()),
+                "docs": str(self._docs_root()),
+                "decisions": str(self._decisions_root()),
+                "devlog": str(self._ops_devlog_path()),
+                "project": str(self._ops_project_path()),
+                "roadmap": str(self._roadmap_path()),
+                "tasks": str(self._ops_tasks_path()),
+                "tasks_json": str(self._ops_tasks_json_path()),
+                "completed": str(self._ops_completed_path()),
+                "workspace": str(self._ops_root() / "templates" / "uDOS-dev.code-workspace"),
+                "copilot": str(self._ops_root() / "templates" / "copilot-instructions.md"),
+                "goblin": str(self._goblin_root()),
+                "goblin_tests": str(self._tests_root()),
+            },
+            "goblin_layers": {
+                "root": str(self._goblin_root()),
+                "server": str(self._goblin_root() / "server"),
+                "seed": str(self._goblin_root() / "seed"),
+                "scenarios": str(self._goblin_root() / "scenarios"),
+                "test_vault": str(self._goblin_root() / "test-vault"),
+                "tests": str(self._tests_root()),
             },
             "remote_framework_only": True,
             "ignored_local_paths": {
@@ -236,7 +347,7 @@ class DevModeService:
         results: Dict[str, Any] = {"status": "cleared", "actions": []}
 
         try:
-            write_context_bundle()
+            write_ok_context_bundle()
             results["actions"].append({"context": "refreshed"})
         except Exception as exc:
             results["actions"].append({"context": f"error: {exc}"})
@@ -347,8 +458,10 @@ class DevModeService:
             "active": self.active,
             "uptime_seconds": uptime_seconds,
             "dev_root": str(self._dev_root()),
+            "ops_root": str(self._ops_root()),
             "scripts_root": str(self._scripts_root()),
             "tests_root": str(self._tests_root()),
+            "local_tests_root": str(self._local_tests_root()),
             "sandbox_root": str(self._sandbox_root()),
             "services": self.services_status,
             "requirements": requirements,
@@ -381,6 +494,72 @@ class DevModeService:
             "total_lines": len(logs),
         }
 
+    def list_browser_entries(self, area: str = "ops", rel_path: str = "") -> Dict[str, Any]:
+        requirements_error = self.ensure_requirements()
+        if requirements_error:
+            return {"status": "error", "message": requirements_error}
+
+        root = self._browser_roots().get(area)
+        if root is None:
+            return {"status": "error", "message": f"Unknown area: {area}"}
+
+        target = root if not rel_path else self._safe_resolve(root, rel_path)
+        if target is None:
+            return {"status": "error", "message": f"Path not allowed: {rel_path}"}
+        if not target.exists():
+            return {"status": "error", "message": "Path not found"}
+        if not target.is_dir():
+            return {"status": "error", "message": "Path is not a directory"}
+
+        entries: List[Dict[str, Any]] = []
+        for entry in sorted(target.iterdir(), key=lambda p: (p.is_file(), p.name.lower())):
+            rel = entry.relative_to(root).as_posix()
+            entries.append(
+                {
+                    "name": entry.name,
+                    "path": rel,
+                    "type": "dir" if entry.is_dir() else "file",
+                    "size": entry.stat().st_size,
+                }
+            )
+
+        return {
+            "status": "ok",
+            "workspace_alias": "@dev",
+            "area": area,
+            "root": str(root),
+            "path": rel_path,
+            "entries": entries,
+        }
+
+    def read_browser_file(self, area: str = "ops", rel_path: str = "") -> Dict[str, Any]:
+        requirements_error = self.ensure_requirements()
+        if requirements_error:
+            return {"status": "error", "message": requirements_error}
+
+        root = self._browser_roots().get(area)
+        if root is None:
+            return {"status": "error", "message": f"Unknown area: {area}"}
+
+        target = self._safe_resolve(root, rel_path)
+        if target is None:
+            return {"status": "error", "message": f"Path not allowed: {rel_path}"}
+        if not target.exists() or not target.is_file():
+            return {"status": "error", "message": "File not found"}
+        try:
+            content = target.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            return {"status": "error", "message": "File is not valid text"}
+
+        return {
+            "status": "ok",
+            "workspace_alias": "@dev",
+            "area": area,
+            "root": str(root),
+            "path": rel_path,
+            "content": content,
+        }
+
     def restart(self) -> Dict[str, Any]:
         deactivate_result = self.deactivate()
         if deactivate_result["status"] == "error":
@@ -401,7 +580,7 @@ class DevModeService:
             }
 
         scripts_ok = self._scripts_root().exists()
-        tests_ok = self._tests_root().exists()
+        tests_ok = self._tests_root().exists() or self._local_tests_root().exists()
         healthy = scripts_ok or tests_ok
 
         return {
@@ -412,6 +591,7 @@ class DevModeService:
                 "status": "healthy" if healthy else "unhealthy",
                 "scripts_root": str(self._scripts_root()),
                 "tests_root": str(self._tests_root()),
+                "local_tests_root": str(self._local_tests_root()),
                 "sandbox_root": str(self._sandbox_root()),
                 "framework_manifest": str(self._framework_manifest()),
             }
@@ -434,13 +614,25 @@ class DevModeService:
         if self.ensure_requirements() or self.ensure_active():
             return []
         root = self._tests_root()
-        if not root.exists():
-            return []
         out: List[str] = []
-        for path in sorted(root.rglob("*")):
-            if path.is_file() and self._allowed_test(path):
-                out.append(str(path.relative_to(root)))
+        for label, base in (("goblin", self._tests_root()), ("local", self._local_tests_root())):
+            if not base.exists():
+                continue
+            for path in sorted(base.rglob("*")):
+                if path.is_file() and self._allowed_test(path):
+                    rel = str(path.relative_to(base))
+                    out.append(f"{label}/{rel}")
         return out
+
+    def _resolve_test_path(self, rel_path: str) -> Optional[Path]:
+        if rel_path.startswith("goblin/"):
+            return self._safe_resolve(self._tests_root(), rel_path[len("goblin/"):])
+        if rel_path.startswith("local/"):
+            return self._safe_resolve(self._local_tests_root(), rel_path[len("local/"):])
+        path = self._safe_resolve(self._tests_root(), rel_path)
+        if path and path.exists():
+            return path
+        return self._safe_resolve(self._local_tests_root(), rel_path)
 
     def run_script(self, rel_path: str, args: Optional[List[str]] = None, timeout: int = 300) -> Dict[str, Any]:
         requirements_error = self.ensure_requirements()
@@ -487,7 +679,7 @@ class DevModeService:
 
         args = args or []
         if rel_path:
-            test_path = self._safe_resolve(self._tests_root(), rel_path)
+            test_path = self._resolve_test_path(rel_path)
             if not test_path or not test_path.exists() or not test_path.is_file() or not self._allowed_test(test_path):
                 return {"status": "error", "message": f"Test not allowed: {rel_path}"}
 
@@ -496,7 +688,14 @@ class DevModeService:
             else:
                 cmd = ["python", "-m", "pytest", str(test_path)] + args
         else:
-            cmd = ["python", "-m", "pytest", str(self._tests_root())] + args
+            targets: List[str] = []
+            if self._tests_root().exists():
+                targets.append(str(self._tests_root()))
+            if self._local_tests_root().exists():
+                targets.append(str(self._local_tests_root()))
+            if not targets:
+                return {"status": "error", "message": "No contributor tests available"}
+            cmd = ["python", "-m", "pytest", *targets] + args
 
         self._append_dev_log(f"RUN TESTS: {' '.join(cmd)}")
         try:
@@ -521,8 +720,9 @@ class DevModeService:
 _dev_mode_service: Optional[DevModeService] = None
 
 
-def get_dev_mode_service() -> DevModeService:
+def get_dev_mode_service(repo_root: Optional[Path] = None) -> DevModeService:
     global _dev_mode_service
-    if _dev_mode_service is None:
-        _dev_mode_service = DevModeService()
+    resolved_root = Path(repo_root) if repo_root else get_repo_root()
+    if _dev_mode_service is None or _dev_mode_service.repo_root != resolved_root:
+        _dev_mode_service = DevModeService(repo_root=resolved_root)
     return _dev_mode_service

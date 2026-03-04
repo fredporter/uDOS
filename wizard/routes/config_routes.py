@@ -84,7 +84,7 @@ def create_config_routes(auth_guard=None):
             "status": "ok",
             "networking": {
                 "web_proxy_enabled": bool(config.get("web_proxy_enabled", True)),
-                "logic_assist_enabled": bool(config.get("ok_gateway_enabled", True)),
+                "logic_assist_enabled": bool(config.get("logic_assist_enabled", True)),
                 "plugin_repo_enabled": bool(config.get("plugin_repo_enabled", True)),
                 "github_push_enabled": bool(config.get("github_push_enabled", True)),
             },
@@ -103,7 +103,7 @@ def create_config_routes(auth_guard=None):
             if value is not None:
                 updates[key] = bool(value)
         if payload.logic_assist_enabled is not None:
-            updates["ok_gateway_enabled"] = bool(payload.logic_assist_enabled)
+            updates["logic_assist_enabled"] = bool(payload.logic_assist_enabled)
 
         if updates:
             config.update(updates)
@@ -124,7 +124,7 @@ def create_config_routes(auth_guard=None):
             "status": "ok",
             "networking": {
                 "web_proxy_enabled": bool(config.get("web_proxy_enabled", True)),
-                "logic_assist_enabled": bool(config.get("ok_gateway_enabled", True)),
+                "logic_assist_enabled": bool(config.get("logic_assist_enabled", True)),
                 "plugin_repo_enabled": bool(config.get("plugin_repo_enabled", True)),
                 "github_push_enabled": bool(config.get("github_push_enabled", True)),
             },

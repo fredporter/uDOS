@@ -29,26 +29,38 @@ The `@dev` workspace must ship with:
 
 - `README.md`
 - `AGENTS.md`
-- `DEVLOG.md`
-- `project.json`
-- `tasks.md`
-- `completed.json`
 - `extension.json`
+- `ops/README.md`
+- `ops/AGENTS.md`
+- `ops/DEVLOG.md`
+- `ops/project.json`
+- `ops/tasks.md`
+- `ops/tasks.json`
+- `ops/completed.json`
+- `ops/templates/uDOS-dev.code-workspace`
+- `ops/templates/copilot-instructions.md`
 - `docs/README.md`
 - `docs/DEV-MODE-POLICY.md`
+- `docs/decisions/README.md`
+- `docs/devlog/README.md`
+- `docs/roadmap/ROADMAP.md`
+- `docs/tasks/README.md`
 - `docs/specs/DEV-WORKSPACE-SPEC.md`
 - `docs/howto/GETTING-STARTED.md`
 - `docs/howto/VIBE-Setup-Guide.md`
 - `docs/features/GITHUB-INTEGRATION.md`
 - `goblin/README.md`
+- `goblin/tests/README.md`
 
 ## Sync Policy
 
 Only the versioned framework payload is intended for public sync from `/dev`:
 
 - `/dev` governance files
+- `dev/ops/`
 - `dev/docs/`
 - `dev/goblin/`
+- `dev/goblin/tests/`
 
 The following paths are explicitly local-only and must stay out of public sync:
 
@@ -96,6 +108,8 @@ GitHub endpoints:
 ## Workspace Rules
 
 - Use `@dev` for contributor docs, Goblin fixtures, and Dev Mode templates.
+- Use `dev/ops/` for contributor mission state, Codex/Copilot/VS Code instructions, and shared workspace templates.
 - Use root `docs/` only for runtime, operator, feature, and public product documentation.
 - Use `dev/goblin/` as the distributable dev scaffold and testing-server layer.
+- Use `dev/goblin/tests/` for tracked overlay tests that sit on top of Wizard-owned services.
 - Do not store runtime state, secrets, or personal scratch work in the tracked `@dev` payload.

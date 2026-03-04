@@ -256,7 +256,7 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             "WIZARD STATUS     Check Wizard server status",
             "WIZARD KEY ...    Manage MISTRAL_API_KEY (status|set|clear)",
             "WIZARD PROV ...   Provider operations (LIST|STATUS|ENABLE|DISABLE|SETUP|GENSECRET)",
-            "WIZARD INTEG ...  Integration wiring checks (status|github|mistral|ollama)",
+            "WIZARD INTEG ...  Integration wiring checks (status|github|mistral)",
             "WIZARD CHECK      Full Wizard-side shakedown",
             "WIZARD MODE ...   Toggle wizard-admin mode (on|off|status)",
             "WIZARD RESET      Wipe Wizard keystore + admin token (destructive)",
@@ -588,7 +588,7 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                 "message": "Integration status loaded",
                 "output": "\n".join(lines),
             }
-        if sub in {"github", "mistral", "ollama"}:
+        if sub in {"github", "mistral"}:
             ok, payload, err = self._wizard_api_json(
                 "GET", f"/api/providers/{sub}/status"
             )
@@ -611,7 +611,7 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
             }
         raise CommandError(
             code="ERR_COMMAND_INVALID_ARG",
-            message="Usage: WIZARD INTEG [status|github|mistral|ollama]",
+            message="Usage: WIZARD INTEG [status|github|mistral]",
             recovery_hint="Choose a valid integration option",
             level="INFO",
         )

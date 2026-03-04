@@ -89,7 +89,7 @@ This lane should not block the general v1.5 release beyond the specific home-pro
 ## Related Documents
 
 - `docs/specs/UHOME-v1.5.md`
-- `docs/roadmap.md`
+- `docs/STATUS.md`
 - `docs/decisions/HOME-ASSISTANT-BRIDGE.md`
 - `docs/decisions/SONIC-DB-SPEC-GPU-PROFILES.md`
 - `docs/decisions/WIZARD-SERVICE-SPLIT-MAP.md`

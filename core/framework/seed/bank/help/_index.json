@@ -17,9 +17,9 @@
     },
     {
       "file": "assistant_commands.json",
-      "category": "AI Assistant",
+      "category": "OK Assistant",
       "commands": ["OK", "ASK", "READ"],
-      "description": "AI-powered assistance and development"
+      "description": "OK-powered assistance and development"
     },
     {
       "file": "grid_commands.json",

@@ -151,4 +151,4 @@ The release must treat this as a standardization milestone, not a patch:
 - `docs/decisions/v1-5-ucode-tui-spec.md`
 - `docs/decisions/v1-5-offline-assist.md`
 - `docs/decisions/v1-5-workflow.md`
-- `docs/roadmap.md`
+- `docs/STATUS.md`

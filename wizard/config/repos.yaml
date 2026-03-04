@@ -37,14 +37,6 @@ ucode:
 
 # wizard - Development/wizard-only repositories
 wizard:
-  # Ollama - Local LLM runtime
-  - name: "ollama"
-    owner: "ollama"
-    repo: "ollama"
-    path: "library/wizard/ollama"
-    ref: "main"
-    description: "Run LLMs locally"
-
   # Mistral Vibe - Offline AI assistant
   - name: "mistral-vibe"
     owner: "mistralai"

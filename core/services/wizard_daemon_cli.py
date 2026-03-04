@@ -24,6 +24,8 @@ def _build_parser() -> argparse.ArgumentParser:
         choices=("start", "stop", "restart", "status", "health", "logs"),
     )
     parser.add_argument("--base-url", dest="base_url", default=None)
+    parser.add_argument("--repair", action="store_true")
+    parser.add_argument("--require-scheduler", action="store_true", default=False)
     return parser
 
 
@@ -33,7 +35,12 @@ def main() -> int:
 
     match args.command:
         case "start":
-            status = manager.ensure_running(base_url=args.base_url, wait_seconds=25)
+            status = manager.ensure_running(
+                base_url=args.base_url,
+                wait_seconds=25,
+                auto_repair=args.repair,
+                require_scheduler=args.require_scheduler,
+            )
             if status.connected:
                 print(f"wizardd running ({status.base_url}) pid={status.pid or 'unknown'}")
                 return 0
@@ -48,7 +55,12 @@ def main() -> int:
             return 0
         case "restart":
             _ = manager.stop(base_url=args.base_url, timeout_seconds=8)
-            status = manager.ensure_running(base_url=args.base_url, wait_seconds=25)
+            status = manager.ensure_running(
+                base_url=args.base_url,
+                wait_seconds=25,
+                auto_repair=args.repair,
+                require_scheduler=args.require_scheduler,
+            )
             if status.connected:
                 print(f"wizardd running ({status.base_url}) pid={status.pid or 'unknown'}")
                 return 0
@@ -66,7 +78,10 @@ def main() -> int:
             return 0
         case "health":
             status = manager.status(base_url=args.base_url)
-            if status.connected:
+            scheduler_ok = (
+                not args.require_scheduler or bool((status.scheduler or {}).get("healthy"))
+            )
+            if status.connected and scheduler_ok:
                 print(f"healthy ({status.base_url}/health)")
                 return 0
             print(f"unreachable ({status.base_url}/health)")

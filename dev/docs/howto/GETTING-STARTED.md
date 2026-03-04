@@ -16,7 +16,7 @@ UV_PROJECT_ENVIRONMENT=.venv uv run ./uDOS.py SETUP
 ## Open The Workspace
 
 ```bash
-code ucode-dev.code-workspace
+code dev/ops/templates/uDOS-dev.code-workspace
 ```
 
 Use the workspace folders as follows:
@@ -30,6 +30,7 @@ Use the workspace folders as follows:
 
 - `AGENTS.md`
 - `dev/AGENTS.md`
+- `dev/ops/AGENTS.md`
 - `dev/docs/DEV-MODE-POLICY.md`
 - `dev/docs/specs/DEV-WORKSPACE-SPEC.md`
 - `dev/docs/howto/VIBE-Setup-Guide.md`

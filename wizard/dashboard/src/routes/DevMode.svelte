@@ -7,6 +7,15 @@
   import TerminalInput from "$lib/components/terminal/TerminalInput.svelte";
 
   let status = null;
+  let opsStatus = null;
+  let trackedBrowser = {
+    ops: [],
+    docs: [],
+    goblin: [],
+  };
+  let previewBusy = false;
+  let previewError = null;
+  let previewFile = null;
   let logs = [];
   let loading = true;
   let error = null;
@@ -23,8 +32,14 @@
 
   $: workspaceAlias = status?.workspace_alias || status?.requirements?.workspace_alias || "@dev";
   $: workspaceRoot = status?.requirements?.dev_root || status?.dev_root || "n/a";
+  $: opsRoot = opsStatus?.ops?.root || status?.requirements?.tracked_sync_paths?.ops || `${workspaceRoot}/ops`;
   $: trackedDocsRoot = status?.requirements?.tracked_sync_paths?.docs || `${workspaceRoot}/docs`;
+  $: roadmapPath = status?.requirements?.tracked_sync_paths?.roadmap || `${workspaceRoot}/docs/roadmap/ROADMAP.md`;
+  $: tasksJsonPath = opsStatus?.ops?.files?.tasks_json?.path || status?.requirements?.tracked_sync_paths?.tasks_json || `${workspaceRoot}/ops/tasks.json`;
+  $: workspaceTemplatePath = opsStatus?.ops?.files?.workspace?.path || status?.requirements?.tracked_sync_paths?.workspace || `${workspaceRoot}/ops/templates/uDOS-dev.code-workspace`;
+  $: copilotPath = opsStatus?.ops?.files?.copilot?.path || status?.requirements?.tracked_sync_paths?.copilot || `${workspaceRoot}/ops/templates/copilot-instructions.md`;
   $: goblinRoot = status?.requirements?.tracked_sync_paths?.goblin || `${workspaceRoot}/goblin`;
+  $: goblinTestsRoot = status?.requirements?.tracked_sync_paths?.goblin_tests || `${workspaceRoot}/goblin/tests`;
 
   // GitHub PAT state
   let patStatus = null;
@@ -77,6 +92,59 @@
       logs = data.logs || [];
     } catch (err) {
       console.error("Failed to load logs:", err);
+    }
+  }
+
+  async function loadOpsStatus() {
+    try {
+      const res = await apiFetch("/api/dev/ops", {
+        headers: buildAuthHeaders(getAdminToken()),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      opsStatus = await res.json();
+    } catch (err) {
+      console.error("Failed to load ops status:", err);
+    }
+  }
+
+  async function loadTrackedBrowser() {
+    try {
+      const areas = ["ops", "docs", "goblin"];
+      const responses = await Promise.all(
+        areas.map((area) =>
+          apiFetch(`/api/dev/ops/files?area=${encodeURIComponent(area)}`, {
+            headers: buildAuthHeaders(getAdminToken()),
+          }).then(async (res) => (res.ok ? await res.json() : { entries: [] }))
+        )
+      );
+      trackedBrowser = {
+        ops: responses[0]?.entries || [],
+        docs: responses[1]?.entries || [],
+        goblin: responses[2]?.entries || [],
+      };
+    } catch (err) {
+      console.error("Failed to load tracked browser:", err);
+    }
+  }
+
+  async function loadTrackedPreview(area, relPath) {
+    previewBusy = true;
+    previewError = null;
+    try {
+      const res = await apiFetch(
+        `/api/dev/ops/read?area=${encodeURIComponent(area)}&path=${encodeURIComponent(relPath)}`,
+        {
+          headers: buildAuthHeaders(getAdminToken()),
+        }
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      previewFile = data;
+    } catch (err) {
+      previewFile = null;
+      previewError = `Failed to load preview: ${err.message}`;
+    } finally {
+      previewBusy = false;
     }
   }
 
@@ -328,6 +396,8 @@
 
   onMount(() => {
     loadStatus();
+    loadOpsStatus();
+    loadTrackedBrowser();
     loadLogs();
     loadScriptCatalog();
     loadPatStatus();
@@ -358,7 +428,7 @@
 
   {#if loading && !status}
     <div class="text-center py-12 text-gray-400">Loading...</div>
-  {:else if status}
+    {:else if status}
     <!-- Status Card -->
     <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
       <div class="flex items-center justify-between mb-4">
@@ -385,12 +455,36 @@
           <span class="text-white ml-2">{workspaceRoot}</span>
         </div>
         <div>
+          <span class="text-gray-400">Ops root:</span>
+          <span class="text-white ml-2">{opsRoot}</span>
+        </div>
+        <div>
           <span class="text-gray-400">Tracked docs:</span>
           <span class="text-white ml-2">{trackedDocsRoot}</span>
         </div>
         <div>
           <span class="text-gray-400">Goblin:</span>
           <span class="text-white ml-2">{goblinRoot}</span>
+        </div>
+        <div>
+          <span class="text-gray-400">Roadmap:</span>
+          <span class="text-white ml-2">{roadmapPath}</span>
+        </div>
+        <div>
+          <span class="text-gray-400">Goblin tests:</span>
+          <span class="text-white ml-2">{goblinTestsRoot}</span>
+        </div>
+        <div>
+          <span class="text-gray-400">Tasks JSON:</span>
+          <span class="text-white ml-2">{tasksJsonPath}</span>
+        </div>
+        <div>
+          <span class="text-gray-400">Workspace:</span>
+          <span class="text-white ml-2">{workspaceTemplatePath}</span>
+        </div>
+        <div>
+          <span class="text-gray-400">Copilot:</span>
+          <span class="text-white ml-2">{copilotPath}</span>
         </div>
         <div>
           <span class="text-gray-400">Framework:</span>
@@ -446,6 +540,89 @@
       {#if !canDevMode}
         <div class="mt-2 text-xs text-amber-300">Dev Mode requires admin and dev permissions plus a complete {workspaceAlias} framework payload.</div>
       {/if}
+    </div>
+
+    <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
+      <h3 class="text-lg font-semibold text-white mb-4">Tracked Payload Browser</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-4">
+        <div>
+          <div class="text-gray-400 mb-2">ops</div>
+          {#if trackedBrowser.ops.length}
+            {#each trackedBrowser.ops as entry}
+              {#if entry.type === "file"}
+                <button
+                  class="text-left text-cyan-300 hover:text-cyan-200 hover:underline mb-1 block"
+                  on:click={() => loadTrackedPreview("ops", entry.path || entry.name)}
+                  type="button"
+                >
+                  {entry.type === "dir" ? "dir" : "file"} · {entry.name}
+                </button>
+              {:else}
+                <div class="text-white mb-1">{entry.type === "dir" ? "dir" : "file"} · {entry.name}</div>
+              {/if}
+            {/each}
+          {:else}
+            <div class="text-gray-500">No entries</div>
+          {/if}
+        </div>
+        <div>
+          <div class="text-gray-400 mb-2">docs</div>
+          {#if trackedBrowser.docs.length}
+            {#each trackedBrowser.docs as entry}
+              {#if entry.type === "file"}
+                <button
+                  class="text-left text-cyan-300 hover:text-cyan-200 hover:underline mb-1 block"
+                  on:click={() => loadTrackedPreview("docs", entry.path || entry.name)}
+                  type="button"
+                >
+                  {entry.type === "dir" ? "dir" : "file"} · {entry.name}
+                </button>
+              {:else}
+                <div class="text-white mb-1">{entry.type === "dir" ? "dir" : "file"} · {entry.name}</div>
+              {/if}
+            {/each}
+          {:else}
+            <div class="text-gray-500">No entries</div>
+          {/if}
+        </div>
+        <div>
+          <div class="text-gray-400 mb-2">goblin</div>
+          {#if trackedBrowser.goblin.length}
+            {#each trackedBrowser.goblin as entry}
+              {#if entry.type === "file"}
+                <button
+                  class="text-left text-cyan-300 hover:text-cyan-200 hover:underline mb-1 block"
+                  on:click={() => loadTrackedPreview("goblin", entry.path || entry.name)}
+                  type="button"
+                >
+                  {entry.type === "dir" ? "dir" : "file"} · {entry.name}
+                </button>
+              {:else}
+                <div class="text-white mb-1">{entry.type === "dir" ? "dir" : "file"} · {entry.name}</div>
+              {/if}
+            {/each}
+          {:else}
+            <div class="text-gray-500">No entries</div>
+          {/if}
+        </div>
+      </div>
+      <div class="bg-gray-900 border border-gray-700 rounded p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-gray-300 text-sm">Preview</div>
+          {#if previewFile}
+            <div class="text-xs text-gray-500">{previewFile.area} · {previewFile.path}</div>
+          {/if}
+        </div>
+        {#if previewBusy}
+          <div class="text-gray-400 text-sm">Loading preview...</div>
+        {:else if previewError}
+          <div class="text-red-300 text-sm">{previewError}</div>
+        {:else if previewFile}
+          <pre class="text-xs text-gray-200 overflow-x-auto whitespace-pre-wrap">{previewFile.content}</pre>
+        {:else}
+          <div class="text-gray-500 text-sm">Select a tracked file to preview it here.</div>
+        {/if}
+      </div>
     </div>
 
     <!-- Logs -->

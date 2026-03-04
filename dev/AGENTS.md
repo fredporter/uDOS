@@ -23,19 +23,29 @@ It exists for:
 
 `/dev` must contain:
 - `AGENTS.md`
-- `DEVLOG.md`
 - `README.md`
-- `project.json`
-- `tasks.md`
-- `completed.json`
 - `extension.json`
+- `ops/README.md`
+- `ops/AGENTS.md`
+- `ops/DEVLOG.md`
+- `ops/project.json`
+- `ops/tasks.md`
+- `ops/tasks.json`
+- `ops/completed.json`
+- `ops/templates/uDOS-dev.code-workspace`
+- `ops/templates/copilot-instructions.md`
 - `docs/README.md`
 - `docs/DEV-MODE-POLICY.md`
+- `docs/decisions/README.md`
+- `docs/devlog/README.md`
+- `docs/roadmap/ROADMAP.md`
+- `docs/tasks/README.md`
 - `docs/specs/DEV-WORKSPACE-SPEC.md`
 - `docs/howto/GETTING-STARTED.md`
 - `docs/howto/VIBE-Setup-Guide.md`
 - `docs/features/GITHUB-INTEGRATION.md`
 - `goblin/README.md`
+- `goblin/tests/README.md`
 
 ---
 
@@ -45,6 +55,7 @@ It exists for:
 - contributor planning
 - contributor governance
 - contributor documentation
+- contributor decisions, roadmaps, and task-management indexes
 - extension templates and metadata
 - distro-facing Dev Mode framework content
 - distributable Goblin fixtures
@@ -72,8 +83,10 @@ These are working areas only, not the canonical extension template payload.
 
 Tracked sync payload:
 - `/dev` governance files
+- `dev/ops/`
 - `dev/docs/`
 - `dev/goblin/`
+- `dev/goblin/tests/`
 
 ---
 
@@ -85,6 +98,7 @@ Tracked sync payload:
 - Wizard owns Dev Mode install, uninstall, activation, deactivation, and GitHub sync behavior.
 - If runtime logic is needed, implement it in `wizard/` or `core/`, not in `/dev/`.
 - `dev/goblin/` is the distributable dev scaffold and testing-server layer.
+- `dev/goblin/tests/` is the tracked overlay test lane for contributor and experimental features layered over Wizard.
 
 ---
 

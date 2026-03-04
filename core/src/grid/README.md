@@ -256,7 +256,7 @@ Schedule mode prefers `placeRef`/`locId` over plain `location` when present and 
 | Mission Queue                | Stats                                          |
 +-───────────────────────┬─────────────────────────────────────────┬────────────+
 | ✓ Phase 2 Complete    | API Quota: 230/250 calls              |            |
-| ▶ UGRID Implementation | ollama Models: 5 loaded               |            |
+| ▶ UGRID Implementation | local Models: 5 loaded                |            |
 | ○ API Routing         | Active Sessions: 2                    |            |
 |                       | Node Status: ✓ Online                 |            |
 +-───────────────────────+─────────────────────────────────────────+────────────+

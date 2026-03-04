@@ -137,7 +137,13 @@ class UdosProtocolBridge:
                 },
             }
         ]
+        packets.append(
+            self._progress_packet(job_id, command_text, current=0, total=1, status="running")
+        )
         packets.extend(self._result_to_event_packets(job_id, result))
+        packets.append(
+            self._progress_packet(job_id, command_text, current=1, total=1, status="done")
+        )
         packets.append(
             {
                 "v": 1,
@@ -152,6 +158,31 @@ class UdosProtocolBridge:
             }
         )
         return packets
+
+    @staticmethod
+    def _progress_packet(
+        job_id: str,
+        command_text: str,
+        *,
+        current: int,
+        total: int,
+        status: str,
+    ) -> dict[str, Any]:
+        return {
+            "v": 1,
+            "type": "event",
+            "id": job_id,
+            "stream": "progress",
+            "event": {
+                "kind": "progress",
+                "pid": "run-main",
+                "label": command_text,
+                "current": current,
+                "total": total,
+                "status": status,
+                "style": "accent" if status != "done" else "ok",
+            },
+        }
 
     def _resolve_run_command(self, message: dict[str, Any]) -> str:
         job = str(message.get("job") or "").strip()

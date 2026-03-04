@@ -53,7 +53,6 @@ compost_max_mb = 0         # Leave empty for unlimited
 compost_reserve_mb = 100   # Space to reserve
 
 [app.services]
-ollama_host = "http://localhost:11434"
 stream_delay_ms = 0        # Vibe-cli streaming delay
 
 [dev]
@@ -64,14 +63,14 @@ test_mode = false          # Enable test mode
 home_root_enforce = false  # Enforce UDOS_ROOT = ~
 skip_dep_check = false     # Skip dependency validation
 disable_warning_monitor = false  # Disable dependency warnings
-ollama_autostart = false   # Auto-start Ollama service
+logic_assist_setup_hint = false   # Show logic-assist setup guidance during startup
 
 # Session/identity (runtime-generated, leave empty)
 session_id = ""
 default_user = ""
 
 [providers]
-# Primary and secondary AI providers (optional overrides)
+# Primary and secondary providers (optional overrides)
 # primary = "cloud"
 # secondary = "cloud"
 

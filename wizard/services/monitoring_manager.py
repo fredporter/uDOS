@@ -525,26 +525,6 @@ class MonitoringManager:
 
         return self.check_health("wizard_server", check)
 
-    def check_ollama(self, endpoint: str = "http://127.0.0.1:11434") -> HealthCheck:
-        """Check Ollama health"""
-
-        def check():
-            try:
-                response = requests.get(f"{endpoint}/api/tags", timeout=2)
-                if response.status_code == 200:
-                    models = response.json().get("models", [])
-                    return (
-                        HealthStatus.HEALTHY,
-                        f"{len(models)} models available",
-                        {"models": len(models)},
-                    )
-                else:
-                    return HealthStatus.DEGRADED, f"Status {response.status_code}", None
-            except requests.RequestException as e:
-                return HealthStatus.UNHEALTHY, str(e), None
-
-        return self.check_health("ollama", check)
-
     def check_github_api(self, token: Optional[str] = None) -> HealthCheck:
         """Check GitHub API health"""
 

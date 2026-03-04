@@ -30,7 +30,7 @@ def create_ucode_ok_routes(
     get_ok_default_models: Optional[Callable[[], Dict[str, str]]] = None,
     is_dev_mode_active: Optional[Callable[[], bool]] = None,
     ok_auto_fallback_enabled: Callable[[], bool],
-    load_ai_modes_config: Callable[[], Dict[str, Any]],
+    load_ok_modes_config: Callable[[], Dict[str, Any]],
     write_ok_modes_config: Callable[[Dict[str, Any]], None],
     run_ok_cloud: Callable[[str], Tuple[str, str]],
 ) -> APIRouter:
@@ -45,7 +45,7 @@ def create_ucode_ok_routes(
     async def get_ok_status() -> Dict[str, Any]:
         status = get_ok_local_status()
         cloud_status = get_ok_cloud_status()
-        config = load_ai_modes_config()
+        config = load_ok_modes_config()
         mode = (config.get("modes") or {}).get("ofvibe", {})
         declared_models = [m.get("name") for m in (mode.get("models") or []) if m.get("name")]
         default_models = get_default_models()
@@ -98,7 +98,7 @@ def create_ucode_ok_routes(
             logger.warn("Logic model update rejected (dev inactive)")
             raise HTTPException(status_code=409, detail="Dev Mode must be active to set coding profile model")
 
-        config = load_ai_modes_config()
+        config = load_ok_modes_config()
         modes = config.setdefault("modes", {})
         ofvibe = modes.setdefault("ofvibe", {})
         default_models = ofvibe.setdefault("default_models", {})

@@ -36,7 +36,7 @@ class WizardGateway:
     def _start_local_wizard(self) -> None:
         if not self._wizardd.exists():
             raise RuntimeError(
-                "Wizard daemon launcher not found: bin/wizardd. "
+                "Wizard launcher not found: bin/udos. "
                 "Start server: `uv run wizard/server.py --no-interactive`."
             )
         result = subprocess.run(
@@ -50,7 +50,7 @@ class WizardGateway:
             return
         detail = (result.stderr or result.stdout or "").strip()
         raise RuntimeError(
-            f"Wizard auto-start failed via bin/wizardd ({result.returncode}): {detail or 'unknown error'}"
+            f"Wizard auto-start failed via bin/udos wizard start ({result.returncode}): {detail or 'unknown error'}"
         )
 
     def ensure_available(self) -> None:

@@ -35,7 +35,7 @@ For v1.5, this decision governs:
 
 ## Related Documents
 
-- `docs/decisions/v1-5-rebaseline.md`
+- `dev/docs/decisions/v1-5-rebaseline.md`
 - `docs/decisions/v1-5-ucode-tui-spec.md`
 - `docs/decisions/WIZARD-SERVICE-SPLIT-MAP.md`
 - `docs/howto/UCODE-COMMAND-REFERENCE.md`

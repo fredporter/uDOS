@@ -1,0 +1,18 @@
+{
+  "id": "contributor-cycle",
+  "name": "Contributor Cycle",
+  "workspace": "@dev",
+  "steps": [
+    "read-governance",
+    "check-ops-state",
+    "implement",
+    "validate",
+    "update-devlog",
+    "update-completed"
+  ],
+  "artifacts": [
+    "dev/ops/tasks.json",
+    "dev/ops/DEVLOG.md",
+    "dev/ops/completed.json"
+  ]
+}

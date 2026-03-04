@@ -445,7 +445,7 @@ wizard> help              # Show all commands
 wizard> logs             # View Wizard logs
 wizard> new              # Create new file
 wizard> edit             # Edit existing file
-wizard> ai               # AI helpers (summarize content)
+wizard> ok               # OK helpers (summarize content)
 ```
 
 ---

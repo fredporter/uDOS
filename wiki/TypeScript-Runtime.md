@@ -1,49 +1,22 @@
-# TypeScript Runtime (uCode)
+# TypeScript Runtime
 
-Version: v1.4.3
-Last Updated: 2026-02-19
+Updated: 2026-03-04
+Status: short runtime note
 
-uDOS uses a TS runtime layer for deterministic script execution and selected command backends.
+The TypeScript runtime is a lightweight partner runtime in v1.5.
 
-## Runtime-backed command surfaces
+It does not replace the Python core.
+It exists only where specific command surfaces still need a TS-backed helper path.
 
-### DRAW PAT
+## Current Rule
 
-Pattern operations are TS-backed behind `DRAW PAT ...`.
+- Python core remains authoritative for the standard runtime.
+- TS helpers must not duplicate core ownership.
+- Operator-facing behavior should still route through canonical `ucode` command surfaces.
 
-```bash
-DRAW PAT LIST
-DRAW PAT CYCLE
-DRAW PAT TEXT "status"
-DRAW PAT <pattern-name>
-```
+## Canonical Docs
 
-### RUN --ts DATA
-
-Dataset operations are TS-backed behind `RUN --ts DATA ...`.
-
-```bash
-RUN --ts DATA LIST
-RUN --ts DATA VALIDATE <id>
-RUN --ts DATA BUILD <id> [output_id]
-RUN --ts DATA REGEN <id> [output_id]
-```
-
-### READ --ts / RUN --ts PARSE
-
-Markdown runtime parsing is TS-backed:
-
-```bash
-READ --ts <file>
-RUN --ts PARSE <file>
-```
-
-## Runtime shakedown
-
-Use `VERIFY` for TS runtime checks:
-
-```bash
-VERIFY
-```
-
-`VERIFY` validates Node/toolchain presence and runtime smoke execution.
+- TypeScript markdown/runtime contract:
+  [../docs/specs/TYPESCRIPT-MARKDOWN-RUNTIME-CONTRACT.md](../docs/specs/TYPESCRIPT-MARKDOWN-RUNTIME-CONTRACT.md)
+- Runtime operations:
+  [../docs/specs/PYTHON-RUNTIME-OPERATIONS-v1.5.md](../docs/specs/PYTHON-RUNTIME-OPERATIONS-v1.5.md)

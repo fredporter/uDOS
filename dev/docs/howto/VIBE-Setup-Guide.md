@@ -16,7 +16,7 @@ Use this guide only for the v1.5 `@dev` contributor lane. `vibe` is not the stan
 Open the contributor workspace file:
 
 ```bash
-code ucode-dev.code-workspace
+code dev/ops/templates/uDOS-dev.code-workspace
 ```
 
 That workspace exposes:

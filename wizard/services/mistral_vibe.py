@@ -39,8 +39,10 @@ class MistralVibeIntegration:
         context: Dict[str, str] = {}
         files_to_read = [
             "AGENTS.md",
-            "docs/ROADMAP.md",
-            "docs/_index.md",
+            "docs/STATUS.md",
+            "docs/README.md",
+            "dev/ops/DEVLOG.md",
+            "dev/docs/roadmap/ROADMAP.md",
             ".github/copilot-instructions.md",
         ]
         for file_path in files_to_read:
@@ -48,12 +50,9 @@ class MistralVibeIntegration:
             if full_path.exists():
                 context[file_path] = full_path.read_text()
 
-        devlog_dir = self.repo_path / "docs" / "devlog"
-        if devlog_dir.exists():
-            current_month = datetime.now().strftime("%Y-%m")
-            devlog_path = devlog_dir / f"{current_month}.md"
-            if devlog_path.exists():
-                context[f"docs/devlog/{current_month}.md"] = devlog_path.read_text()
+        devlog_path = self.repo_path / "dev" / "ops" / "DEVLOG.md"
+        if devlog_path.exists():
+            context["dev/ops/DEVLOG.md"] = devlog_path.read_text()
 
         log_dir = self.repo_path / "memory" / "logs"
         if log_dir.exists():

@@ -33,11 +33,11 @@ _SYSTEM_PROMPT = (
 
 
 def _load_context() -> str:
-    """Load uDOS AI context bundle as a text string."""
+    """Load uDOS OK context bundle as a text string."""
     try:
-        from wizard.services.ai_context_store import write_context_bundle
+        from wizard.services.ok_context_store import write_ok_context_bundle
 
-        ctx_path = write_context_bundle()
+        ctx_path = write_ok_context_bundle()
         return ctx_path.read_text()
     except Exception as exc:
         logger.debug("Context bundle unavailable: %s", exc)
@@ -154,7 +154,7 @@ def _try_provider(
 
 
 def run_cloud_with_fallback(prompt: str) -> tuple[str, str]:
-    """Run a cloud AI request using the configured provider fallback chain.
+    """Run a cloud OK request using the configured provider fallback chain.
 
     Args:
         prompt: User prompt text

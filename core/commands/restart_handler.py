@@ -13,6 +13,8 @@ import os
 import sys
 from pathlib import Path
 
+from core.services.path_service import get_repo_root
+
 from .base import BaseCommandHandler
 from .handler_logging_mixin import HandlerLoggingMixin
 
@@ -84,7 +86,7 @@ class RestartHandler(BaseCommandHandler, HandlerLoggingMixin):
                 argv = [sys.executable] + sys.argv
                 if len(argv) == 1:
                     # Fallback to uDOS.py at repo root
-                    repo_root = Path(__file__).resolve().parents[2]
+                    repo_root = get_repo_root()
                     argv = [sys.executable, str(repo_root / "uDOS.py")]
                 os.execv(sys.executable, argv)
             except Exception as exc:

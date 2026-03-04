@@ -132,6 +132,43 @@ def create_task_routes(auth_guard: AuthGuard = None) -> APIRouter:
         kind: Optional[str] = None
         payload: Optional[dict] = None
 
+    @router.get("")
+    async def list_tasks(request: Request, state: Optional[str] = None, limit: int = 50):
+        if auth_guard:
+            await auth_guard(request)
+        try:
+            return {
+                "status": "success",
+                "tasks": scheduler.list_tasks(state=state, limit=limit),
+                "count": len(scheduler.list_tasks(state=state, limit=limit)),
+            }
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=str(exc))
+
+    @router.post("")
+    async def create_task(request: Request, task: TaskCreate):
+        if auth_guard:
+            await auth_guard(request)
+        try:
+            created = scheduler.create_task(
+                name=task.name,
+                description=task.description,
+                schedule=task.cron_expression,
+                provider=task.provider,
+                enabled=task.enabled,
+                priority=task.priority,
+                need=task.need,
+                mission=task.mission,
+                objective=task.objective,
+                resource_cost=task.resource_cost,
+                requires_network=task.requires_network,
+                kind=task.kind,
+                payload=task.payload,
+            )
+            return {"status": "success", "task": created}
+        except Exception as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
     @router.get("/health")
     async def health_check(request: Request):
         if auth_guard:
@@ -177,6 +214,7 @@ def create_task_routes(auth_guard: AuthGuard = None) -> APIRouter:
         try:
             return {
                 "stats": scheduler.get_stats(),
+                "tasks": scheduler.list_tasks(limit=limit),
                 "queue": scheduler.get_scheduled_queue(limit=limit),
                 "settings": scheduler.get_settings(),
             }

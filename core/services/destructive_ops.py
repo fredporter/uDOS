@@ -6,15 +6,19 @@ from collections.abc import Iterable
 from pathlib import Path
 import shutil
 
+from core.services.paths import get_memory_root, get_vault_root
 from core.services.unified_config_loader import get_process_env
 
 
 def resolve_vault_root(repo_root: Path) -> Path:
     if vault_root := get_process_env("VAULT_ROOT"):
-        return Path(vault_root).expanduser()
+        candidate = Path(vault_root).expanduser()
+        return candidate if candidate.is_absolute() else (repo_root / candidate).resolve()
     if memory_root := get_process_env("UDOS_MEMORY_ROOT"):
-        return Path(memory_root).expanduser() / "vault"
-    return repo_root / "memory" / "vault"
+        candidate = Path(memory_root).expanduser()
+        resolved = candidate if candidate.is_absolute() else (repo_root / candidate).resolve()
+        return resolved / "vault"
+    return get_vault_root()
 
 
 def remove_path(path: Path) -> bool:

@@ -37,5 +37,5 @@
     }
   },
   "syntax": "Wizard-managed Dev Mode extension lifecycle with contributor TUI access once active",
-  "summary": "Permission-gated Dev extension framework for contributor workflows, Dev-specific TUI tooling, GitHub sync, and isolated contributor roadmap management."
+  "summary": "Permission-gated Dev extension framework for contributor workflows, a standard @dev operations area, Dev-specific TUI tooling, Goblin overlay testing, and isolated local-private workspace management."
 }

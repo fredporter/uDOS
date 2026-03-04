@@ -97,7 +97,7 @@ class OkfixHandler(BaseCommandHandler):
             payload = profile.to_dict()
             payload["local_model_name"] = model
             profile = profile.__class__(**payload)
-            result = GPT4AllLocalAssist(profile, Path(__file__).resolve().parents[2]).generate(prompt)
+            result = GPT4AllLocalAssist(profile, get_repo_root()).generate(prompt)
             return {"status": "success", "backend": "gpt4all", "model": model, "response": result}
         except Exception as e:
             return {"status": "error", "message": str(e)}

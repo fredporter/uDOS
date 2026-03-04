@@ -123,7 +123,7 @@ The pre-release TUI refactor should cover:
 
 ## Related Documents
 
-- `docs/roadmap.md`
-- `docs/decisions/v1-5-rebaseline.md`
+- `docs/STATUS.md`
+- `dev/docs/decisions/v1-5-rebaseline.md`
 - `docs/specs/RUNTIME-INTERFACE-SPEC.md`
 - `docs/specs/UCODE-DISPATCH-CONTRACT.md`

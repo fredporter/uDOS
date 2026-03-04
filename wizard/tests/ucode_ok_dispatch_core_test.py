@@ -16,7 +16,7 @@ def test_dispatch_ok_command_returns_none_for_non_ok():
         logger=_Logger(),
         ok_history=[],
         ok_model=None,
-        load_ai_modes_config=lambda: {"modes": {}},
+        load_ok_modes_config=lambda: {"modes": {}},
         write_ok_modes_config=lambda _cfg: None,
         ok_auto_fallback_enabled=lambda: True,
         get_ok_default_model=lambda: "m1",
@@ -32,12 +32,12 @@ def test_dispatch_ok_command_returns_none_for_non_ok():
 
 def test_dispatch_ok_command_history_mode():
     response = dispatch_ok_command(
-        command="OK LOCAL 1",
+        command="LOGIC LOCAL 1",
         corr_id="C1",
         logger=_Logger(),
         ok_history=[{"id": 1}, {"id": 2}],
         ok_model=None,
-        load_ai_modes_config=lambda: {"modes": {}},
+        load_ok_modes_config=lambda: {"modes": {}},
         write_ok_modes_config=lambda _cfg: None,
         ok_auto_fallback_enabled=lambda: True,
         get_ok_default_model=lambda: "m1",
@@ -60,12 +60,12 @@ def test_dispatch_ok_command_prompt_local_success():
         return {"id": 9, **kwargs}
 
     response = dispatch_ok_command(
-        command="OK summarize this",
+        command="LOGIC summarize this",
         corr_id="C1",
         logger=_Logger(),
         ok_history=[],
         ok_model=None,
-        load_ai_modes_config=lambda: {"modes": {}},
+        load_ok_modes_config=lambda: {"modes": {}},
         write_ok_modes_config=lambda _cfg: None,
         ok_auto_fallback_enabled=lambda: True,
         get_ok_default_model=lambda: "m1",

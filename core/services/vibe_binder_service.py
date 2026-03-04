@@ -3,7 +3,7 @@
 Manages projects, tasks, and completed items within uDOS binders.
 Each binder represents a project with workflow files:
 - project.json: Project definition, guidelines, process
-- tasks.json: Active tasks (unified JSON format for AI ingestion)
+- tasks.json: Active tasks (unified JSON format for OK ingestion)
 - completed.json: Completed tasks/achievements
 
 Supports multiple item types in tasks.json:
@@ -53,7 +53,7 @@ class Mission:
 class Move:
     """Enhanced active task/move with support for multiple item types.
 
-    Unified format suitable for AI ingestion:
+    Unified format suitable for OK ingestion:
     - Consistent schema across all item types
     - Extensible metadata for custom fields
     - Source tracking for imported items
@@ -83,7 +83,7 @@ class Move:
     source: str = "manual"  # "manual", "calendar", "invite", "reminder", "email", etc.
     source_id: str | None = None  # Original ID from source system
 
-    # Extensible metadata for AI ingestion and future features
+    # Extensible metadata for OK ingestion and future features
     metadata: dict[str, Any] | None = None
 
     # Timestamps
@@ -897,7 +897,7 @@ class VibeBinderService:
         }
 
     def get_task_summary_for_ai(self, mission_id: str) -> dict[str, Any]:
-        """Get comprehensive task summary suitable for AI ingestion.
+        """Get comprehensive task summary suitable for OK ingestion.
         Includes full task details, metadata, and relationships.
         """
         if mission_id not in self.binders:

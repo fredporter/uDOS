@@ -1,6 +1,7 @@
 package render
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -28,9 +29,13 @@ func RenderHeader(theme Theme, title, subtitle string) string {
 
 func RenderEvent(theme Theme, event protocol.Event) string {
 	lines := event.Lines
-	if event.Kind == "teletext" {
+	switch event.Kind {
+	case "teletext":
 		lines = event.Rows
+	case "progress":
+		lines = renderProgressLines(event, theme.CanvasWidth-4)
 	}
+	lines = cropPadLines(lines, theme.CanvasWidth-4)
 	body := strings.Join(lines, "\n")
 	style := theme.Block
 	switch event.Style {
@@ -46,4 +51,51 @@ func RenderEvent(theme Theme, event protocol.Event) string {
 		body = lipgloss.NewStyle().Bold(true).Render(title) + "\n" + body
 	}
 	return style.Width(theme.CanvasWidth).Render(body)
+}
+
+func cropPadLines(lines []string, width int) []string {
+	if len(lines) == 0 {
+		return []string{CropPad("", width)}
+	}
+	rendered := make([]string, 0, len(lines))
+	for _, line := range lines {
+		rendered = append(rendered, CropPad(line, width))
+	}
+	return rendered
+}
+
+func renderProgressLines(event protocol.Event, width int) []string {
+	total := event.Total
+	if total <= 0 {
+		total = 1
+	}
+	current := event.Current
+	if current < 0 {
+		current = 0
+	}
+	if current > total {
+		current = total
+	}
+	label := event.Label
+	if label == "" {
+		label = "Progress"
+	}
+	status := event.Status
+	if status == "" {
+		status = "running"
+	}
+	barWidth := width - 18
+	if barWidth < 10 {
+		barWidth = 10
+	}
+	filled := int(float64(current) / float64(total) * float64(barWidth))
+	if filled > barWidth {
+		filled = barWidth
+	}
+	bar := "[" + strings.Repeat("#", filled) + strings.Repeat(".", barWidth-filled) + "]"
+	return []string{
+		fmt.Sprintf("%s (%d/%d)", label, current, total),
+		bar,
+		fmt.Sprintf("status: %s", status),
+	}
 }

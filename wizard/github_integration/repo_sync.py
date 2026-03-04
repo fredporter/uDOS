@@ -62,10 +62,10 @@ class RepoSync:
             ref: "main"
 
         wizard:
-          - name: "ollama"
-            owner: "ollama"
-            repo: "ollama"
-            path: "library/wizard/ollama"
+          - name: "mistral-vibe"
+            owner: "mistralai"
+            repo: "mistral-vibe"
+            path: "library/wizard/mistral-vibe"
             ref: "main"
         ```
 
@@ -107,7 +107,7 @@ class RepoSync:
         Returns:
             {
                 "micro": (True, "Successfully cloned"),
-                "ollama": (False, "Repository not found"),
+                "mistral-vibe": (False, "Repository not found"),
                 ...
             }
         """
@@ -157,7 +157,7 @@ class RepoSync:
         Returns:
             {
                 "micro": (True, "Updated"),
-                "ollama": (False, "Not a git repository"),
+                "mistral-vibe": (False, "Not a git repository"),
                 ...
             }
         """

@@ -2,13 +2,27 @@
 *
 !.gitignore
 !AGENTS.md
-!DEVLOG.md
 !README.md
-!completed.json
 !extension.json
-!project.json
-!tasks.md
 !docs/
 !docs/**
 !goblin/
 !goblin/**
+!ops/
+!ops/**
+
+# Keep local/private contributor state out of sync.
+files/
+relecs/
+dev-work/
+testing/
+
+# Ignore generated clutter inside tracked payload paths.
+**/__pycache__/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.DS_Store
+**/*.pyc
+**/*.pyo
+**/.env
+**/.env.*

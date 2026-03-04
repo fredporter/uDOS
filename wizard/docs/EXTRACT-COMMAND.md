@@ -8,7 +8,7 @@
 
 ## Overview
 
-The **EXTRACT** command converts PDF files to Markdown using Mistral AI's OCR (Optical Character Recognition) technology. It integrates the [pdf-ocr-obsidian](https://github.com/diegomarzaa/pdf-ocr-obsidian) library into the Wizard Server interactive console.
+The **EXTRACT** command converts PDF files to Markdown using Mistral OCR (Optical Character Recognition) technology. It integrates the [pdf-ocr-obsidian](https://github.com/diegomarzaa/pdf-ocr-obsidian) library into the Wizard Server interactive console.
 
 ### Features
 
@@ -431,7 +431,7 @@ The EXTRACT command wraps the [pdf-ocr-obsidian](https://github.com/diegomarzaa/
 ## References
 
 - [pdf-ocr-obsidian GitHub](https://github.com/diegomarzaa/pdf-ocr-obsidian)
-- [Mistral AI Documentation](https://docs.mistral.ai/)
+- [Mistral Documentation](https://docs.mistral.ai/)
 - [Mistral OCR API](https://docs.mistral.ai/capabilities/vision/)
 - [PEEK Command Documentation](PEEK-COMMAND.md)
 - [Wizard Server README](README.md)

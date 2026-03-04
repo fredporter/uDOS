@@ -14,23 +14,37 @@ This spec defines the v1.5 `@dev` workspace contract.
 ```text
 dev/
 ├── AGENTS.md
-├── DEVLOG.md
 ├── README.md
-├── completed.json
 ├── extension.json
-├── project.json
-├── tasks.md
+├── ops/
+│   ├── README.md
+│   ├── AGENTS.md
+│   ├── DEVLOG.md
+│   ├── project.json
+│   ├── tasks.md
+│   ├── tasks.json
+│   ├── completed.json
+│   ├── scheduler/
+│   ├── templates/
+│   ├── utils/
+│   ├── workflows/
+│   └── workspace/
 ├── docs/
 │   ├── README.md
 │   ├── DEV-MODE-POLICY.md
+│   ├── decisions/
+│   ├── devlog/
 │   ├── features/
 │   ├── howto/
+│   ├── roadmap/
+│   ├── tasks/
 │   └── specs/
 └── goblin/
     ├── README.md
     ├── scenarios/
     ├── seed/
     ├── server/
+    ├── tests/
     └── test-vault/
 ```
 
@@ -39,6 +53,7 @@ dev/
 Tracked and distributable:
 
 - `/dev` governance files
+- `dev/ops/`
 - `dev/docs/`
 - `dev/goblin/`
 
@@ -59,12 +74,14 @@ It is used for:
 - scaffolded seed content
 - test vault fixtures
 - server-layer examples and config stubs
+- tracked overlay tests for contributor and experimental feature work
 
 It must not become a second runtime root or a private scratch area.
 
 ## Documentation Boundary
 
 Contributor-facing Dev Mode documentation belongs in `dev/docs/`.
+Contributor mission state, workspace templates, and shared contributor tool config belong in `dev/ops/`.
 
 Root `docs/` must not host:
 

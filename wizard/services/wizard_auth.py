@@ -32,7 +32,7 @@ class DeviceSession:
     authenticated_at: str
     last_request: str
     request_count: int = 0
-    ai_cost_today: float = 0.0
+    ok_cost_today: float = 0.0
 
 
 class WizardAuthService:

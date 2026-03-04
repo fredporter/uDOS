@@ -493,5 +493,5 @@ The current repo-backed validation points for this spec are:
 - `docs/decisions/HOME-ASSISTANT-BRIDGE.md`
 - `docs/decisions/SONIC-DB-SPEC-GPU-PROFILES.md`
 - `docs/decisions/MCP-API.md`
-- `docs/roadmap.md`
+- `docs/STATUS.md`
 - `sonic/docs/integration-spec.md`

@@ -23,6 +23,8 @@ from typing import Dict, Any, Optional
 import sys
 from pathlib import Path
 
+from core.services.path_service import get_repo_root
+
 # Lazy-loaded services
 _services: Dict[str, Any] = {}
 _service_loaders = {
@@ -44,12 +46,18 @@ _service_loaders = {
 }
 
 
+def _ensure_repo_root_on_sys_path() -> Path:
+    repo_root = get_repo_root()
+    root_str = str(repo_root)
+    if root_str not in sys.path:
+        sys.path.insert(0, root_str)
+    return repo_root
+
+
 def _load_groovebox_module():
     """Load groovebox container module."""
     try:
-        repo_root = Path(__file__).resolve().parents[2]
-        if str(repo_root) not in sys.path:
-            sys.path.insert(0, str(repo_root))
+        _ensure_repo_root_on_sys_path()
         # Preferred import: Groovebox submodule engine (if present)
         from groovebox.engine import sequencer, mml_parser, midi_export
         from groovebox.instruments import drum_808
@@ -192,7 +200,7 @@ def _load_extensions_module():
 
 def _load_empire_module():
     """Load official Empire extension (soft-fail when unavailable)."""
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = _ensure_repo_root_on_sys_path()
     extensions_root = repo_root / "extensions"
     if str(extensions_root) not in sys.path:
         sys.path.insert(0, str(extensions_root))

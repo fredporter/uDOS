@@ -56,7 +56,7 @@ from core.services.maintenance_utils import (
     tidy,
 )
 from core.services.unified_config_loader import get_config
-from wizard.services.ai_context_store import write_context_bundle
+from wizard.services.ok_context_store import write_ok_context_bundle
 from wizard.services.dev_mode_service import get_dev_mode_service
 from wizard.services.editor_utils import (
     ensure_micro_repo,
@@ -230,7 +230,7 @@ class WizardConsole:
             f"  • Rate Limit: {self.config.requests_per_minute}/min, {self.config.requests_per_hour}/hour"
         )
         print(
-            f"  • AI Budget: ${self.config.ai_budget_daily}/day, ${self.config.ai_budget_monthly}/month"
+            f"  • OK Budget: ${self.config.ok_budget_daily}/day, ${self.config.ok_budget_monthly}/month"
         )
         print(f"  • Debug Mode: {'Enabled' if self.config.debug else 'Disabled'}")
 
@@ -273,7 +273,7 @@ class WizardConsole:
                 "description": "Plugin distribution and updates",
             },
             "Logic Assist": {
-                "enabled": self.config.ok_gateway_enabled,
+                "enabled": self.config.logic_assist_enabled,
                 "version": "1.1.0",
                 "description": "Local GPT4All advisory lane plus Wizard-managed network routing",
             },
@@ -357,12 +357,12 @@ class WizardConsole:
         print(f"    • Per Minute: {self.config.requests_per_minute}")
         print(f"    • Per Hour: {self.config.requests_per_hour}")
         print("\n  Logic Budgets:")
-        print(f"    • Daily: ${self.config.ai_budget_daily}")
-        print(f"    • Monthly: ${self.config.ai_budget_monthly}")
+        print(f"    • Daily: ${self.config.ok_budget_daily}")
+        print(f"    • Monthly: ${self.config.ok_budget_monthly}")
         print("\n  Service Toggles:")
         print(f"    • Plugin Repo: {self.config.plugin_repo_enabled}")
         print(f"    • Web Proxy: {self.config.web_proxy_enabled}")
-        print(f"    • Logic Assist Network: {self.config.ok_gateway_enabled}")
+        print(f"    • Logic Assist Network: {self.config.logic_assist_enabled}")
         print()
 
     async def cmd_setup(self, args: list) -> None:
@@ -382,7 +382,7 @@ class WizardConsole:
             print()
             print("  💡 Fix this by:")
             print("     1. Ensure .env file exists in repo root with WIZARD_KEY=...")
-            print("     2. Restart Wizard Server: ./bin/ucode wizard")
+            print("     2. Restart Wizard Server: ./bin/udos wizard restart")
             print("     3. Or set manually: export WIZARD_KEY=<your-key>")
             print()
             return
@@ -541,8 +541,8 @@ class WizardConsole:
             return
         action = args[0].lower()
         if action == "context":
-            write_context_bundle()
-            print("\n✅ Logic context bundle refreshed (memory/ai/context.*)\n")
+            write_ok_context_bundle()
+            print("\n✅ Logic context bundle refreshed (memory/ok/context.*)\n")
             return
         if action == "status":
             status = self._logic_status()
@@ -1130,7 +1130,7 @@ class WizardConsole:
                             print("  • setup: gh CLI missing (install gh first)")
                             continue
 
-                    # Handle repo-local setup script for ollama
+                    # Handle repo-local setup script for the local logic-assist runtime
                     if "setup_wizard.sh" in raw_cmd:
                         script_path = self.repo_root / "bin" / "setup_wizard.sh"
                         if script_path.exists():

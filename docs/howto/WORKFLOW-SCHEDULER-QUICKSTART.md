@@ -137,7 +137,7 @@ meta/<phase>.json
   - `docs/specs/WORKFLOW-SCHEDULER-v1.5.md`
 - Decision:
   - `docs/decisions/v1-5-workflow.md`
-- Roadmap:
-  - `docs/roadmap.md`
+- Public status:
+  - `docs/STATUS.md`
 - Example templates:
   - `core/framework/seed/bank/templates/`

@@ -28,7 +28,6 @@ from core.services.vibe_script_service import get_script_service
 from core.services.vibe_user_service import get_user_service
 from core.services.vibe_wizard_service import get_wizard_service
 from core.services.vibe_help_service import get_help_service
-from core.services.vibe_ask_service import get_ask_service
 from core.services.vibe_binder_service import get_binder_service
 from core.services.vibe_tui_service import get_tui_service
 from core.services.vibe_skill_mapper import get_default_mapper
@@ -255,23 +254,18 @@ class VibeCliHandler:
         return self._format_output(result)
 
     def _handle_ask(self, action: str, args: List[str]) -> Dict[str, Any]:
-        """Handle ask skill commands."""
-        service = get_ask_service()
+        """Retire legacy ASK skill in favor of the v1.5 logic-assist lane."""
+        if action not in {"QUERY", "EXPLAIN", "SUGGEST"}:
+            return self._format_output(self._error(f"Unknown ask action: {action}"))
 
-        if action == "QUERY" and args:
-            prompt = " ".join(args)
-            result = service.query(prompt)
-        elif action == "EXPLAIN" and args:
-            topic = args[0]
-            detail = args[1].lower() if len(args) > 1 else "medium"
-            result = service.explain(topic, detail)
-        elif action == "SUGGEST" and args:
-            context = " ".join(args)
-            result = service.suggest(context)
-        else:
-            result = self._error(f"Unknown ask action: {action}")
-
-        return self._format_output(result)
+        hint = "Use `OK ASK <prompt>` for prompts or `LOGIC ...` commands for local and network assist."
+        return self._format_output(
+            {
+                "status": "error",
+                "message": f"ASK skill retired. {hint}",
+                "backend": "logic_assist",
+            }
+        )
 
     def _handle_binder(self, action: str, args: List[str]) -> Dict[str, Any]:
         """Handle binder skill commands (unified task management)."""

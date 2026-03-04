@@ -1,123 +1,44 @@
 # uDOS Architecture
 
-**Version:** v1.4.4+
-**Last Updated:** 2026-02-22
-**Status:** Active
+Updated: 2026-03-04
+Status: v1.5 short overview
 
-uDOS is an offline‑first, vault‑based system with Vibe CLI as the exclusive interactive interface, plus optional wizard services and modular extensions.
+uDOS is organized around explicit runtime ownership.
 
----
+## Main Layers
 
-## Overview
+- `core/`
+  deterministic local command/runtime layer
+- `wizard/`
+  networked and web-facing service layer
+- `tui/`
+  Bubble Tea and Lip Gloss frontend over the v1.5 JSONL TUI bridge
+- `dev/`
+  contributor-only `@dev` workspace, Goblin scaffold, and local-only sprawl
 
-```
-uDOS/
-├── vibe/          # Mistral Vibe CLI (exclusive interactive UI)
-├── core/          # Offline runtime + command infrastructure
-├── wizard/        # Optional MCP server + web services
-├── sonic/         # Bootable USB entry point
-├── library/       # Container definitions
-├── extensions/    # Transport API contracts
-├── docs/          # Architecture + specs
-├── wiki/          # Beginner-friendly docs
-└── knowledge/     # Static knowledge catalog
-```
+## Runtime Boundary
 
----
+- Core stays offline-capable and deterministic.
+- Wizard owns provider access, API routes, dashboards, GitHub integration, and managed orchestration.
+- `@dev` is not a second user runtime. It is a permissioned contributor workspace mounted at `/dev`.
+- Root `docs/` stays operator/runtime-facing. Contributor governance belongs in `dev/docs/`.
 
-## Vibe CLI (Interactive Interface)
-**Location:** `vibe/` (Mistral Vibe upstream)
+## Current v1.5 Shape
 
-**Responsibilities**
-- Interactive command-line interface
-- Natural language skill routing
-- AI-powered command inference
-- MCP protocol client
+- Standard command path:
+  user -> `ucode` -> core subsystems -> Wizard only when networked behavior is required
+- Wizard Dev Mode path:
+  Wizard GUI/API -> `@dev` workspace gates -> Goblin/docs tracked payload
+- TUI path:
+  Bubble Tea frontend -> JSONL protocol bridge -> core command routing
 
-**Integration**
-- uDOS tools: `vibe/core/tools/ucode/`
-- Configuration: `.vibe/config.toml`
-- MCP bridge to uDOS commands
+## Canonical References
 
----
-
-## Core (Command Infrastructure)
-**Location:** `core/`
-
-**Responsibilities**
-- Command execution (stdlib Python only, no networking)
-- Vault-first file access
-- uCODE command surface (55+ commands)
-- Background task management
-- Progress tracking
-
-**Boundaries**
-- ✅ No network dependency
-- ✅ Local-only by default
-- ✅ Stdlib Python only
-- ❌ No cloud services
-- ❌ No interactive UI (handled by Vibe)
-
----
-
-## Wizard (MCP Server + Web Services)
-**Location:** `wizard/`
-
-**Responsibilities**
-- MCP server (stdio bridge to uDOS commands)
-- AI routing (local-first via Ollama, optional cloud)
-- Web admin dashboard
-- Plugin registry + update routing
-- Networking, security, packaging tools
-
-**Boundaries**
-- ✅ Stateless (no user data at rest)
-- ✅ LAN-first
-- ✅ Extended command set (beyond core)
-- ❌ No core command logic (delegated to core/)
-
----
-
-## Sonic (Bootable Entry)
-**Location:** `sonic/`
-
-**Responsibilities**
-- USB builder
-- Bootable entry point
-- Media management
-- Distribution tooling
-
----
-
-## Command Execution
-
-uDOS commands execute in multiple contexts:
-
-1. **Vibe CLI interactive**: Natural language → skills → MCP → commands
-2. **Vibe bash tool**: `/bash ucode COMMAND` for shell execution
-3. **Shell/scripts**: Direct `ucode COMMAND` for automation
-4. **Python API**: Internal `CommandDispatchService`
-
-See: [docs/decisions/TUI-Vibe-Integration.md](../docs/decisions/TUI-Vibe-Integration.md)
-
----
-
-## Extensions + Containers
-**Location:** `library/`, `extensions/`
-
-**Responsibilities**
-- Container definitions (library)
-- API contracts (extensions)
-
----
-
-## Versioning
-- Command infrastructure is preserved from previous releases, now accessible via Vibe CLI and shell.
-- Submodules can ship on their own cadence.
-
----
-
-## Related Docs
-- `docs/README.md`
-- `docs/roadmap.md`
-- `docs/specs/wiki_spec_obsidian.md`
+- Active architecture overview:
+  [../docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md)
+- Integration reference:
+  [../docs/ARCHITECTURE-INTEGRATION-REFERENCE.md](../docs/ARCHITECTURE-INTEGRATION-REFERENCE.md)
+- Wizard service map:
+  [../wizard/ARCHITECTURE.md](../wizard/ARCHITECTURE.md)
+- Platform contract:
+  [../docs/specs/PLATFORM-CONTRACT-v1.3.md](../docs/specs/PLATFORM-CONTRACT-v1.3.md)

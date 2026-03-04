@@ -37,7 +37,7 @@ SELECTED_EXTENSIONS=""
 maybe_dispatch_to_host_installer() {
   for arg in "$@"; do
     case "$arg" in
-      --core|--wizard|--update|--skip-ollama)
+      --core|--wizard|--update)
         if [ ! -x "$HOST_INSTALLER" ]; then
           err "Host installer not found: $HOST_INSTALLER"
         fi

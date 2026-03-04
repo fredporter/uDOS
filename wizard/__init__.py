@@ -19,8 +19,7 @@ Components
 - server.py: Main FastAPI server
 - plugin_factory.py: TCZ package builder
 - web_proxy.py: Web content fetching for user devices
-- ok_gateway.py: LLM API routing
-- ok_gateway.py: LLM API routing
+- logic-assist routes: local and cloud OK Provider routing
 
 Security
 --------
@@ -48,7 +47,6 @@ __all__ = [
     "PluginFactory",
     "PluginRepository",
     "WebProxy",
-    "OKGateway",
 ]
 
 
@@ -79,14 +77,6 @@ def get_web_proxy():
     from .tools.web_proxy import WebProxy
 
     return WebProxy()
-
-
-def get_ok_gateway():
-    """Get OK Gateway instance."""
-    from .services.ok_gateway import get_ok_gateway as _get_gateway
-
-    return _get_gateway()
-
 
 def get_web_service():
     """Legacy web service is retired; FastAPI server is the canonical surface."""

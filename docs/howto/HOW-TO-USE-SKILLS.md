@@ -96,7 +96,7 @@ vibe trust && vibe
 # Type: /ucode-setup
 ```
 
-Use this only when the `dev` profile and `/dev/` extension lane are active.
+Use this only when the `dev` profile and the `@dev` workspace lane at `/dev` are active.
 
 ### Option B: Use Tools via Natural Language
 ```bash

@@ -2,7 +2,7 @@
 
 ## Status
 uDOS v1.5 is the new official standard.
-It replaces Ollama with GPT4All as the local offline assist layer.
+It standardizes GPT4All as the local offline assist layer.
 Wizard Network is the sole online routing and budget management layer.
 
 ## Architecture Overview
@@ -39,7 +39,7 @@ Wizard Network enforces:
 
 ## Compliance Criteria
 - GPT4All is sole local model
-- Ollama deprecated
+- legacy local runtime removed
 - Wizard Network exclusive API route
 - Non-breaking input handler
 - Workflow templates operational

@@ -13,6 +13,8 @@ import shutil
 from pathlib import Path
 from typing import Dict, List, Tuple
 from core.services.logging_api import get_logger
+from core.services.path_service import get_repo_root
+from core.services.paths import get_memory_root
 
 logger = get_logger("seed_installer")
 
@@ -29,9 +31,9 @@ class SeedInstaller:
             memory_dir: Path to memory/ (defaults to auto-detect)
         """
         if framework_dir is None:
-            framework_dir = Path(__file__).parent
+            framework_dir = get_repo_root() / "core" / "framework"
         if memory_dir is None:
-            memory_dir = Path.cwd() / "memory"
+            memory_dir = get_memory_root()
 
         self.framework_dir = Path(framework_dir)
         self.memory_dir = Path(memory_dir)

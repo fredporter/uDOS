@@ -84,7 +84,7 @@ def apply_capabilities_to_wizard_config(capabilities: Dict[str, bool]) -> None:
         return
     mapping = {
         "web_proxy": "web_proxy_enabled",
-        "ok_gateway": "ok_gateway_enabled",
+        "logic_assist": "logic_assist_enabled",
         "github_push": "github_push_enabled",
         "icloud": "icloud_enabled",
         "plugin_repo": "plugin_repo_enabled",

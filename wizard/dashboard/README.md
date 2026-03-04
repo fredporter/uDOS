@@ -37,7 +37,7 @@ npm run dev
 - Real-time server status
 - Device session management
 - Rate limit monitoring
-- AI model routing dashboard
+- OK model routing dashboard
 - Cost tracking
 - WebSocket updates
 - Responsive design (mobile-first)

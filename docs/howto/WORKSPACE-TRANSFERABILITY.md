@@ -49,8 +49,7 @@ That is why `DESTROY` and `RESTORE` are part of the normal runtime contract.
 git clone <repo-url> uDOS
 cd uDOS
 UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard --dev
-./bin/ucode HELP
-uv run ./uDOS.py SETUP
+./bin/udos
 ```
 
 To preserve an existing local workspace, transfer:

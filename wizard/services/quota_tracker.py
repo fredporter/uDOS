@@ -36,7 +36,7 @@ logger = get_logger("quota-tracker")
 class APIProvider(Enum):
     """API providers with quotas."""
 
-    # AI Providers
+    # OK Providers
     GEMINI = "gemini"
     ANTHROPIC = "anthropic"
     OPENAI = "openai"
@@ -85,7 +85,7 @@ class ProviderQuota:
     requests_per_day: int = 1000
     requests_per_month: int = 10000
 
-    # Token/unit limits (for AI providers)
+    # Token/unit limits (for OK providers)
     tokens_per_minute: int = 100000
     tokens_per_day: int = 1000000
     tokens_per_month: int = 10000000

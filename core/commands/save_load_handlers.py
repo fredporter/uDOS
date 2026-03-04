@@ -7,9 +7,9 @@ from core.commands.base import BaseCommandHandler
 from core.commands.handler_logging_mixin import HandlerLoggingMixin
 from core.tui.output import OutputToolkit
 from core.services.error_contract import CommandError
+from core.services.path_service import get_repo_root
 
-# Dynamic project root detection
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+PROJECT_ROOT = get_repo_root()
 
 
 class SaveHandler(BaseCommandHandler, HandlerLoggingMixin):

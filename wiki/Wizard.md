@@ -1,48 +1,45 @@
 # Wizard
 
-Version: v1.4.4+
-Last Updated: 2026-02-22
+Updated: 2026-03-04
+Status: v1.5 short overview
 
-Wizard is the network-capable gateway for provider/integration/full-system operations.
+Wizard is the networked and web-facing service layer for uDOS.
 
-## What Wizard owns
+## Wizard Owns
 
-- Provider management
-- Integration checks and setup
-- Full Wizard-side shakedown
-- AI/model access for Core clients
+- provider integrations
+- API routes and dashboard UI
+- GitHub integration and release-profile-aware automation
+- managed operations, monitoring, and admin control plane
+- Dev Mode controls for the `@dev` workspace
 
-## Commands
+## Wizard Does Not Own
+
+- deterministic local command logic
+- direct replacement of `ucode`
+- unrestricted contributor access outside the `@dev` gates
+
+## Common Surfaces
 
 ```bash
-WIZARD START
-WIZARD STOP
 WIZARD STATUS
 WIZARD CHECK
-WIZARD PROV LIST
 WIZARD PROV STATUS
-WIZARD PROV GENSECRET
-WIZARD INTEG status
+WIZARD START
 ```
 
-## Ownership boundary
+API grouping in v1.5 is increasingly organized under dedicated surfaces such as:
+- `/api/ops/*`
+- `/api/ucode/*`
+- `/api/dev/*`
 
-- Core can be AI-capable through Wizard.
-- Core command paths call Wizard services for model/provider access.
-- Top-level core `PROVIDER` and `INTEGRATION` commands are removed in the current v1.4.3 baseline.
+## Canonical Docs
 
-## Operational note
-
-If Wizard is not running, provider/integration/model operations are unavailable even when Core is running.
-
-## TOYBOX runtime and lens note
-
-Wizard exposes TOYBOX runtime/container routes, while Core owns command dispatch and TUI message-layer selection.
-
-- Runtime lens/profile examples: `hethack` (dungeon), `elite` (galaxy)
-- Core command for profile selection: `GAMEPLAY TOYBOX SET ...`
-- Core env for message-layer switching:
-  - `UDOS_TUI_MAP_LEVEL=dungeon|foundation|galaxy`
-  - `UDOS_TUI_MESSAGE_THEME=<theme>`
-
-See: [TUI Z-Layer, TOYBOX, and Theme Switching](TUI-Z-Layer-and-TOYBOX.md)
+- Wizard architecture:
+  [../wizard/ARCHITECTURE.md](../wizard/ARCHITECTURE.md)
+- Managed operations:
+  [../docs/howto/MANAGED-WIZARD-OPERATIONS.md](../docs/howto/MANAGED-WIZARD-OPERATIONS.md)
+- Wizard plugin system:
+  [../docs/howto/WIZARD-PLUGIN-SYSTEM.md](../docs/howto/WIZARD-PLUGIN-SYSTEM.md)
+- `@dev` workspace policy:
+  [../dev/docs/DEV-MODE-POLICY.md](../dev/docs/DEV-MODE-POLICY.md)

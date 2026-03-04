@@ -61,7 +61,7 @@ class SecretConfig(BaseModel):
     """Secret/API key configuration."""
 
     key: str
-    category: str  # "ai", "github", "oauth"
+    category: str  # "ok", "github", "oauth"
     masked_value: str | None = None
     is_set: bool = False
     updated_at: str | None = None
@@ -202,7 +202,7 @@ def delete_venv() -> dict[str, Any]:
 def get_secrets_config() -> dict[str, list[SecretConfig]]:
     """Get all configured secrets organized by category."""
     categories = {
-        "ai": [
+        "ok": [
             "mistral_api_key",
             "openrouter_api_key",
             "openai_api_key",

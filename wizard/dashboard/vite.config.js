@@ -14,6 +14,7 @@ export default defineConfig({
     url: false,
   },
   resolve: {
+    conditions: ["browser"],
     alias: {
       $lib: path.resolve(__dirname, "src/lib"),
       $styles: path.resolve(__dirname, "src/styles"),
@@ -32,5 +33,10 @@ export default defineConfig({
   },
   server: {
     port: 5174,
+  },
+  test: {
+    environment: "jsdom",
+    setupFiles: "./src/test/setup.ts",
+    globals: true,
   },
 });

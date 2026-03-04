@@ -10,7 +10,7 @@ This document defines the minimum supported baseline for the `ucode` runtime sur
 - offline-first operation
 - local documentation and helper fallback
 
-`vibe` may still be present for Dev Mode, but only as an installed and activated contributor extension backed by `/dev/`. This spec is centered on the standard `ucode` path.
+`vibe` may still be present for Dev Mode, but only as an installed and activated contributor extension backed by the `@dev` workspace at `/dev`. This spec is centered on the standard `ucode` path.
 
 ## Minimum Requirements
 
@@ -70,5 +70,5 @@ Detailed install procedures belong in `docs/INSTALLATION.md` and operator runboo
 If Dev Mode tooling is installed:
 
 - it remains extension-gated and contributor-only
-- it requires the `/dev/` extension scaffold to be present
+- it requires the `@dev` workspace scaffold at `/dev` to be present
 - it must not replace the default `ucode` runtime pathway

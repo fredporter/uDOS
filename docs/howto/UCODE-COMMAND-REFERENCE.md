@@ -92,7 +92,7 @@ vibe
 # → Executes shell command via Dev Mode tooling
 ```
 
-Dev Mode use is valid only when the `dev` profile is enabled and the `/dev/` extension scaffold is installed and activated through Wizard-managed controls. `vibe` is not a peer standard runtime.
+Dev Mode use is valid only when the `dev` profile is enabled and the `@dev` workspace scaffold at `/dev` is installed and activated through Wizard-managed controls. `vibe` is not a peer standard runtime.
 
 ### 4. Shell/Script Execution
 ```bash
@@ -300,7 +300,7 @@ research local assist budget control
 
 help me organize binder tasks
 # -> OPERATOR guidance in standard runtime
-# -> Dev-only contributor fallback when /dev is active and deterministic routing does not apply
+# -> Dev-only contributor fallback when @dev is active and deterministic routing does not apply
 ```
 
 ### Maintenance Storage Policy (v1.3.13+)
@@ -379,7 +379,7 @@ HEALTH
 HEALTH CHECK housekeeping --scope knowledge
 HEALTH CHECK housekeeping --scope dev --apply
 VERIFY
-FILE SELECT --files readme.md,docs/roadmap.md
+FILE SELECT --files readme.md,docs/STATUS.md
 UCODE DEMO LIST
 UCODE DOCS --query reference
 UCODE SYSTEM INFO
@@ -402,7 +402,7 @@ WIZARD CHECK
 FILE SELECT --file readme.md
 
 # Non-interactive multi-file
-FILE SELECT --files readme.md,docs/roadmap.md
+FILE SELECT --files readme.md,docs/STATUS.md
 
 # Interactive selector in a workspace
 FILE SELECT --workspace @sandbox

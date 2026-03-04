@@ -16,8 +16,8 @@ config = {
         "project_management": True,
     },
     "ai_routing": {
-        "local_model": "ollama",
-        "remote_provider": "openrouter",
+        "local_model": "gpt4all",
+        "remote_provider": "mistral",
         "max_daily_calls": 50,
     },
 }

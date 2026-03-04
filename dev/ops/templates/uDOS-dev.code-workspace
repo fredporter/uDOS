@@ -1,0 +1,52 @@
+{
+  "folders": [
+    { "name": "uDOS", "path": "." },
+    { "name": "@dev", "path": "dev" },
+    { "name": "@ops", "path": "dev/ops" },
+    { "name": "@docs", "path": "dev/docs" },
+    { "name": "@goblin", "path": "dev/goblin" }
+  ],
+  "settings": {
+    "files.associations": {
+      "*.ucode": "markdown",
+      "*.udos": "markdown"
+    },
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/__pycache__": true,
+      "**/*.pyc": true,
+      "memory": true,
+      "vault": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/__pycache__": true,
+      "dev/files": true,
+      "dev/relecs": true,
+      "dev/dev-work": true,
+      "dev/testing": true,
+      "memory": true,
+      "vault": true
+    },
+    "python.defaultInterpreterPath": "${workspaceFolder:uDOS}/.venv/bin/python",
+    "terminal.integrated.env.osx": {
+      "VIRTUAL_ENV": "${workspaceFolder:uDOS}/.venv",
+      "PATH": "${workspaceFolder:uDOS}/.venv/bin:${env:PATH}",
+      "PYTHONPATH": "${workspaceFolder:uDOS}",
+      "UDOS_ROOT": "${workspaceFolder:uDOS}",
+      "UDOS_DEV_ROOT": "${workspaceFolder:uDOS}/dev",
+      "UDOS_DEV_OPS_ROOT": "${workspaceFolder:uDOS}/dev/ops",
+      "UDOS_DEV_GOBLIN_ROOT": "${workspaceFolder:uDOS}/dev/goblin",
+      "PYTHONUNBUFFERED": "1"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "GitHub.copilot",
+      "GitHub.copilot-chat",
+      "ms-python.python",
+      "ms-python.vscode-pylance",
+      "charliermarsh.ruff"
+    ]
+  }
+}

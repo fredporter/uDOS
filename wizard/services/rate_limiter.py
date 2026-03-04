@@ -7,7 +7,7 @@ Supports per-device, per-endpoint, and tiered limits.
 
 Rate Limit Tiers:
   - Standard: General API endpoints
-  - Expensive: AI/LLM calls (token cost)
+  - Expensive: OK model calls (token cost)
   - Heavy: File downloads, web proxy
   - Light: Health checks, status
 
@@ -28,7 +28,7 @@ class RateLimitTier(Enum):
     LIGHT = "light"  # Health, status, ping
     STANDARD = "standard"  # Normal API calls
     HEAVY = "heavy"  # Downloads, large fetches
-    EXPENSIVE = "expensive"  # AI/LLM API calls
+    EXPENSIVE = "expensive"  # OK model API calls
 
 
 @dataclass

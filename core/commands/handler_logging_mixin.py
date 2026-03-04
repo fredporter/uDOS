@@ -107,7 +107,7 @@ class HandlerLoggingMixin:
         game_commands = {'BAG', 'GRAB', 'SPAWN', 'SAVE', 'LOAD'}
         system_commands = {'REPAIR', 'REBOOT', 'DESTROY', 'BACKUP', 'RESTORE'}
         npc_commands = {'NPC', 'SEND'}
-        wizard_commands = {'CONFIG', 'WIZARD', 'AI'}
+        wizard_commands = {'CONFIG', 'WIZARD', 'OK'}
         
         cmd_upper = command.upper()
         

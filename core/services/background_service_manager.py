@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 import os
 from pathlib import Path
+import shutil
 import signal
 import subprocess
+import sys
 import time
 
 from core.services.logging_api import get_logger, get_repo_root
@@ -27,6 +30,8 @@ class WizardServiceStatus:
     pid: int | None
     message: str
     health: dict[str, object]
+    scheduler: dict[str, object] | None = None
+    repair_summary: dict[str, object] | None = None
 
 
 def _extract_host(url: str) -> str:
@@ -55,11 +60,29 @@ class WizardProcessManager:
         self.pid_file = self.repo_root / ".wizard.pid"
         self.log_file = self.repo_root / "memory" / "logs" / "wizard-daemon.log"
 
-    @staticmethod
-    def _base_url(value: str | None = None) -> str:
+    def _load_wizard_runtime_config(self) -> dict[str, object]:
+        config_path = self.repo_root / "wizard" / "config" / "wizard.json"
+        if not config_path.exists():
+            return {}
+        try:
+            payload = json.loads(config_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return {}
+        return payload if isinstance(payload, dict) else {}
+
+    def _base_url(self, value: str | None = None) -> str:
         from core.services.unified_config_loader import get_config
 
-        base_url = (value or get_config("WIZARD_BASE_URL", "") or _WIZARD_DEFAULT_BASE_URL).rstrip("/")
+        configured = (value or get_config("WIZARD_BASE_URL", "")).strip()
+        if configured:
+            base_url = configured.rstrip("/")
+        else:
+            config = self._load_wizard_runtime_config()
+            host = str(config.get("host") or "127.0.0.1").strip() or "127.0.0.1"
+            if host == "0.0.0.0":
+                host = "127.0.0.1"
+            port = int(config.get("port") or 8765)
+            base_url = f"http://{host}:{port}"
         _assert_loopback_base_url(base_url)
         return base_url
 
@@ -78,9 +101,13 @@ class WizardProcessManager:
             return None
         raw_pid = self.pid_file.read_text(encoding="utf-8").strip()
         if not raw_pid.isdigit():
+            self._clear_pid()
             return None
         pid = int(raw_pid)
-        return pid if self._pid_alive(pid) else None
+        if self._pid_alive(pid):
+            return pid
+        self._clear_pid()
+        return None
 
     def _write_pid(self, pid: int) -> None:
         self.pid_file.write_text(f"{pid}\n", encoding="utf-8")
@@ -92,19 +119,80 @@ class WizardProcessManager:
     def _health(base_url: str, timeout: int = 2) -> tuple[bool, dict[str, object]]:
         try:
             response = http_get(f"{base_url}/health", timeout=timeout)
-        except HTTPError:
+        except (HTTPError, OSError, ValueError):
             return False, {}
         payload = response.get("json") if isinstance(response, dict) else None
         data = payload if isinstance(payload, dict) else {}
         return response.get("status_code") == 200, data
 
+    def _scheduler_status(self) -> dict[str, object]:
+        try:
+            from wizard.services.monitoring_manager import MonitoringManager
+
+            statuses = MonitoringManager().get_automation_status()
+        except Exception as exc:
+            return {"healthy": False, "error": str(exc), "jobs": {}}
+
+        run_due = statuses.get("run_due_tasks") or {}
+        maintenance = statuses.get("maintenance") or {}
+        healthy = not bool(run_due.get("overdue")) and run_due.get("last_status") != "failed"
+        return {
+            "healthy": healthy,
+            "jobs": statuses,
+            "run_due_tasks": run_due,
+            "maintenance": maintenance,
+        }
+
+    def _run_self_heal(self) -> dict[str, object]:
+        try:
+            from core.services.self_healer import collect_self_heal_summary
+
+            return collect_self_heal_summary(component="wizard", auto_repair=True)
+        except Exception as exc:
+            return {
+                "success": False,
+                "component": "wizard",
+                "error": str(exc),
+            }
+
+    def _scheduler_command(self) -> list[str]:
+        uv_bin = shutil.which("uv")
+        if uv_bin:
+            return [uv_bin, "run", "-m", "wizard.jobs.run_due_tasks"]
+        return [sys.executable, "-m", "wizard.jobs.run_due_tasks"]
+
+    def _kick_scheduler(self) -> dict[str, object]:
+        command = self._scheduler_command()
+        proc = subprocess.run(
+            command,
+            cwd=self.repo_root,
+            capture_output=True,
+            text=True,
+        )
+        return {
+            "command": command,
+            "returncode": proc.returncode,
+            "stdout": proc.stdout,
+            "stderr": proc.stderr,
+        }
+
+    @staticmethod
+    def _scheduler_ready(payload: dict[str, object] | None) -> bool:
+        if not isinstance(payload, dict):
+            return False
+        return bool(payload.get("healthy"))
+
     def status(self, *, base_url: str | None = None) -> WizardServiceStatus:
         url = self._base_url(base_url)
         connected, health = self._health(url, timeout=2)
         pid = self._read_pid()
+        scheduler = self._scheduler_status() if connected else None
         running = connected or pid is not None
         if connected:
-            message = "wizard reachable"
+            if self._scheduler_ready(scheduler):
+                message = "wizard reachable"
+            else:
+                message = "wizard reachable but scheduler degraded"
         elif running:
             message = "wizard process running but not healthy"
         else:
@@ -116,35 +204,58 @@ class WizardProcessManager:
             pid=pid,
             message=message,
             health=health,
+            scheduler=scheduler,
         )
 
-    def ensure_running(self, *, base_url: str | None = None, wait_seconds: int = 25) -> WizardServiceStatus:
+    def ensure_running(
+        self,
+        *,
+        base_url: str | None = None,
+        wait_seconds: int = 25,
+        auto_repair: bool = False,
+        require_scheduler: bool = False,
+    ) -> WizardServiceStatus:
         status = self.status(base_url=base_url)
-        if status.connected:
+        if status.connected and (not require_scheduler or self._scheduler_ready(status.scheduler)):
             return status
+
+        repair_summary = None
+        if auto_repair and (not status.connected or (require_scheduler and not self._scheduler_ready(status.scheduler))):
+            repair_summary = self._run_self_heal()
 
         if not status.running:
             self._start_process()
 
         deadline = time.monotonic() + max(1, wait_seconds)
         url = self._base_url(base_url)
+        scheduler_kicked = False
         while time.monotonic() < deadline:
             connected, health = self._health(url, timeout=1)
             if connected:
+                scheduler = self._scheduler_status()
+                if require_scheduler and not self._scheduler_ready(scheduler):
+                    if auto_repair and not scheduler_kicked:
+                        self._kick_scheduler()
+                        scheduler_kicked = True
+                        time.sleep(0.25)
+                        continue
                 pid = self._read_pid()
                 return WizardServiceStatus(
                     base_url=url,
                     running=True,
                     connected=True,
                     pid=pid,
-                    message="wizard started",
+                    message="wizard started" if self._scheduler_ready(scheduler) or not require_scheduler else "wizard started but scheduler degraded",
                     health=health,
+                    scheduler=scheduler,
+                    repair_summary=repair_summary,
                 )
             time.sleep(0.25)
 
         latest = self.status(base_url=url)
         if latest.running:
             latest.message = "wizard start timeout"
+        latest.repair_summary = repair_summary
         return latest
 
     def _start_process(self) -> int:

@@ -1,0 +1,17 @@
+{
+  "id": "weekly-dev-cycle",
+  "workspace": "@dev",
+  "description": "Contributor weekly planning cycle for Codex, Copilot, and VS Code-aligned work.",
+  "windows": [
+    "plan",
+    "implement",
+    "verify",
+    "document",
+    "promote"
+  ],
+  "sources": [
+    "dev/ops/tasks.json",
+    "dev/ops/DEVLOG.md",
+    "dev/docs/roadmap/ROADMAP.md"
+  ]
+}

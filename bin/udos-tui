@@ -2,20 +2,4 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-BIN_PATH="${REPO_ROOT}/tui/bin/udos-tui"
-
-export UV_PROJECT_ENVIRONMENT="${UV_PROJECT_ENVIRONMENT:-.venv}"
-
-if [[ -x "${BIN_PATH}" ]]; then
-  exec "${BIN_PATH}" "$@"
-fi
-
-if command -v go >/dev/null 2>&1; then
-  cd "${REPO_ROOT}/tui"
-  exec go run ./cmd/udos-tui "$@"
-fi
-
-echo "udos-tui is not built and Go is unavailable." >&2
-echo "Run ./scripts/build_udos_tui.sh on a machine with Go 1.22+." >&2
-exit 127
+exec "${SCRIPT_DIR}/udos" tui "$@"

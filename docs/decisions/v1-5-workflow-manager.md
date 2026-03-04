@@ -138,4 +138,4 @@ The release must:
 - `docs/decisions/v1-5-logic-input-handler.md`
 - `docs/decisions/v1-5-offline-assist.md`
 - `docs/decisions/v1-5-ucode-tui-spec.md`
-- `docs/roadmap.md`
+- `docs/STATUS.md`

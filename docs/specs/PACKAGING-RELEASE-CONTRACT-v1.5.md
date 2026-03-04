@@ -103,5 +103,5 @@ long as:
 
 This file is the active short-form packaging contract for v1.5.
 
-Historical detail and earlier oversized milestone material were split out of:
-- `docs/specs/PACKAGING-DISTRIBUTION-ARCHITECTURE-v1.4.6.md`
+Historical detail and earlier oversized milestone material were archived under:
+- `docs/.compost/historic/2026-03-04-retired-plan-and-spec-relics/PACKAGING-DISTRIBUTION-ARCHITECTURE-v1.4.6.md`

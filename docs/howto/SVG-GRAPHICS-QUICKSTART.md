@@ -10,7 +10,7 @@ Use this guide for the v1.5 SVG workflow: local-first generation, Markdown-safe 
 ## Fastest Path
 
 1. Prepare the standard runtime with [INSTALLATION.md](/Users/fredbook/Code/uDOS/docs/INSTALLATION.md).
-2. If you want contributor-side local generation, prepare the Dev extension lane with [VIBE-Setup-Guide.md](/Users/fredbook/Code/uDOS/dev/docs/howto/VIBE-Setup-Guide.md).
+2. If you want contributor-side local generation, prepare the `@dev` workspace lane with [VIBE-Setup-Guide.md](/Users/fredbook/Code/uDOS/dev/docs/howto/VIBE-Setup-Guide.md).
 3. Generate or review SVG assets through the Wizard graphics service or the matching workflow/template lane.
 
 ## Local-First Example

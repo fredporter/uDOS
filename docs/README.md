@@ -8,11 +8,11 @@ Contributor-only Dev Mode documentation does not live here. Use `dev/docs/` for 
 
 ## Start Here
 
-- Roadmap: `docs/roadmap.md`
-- Workflow decision: `docs/decisions/v1-5-workflow.md`
-- Workflow spec: `docs/specs/WORKFLOW-SCHEDULER-v1.5.md`
-- Offline assist decision: `docs/decisions/v1-5-offline-assist.md`
-- Offline assist spec: `docs/specs/OFFLINE-ASSIST-STANDARD-v1.5.md`
+- Installation: `docs/INSTALLATION.md`
+- Public status: `docs/STATUS.md`
+- Architecture: `docs/ARCHITECTURE.md`
+- Public specs catalog: `docs/specs/README.md`
+- Public decisions catalog: `docs/decisions/README.md`
 - Workflow quickstart: `docs/howto/WORKFLOW-SCHEDULER-QUICKSTART.md`
 - Documentation map: `docs/specs/DOCUMENTATION-CANONICAL-MAP.md`
 
@@ -28,8 +28,9 @@ Contributor-only Dev Mode documentation does not live here. Use `dev/docs/` for 
   `docs/howto/`
 - Examples and sample packs:
   `docs/examples/`
-- Active dev evidence:
-  `docs/devlog/README.md`
+- Privacy and public policy:
+  `docs/PRIVACY.md`,
+  `LICENSE`
 
 ## Recommended Paths
 
@@ -55,5 +56,8 @@ Contributor-only Dev Mode documentation does not live here. Use `dev/docs/` for 
 ## Notes
 
 - `docs/INDEX.md` is the quick navigation page.
+- `wiki/` is the short orientation layer, not the canonical contract source.
 - `dev/docs/README.md` is the contributor documentation front door.
+- Planning notes, devlogs, and private milestone tracking belong in local `@dev` workspace paths, not in public `docs/`.
+- `docs/STATUS.md` is the public release/status page.
 - Superseded documents should move out of the active tree into `docs/.compost/`. Active docs should not keep redirect stubs unless a hard external dependency requires one.

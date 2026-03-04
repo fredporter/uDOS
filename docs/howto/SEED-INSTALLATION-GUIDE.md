@@ -34,7 +34,7 @@ When you launch uDOS for the first time:
 ```bash
 vibe
 # or
-./bin/ucode HELP
+./bin/udos
 ```
 
 The system automatically detects missing `memory/bank/locations/locations.json` and:

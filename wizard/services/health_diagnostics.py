@@ -140,10 +140,10 @@ def check_wizard_config() -> Dict[str, Any]:
         return {"name": "wizard_config", "status": "unhealthy", "message": "wizard/config/wizard.json missing"}
     try:
         data = json.loads(cfg.read_text())
-        if "ok_gateway_enabled" not in data and "ai_gateway_enabled" in data:
-            data["ok_gateway_enabled"] = data.get("ai_gateway_enabled")
+        if "logic_assist_enabled" not in data and "ai_gateway_enabled" in data:
+            data["logic_assist_enabled"] = data.get("ai_gateway_enabled")
         # minimal required keys
-        required = ["host", "port", "ok_gateway_enabled"]
+        required = ["host", "port", "logic_assist_enabled"]
         missing = [k for k in required if k not in data]
         if missing:
             return {

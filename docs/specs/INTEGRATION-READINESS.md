@@ -49,4 +49,4 @@ Ready for active v1.5 rebaseline work, with the current runtime split:
 ## Working Rule
 
 Use this page as a release-readiness summary only.
-Put detailed contracts in `docs/specs/`, architecture choices in `docs/decisions/`, and implementation sequencing in `docs/roadmap.md`.
+Put detailed contracts in `docs/specs/`, architecture choices in `docs/decisions/`, public release state in `docs/STATUS.md`, and private implementation sequencing in the local `@dev` roadmap/devlog lane.

@@ -67,7 +67,7 @@ Current v1.5 migration requirements:
 Recommended upgrade sequence:
 ```bash
 UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard --dev
-uv run ./uDOS.py SETUP
+./bin/udos
 ./scripts/run_pytest_core_stdlib.sh
 ```
 
@@ -112,10 +112,10 @@ Use `--tier 1|2|3` to test hardline gating for a requested tier.
 ### 5. Dev Mode Tooling Installation
 - **Install global vibe runtime**: Only when the `dev` profile is selected
 - **Wizard-managed extension lane**: Dev Mode is installed and removed through Wizard GUI lifecycle controls
-- **Framework gate**: Requires `/dev/` plus `/dev/extension.json`
+- **Framework gate**: Requires the `@dev` workspace at `/dev`, including `/dev/extension.json`
 - **Workspace contract**: tracked contributor docs and Goblin fixtures now live under `dev/docs/` and `dev/goblin/`
 - **uDOS integration**: Creates `.vibe/` symlinks for contributor tools/skills
-- **Standard runtime**: `ucode` remains the primary entry point
+- **Standard runtime**: `bin/udos` is the primary operator entry point
 - **Core dependencies**: Installs Python packages from `pyproject.toml`
 - **Logic assist prep**: runs the v1.5 GPT4All contributor setup helper when the selected tier permits local assist
 
@@ -133,7 +133,7 @@ Use `--tier 1|2|3` to test hardline gating for a requested tier.
 - **udos-tui build**:
   - built automatically when `go` is available
   - provides the Bubble Tea + Lip Gloss v1.5 shell frontend
-  - remains optional; `./bin/ucode` continues to work without it
+  - remains optional; `./bin/udos` remains the canonical front door either way
 - **Wizard budget control**:
   - handles all online model routing and daily spend policy
   - keeps offline-first behavior when budgets or policy thresholds block escalation
@@ -175,12 +175,16 @@ uDOS/
 │   ├── tools -> ../vibe/core/tools/ucode
 │   └── skills -> ../vibe/core/skills/ucode   # Dev extension contributor subset only
 ├── dev/                      # Dev Mode extension framework/template root
-│   ├── extension.json
 │   ├── AGENTS.md
-│   ├── DEVLOG.md
-│   ├── project.json
-│   ├── tasks.md
-│   ├── completed.json
+│   ├── extension.json
+│   ├── ops/
+│   │   ├── AGENTS.md
+│   │   ├── DEVLOG.md
+│   │   ├── project.json
+│   │   ├── tasks.md
+│   │   ├── tasks.json
+│   │   ├── completed.json
+│   │   └── templates/
 │   ├── docs/
 │   └── goblin/
 ├── memory/
@@ -229,7 +233,7 @@ uDOS/
 
 The Vibe lane is intentionally small and contributor-only.
 
-- It is enabled only for the `dev` profile with the `/dev/` extension installed and active.
+- It is enabled only for the `dev` profile with the `@dev` workspace installed and active.
 - It is not a second full operator runtime.
 - It exposes only a reduced skill set for development work: `ucode`, `ucode-help`, `ucode-setup`, and `ucode-dev`.
 - Binder, story, spatial, gameplay, media, and destructive flows stay in the standard `ucode` TUI.
@@ -253,15 +257,15 @@ This approach saves disk space and keeps installations minimal.
 ### 1. Test Core Installation
 ```bash
 cd /path/to/uDOS
-./bin/ucode STATUS
+./bin/udos status
 ```
 
-You should see the standard `ucode` runtime respond successfully.
+You should see the canonical uDOS runtime respond successfully.
 
 ### 2. Run Setup Story
 In the standard runtime, run:
 ```
-ucode SETUP
+SETUP
 ```
 
 This completes the user configuration:
@@ -272,7 +276,7 @@ This completes the user configuration:
 
 ### 3. Start Wizard (if installed)
 ```bash
-./bin/ucode WIZARD start
+./bin/udos wizard start
 ```
 
 Access the web interface at: http://localhost:8765

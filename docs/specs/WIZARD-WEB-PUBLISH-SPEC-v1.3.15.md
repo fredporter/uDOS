@@ -42,7 +42,7 @@ Owned by optional modules or wizard adapters:
 - `oc-app` provider: external companion app artifact handoff
 - `sonic` provider: optional artifact exposure, no required coupling
 - `groovebox` provider: optional media publish artifacts via Wizard
-- `dev` provider: test/sandbox publish only when `/dev` is installed and active
+- `dev` provider: test/sandbox publish only when the `@dev` workspace at `/dev` is installed and active
 
 Providers register capabilities through the Wizard publish provider registry and expose readiness through provider sync + route contract tests.
 
@@ -69,7 +69,7 @@ Proposed canonical API surface:
 
 Implemented module-aware gating:
 - `wizard` provider accepts vault/memory sources.
-- `dev` provider accepts `/dev` and sandbox sources.
+- `dev` provider accepts `@dev` workspace sources from `/dev` plus sandbox sources.
 - `sonic` provider accepts Sonic/distribution artifact sources.
 - `groovebox` provider accepts Groovebox/media sources.
 - `oc_app` remains external and unavailable until adapter activation.
@@ -97,7 +97,7 @@ Every publish job must produce:
 
 - publish operations require Wizard auth and policy checks.
 - module-scoped publish operations require module capability + activation checks.
-- `/dev` publish/testing actions are admin-only and disabled when `/dev` is absent.
+- `@dev` workspace publish/testing actions are admin-only and disabled when `/dev` is absent.
 - no direct publish execution from non-`ucode` interactive loops or legacy command aliases.
 
 ## Migration from v1.3.x

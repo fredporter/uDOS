@@ -155,7 +155,7 @@ Window-aware tasks are deferred into the correct execution window. Network or pr
 
 ## Related Docs
 
-- `docs/roadmap.md`
+- `docs/STATUS.md`
 - `docs/decisions/v1-5-workflow.md`
 - `docs/howto/VIBE-MCP-INTEGRATION.md`
 - `docs/howto/SERVER-MANAGEMENT.md`

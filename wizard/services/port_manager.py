@@ -1064,7 +1064,7 @@ class PortManager:
 
 
 # Singleton instance
-    _port_manager = None
+_port_manager = None
 
 
 def get_port_manager(config_path: Optional[Path] = None) -> PortManager:

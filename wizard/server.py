@@ -17,7 +17,7 @@ Endpoints:
 Security:
   - All endpoints require device authentication
   - Granular rate limiting per device/endpoint tier
-  - Cost tracking for AI/cloud APIs
+  - Cost tracking for OK/cloud APIs
 """
 
 import asyncio
@@ -305,6 +305,12 @@ class WizardServer:
         workflow_router = create_workflow_routes(auth_guard=self._authenticate_admin)
         app.include_router(workflow_router)
 
+        # Register task scheduler routes
+        from wizard.routes.task_routes import create_task_routes
+
+        task_router = create_task_routes(auth_guard=self._authenticate_admin)
+        app.include_router(task_router)
+
         # Register Sync executor routes
         from wizard.routes.sync_executor_routes import create_sync_executor_routes
 
@@ -352,10 +358,10 @@ class WizardServer:
             self.logger.warn("[WIZ] GitHub routes disabled: %s", exc)
 
         # Register v1.5 logic-assist routes
-        from wizard.routes.ai_routes import create_ai_routes
+        from wizard.routes.ok_routes import create_ok_routes
 
-        ai_router = create_ai_routes(auth_guard=self._authenticate)
-        app.include_router(ai_router)
+        ok_router = create_ok_routes(auth_guard=self._authenticate)
+        app.include_router(ok_router)
 
         # Register Configuration routes
         from wizard.routes.config_admin_routes import (
@@ -641,7 +647,7 @@ class WizardServer:
             return health_probe(services={
                 "plugin_repo": self.config.plugin_repo_enabled,
                 "web_proxy": self.config.web_proxy_enabled,
-                "ok_gateway": self.config.ok_gateway_enabled,
+                "logic_assist": self.config.logic_assist_enabled,
             })
 
         @app.get("/api/index")
@@ -683,7 +689,7 @@ class WizardServer:
                     },
                     {
                         "name": "Logic Assist",
-                        "enabled": self.config.ok_gateway_enabled,
+                        "enabled": self.config.logic_assist_enabled,
                         "description": "GPT4All local assist plus Wizard network budget control",
                     },
                 ],
@@ -738,12 +744,12 @@ class WizardServer:
                 "device_id": device_id,
                 "session": {
                     "request_count": session.request_count if session else 0,
-                    "ai_cost_today": session.ai_cost_today if session else 0,
+                    "ok_cost_today": session.ok_cost_today if session else 0,
                 },
                 "rate_limits": rate_stats["tiers"],
                 "limits_config": {
                     "tiers": ["light", "standard", "heavy", "expensive"],
-                    "ai_budget_daily": self.config.ai_budget_daily,
+                    "ok_budget_daily": self.config.ok_budget_daily,
                 },
             }
 
@@ -1038,7 +1044,7 @@ class WizardServer:
                     "name": session.device_name,
                     "last_request": session.last_request,
                     "requests": session.request_count,
-                    "cost_today": session.ai_cost_today,
+                    "cost_today": session.ok_cost_today,
                 })
             return {"devices": devices, "count": len(devices)}
 

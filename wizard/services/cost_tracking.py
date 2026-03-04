@@ -6,7 +6,7 @@ Tracks costs for external API usage on the Wizard Server.
 Provides budgeting, alerts, and usage reports.
 
 Tracked Resources:
-  - AI Providers (OpenAI, Anthropic, local)
+  - OK Providers (OpenAI, Anthropic, local)
   - Web proxy bandwidth
   - Storage usage
 
@@ -361,7 +361,7 @@ class CostTracker:
             current = current + timedelta(days=1)
 
         # Calculate budget status
-        # Use AI tokens as the primary budget indicator
+        # Use OK-model tokens as the primary budget indicator
         token_budget = self.budgets.get(ResourceType.AI_TOKENS.value)
         budget_usage = 0.0
         over_budget = False

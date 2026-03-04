@@ -1,7 +1,7 @@
 # Service: wizard.providers
 
 ## Purpose
-List configured AI providers and basic capabilities.
+List configured OK providers and basic capabilities.
 
 ## UI Contract
 

@@ -585,10 +585,12 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
             raise HTTPException(status_code=404, detail="/dev extension scaffold not found")
         required = {
             "agents": (root / "AGENTS.md").exists(),
-            "devlog": (root / "DEVLOG.md").exists(),
-            "project": (root / "project.json").exists(),
-            "tasks": (root / "tasks.md").exists(),
-            "completed": (root / "completed.json").exists(),
+            "ops": (root / "ops").exists(),
+            "devlog": (root / "ops" / "DEVLOG.md").exists(),
+            "project": (root / "ops" / "project.json").exists(),
+            "tasks": (root / "ops" / "tasks.md").exists(),
+            "tasks_json": (root / "ops" / "tasks.json").exists(),
+            "completed": (root / "ops" / "completed.json").exists(),
             "extension_manifest": (root / "extension.json").exists(),
         }
         local_workdirs = {

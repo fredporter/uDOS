@@ -82,14 +82,14 @@ Same as "Arrow Keys Not Working" above.
 ## Tab Completion Not Working
 
 **Check:**
-1. Using active interface: `vibe` (interactive) or `./bin/ucode` (direct command)
-2. Not in piped/redirected mode: `./bin/ucode ... | tee` disables TAB
+1. Using active interface: `vibe` (interactive) or `./bin/udos` (direct command)
+2. Not in piped/redirected mode: `./bin/udos ... | tee` disables TAB
 3. `uv` environment is synced: `uv sync`
 
 **Fix:**
 ```bash
 uv sync
-vibe
+./bin/udos
 ```
 
 ---

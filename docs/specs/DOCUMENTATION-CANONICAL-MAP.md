@@ -68,13 +68,13 @@ It should not be the long-term home for:
 
 - `docs/howto/WORKFLOW-SCHEDULER-QUICKSTART.md`
 
-### Roadmap / progress
+### Public status
 
-- `docs/roadmap.md`
+- `docs/STATUS.md`
 
-### Archive redirect
+### Private planning
 
-- `docs/v1-4-workflow-PLAN.md`
+- local `@dev` workspace planning/docs paths
 
 ## Current Canonical uHOME Docs
 
@@ -146,7 +146,7 @@ This second pass focused on:
 ### Completed in this pass
 
 - `docs/decisions/v1-5-wizard-PLAN.md`
-  - converted to archive redirect
+  - moved into `docs/.compost/historic/2026-03-04-retired-plan-and-spec-relics/`
 - `docs/specs/workflow-management.md`
   - converted to archive redirect
 - workflow architecture moved into explicit decision/spec/howto/roadmap documents
@@ -155,7 +155,7 @@ This second pass focused on:
 - `docs/specs/typescript-markdown-runtime.md`
   - split into a short active contract plus archived detailed brief
 - `docs/specs/PACKAGING-DISTRIBUTION-ARCHITECTURE-v1.4.6.md`
-  - split into a short active packaging contract plus archived milestone brief
+  - moved into `docs/.compost/historic/2026-03-04-retired-plan-and-spec-relics/` after the active packaging contract was established
 - `docs/MANAGED-OPERATIONS.md`
   - merged into `docs/howto/MANAGED-WIZARD-OPERATIONS.md` and reduced to redirect stub
 - `docs/decisions/OK-update-v1-4-6.md`
@@ -231,9 +231,9 @@ Recommended next review targets:
 
 ### March 3, 2026 consolidation completed
 
-- `docs/decisions/v1-5-wizard-PLAN.md` converted to archive redirect
+- `docs/decisions/v1-5-wizard-PLAN.md` moved fully into `docs/.compost/historic/2026-03-04-retired-plan-and-spec-relics/`
 - `docs/specs/workflow-management.md` converted to archive redirect
-- Wizard plan milestones merged into `docs/roadmap.md`
+- Wizard plan milestones should stay in local `@dev` planning/docs paths and not in public `docs/`
 - root and top-level docs relics moved into dated `.compost` folders
 - stale devlog rollups, completion summaries, and the stale v1.5 GA completion note moved into `docs/.compost/historic/2026-03-03-devlog-rollups-and-relics/`
 - interim devlog milestone plans, progress logs, and narrow completion notes moved into `docs/.compost/historic/2026-03-03-devlog-interim-plans-and-progress/`
@@ -253,15 +253,15 @@ Recommended next review targets:
 - `docs/README.md` and `docs/INDEX.md` were reduced to a front door plus short navigation index
 - root `README.md` had duplicated documentation/install narrative trimmed back to canonical entrypoints
 - `docs/examples/example-sqlite.db.md` was reduced into a front-door example plus focused companion examples
-- `docs/specs/UCODE-COMMAND-DISPATCH-v1.4.4.md` was reduced to a redirect stub with a shorter active dispatch contract
+- `docs/specs/UCODE-COMMAND-DISPATCH-v1.4.4.md` was removed from the active tree and archived once the shorter active dispatch contract was in place
 - `docs/decisions/uDOS-v1-3.md` was reduced to a short historical architecture snapshot
 - `docs/specs/03-contributions-contract.md` was normalized into a short historical contribution contract
 - `docs/decisions/uHOME-spec.md` was reduced to a short active home-profile decision
 - `docs/decisions/UDOS-VM-REMOTE-DESKTOP-ARCHITECTURE.md` was reduced to a short topology decision
 - `docs/decisions/data-layer-architecture.md` was reduced to a short active data-layer decision
-- `docs/decisions/UDOS-PYTHON-ENVIRONMENTS-DEV-BRIEF.md` was reduced to a short active environment decision
+- `dev/docs/decisions/UDOS-PYTHON-ENVIRONMENTS-DEV-BRIEF.md` is the contributor-facing environment brief
 - `docs/specs/OK-MODES-v1.3.md` had completion-endpoint terminology normalized
-- `docs/specs/ERROR-HANDLING-v1.4.4.md` had provider terminology normalized
+- `docs/specs/ERROR-HANDLING-v1.4.4.md` was retired from the active tree as a superseded draft-era contract
 - `docs/specs/INTEGRATION-READINESS.md` was reduced to a short active readiness summary
 - `docs/specs/MINIMUM-SPEC-VIBE-CLI-UCODE.md` was rewritten around the `ucode`-first runtime path
 - `docs/decisions/SONIC-DB-SPEC-GPU-PROFILES.md` was reduced to a short Sonic launch-profile decision

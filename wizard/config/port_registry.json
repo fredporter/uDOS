@@ -57,19 +57,5 @@
       "pid": null,
       "last_check": null
     },
-    {
-      "name": "ollama",
-      "port": 11434,
-      "environment": "production",
-      "process_name": "ollama",
-      "description": "Ollama local model server",
-      "startup_cmd": "ollama serve",
-      "shutdown_cmd": null,
-      "health_endpoint": "http://localhost:11434/api/version",
-      "enabled": true,
-      "status": "unknown",
-      "pid": null,
-      "last_check": null
-    }
   ]
 }

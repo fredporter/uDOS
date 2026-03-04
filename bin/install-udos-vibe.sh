@@ -817,7 +817,9 @@ function setup_env_file() {
 
     # Auto-detect and set values
     sed -i.bak "s|UDOS_ROOT=.*|UDOS_ROOT=$REPO_ROOT|g" "$env_file"
-    sed -i.bak "s|VAULT_ROOT=.*|VAULT_ROOT=\${UDOS_ROOT}/memory/vault|g" "$env_file"
+    sed -i.bak "s|UDOS_MEMORY_ROOT=.*|UDOS_MEMORY_ROOT=\${UDOS_ROOT}/memory|g" "$env_file"
+    sed -i.bak "s|VAULT_ROOT=.*|VAULT_ROOT=\${UDOS_MEMORY_ROOT}/vault|g" "$env_file"
+    sed -i.bak "s|VAULT_MD_ROOT=.*|VAULT_MD_ROOT=\${VAULT_ROOT}|g" "$env_file"
     sed -i.bak "s|OS_TYPE=.*|OS_TYPE=$OS_TYPE|g" "$env_file"
     rm -f "$env_file.bak"
 
@@ -959,10 +961,6 @@ from pathlib import Path
 
 repo_root = Path(sys.argv[1])
 env_path = Path(sys.argv[2])
-private_dir = repo_root / "memory" / "bank" / "private"
-private_dir.mkdir(parents=True, exist_ok=True)
-users_file = private_dir / "users.json"
-current_file = private_dir / "current_user.txt"
 
 env_vars = {}
 for raw in env_path.read_text().splitlines():
@@ -971,6 +969,12 @@ for raw in env_path.read_text().splitlines():
         continue
     key, value = line.split("=", 1)
     env_vars[key.strip()] = value.strip().strip('"').strip("'")
+
+memory_root = Path(env_vars.get("UDOS_MEMORY_ROOT") or (repo_root / "memory"))
+private_dir = memory_root / "bank" / "private"
+private_dir.mkdir(parents=True, exist_ok=True)
+users_file = private_dir / "users.json"
+current_file = private_dir / "current_user.txt"
 
 username = (env_vars.get("USER_NAME") or "").strip().lower()
 if not username or username == "ghost":
@@ -1004,11 +1008,20 @@ PY
 function setup_vault_structure() {
     step "Setting up vault structure..."
 
-    local vault_root="$REPO_ROOT/memory/vault"
+    local env_file="$REPO_ROOT/.env"
+    local memory_root vault_root
+    memory_root="$(read_env_var "$env_file" "UDOS_MEMORY_ROOT")"
+    vault_root="$(read_env_var "$env_file" "VAULT_ROOT")"
+    if [[ -z "$memory_root" ]]; then
+        memory_root="$REPO_ROOT/memory"
+    fi
+    if [[ -z "$vault_root" ]]; then
+        vault_root="$memory_root/vault"
+    fi
 
     # Create essential directories
     mkdir -p "$vault_root"
-    mkdir -p "$REPO_ROOT/memory/logs"
+    mkdir -p "$memory_root/logs"
     mkdir -p "$REPO_ROOT/.vibe"
 
     # Copy vault template if it doesn't exist
@@ -1180,7 +1193,7 @@ PY
             esac
         done <<< "$setup_output"
     else
-        warning "Logic-assist setup helper did not complete cleanly. You can rerun with: ./bin/ucode then SETUP dev"
+        warning "Logic-assist setup helper did not complete cleanly. You can rerun with: ./bin/udos then SETUP dev"
     fi
 }
 
@@ -1238,7 +1251,7 @@ function build_optional_tui() {
     if "$REPO_ROOT/scripts/build_udos_tui.sh"; then
         success "udos-tui built"
     else
-        warning "udos-tui build failed (non-critical). Core shell remains available through ./bin/ucode"
+        warning "udos-tui build failed (non-critical). Core shell remains available through ./bin/udos"
     fi
 }
 
@@ -1276,7 +1289,21 @@ function run_health_check() {
     echo "Configuration:"
     echo "  Repo Root: $REPO_ROOT"
     echo "  .env: $(if [[ -f "$REPO_ROOT/.env" ]]; then echo "✓"; else echo "✗"; fi)"
-    echo "  Vault: $(if [[ -d "$REPO_ROOT/memory/vault" ]]; then echo "✓"; else echo "✗"; fi)"
+    local summary_memory_root="$REPO_ROOT/memory"
+    local summary_vault_root="$summary_memory_root/vault"
+    if [[ -f "$REPO_ROOT/.env" ]]; then
+        local env_memory_root env_vault_root
+        env_memory_root="$(read_env_var "$REPO_ROOT/.env" "UDOS_MEMORY_ROOT")"
+        env_vault_root="$(read_env_var "$REPO_ROOT/.env" "VAULT_ROOT")"
+        if [[ -n "$env_memory_root" ]]; then
+            summary_memory_root="$env_memory_root"
+        fi
+        if [[ -n "$env_vault_root" ]]; then
+            summary_vault_root="$env_vault_root"
+        fi
+    fi
+    echo "  Memory Root: $(if [[ -d "$summary_memory_root" ]]; then echo "✓ $summary_memory_root"; else echo "✗ $summary_memory_root"; fi)"
+    echo "  Vault Root: $(if [[ -d "$summary_vault_root" ]]; then echo "✓ $summary_vault_root"; else echo "✗ $summary_vault_root"; fi)"
     echo "  Dev Tool Bridge: $(if [[ -L "$REPO_ROOT/.vibe/tools" ]]; then echo "✓"; else echo "✗"; fi)"
     echo ""
     echo "═══════════════════════════════════════════════════════════"
@@ -1344,32 +1371,28 @@ function main() {
     echo "1. Review and update .env with your configuration:"
     printf '%b\n' "   ${CYAN}micro $REPO_ROOT/.env${NC}"
     echo ""
-    echo "2. Open uCODE command runtime:"
-    printf '%b\n' "   ${CYAN}./bin/ucode${NC}"
+    echo "2. Open the canonical uDOS runtime:"
+    printf '%b\n' "   ${CYAN}./bin/udos${NC}"
     echo ""
-    if [[ -x "$REPO_ROOT/tui/bin/udos-tui" ]]; then
-        echo "   v1.5 teletext TUI frontend:"
-        printf '%b\n' "   ${CYAN}./bin/udos-tui${NC}"
-        echo ""
-    fi
     if _profile_selected "dev"; then
         echo "   Dev profile also installed contributor tooling:"
         printf '%b\n' "   ${CYAN}cd $REPO_ROOT${NC}"
         printf '%b\n' "   ${CYAN}vibe${NC}"
-        printf '%b\n' "   ${CYAN}./bin/ucode${NC} then type: ${BOLD}SETUP dev${NC}"
+        printf '%b\n' "   ${CYAN}./bin/udos${NC} then type: ${BOLD}SETUP dev${NC}"
         echo ""
     fi
     if _profile_selected "home"; then
         echo "3. Start the wizard server:"
-        printf '%b\n' "   ${CYAN}echo 'WIZARD start' | $REPO_ROOT/bin/ucode${NC}"
+        printf '%b\n' "   ${CYAN}./bin/udos wizard start${NC}"
         echo ""
     fi
-    echo "3. Review certified profiles from ucode:"
-    printf '%b\n' "   ${CYAN}UCODE PROFILE LIST${NC}"
-    printf '%b\n' "   ${CYAN}UCODE OPERATOR STATUS${NC}"
+    echo "3. Review runtime status and profile surfaces:"
+    printf '%b\n' "   ${CYAN}./bin/udos status${NC}"
+    printf '%b\n' "   ${CYAN}./bin/udos${NC} then type: ${BOLD}UCODE PROFILE LIST${NC}"
+    printf '%b\n' "   ${CYAN}./bin/udos${NC} then type: ${BOLD}UCODE OPERATOR STATUS${NC}"
     echo ""
     echo "4. Run the SETUP story to complete configuration:"
-    printf '%b\n' "   ${CYAN}./bin/ucode${NC} then type: ${BOLD}SETUP${NC}"
+    printf '%b\n' "   ${CYAN}./bin/udos${NC} then type: ${BOLD}SETUP${NC}"
     echo ""
     echo "═══════════════════════════════════════════════════════════"
     echo ""
@@ -1379,12 +1402,12 @@ function main() {
     echo ""
 
     if [[ "${UDOS_AUTO_LAUNCH_UCODE:-0}" == "1" ]]; then
-        if [[ -x "$REPO_ROOT/bin/ucode" ]]; then
-            info "Launching uCODE..."
+        if [[ -x "$REPO_ROOT/bin/udos" ]]; then
+            info "Launching uDOS runtime..."
             cd "$REPO_ROOT"
-            "$REPO_ROOT/bin/ucode" || warning "uCODE exited with non-zero status"
+            "$REPO_ROOT/bin/udos" || warning "uDOS runtime exited with non-zero status"
         else
-            warning "Auto-launch requested but '$REPO_ROOT/bin/ucode' is not executable"
+            warning "Auto-launch requested but '$REPO_ROOT/bin/udos' is not executable"
         fi
     elif [[ "${UDOS_AUTO_LAUNCH_VIBE:-0}" == "1" ]]; then
         if command -v vibe &> /dev/null; then

@@ -18,6 +18,7 @@
   },
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
+  "github.copilot.editor.enableAutoCompletions": true,
   "python.analysis.typeCheckingMode": "strict",
   "python.testing.pytestArgs": ["tests"],
   "python.testing.pytestEnabled": true,

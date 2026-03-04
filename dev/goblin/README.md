@@ -21,3 +21,8 @@ It is not a replacement runtime root and it is not the place for personal scratc
 - `seed/`: seed payloads for repeatable dev scenarios
 - `scenarios/`: named fixture scenarios
 - `test-vault/`: tracked vault fixtures for dev/test flows
+- `tests/`: tracked overlay tests that exercise Wizard-owned services from the contributor lane
+
+## Layering Rule
+
+Goblin layers over Wizard services for development and experimental feature work. It may provide fixtures, tests, and sample server stubs, but it must not become a second runtime owner.

@@ -84,7 +84,7 @@ def get_full_config_status() -> dict[str, Any]:
             "ghost_mode": ghost_mode,
         },
         "features": {
-            "logic_assist_enabled": config.get("ok_gateway_enabled", False),
+            "logic_assist_enabled": config.get("logic_assist_enabled", False),
             "github_push_enabled": config.get("github_push_enabled", False),
             "web_proxy_enabled": config.get("web_proxy_enabled", False),
         },
@@ -117,7 +117,7 @@ def get_paths() -> dict[str, Any]:
 
 def _load_wizard_config() -> dict[str, Any]:
     defaults = {
-        "ok_gateway_enabled": False,
+        "logic_assist_enabled": False,
         "github_push_enabled": False,
         "web_proxy_enabled": False,
     }
