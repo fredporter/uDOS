@@ -54,7 +54,8 @@ See:
 
 ## Dev Mode Boundary
 
-`vibe` remains available for Dev Mode contributor workflows only. It is not the standard runtime path for v1.5 normal-user operation.
+Mistral Vive remains an `@dev` contributor workflow surface only. It is not the standard runtime path for v1.5 normal-user operation.
+See `docs/howto/MISTRAL-VIVE-DEV-WORKSPACE.md`.
 
 ## Historical Command Notes
 

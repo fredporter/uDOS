@@ -1,34 +1,48 @@
-"""
-Hotkey map helpers
-==================
-
-Shared helper for documenting and recording the key bindings used by the TUI
-command prompt (Tab, F1-F8, arrow history, etc.). Allows automation scripts to
-compare the current bindings via JSON payloads/snapshots.
-"""
+"""Canonical v1.5 TUI keybinding map and payload helpers."""
 
 import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from core.services.health_training import read_last_todo_reminder
-
-
 def get_hotkey_map() -> List[Dict[str, str]]:
-    """Return the canonical key map shared between UI and automation."""
+    """Return the canonical interaction model shared by UI and automation."""
     return [
-        {"key": "Tab", "action": "Command Selector", "notes": "Opens the TAB menu even in fallback mode."},
-        {"key": "F1", "action": "Status / Help banner", "notes": "Displays Self-Healer + Hot Reload stats."},
-        {"key": "F2", "action": "Logs / Diagnostics", "notes": "Shows logs and diagnostics summary."},
-        {"key": "F3", "action": "REPAIR shortcut", "notes": "Triggers SelfHealer checks via CLI."},
-        {"key": "F4", "action": "REBOOT", "notes": "Reloads handlers and restarts TUI."},
-        {"key": "F5", "action": "Extension palette", "notes": "Opens the plugin menu (LibraryManager metadata)."},
-        {"key": "F6", "action": "Script / DRAW PAT", "notes": "Runs DRAW PAT/system script banners for automation."},
-        {"key": "F7", "action": "Sonic Device DB", "notes": "Shows Sonic USB/media capabilities from the device DB."},
-        {"key": "F8", "action": "Hotkey Center", "notes": "Reloads this key map (including automation hints)."},
-        {"key": "↑ / ↓", "action": "Command history", "notes": "Shared with SmartPrompt history/predictor."},
-        {"key": "Enter", "action": "Confirm input", "notes": "Approves Date/Time/Timezone with overrides."},
+        {"key": "Ctrl+C", "action": "Immediate exit", "notes": "Global hard exit unless explicitly overridden."},
+        {"key": "Esc", "action": "Cancel / go back", "notes": "Global cancel and back navigation."},
+        {"key": "Enter", "action": "Confirm / execute", "notes": "Global confirmation action."},
+        {"key": "Tab", "action": "Next field/pane", "notes": "Moves focus forward across panes/fields."},
+        {"key": "Shift+Tab", "action": "Previous field/pane", "notes": "Moves focus backward across panes/fields."},
+        {"key": "Ctrl+L", "action": "Redraw screen", "notes": "Refreshes terminal rendering."},
+        {"key": "?", "action": "Toggle help overlay", "notes": "Opens context help without leaving screen."},
+        {"key": ":", "action": "Command palette", "notes": "Opens fuzzy command launcher."},
+        {"key": "/", "action": "Search / filter", "notes": "Enters filter mode in lists and selectors."},
+        {"key": "↑ ↓", "action": "Move selection", "notes": "Shared list/menu navigation."},
+        {"key": "← →", "action": "Change column/level", "notes": "Shared horizontal navigation."},
+        {"key": "Home / End", "action": "Jump bounds", "notes": "Jump to start/end of current list."},
+        {"key": "PgUp / PgDn", "action": "Page navigation", "notes": "Page-wise list movement."},
+        {"key": "j k h l", "action": "Optional vim nav", "notes": "Power-user alternative navigation keys."},
+        {"key": "Space", "action": "Toggle multi-select", "notes": "Used in multi-select controls."},
+        {"key": "a / x", "action": "Select all / clear", "notes": "Multi-select batch actions."},
+        {"key": "n / N", "action": "Search next/prev", "notes": "Navigate current search results."},
+        {"key": "Ctrl+A / Ctrl+E", "action": "Input line bounds", "notes": "Move to start/end of line."},
+        {"key": "Ctrl+U / Ctrl+W / Ctrl+K", "action": "Input delete ops", "notes": "Delete line/word/to-end."},
+        {"key": "Ctrl+Y / Ctrl+D", "action": "Paste buffer / delete char", "notes": "Shell-style text editing."},
+        {"key": "F1", "action": "Help", "notes": "System-level teletext help."},
+        {"key": "F2", "action": "System status", "notes": "Runtime status and health summary."},
+        {"key": "F3", "action": "Logs", "notes": "Open runtime logs view."},
+        {"key": "F4", "action": "Extensions", "notes": "Open extension/plug-in surface."},
+        {"key": "F5", "action": "Refresh", "notes": "Refresh active panel/screen."},
+        {"key": "F6", "action": "Toggle panels", "notes": "Cycle or toggle panel layout."},
+        {"key": "F7", "action": "Missions", "notes": "Open mission/workflow surface."},
+        {"key": "F8", "action": "Environment", "notes": "Open environment/config surface."},
+        {"key": "F9", "action": "Settings", "notes": "Open runtime settings."},
+        {"key": "F10", "action": "Exit", "notes": "Exit shortcut with explicit key target."},
+        {"key": "Ctrl+R", "action": "Wizard rerun task", "notes": "Unlocked at Wizard rank."},
+        {"key": "Ctrl+P", "action": "Wizard project switcher", "notes": "Unlocked at Wizard rank."},
+        {"key": "Ctrl+T", "action": "Wizard task runner", "notes": "Unlocked at Wizard rank."},
+        {"key": "Ctrl+O", "action": "Wizard object explorer", "notes": "Unlocked at Wizard rank."},
+        {"key": "Ctrl+G", "action": "Wizard scaffold generate", "notes": "Unlocked at Wizard rank."},
     ]
 
 
@@ -38,19 +52,19 @@ def _get_repo_root_from(memory_root: Path) -> Path:
 
 
 def _build_status_payload(memory_root: Path) -> Dict[str, Any]:
-    """Return the status payload describing the plugin/Sonic story + register paths."""
+    """Return status payload for automation and UI contracts."""
     repo_root = _get_repo_root_from(memory_root)
-    doc_path = repo_root / "core" / "docs" / "WIZARD-SONIC-PLUGIN-ECOSYSTEM.md"
+    doc_path = repo_root / "docs" / "specs" / "TUI-KEYBINDINGS-v1.5.md"
     status = {
         "hotkey_register": str(memory_root / "logs" / "hotkey-center.json"),
         "doc_path": str(doc_path),
         "doc_last_modified": None,
-        "deliverables": [
-            "Wizard config page now routes `.venv → secrets → installers → hotkeys` and shares manifest validation with CLI installs.",
-            "CLI `PLUGIN install` and `/api/library/.../install` log every manifest/health event to `memory/logs/health-training.log`.",
-            "Sonic Screwdriver USB builder scripts, device DB sync, media logs, and Windows launch parameters are captured in `core/docs/WIZARD-SONIC-PLUGIN-ECOSYSTEM.md`.",
+        "principles": [
+            "Consistency: same controls across every screen",
+            "Predictability: Unix/Vim-friendly behavior",
+            "Safety: bracketed paste with atomic insert behavior",
+            "Speed: full keyboard navigation for expert users",
         ],
-        "todo_reminder": read_last_todo_reminder(),
     }
     if doc_path.exists():
         status["doc_last_modified"] = datetime.fromtimestamp(doc_path.stat().st_mtime).isoformat()

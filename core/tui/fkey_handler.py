@@ -1,15 +1,17 @@
 """
 Function Key Handler for uCODE
 
-Maps F1-F8 to common operations:
-- F1: Create new Markdown file
-- F2: Open TUI file picker
-- F3: Select workspace folder
-- F4: Open binder
-- F5: Show workflows
-- F6: TUI settings/status
-- F7: Display function key map
-- F8: Manage wizard server and open dashboard
+Maps F1-F10 to system-level teletext actions:
+- F1: Help
+- F2: System status
+- F3: Logs
+- F4: Extensions
+- F5: Refresh
+- F6: Toggle panels
+- F7: Missions
+- F8: Environment
+- F9: Settings
+- F10: Exit
 
 Author: uDOS Engineering
 Version: v1.0.0
@@ -44,6 +46,8 @@ class FunctionKeyCode(Enum):
     F6 = "\x1b[17~"
     F7 = "\x1b[18~"
     F8 = "\x1b[19~"
+    F9 = "\x1b[20~"
+    F10 = "\x1b[21~"
 
 
 class FKeyHandler:
@@ -63,14 +67,16 @@ class FKeyHandler:
         self.game_state = game_state
         self.repo_root = get_repo_root()
         self.handlers = {
-            "F1": self._handle_new_file,
-            "F2": self._handle_file_picker,
-            "F3": self._handle_select_workspace,
-            "F4": self._handle_binder,
-            "F5": self._handle_workflows,
-            "F6": self._handle_settings,
-            "F7": self._handle_fkey_help,
-            "F8": self._handle_wizard,
+            "F1": self._handle_help,
+            "F2": self._handle_system_status,
+            "F3": self._handle_logs,
+            "F4": self._handle_extensions,
+            "F5": self._handle_refresh,
+            "F6": self._handle_toggle_panels,
+            "F7": self._handle_missions,
+            "F8": self._handle_environment,
+            "F9": self._handle_settings,
+            "F10": self._handle_exit,
         }
 
     def _progress_line(self, phase: str, label: str, percent: int) -> None:
@@ -115,7 +121,7 @@ class FKeyHandler:
             key_code: Raw escape sequence
 
         Returns:
-            F-key name (F1-F8) or None
+            F-key name (F1-F10) or None
         """
         key_code = normalize_terminal_input(key_code)
 
@@ -151,165 +157,90 @@ class FKeyHandler:
             "\x1b6": "F6",
             "\x1b7": "F7",
             "\x1b8": "F8",
+            "\x1b9": "F9",
+            "\x1b0": "F10",
         }
         if key_code in alias_map:
             return alias_map[key_code]
 
-        # Try numeric parsing for F5-F8 variants
+        # Try numeric parsing for F5-F10 variants
         if key_code.startswith("\x1b["):
             if "~" in key_code:
                 try:
                     num = int(key_code[2:-1])
-                    # F5=15, F6=17, F7=18, F8=19
-                    fkey_map = {15: "F5", 17: "F6", 18: "F7", 19: "F8"}
+                    # F5=15, F6=17, F7=18, F8=19, F9=20, F10=21
+                    fkey_map = {15: "F5", 17: "F6", 18: "F7", 19: "F8", 20: "F9", 21: "F10"}
                     return fkey_map.get(num)
                 except ValueError:
                     pass
 
         return None
 
-    def _handle_new_file(self) -> Dict:
-        """F1: Create new Markdown file."""
-        if not self.prompt:
-            return {
-                "status": "error",
-                "message": "Prompt not available",
-            }
+    def _dispatch_or_notice(self, command: str, label: str) -> Dict:
+        """Dispatch a command when available, otherwise return a visible notice."""
+        if self.dispatcher:
+            try:
+                return self.dispatcher.dispatch(command, game_state=self.game_state)
+            except Exception as exc:
+                return {"status": "error", "message": f"{label} failed: {exc}"}
+        return {"status": "ok", "message": f"{label}: {command}"}
 
-        filename = self.prompt.ask("New file name (without .md): ")
-        if not filename:
-            return {"status": "cancelled", "message": "Cancelled"}
+    def _handle_help(self) -> Dict:
+        """F1: Help."""
+        return self._dispatch_or_notice("HELP", "Help")
 
-        # Create in memory/vault/@inbox by default
-        target_dir = self.repo_root / "memory" / "vault" / "@inbox"
-        target_dir.mkdir(parents=True, exist_ok=True)
-        filepath = target_dir / f"{filename}.md"
+    def _handle_system_status(self) -> Dict:
+        """F2: System status."""
+        return self._dispatch_or_notice("STATUS", "System status")
 
-        # Check if exists
-        if filepath.exists():
-            return {
-                "status": "error",
-                "message": f"File already exists: {filepath}",
-            }
+    def _handle_logs(self) -> Dict:
+        """F3: Logs."""
+        return self._dispatch_or_notice("WIZARD logs", "Logs")
 
-        # Create with template
-        template = f"""---
-title: {filename}
-created: {datetime.now().isoformat()}
-tags: [inbox, draft]
----
+    def _handle_extensions(self) -> Dict:
+        """F4: Extensions."""
+        return self._dispatch_or_notice("UCODE EXTENSION LIST", "Extensions")
 
-# {filename}
+    def _handle_refresh(self) -> Dict:
+        """F5: Refresh current surface."""
+        return self._dispatch_or_notice("STATUS", "Refresh")
 
-Write your content here...
-"""
-
-        with open(filepath, "w") as f:
-            f.write(template)
-
+    def _handle_toggle_panels(self) -> Dict:
+        """F6: Toggle panel layout."""
         return {
             "status": "success",
-            "message": f"Created: {filepath}",
-            "output": f"OK File created: {filepath}\nTo edit: FILE EDIT {filename}",
+            "message": "Toggle panels requested",
+            "output": "Panels toggle action acknowledged.",
         }
 
-    def _handle_file_picker(self) -> Dict:
-        """F2: Open TUI file picker."""
-        # Route to file picker command
-        if self.dispatcher:
-            return self.dispatcher.dispatch("FILEPICKER", game_state=self.game_state)
-        else:
-            return {
-                "status": "error",
-                "message": "Dispatcher not available",
-            }
+    def _handle_missions(self) -> Dict:
+        """F7: Missions."""
+        return self._dispatch_or_notice("MISSION LIST", "Missions")
 
-    def _handle_select_workspace(self) -> Dict:
-        """F3: Select workspace folder."""
-        if not self.prompt:
-            return {
-                "status": "error",
-                "message": "Prompt not available",
-            }
-
-        # List available workspaces
-        workspaces = [
-            ("@binders", "memory/vault/@binders", "Binder roots"),
-            ("@vault", "memory/vault", "Primary knowledge store"),
-            ("@shared", "memory/sharing", "Shared with others"),
-            ("@knowledge", "knowledge", "Knowledge bank"),
-            ("@dev", "dev", "Development area (admin only)"),
-        ]
-
-        print("\nAvailable Workspaces:")
-        for idx, (name, path, desc) in enumerate(workspaces, 1):
-            print(f"  {idx}. {name:15} -> {path:30} ({desc})")
-
-        choice = self.prompt.ask_menu_choice("Select workspace", num_options=len(workspaces))
-        if not choice:
-            return {"status": "cancelled"}
-
-        name, path, _ = workspaces[choice - 1]
-        return {
-            "status": "success",
-            "message": f"Selected workspace: {name}",
-            "output": f"Workspace: {name}\nPath: {path}",
-            "workspace": name,
-        }
-
-    def _handle_binder(self) -> Dict:
-        """F4: Open binder."""
-        if self.dispatcher:
-            return self.dispatcher.dispatch("BINDER list", game_state=self.game_state)
-        else:
-            return {
-                "status": "error",
-                "message": "Dispatcher not available",
-            }
-
-    def _handle_workflows(self) -> Dict:
-        """F5: Show workflows."""
-        if self.dispatcher:
-            return self.dispatcher.dispatch("WORKFLOW list", game_state=self.game_state)
-        else:
-            return {
-                "status": "error",
-                "message": "Dispatcher not available",
-            }
+    def _handle_environment(self) -> Dict:
+        """F8: Environment."""
+        return self._dispatch_or_notice("UCODE ENV", "Environment")
 
     def _handle_settings(self) -> Dict:
-        """F6: TUI settings and status."""
-        if self.dispatcher:
-            return self.dispatcher.dispatch("SETUP", game_state=self.game_state)
-        else:
-            return {
-                "status": "error",
-                "message": "Dispatcher not available",
-            }
+        """F9: Settings."""
+        return self._dispatch_or_notice("SETUP", "Settings")
+
+    def _handle_exit(self) -> Dict:
+        """F10: Exit."""
+        return {"status": "exit", "message": "Exit requested via F10", "output": "Exit requested (F10)."}
 
     def _handle_fkey_help(self) -> Dict:
-        """F7: Display function key map."""
+        """Display function key map."""
         help_text = """
-╔════════════════════════════════════════════════════════════════╗
-║                    Function Key Reference                      ║
-╚════════════════════════════════════════════════════════════════╝
-
-F1  New File          Create a new Markdown file in @vault/@inbox
-F2  File Picker       Open the TUI file picker/browser
-F3  Workspace         Select and switch workspace folder
-F4  Binder            Open/manage multi-chapter documents
-F5  Workflows         List and manage automation workflows
-F6  Settings          Show TUI settings and system status
-F7  Fkey Help         Display this function key reference
-F8  Wizard            Manage Wizard server (start/stop/dashboard)
-
-═══════════════════════════════════════════════════════════════════
-Tips:
-  • Press F6 to see system status and server health
-  • Press F8 to start Wizard and open the web dashboard
-  • Press F3 to change your active workspace
-  • Type HELP at any time for command reference
-═══════════════════════════════════════════════════════════════════
+┌──────────────────────────────────────────────────────────────┐
+│ uDOS Teletext Function Keys                                 │
+├──────────────────────────────────────────────────────────────┤
+│ F1   Help            F6   Toggle panels                     │
+│ F2   System status   F7   Missions                          │
+│ F3   Logs            F8   Environment                       │
+│ F4   Extensions      F9   Settings                          │
+│ F5   Refresh         F10  Exit                              │
+└──────────────────────────────────────────────────────────────┘
 """
         return {
             "status": "success",

@@ -3,12 +3,12 @@
 Date: 2026-02-22  
 Status: Active
 
-This note is for operators migrating from legacy pre-`vibe` command habits into the current v1.5 `ucode`-first runtime model.
+This note is for operators migrating from legacy pre-v1.5 command habits into the current v1.5 `ucode`-first runtime model.
 
 ## Execution Model Changes
 
 - Standard interactive runtime is now `ucode` first.
-- `vibe` is a Dev Mode contributor surface only.
+- Dev Mode contributor tooling is a contributor surface only.
 - Command dispatch order is fixed:
   1. ucode command match
   2. shell passthrough (safety gated)

@@ -7,8 +7,8 @@ Wizard owns provider, integration, and full-system network-aware checks.
 
 Domain boundary note:
 - `WIZARD ...` is the core command surface for Wizard server/provider/integration operations.
-- `WIZOPS ...` is the Vibe skill surface for automation/task orchestration.
-- Legacy Vibe `WIZARD ...` skill calls are accepted as a temporary compatibility alias to `WIZOPS`.
+- `WIZOPS ...` is the Dev Mode skill surface for automation/task orchestration.
+- Legacy contributor-tool `WIZARD ...` skill calls are accepted as a temporary compatibility alias to `WIZOPS`.
 
 ## Wizard Lifecycle
 

@@ -21,7 +21,7 @@ The v1.5 `ucode` TUI is the canonical operator surface and must provide:
 - seed library generation/indexing for rendering and mission templates
 - Dev Mode self-repair and self-extension through runtime tools and cloud-code-agent lane when enabled by policy
 
-`vibe` remains a Dev Mode contributor surface and not the default operator runtime.
+Mistral Vive remains an `@dev` contributor surface and not the default operator runtime.
 
 ## Architecture
 

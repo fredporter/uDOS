@@ -139,7 +139,7 @@ def _status_line() -> str:
     except Exception:
         pass
 
-    return f"[{role_tag} {role}] {ghost_tag} [WIZ: {wiz_icon}] [DEV: {dev_icon}] [Mem: {mem}] [CPU: {cpu}] [F1-F8]"
+    return f"[{role_tag} {role}] {ghost_tag} [WIZ: {wiz_icon}] [DEV: {dev_icon}] [Mem: {mem}] [CPU: {cpu}] [F1-F10]"
 
 
 def _emoji_indicator() -> str:

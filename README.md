@@ -7,7 +7,7 @@ uDOS is a Python-first runtime built around `ucode`, with Wizard as the networke
 - `ucode` is the primary operator entry point.
 - Core stays deterministic and stdlib-first.
 - Wizard owns web, provider, and networked responsibilities.
-- `vibe` is a contributor surface gated behind `@dev`.
+- Mistral Vive is a contributor surface gated behind `@dev`.
 
 ## Start Here
 
@@ -46,7 +46,7 @@ uDOS/
 ├── docs/         # Public operator/runtime docs
 ├── dev/          # `@dev` contributor workspace
 ├── tui/          # Go TUI client
-├── vibe/         # Contributor integration layer
+├── vibe/         # Mistral Vive contributor tooling layer
 ├── distribution/ # Packaging and release profiles
 └── uDOS.py       # Root command entry point
 ```

@@ -211,15 +211,15 @@ The `contacts.json` system is designed to:
 - [x] `.compost` archival directory with automatic versioning (2026-02-21)
 - [x] Formatting service for Markdown to Marp slide conversion (2026-02-21)
 - [x] Table extraction and JSON conversion (2026-02-21)
-- [x] Vibe skill integration for document processing (2026-02-21)
+- [x] Dev Mode skill integration for document processing (2026-02-21)
 - [x] Unified v1.4 specification document created (2026-02-21)
-- [x] Wiki documentation for Vibe skill set (2026-02-21)
+- [x] Wiki documentation for Dev Mode skill set (2026-02-21)
 
 ### **In Progress**
 - [ ] Complete `contacts.json` schema implementation
 - [ ] Complete `moves.json` schema implementation
 - [ ] Build sync scripts for macOS ↔ uDOS
-- [ ] Email parsing and task conversion Vibe skill
+- [ ] Email parsing and task conversion Dev Mode skill
 - [ ] Symlink/fallback merge logic for contact views
 
 ### **Next Steps**

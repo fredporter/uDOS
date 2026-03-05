@@ -29,6 +29,7 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 - `docs/specs/ALPINE-CORE-PLUGIN-FORMAT-v1.5.md` — canonical Alpine core and plugin packaging contract for v1.5
 - `docs/specs/THIN-GUI-EXTENSION-CONTRACT-v1.5.md` — canonical Thin GUI extension boundary and core bridge command contract
 - `docs/specs/SPATIAL-GRID-CONTRACT.md` — active spatial grid and text-graphics contract
+- `docs/specs/TUI-KEYBINDINGS-v1.5.md` — canonical TUI keyboard interaction and paste-safety contract
 - `docs/specs/UCODE-DISPATCH-CONTRACT.md` — active input-dispatch and routing contract
 - `docs/specs/INTEGRATION-READINESS.md` — active integration readiness summary
 - `docs/specs/MINIMUM-SPEC-DEV-MODE-UCODE.md` — active minimum runtime pathway contract

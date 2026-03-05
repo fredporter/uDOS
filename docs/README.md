@@ -18,6 +18,7 @@ Contributor-only Dev Mode documentation does not live here. Use `dev/docs/` for 
 - 3D extension contract: `docs/specs/3DWORLD-EXTENSION-CONTRACT-v1.5.md`
 - Public decisions catalog: `docs/decisions/README.md`
 - Workflow quickstart: `docs/howto/WORKFLOW-SCHEDULER-QUICKSTART.md`
+- Dev contributor lane note: `docs/howto/MISTRAL-VIVE-DEV-WORKSPACE.md`
 - Alpine packaging contract: `docs/specs/ALPINE-CORE-PLUGIN-FORMAT-v1.5.md`
 - Alpine bare-metal guide: `docs/howto/BARE-METAL-Alpine-Install.md`
 - Certified demo pack: `docs/examples/ucode_v1_5_release_pack/README.md`

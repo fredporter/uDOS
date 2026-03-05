@@ -50,7 +50,7 @@ class TUIStatusBar:
         """Get a one-line status bar for persistent display.
 
         Format:
-        [MODE: ghost] [WIZ: ●] [EXT: ○] [Mem: 45%] [CPU: 12%] [F1-F8 help]
+        [MODE: ghost] [WIZ: ●] [Mem: 45%] [CPU: 12%] [F1-F10]
 
         Args:
             user_role: Current user role (ghost, user, admin)
@@ -83,7 +83,7 @@ class TUIStatusBar:
         parts.append(f"[CPU: {cpu_percent}%]")
 
         # Function key reference (abbreviated for status bar)
-        parts.append("[F1-F8]")
+        parts.append("[F1-F10]")
 
         line = " ".join(parts)
         return truncate_to_width(line, ViewportService().get_cols())
@@ -168,17 +168,20 @@ class TUIStatusBar:
         # Function key reference
         lines.append("\nFunction Keys:")
         fkeys = [
-            "F1: New File    ",
-            "F2: File Pick   ",
-            "F3: Workspace   ",
-            "F4: Binder      ",
-            "F5: Workflows   ",
-            "F6: Settings    ",
-            "F7: Fkey Help   ",
-            "F8: Wizard      ",
+            "F1: Help        ",
+            "F2: Status      ",
+            "F3: Logs        ",
+            "F4: Ext         ",
+            "F5: Refresh     ",
+            "F6: Panels      ",
+            "F7: Missions    ",
+            "F8: Env         ",
+            "F9: Settings    ",
+            "F10: Exit       ",
         ]
         lines.append("  " + "    ".join(fkeys[:4]))
         lines.append("  " + "    ".join(fkeys[4:8]))
+        lines.append("  " + "    ".join(fkeys[8:10]))
 
         lines.append("\n" + rule)
         clamped = [truncate_to_width(line, width) for line in lines]

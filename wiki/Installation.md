@@ -29,4 +29,4 @@ That page is the source of truth for:
 
 If you are working in the contributor lane, use:
 - [../dev/docs/howto/GETTING-STARTED.md](../dev/docs/howto/GETTING-STARTED.md)
-- [../dev/docs/howto/VIBE-Setup-Guide.md](../dev/docs/howto/VIBE-Setup-Guide.md)
+- [../docs/howto/MISTRAL-VIVE-DEV-WORKSPACE.md](../docs/howto/MISTRAL-VIVE-DEV-WORKSPACE.md)

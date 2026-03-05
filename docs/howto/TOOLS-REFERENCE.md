@@ -12,9 +12,9 @@ Use it to find the right tool category quickly, then jump into the focused refer
 ## Surface Split
 
 - Full operator surface: the uDOS TUI exposes the complete `ucode` command set.
-- Vibe Dev Mode surface: Vibe exposes only the contributor subset used for setup, repair, config, repo inspection, and development operations.
+- Dev Mode contributor surface: only a reduced contributor subset is exposed for setup, repair, config, repo inspection, and development operations.
 
-Vibe Dev Mode subset:
+Dev Mode subset:
 - `ucode_health`
 - `ucode_verify`
 - `ucode_repair`
@@ -54,7 +54,7 @@ Use:
 - `ucode_repair`
 - `ucode_help`
 
-These are available in both the full TUI and the Vibe Dev Mode subset.
+These are available in both the full TUI and the Dev Mode subset.
 
 ### Project and Workspace Work
 
@@ -65,7 +65,7 @@ Use:
 - `ucode_script`
 - `ucode_run`
 
-Only `ucode_run` is exposed through Vibe Dev Mode. The rest remain TUI/operator surfaces.
+Only `ucode_run` is exposed through Dev Mode. The rest remain TUI/operator surfaces.
 
 ### Content and Rendering
 
@@ -77,10 +77,10 @@ Use:
 - `ucode_print`
 - `ucode_format`
 
-Only `ucode_read` is exposed through Vibe Dev Mode. The rest remain TUI/operator surfaces.
+Only `ucode_read` is exposed through Dev Mode. The rest remain TUI/operator surfaces.
 
 ## Notes
 
 - Prefer the category pages for concrete usage examples.
 - Prefer the UCODE command docs when you need the operator-facing command surface rather than the lower-level tool names.
-- Prefer the Vibe skills docs only for the Dev extension lane; they do not represent the full uDOS operator surface.
+- Dev Mode details are documented in `docs/howto/MISTRAL-VIVE-DEV-WORKSPACE.md`.

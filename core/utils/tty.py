@@ -142,6 +142,8 @@ def _special_key_map(os_profile: str) -> Dict[str, str]:
         "\x1b[17~": "F6",
         "\x1b[18~": "F7",
         "\x1b[19~": "F8",
+        "\x1b[20~": "F9",
+        "\x1b[21~": "F10",
         "\x1b[[A": "F1",
         "\x1b[[B": "F2",
         "\x1b[[C": "F3",
@@ -155,6 +157,8 @@ def _special_key_map(os_profile: str) -> Dict[str, str]:
         "\x1b6": "F6",
         "\x1b7": "F7",
         "\x1b8": "F8",
+        "\x1b9": "F9",
+        "\x1b0": "F10",
     }
     # macOS terminals frequently emit SS3 arrow variants even in normal mode.
     if os_profile == "mac":
@@ -179,7 +183,7 @@ def parse_special_key(raw: str, env: Optional[Mapping[str, str]] = None) -> Opti
     """
     Parse a raw terminal token into a normalized special-key name.
 
-    Returns values like: UP, DOWN, LEFT, RIGHT, HOME, END, DELETE, F1..F8.
+    Returns values like: UP, DOWN, LEFT, RIGHT, HOME, END, DELETE, F1..F10.
     """
     if not raw:
         return None
@@ -213,6 +217,8 @@ def parse_special_key(raw: str, env: Optional[Mapping[str, str]] = None) -> Opti
                     17: "F6",
                     18: "F7",
                     19: "F8",
+                    20: "F9",
+                    21: "F10",
                 }
                 mapped = num_map.get(numeric)
                 if mapped:

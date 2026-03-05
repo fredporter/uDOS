@@ -43,7 +43,7 @@ Planning note:
 
 | File | Topic |
 |------|-------|
-| [TUI-Vibe-Integration.md](TUI-Vibe-Integration.md) | TUI ↔ Vibe LLM integration design |
+| [v1-5-logic-assist-final-spec.md](v1-5-logic-assist-final-spec.md) | Active v1.5 logic-assist routing and runtime interaction design |
 | [v1-5-ucode-tui-spec.md](v1-5-ucode-tui-spec.md) | Active v1.5 `ucode` TUI decision |
 | [v1-5-gameplay-3d-thin-gui-assessment.md](v1-5-gameplay-3d-thin-gui-assessment.md) | Pre-release assessment of gameplay/lens scope, 3D extension boundary, and Thin GUI readiness |
 | [udos-protocol-v1.md](udos-protocol-v1.md) | Supporting TUI protocol reference |
@@ -79,6 +79,6 @@ Planning note:
 | File | Topic |
 |------|-------|
 | [LOGGING-API-v1.3.md](LOGGING-API-v1.3.md) | Logging API contract (v1.3) |
-| [TERMINAL-STYLING-v1.3.md](TERMINAL-STYLING-v1.3.md) | Terminal styling standards (v1.3) |
+| [../specs/FORMATTING-SPEC-v1.4.md](../specs/FORMATTING-SPEC-v1.4.md) | Canonical terminal formatting/styling and archival standard |
 | [formatting-spec-v1-4.md](formatting-spec-v1-4.md) | Redirect stub to the canonical formatting spec in `docs/specs/FORMATTING-SPEC-v1.4.md` |
 | [OBSIDIAN-INTEGRATION.md](OBSIDIAN-INTEGRATION.md) | Obsidian knowledge base integration design |

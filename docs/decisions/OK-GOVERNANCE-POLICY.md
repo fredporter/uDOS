@@ -10,7 +10,7 @@ uDOS uses a single repo-wide OK governance policy for:
 - approved terminology
 - AGENTS.md authority
 - core vs Wizard vs TypeScript runtime boundaries
-- Vibe-CLI interaction rules
+- Dev Mode tool interaction rules
 - ucode command-first behavior
 
 This policy is active release truth for governance-facing documentation.
@@ -61,7 +61,7 @@ TypeScript runtime:
 
 Terminal-based interactive operator flow routes through:
 - user
-- Vibe-CLI
+- Dev Mode contributor tool (when applicable)
 - OK Provider or OK Model
 - ucode commands
 - uDOS subsystems

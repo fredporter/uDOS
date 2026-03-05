@@ -27,7 +27,7 @@ uDOS v1.5 is open-box:
 | `wizard/secrets.tomb` | local encrypted secrets |
 | `memory/` | user libraries, workflow artifacts, Sonic overlay data |
 | `/.compost/` | backup, trash, and version retention |
-| `.vibe/` | local Dev extension state |
+| `@dev` local tool state | contributor-only workspace state |
 
 ## Reinstall Proof Model
 

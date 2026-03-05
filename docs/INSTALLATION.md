@@ -117,11 +117,10 @@ Use `--tier 1|2|3` to test hardline gating for a requested tier.
 - **Directory structure**: Sets up logs, cache, and runtime directories
 
 ### 5. Dev Mode Tooling Installation
-- **Install the Dev Mode contributor tool (`vibe`)**: Only when the `dev` profile is selected
+- **Install the optional Dev Mode contributor tool (Mistral Vive)**: Only when the `dev` profile is selected
 - **Wizard-managed extension lane**: Dev Mode is installed and removed through Wizard GUI lifecycle controls
 - **Framework gate**: Requires the `@dev` workspace at `/dev`, including `/dev/extension.json`
 - **Workspace contract**: tracked contributor docs and Goblin fixtures now live under `dev/docs/` and `dev/goblin/`
-- **uDOS integration**: Creates `.vibe/` compatibility links for contributor tools/skills
 - **Standard runtime**: `bin/udos` is the primary operator entry point
 - **Core dependencies**: Installs Python packages from `pyproject.toml`
 - **Logic assist prep**: runs the v1.5 GPT4All contributor setup helper when the selected tier permits local assist
@@ -178,9 +177,6 @@ You'll be prompted to set:
 ```
 uDOS/
 ├── .env                      # Your configuration (DO NOT COMMIT)
-├── .vibe/
-│   ├── tools -> ../vibe/core/tools/ucode
-│   └── skills -> ../vibe/core/skills/ucode   # Dev extension contributor subset only
 ├── dev/                      # Dev Mode extension framework/template root
 │   ├── AGENTS.md
 │   ├── extension.json
@@ -237,20 +233,13 @@ uDOS/
 - Team/shared usage
 - Advanced integrations
 
-## Vibe Dev Extension
+## Mistral Vive in `@dev`
 
-The Vibe lane is intentionally small and contributor-only.
+Mistral Vive usage is documented as a short public note in:
 
-- It is enabled only for the `dev` profile with the `@dev` workspace installed and active.
-- It is not a second full operator runtime.
-- It exposes only a reduced skill set for development work: `ucode`, `ucode-help`, `ucode-setup`, and `ucode-dev`.
-- Binder, story, spatial, gameplay, media, and destructive flows stay in the standard `ucode` TUI.
-- LAN gateway features
-- Dev Mode extension install/uninstall and activation lifecycle
+- `docs/howto/MISTRAL-VIVE-DEV-WORKSPACE.md`
 
-Contributor setup details:
-- `dev/docs/howto/VIBE-Setup-Guide.md`
-- `dev/docs/specs/DEV-WORKSPACE-SPEC.md`
+Full contributor implementation details remain under `dev/docs/`.
 
 ### Lazy Loading
 The wizard is **not required** for core functionality:
@@ -319,8 +308,8 @@ export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 
 Make permanent by adding to `~/.zshrc` or `~/.bashrc`.
 
-### "vibe: command not found"
-After running the Dev Mode contributor-tool installer, ensure your PATH includes the installer location:
+### Dev Mode tool command not found
+After running Dev Mode setup, ensure your PATH includes the installer location:
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
 ```
@@ -402,7 +391,7 @@ export UDOS_AUTOMATION=1
 ## Uninstallation
 
 ### Remove Dev Mode tooling
-Use Wizard GUI to uninstall or deactivate the Dev Mode extension first. Remove the external `vibe` tooling only after the `dev-mode` extension lane has been disabled.
+Use Wizard GUI to uninstall or deactivate the Dev Mode extension first.
 
 ```bash
 ./dev/tooling/bin/setup-dev-mode.sh
@@ -412,7 +401,6 @@ Use Wizard GUI to uninstall or deactivate the Dev Mode extension first. Remove t
 ```bash
 rm -rf .env
 rm -rf memory/
-rm -rf .vibe/
 rm -rf .venv/
 rm -rf tui/bin/
 ```

@@ -15,14 +15,12 @@ It exists to expose uDOS capabilities through a structured bridge without redefi
 ## Working Rules
 
 - the standard interactive user experience is the v1.5 `ucode` TUI
-- `vibe` uses MCP as part of Dev Mode operations
 - Wizard owns MCP server behavior and managed bridge logic
 - command execution should still converge on the canonical command/runtime surfaces rather than creating parallel behavior
 
 ## Current Implementation Shape
 
 - `wizard/mcp/mcp_server.py` provides the stdio MCP server
-- `.vibe/config.toml` registers MCP access for Dev Mode tooling
 - command execution continues to rely on the shared command/runtime surfaces
 
 ## v1.5 Relevance
@@ -39,3 +37,4 @@ For v1.5, this decision governs:
 - `docs/decisions/v1-5-ucode-tui-spec.md`
 - `docs/decisions/WIZARD-SERVICE-SPLIT-MAP.md`
 - `docs/howto/UCODE-COMMAND-REFERENCE.md`
+- `docs/howto/MISTRAL-VIVE-DEV-WORKSPACE.md`

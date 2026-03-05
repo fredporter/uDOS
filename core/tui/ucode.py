@@ -4136,7 +4136,7 @@ class UCODE:
             arg = f"F{arg}"
 
         if not arg.startswith("F"):
-            print("Usage: FKEYS [F1-F8]")
+            print("Usage: FKEYS [F1-F10]")
             return
 
         handler = self.fkey_handler.handlers.get(arg)

@@ -261,8 +261,8 @@ Add to `~/.bashrc` or `~/.zshrc` to persist.
 ## Related Documentation
 
 - [TUI-ARROW-KEYS-UBUNTU.md](TUI-ARROW-KEYS-UBUNTU.md) - Ubuntu arrow key fix
-- [Legacy TUI Smart Fields Guide](../.compost/tui-legacy-2026-02/TUI-SMART-FIELDS-GUIDE.md) - Archived pre-`vibe-cli` interactive guidance
-- [INSTALLATION.md](../../INSTALLATION.md) - Installation guide
+- [Legacy TUI Smart Fields Guide](../.compost/tui-legacy-2026-02/TUI-SMART-FIELDS-GUIDE.md) - Archived pre-v1.5 interactive guidance
+- [INSTALLATION.md](../INSTALLATION.md) - Installation guide
 - [Legacy TUI Migration Plan](../.compost/tui-legacy-2026-02/TUI-MIGRATION-PLAN.md) - Archived TUI migration context
 
 ---

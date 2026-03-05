@@ -170,7 +170,7 @@
         {/if}
         <span class="chip">Mem: {memPercent}%</span>
         <span class="chip">CPU: {cpuPercent}%</span>
-        <span class="chip">F1-F8</span>
+        <span class="chip">F1-F10</span>
       </div>
     </div>
   </div>

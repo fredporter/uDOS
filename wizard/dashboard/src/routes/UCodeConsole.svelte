@@ -97,14 +97,16 @@
   ];
 
   const hotkeyCommandMap = {
-    F1: "STATUS",
-    F2: "LOGS",
-    F3: "REPAIR",
-    F4: "REBOOT",
-    F5: "WIZARD",
-    F6: "DRAW PAT CYCLE",
-    F7: "SONIC",
-    F8: "HELP",
+    F1: "HELP",
+    F2: "STATUS",
+    F3: "WIZARD LOGS",
+    F4: "UCODE EXTENSION LIST",
+    F5: "STATUS",
+    F6: "STATUS",
+    F7: "MISSION LIST",
+    F8: "UCODE ENV",
+    F9: "SETUP",
+    F10: "EXIT",
   };
 
   function loadHistory() {

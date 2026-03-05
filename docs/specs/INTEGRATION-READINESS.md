@@ -13,7 +13,7 @@ It is a concise readiness check, not a milestone implementation diary.
 Ready for active v1.5 rebaseline work, with the current runtime split:
 - `ucode` as the standard operator surface
 - Wizard as the managed and network-aware layer
-- `vibe` available as a Dev Mode contributor surface
+- Mistral Vive available only as a Dev Mode contributor surface
 
 ## Readiness Areas
 

@@ -7,7 +7,7 @@ Status: active how-to reference
 
 Use these tools for health checks, verification, repair, identity, access, and terminal capability checks.
 
-Vibe Dev Mode exposes only the contributor subset from this page:
+Dev Mode exposes only the contributor subset from this page:
 - `ucode_health`
 - `ucode_verify`
 - `ucode_repair`
@@ -101,4 +101,4 @@ ucode_viewport()
 - verify install drift before release or repair
 - rotate tokens or identity values
 - inspect terminal capabilities before rendering rich output
-- use the Vibe Dev Mode subset when you need contributor-safe setup and repair operations instead of the full operator surface
+- use the Dev Mode subset when you need contributor-safe setup and repair operations instead of the full operator surface

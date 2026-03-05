@@ -499,7 +499,7 @@ class SmartPrompt:
             """Handle Ctrl+D (EOF)"""
             raise EOFError()
 
-        function_key_names = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8"]
+        function_key_names = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10"]
 
         def _bind_function_key(key_name: str):
             @bindings.add(getattr(Keys, key_name))
@@ -509,9 +509,21 @@ class SmartPrompt:
         for key_name in function_key_names:
             _bind_function_key(key_name)
 
-        # macOS/Linux compatibility: allow Meta+1..8 as soft aliases for F1..F8.
-        for index, key_name in enumerate(function_key_names, start=1):
-            @bindings.add("escape", str(index))
+        # macOS/Linux compatibility: allow Meta+digit aliases for function keys.
+        meta_aliases = {
+            "1": "F1",
+            "2": "F2",
+            "3": "F3",
+            "4": "F4",
+            "5": "F5",
+            "6": "F6",
+            "7": "F7",
+            "8": "F8",
+            "9": "F9",
+            "0": "F10",
+        }
+        for digit, key_name in meta_aliases.items():
+            @bindings.add("escape", digit)
             def _handle_meta_digit(event, _key=key_name):
                 self._trigger_function_key(_key)
 
@@ -569,7 +581,7 @@ class SmartPrompt:
         self.open_file_handler = handler
 
     def set_function_key_handler(self, handler) -> None:
-        """Register a handler that responds to F1-F8 presses."""
+        """Register a handler that responds to F1-F10 presses."""
         self.fkey_handler = handler
 
     def set_bottom_toolbar_provider(self, provider) -> None:
@@ -1202,7 +1214,7 @@ class SmartPrompt:
             debug_logger.debug(f"Inline toolbar render failed: {exc}")
 
     def _parse_fallback_function_key(self, raw_input: str) -> str | None:
-        """Best-effort F1-F8 parsing in fallback mode across common terminals."""
+        """Best-effort F1-F10 parsing in fallback mode across common terminals."""
         decoded = decode_key_input(raw_input, env=os.environ)
         if decoded.action.startswith("FKEY_"):
             return f"F{decoded.action.split('_', 1)[1]}"
@@ -1239,7 +1251,7 @@ class SmartPrompt:
         self._trigger_function_key("F2")
 
     def _trigger_function_key(self, key_name: str) -> None:
-        """Run a handler when the user presses F1-F8."""
+        """Run a handler when the user presses F1-F10."""
         if not self.fkey_handler:
             return
 

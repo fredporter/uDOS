@@ -90,13 +90,12 @@ ucode
 ```
 
 ### 3. Dev Mode Contributor Tooling
-```bash
-vibe
-# User: "!ucode MAP"
-# → Executes shell command via Dev Mode tooling
-```
+Use the contributor tool lane only when the `dev` profile is enabled and the
+`@dev` workspace scaffold at `/dev` is installed and activated through
+Wizard-managed controls.
 
-Dev Mode use is valid only when the `dev` profile is enabled and the `@dev` workspace scaffold at `/dev` is installed and activated through Wizard-managed controls. The external contributor tool is not a peer standard runtime.
+Public quick reference:
+- `docs/howto/MISTRAL-VIVE-DEV-WORKSPACE.md`
 
 ### 4. Shell/Script Execution
 ```bash
@@ -189,9 +188,8 @@ export UDOS_MAP_LEVEL=dungeon      # Spatial context, not UI
 
 **Note**: Former `UDOS_TUI_*` variables renamed to clarify they control backend message formatting, not UI rendering. `ucode` is the active interactive interface; the external contributor tool remains Dev Mode-only.
 
-Legacy pre-`vibe-cli` interactive references were composted here:
+Legacy interactive references were composted here:
 - `docs/.compost/tui-legacy-2026-02/TUI-MIGRATION-PLAN.md`
-- `docs/.compost/tui-legacy-2026-02/VIBE-UCLI-INTEGRATION-GUIDE.md`
 
 Active migration notes for current operators:
 - `docs/howto/MIGRATION-NOTES-LEGACY-FLOWS.md`

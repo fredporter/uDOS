@@ -5,7 +5,7 @@ Owner: Wizard MCP lane
 
 ## Objective
 
-Define one deterministic, cross-platform contract for enabling/disabling Wizard MCP in Vibe config.
+Define one deterministic, cross-platform contract for enabling/disabling Wizard MCP in Dev Mode contributor config.
 
 ## Canonical Script
 
@@ -15,12 +15,12 @@ Define one deterministic, cross-platform contract for enabling/disabling Wizard 
 
 ## Config Surface
 
-- Target file: `.vibe/config.toml`
+- Target file: Dev Mode contributor MCP config (managed by setup tooling)
 - Managed section boundaries:
   - `# BEGIN UCODE MANAGED MCP (WIZARD)`
   - `# END UCODE MANAGED MCP (WIZARD)`
 
-The activation script owns only this bounded section.
+The activation script owns only this bounded section and must not edit unrelated config.
 
 ## Managed MCP Block Requirements
 

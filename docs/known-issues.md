@@ -40,7 +40,7 @@
 
 **Scope:** `wizard/tests/test_ucode_registry_warnings.py`
 **Symptom:** `ImportError: cannot import name 'ClientSession' from 'mcp'` — the local
-  `wizard/mcp/__init__.py` shadows the external `mcp` package, so `vibe.core.tools.mcp`
+  `wizard/mcp/__init__.py` shadows the external `mcp` package, so MCP tool imports
   cannot find `ClientSession`.
 **Impact:** This test file is excluded from the default test run. No wizard functionality
   is affected; the file tests MCP tool registration warnings only.

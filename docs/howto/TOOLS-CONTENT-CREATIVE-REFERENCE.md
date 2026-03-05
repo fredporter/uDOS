@@ -7,7 +7,7 @@ Status: active how-to reference
 
 Use these tools for reading, stories, games, drawing, sound, formatting, and destructive recovery operations.
 
-Vibe Dev Mode exposes only `ucode_read` from this category. Story, play, draw, audio, empire, undo, print, format, and destructive operations remain part of the full TUI/operator surface.
+Dev Mode exposes only `ucode_read` from this category. Story, play, draw, audio, empire, undo, print, format, and destructive operations remain part of the full TUI/operator surface.
 
 ## Tools
 
@@ -140,4 +140,4 @@ ucode_format(input="old-format.csv", style="json")
 - control sound and music
 - print or transform structured content
 - recover from mistakes with undo or destructive cleanup when necessary
-- inspect docs and repo assets from Vibe with `ucode_read` when working in the Dev extension lane
+- inspect docs and repo assets from Dev Mode with `ucode_read` when working in the `@dev` lane

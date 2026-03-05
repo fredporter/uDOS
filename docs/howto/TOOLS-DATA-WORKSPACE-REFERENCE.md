@@ -7,7 +7,7 @@ Status: active how-to reference
 
 Use these tools for binder and vault state, workspace switching, scheduling, script execution, setup, migration, and user context.
 
-Vibe Dev Mode exposes only this contributor subset from the broader category:
+Dev Mode exposes only this contributor subset from the broader category:
 - `ucode_seed`
 - `ucode_config`
 - `ucode_setup`
@@ -150,4 +150,4 @@ ucode_user(action="switch", username="alice")
 - seed new work areas
 - run migrations or scheduled jobs
 - change user context before operational work
-- use `seed`, `config`, `setup`, and `run` from Vibe only when operating inside the Dev extension lane
+- use `seed`, `config`, `setup`, and `run` from Dev Mode only when operating inside the `@dev` lane

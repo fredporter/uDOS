@@ -1,6 +1,6 @@
 # Credits & Inspiration
 
-**Version:** uDOS v1.4.5 +Vibe
+**Version:** uDOS v1.5
 **Last Updated:** 2026-02-22
 
 uDOS stands on the shoulders of giants—honoring the past while building for the future.
@@ -77,11 +77,8 @@ All dependencies and their licenses are listed in `requirements.txt` and `packag
 
 ## Upstream Source Attribution
 
-uDOS v1.4.5 +Vibe integrates and builds on upstream Vibe CLI work.
-
-- **Mistral Vibe (upstream source):** https://github.com/mistralai/mistral-vibe
-- **Local integration repository:** https://github.com/fredporter/uDOS-vibe
-- **Attribution:** Portions of runtime structure and integration surface are derived from upstream Vibe CLI and adapted for uDOS workflows.
+uDOS includes an optional `@dev` contributor lane that can use Mistral Vive workflows.
+Public runtime behavior remains `ucode`-first.
 
 ---
 

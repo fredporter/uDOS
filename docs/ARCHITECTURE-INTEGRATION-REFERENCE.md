@@ -1,67 +1,35 @@
 # Architecture Integration Reference
 
-Updated: 2026-03-03
+Updated: 2026-03-05
 Status: active reference
 
 ## Scope
 
-Detailed reference for:
-- non-fork integration strategy
-- repository structure
-- `.vibe/config.toml` integration contract
-- integration phases
-- file ownership rules
-- compatibility and validation expectations
+This page defines the high-level integration boundary for uDOS v1.5:
 
-## Non-Fork Strategy
+- core runtime and command surfaces
+- Wizard-managed network and control-plane surfaces
+- extension/plugin boundaries
+- file ownership and compatibility rules
 
-uDOS integrates with Vibe through addon layers instead of modifying upstream runtime internals.
+## Integration Rules
 
-Key rules:
-- keep uDOS code isolated
-- treat Vibe as an external interface surface
-- use `.vibe/config.toml` as the integration contract
-
-## Repository Structure
-
-The architecture separates:
-- core
-- Wizard
-- TypeScript runtime or related lightweight partners
-- Vibe-facing configuration and discovery surfaces
-
-## Integration Contract
-
-The main integration point is:
-- `.vibe/config.toml`
-
-It controls:
-- tool discovery
-- skill discovery
-- optional MCP registration
-
-## Integration Phases
-
-The active architecture documents:
-- direct command-routing history
-- MCP-based current integration
-- future distributed extensions where applicable
-
-## File Ownership
-
-Maintain strict ownership boundaries:
-- uDOS-owned addon code is safe to evolve
-- upstream runtime code is not the place for local repo-specific architecture drift
+- Keep deterministic command execution in shared runtime surfaces.
+- Keep network/provider orchestration in Wizard-managed services.
+- Keep extension behavior behind explicit contracts and manifests.
+- Avoid duplicate control paths that fork operator behavior.
 
 ## Validation
 
-Validate architecture changes with:
-- tool discovery checks
-- MCP startup checks
-- command-surface checks
-- compatibility tests after upgrades
+Validate integration changes with:
 
-## Canonical Front Door
+- command-surface tests
+- runtime boot checks
+- extension contract checks
+- release audit gates (`./bin/udos release-check`)
 
-Start with:
+## Canonical Links
+
 - [Architecture](ARCHITECTURE.md)
+- [Wizard Service Split Map](decisions/WIZARD-SERVICE-SPLIT-MAP.md)
+- [Specs Catalog](specs/README.md)

@@ -7,7 +7,7 @@ Updated: 2026-03-03
 
 This brief defines how interactive selectors should behave in the v1.5 `ucode` TUI.
 
-It supports the `ucode`-first terminal experience and should not assume that `vibe` is the standard user-facing runtime.
+It supports the `ucode`-first terminal experience and should not assume any contributor tool is the standard user-facing runtime.
 
 ## Design Target
 
@@ -49,7 +49,7 @@ For Python-backed selector flows, prefer supported lightweight options and keep 
 
 ## Working Rule
 
-Selector UX should match the v1.5 `ucode` TUI decision, not legacy `vibe`-first terminal conventions.
+Selector UX should match the v1.5 `ucode` TUI decision, not legacy contributor-tool-first terminal conventions.
 
 Related documents:
 - `docs/decisions/v1-5-ucode-tui-spec.md`
