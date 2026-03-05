@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 from pathlib import Path
 import shutil
@@ -11,6 +12,7 @@ from typing import Any
 from core.commands.base import BaseCommandHandler
 from core.services.error_contract import CommandError
 from core.services.logging_api import get_repo_root
+from core.services.thin_gui_bridge_service import get_thin_gui_bridge_service
 from core.services.unified_config_loader import get_config
 
 
@@ -23,8 +25,8 @@ class ThinGuiHandler(BaseCommandHandler):
       THINGUI INSTALL
       THINGUI BUILD
       THINGUI LINT
-      THINGUI OPEN [target_url]
-      THINGUI INTENT <target_url> [title] [label]
+      THINGUI OPEN [target_url|profile]
+      THINGUI INTENT <target_url|profile> [title] [label]
     """
 
     def __init__(self) -> None:
@@ -32,6 +34,7 @@ class ThinGuiHandler(BaseCommandHandler):
         self.repo_root = get_repo_root()
         self.extension_dir = self.repo_root / "extensions" / "thin-gui"
         self.intent_path = self.repo_root / "memory" / "ucode" / "thin_gui_intent.json"
+        self.bridge = get_thin_gui_bridge_service()
 
     def handle(self, command: str, params: list[str], grid=None, parser=None) -> dict[str, Any]:
         action = params[0].strip().lower() if params else "status"
@@ -45,19 +48,17 @@ class ThinGuiHandler(BaseCommandHandler):
         if action == "lint":
             return self._run_npm(["npm", "run", "lint"], "Thin GUI lint complete")
         if action == "open":
-            target = params[1].strip() if len(params) > 1 else ""
-            return self._open_hint(target)
+            target_or_profile = params[1].strip() if len(params) > 1 else ""
+            return self._open_hint(target_or_profile)
         if action == "intent":
             if len(params) < 2:
                 raise CommandError(
                     code="ERR_COMMAND_INVALID_ARG",
-                    message="Syntax: THINGUI INTENT <target_url> [title] [label]",
-                    recovery_hint="Usage: THINGUI INTENT http://127.0.0.1:7424 Crawler3D Crawler",
+                    message="Syntax: THINGUI INTENT <target_url|profile> [title] [label]",
+                    recovery_hint="Usage: THINGUI INTENT crawler3d or THINGUI INTENT http://127.0.0.1:7424",
                     level="INFO",
                 )
-            title = params[2].strip() if len(params) > 2 else "Thin GUI"
-            label = params[3].strip() if len(params) > 3 else title
-            return self._write_intent(params[1].strip(), title, label)
+            return self._intent_hint(params)
 
         raise CommandError(
             code="ERR_COMMAND_INVALID_ARG",
@@ -72,6 +73,7 @@ class ThinGuiHandler(BaseCommandHandler):
         tsconfig = self.extension_dir / "tsconfig.json"
         node_modules = self.extension_dir / "node_modules"
         dist_dir = self.extension_dir / "dist"
+        shell_html = self.extension_dir / "assets" / "index.html"
 
         output = ["THINGUI STATUS"]
         output.append(f"Extension path: {self.extension_dir}")
@@ -80,6 +82,7 @@ class ThinGuiHandler(BaseCommandHandler):
         output.append(f"tsconfig.json: {'yes' if tsconfig.exists() else 'no'}")
         output.append(f"node_modules: {'yes' if node_modules.exists() else 'no'}")
         output.append(f"dist: {'yes' if dist_dir.exists() else 'no'}")
+        output.append(f"assets/index.html: {'yes' if shell_html.exists() else 'no'}")
         output.append(f"npm: {'yes' if shutil.which('npm') else 'no'}")
         output.append(f"node: {'yes' if shutil.which('node') else 'no'}")
 
@@ -96,6 +99,7 @@ class ThinGuiHandler(BaseCommandHandler):
                 "tsconfig": tsconfig.exists(),
                 "node_modules": node_modules.exists(),
                 "dist": dist_dir.exists(),
+                "shell_html": shell_html.exists(),
                 "npm": bool(shutil.which("npm")),
                 "node": bool(shutil.which("node")),
             },
@@ -144,10 +148,34 @@ class ThinGuiHandler(BaseCommandHandler):
             ).strip(),
         }
 
-    def _open_hint(self, target: str) -> dict[str, Any]:
+    @staticmethod
+    def _looks_like_url(value: str) -> bool:
+        token = (value or "").strip().lower()
+        return token.startswith("http://") or token.startswith("https://") or token.startswith("file://")
+
+    def _open_hint(self, target_or_profile: str) -> dict[str, Any]:
+        token = (target_or_profile or "").strip()
+        if token and not self._looks_like_url(token):
+            launch = self.bridge.resolve_target(token)
+            route = self.bridge.wizard_route(launch)
+            output = "\n".join(
+                [
+                    f"THINGUI OPEN {launch.profile_id}",
+                    f"Target: {launch.target_url or '(unset)'}",
+                    f"Wizard route: {route}",
+                ]
+            )
+            return {
+                "status": "success",
+                "output": output,
+                "route": route,
+                "profile_id": launch.profile_id,
+                "target": launch.target_url,
+            }
+
         base_url = get_config("WIZARD_BASE_URL", "http://127.0.0.1:8765").rstrip("/")
-        if target:
-            route = f"{base_url}/#thin-gui?title=Thin%20GUI&target={target}"
+        if token:
+            route = f"{base_url}/#thin-gui?title=Thin%20GUI&target={token}"
         else:
             route = f"{base_url}/#thin-gui"
         output = "\n".join(
@@ -158,6 +186,31 @@ class ThinGuiHandler(BaseCommandHandler):
             ]
         )
         return {"status": "success", "output": output, "route": route}
+
+    def _intent_hint(self, params: list[str]) -> dict[str, Any]:
+        target_or_profile = params[1].strip()
+        title = params[2].strip() if len(params) > 2 else ""
+        label = params[3].strip() if len(params) > 3 else ""
+        if target_or_profile and not self._looks_like_url(target_or_profile):
+            launch = self.bridge.resolve_target(target_or_profile)
+            if title:
+                launch = replace(launch, title=title, label=label or title)
+            payload = self.bridge.write_intent(launch)
+            return {
+                "status": "success",
+                "output": "\n".join(
+                    [
+                        f"THINGUI INTENT {launch.profile_id}",
+                        f"Intent saved: {self.bridge.intent_path}",
+                        f"Target: {launch.target_url or '(unset)'}",
+                    ]
+                ),
+                "intent": payload,
+            }
+
+        intent_title = title or "Thin GUI"
+        intent_label = label or intent_title
+        return self._write_intent(target_or_profile, intent_title, intent_label)
 
     def _write_intent(self, target: str, title: str, label: str) -> dict[str, Any]:
         self.intent_path.parent.mkdir(parents=True, exist_ok=True)

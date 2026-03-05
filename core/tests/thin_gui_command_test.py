@@ -22,6 +22,9 @@ class ThinGuiHandlerTest(unittest.TestCase):
         self.handler.repo_root = self.root
         self.handler.extension_dir = self.root / "extensions" / "thin-gui"
         self.handler.intent_path = self.root / "memory" / "ucode" / "thin_gui_intent.json"
+        self.handler.bridge.repo_root = self.root
+        self.handler.bridge.catalog_path = self.root / "core" / "config" / "lens_skin_game_catalog_v1_5.json"
+        self.handler.bridge.intent_path = self.handler.intent_path
 
     def tearDown(self) -> None:
         self.tempdir.cleanup()
@@ -69,6 +72,19 @@ class ThinGuiHandlerTest(unittest.TestCase):
     def test_install_requires_extension_dir(self) -> None:
         with self.assertRaises(CommandError):
             self.handler.handle("THINGUI", ["install"])
+
+    def test_open_profile_resolves_catalog_target(self) -> None:
+        result = self.handler.handle("THINGUI", ["open", "crawler3d"])
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(result.get("profile_id"), "crawler3d")
+        self.assertEqual(result.get("target"), "http://127.0.0.1:7424")
+
+    def test_intent_profile_writes_profile_payload(self) -> None:
+        result = self.handler.handle("THINGUI", ["intent", "crawler3d"])
+        self.assertEqual(result["status"], "success")
+        payload = json.loads(self.handler.intent_path.read_text(encoding="utf-8"))
+        self.assertEqual(payload["profile_id"], "crawler3d")
+        self.assertEqual(payload["target"], "http://127.0.0.1:7424")
 
 
 if __name__ == "__main__":

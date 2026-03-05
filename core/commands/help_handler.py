@@ -136,11 +136,11 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         },
         "PLAY": {
             "description": "Unified gameplay command (stats/map/gates/TOYBOX + options/tokens).",
-            "usage": "PLAY [STATUS|STATS|MAP|GATE|TOYBOX|LENS|PROCEED|OPTIONS|START <option>|TOKENS|CLAIM]",
+            "usage": "PLAY [STATUS|STATS|MAP|GATE|TOYBOX|GUI|LENS|PROCEED|OPTIONS|START <option>|TOKENS|CLAIM]",
             "example": "PLAY STATS ADD xp 25",
             "notes": "Unified gameplay surface for progression, map loop, gates, TOYBOX, and play options.",
             "category": "Navigation",
-            "syntax": "PLAY STATUS | PLAY STATS <SET|ADD> <xp|hp|gold> <value> | PLAY MAP <STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK> ... | PLAY GATE <STATUS|COMPLETE|RESET> <gate_id> | PLAY TOYBOX <LIST|SET> [profile] | PLAY LENS <LIST|SHOW|SET|STATUS|SCORE|CHECKPOINTS|ENABLE|DISABLE> [lens] [--compact] | PLAY PROFILE STATUS [--group <id>] [--session <id>] | PLAY PROFILE <GROUP|SESSION> <SET|CLEAR> ... | PLAY PROCEED | PLAY OPTIONS | PLAY START <dungeon|galaxy|social|ascension> | PLAY TOKENS | PLAY CLAIM",
+            "syntax": "PLAY STATUS | PLAY STATS <SET|ADD> <xp|hp|gold> <value> | PLAY MAP <STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK> ... | PLAY GATE <STATUS|COMPLETE|RESET> <gate_id> | PLAY TOYBOX <LIST|SET> [profile] | PLAY GUI <STATUS|OPEN|INTENT> [profile] | PLAY LENS <LIST|SHOW|SET|STATUS|SCORE|CHECKPOINTS|ENABLE|DISABLE> [lens] [--compact] | PLAY PROFILE STATUS [--group <id>] [--session <id>] | PLAY PROFILE <GROUP|SESSION> <SET|CLEAR> ... | PLAY PROCEED | PLAY OPTIONS | PLAY START <dungeon|galaxy|social|ascension> | PLAY TOKENS | PLAY CLAIM",
         },
         "RULE": {
             "description": "Conditional IF/THEN gameplay automations paired with PLAY and TOYBOX",
@@ -268,7 +268,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "example": "THINGUI BUILD",
             "notes": "Extension-first path for fullscreen/single-window output; callable from core without making GUI ownership part of core runtime.",
             "category": "System & Maintenance",
-            "syntax": "THINGUI STATUS | THINGUI INSTALL | THINGUI BUILD | THINGUI LINT | THINGUI OPEN [target_url] | THINGUI INTENT <target_url> [title] [label]",
+            "syntax": "THINGUI STATUS | THINGUI INSTALL | THINGUI BUILD | THINGUI LINT | THINGUI OPEN [target_url|profile] | THINGUI INTENT <target_url|profile> [title] [label]",
         },
         "DRAW": {
             "description": "Render viewport-aware ASCII panels",

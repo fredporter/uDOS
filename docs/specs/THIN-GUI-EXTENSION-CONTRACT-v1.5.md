@@ -33,6 +33,12 @@ Supported surface:
 - `THINGUI OPEN [target_url]`
 - `THINGUI INTENT <target_url> [title] [label]`
 
+Profile-aware launch bridge:
+
+- `THINGUI OPEN [target_url|profile]`
+- `THINGUI INTENT <target_url|profile> [title] [label]`
+- `PLAY GUI STATUS|OPEN|INTENT [profile]`
+
 Launch intents are stored at:
 
 - `memory/ucode/thin_gui_intent.json`
@@ -66,6 +72,16 @@ Thin GUI is documented as:
 - usable for kiosk and game/3D focus scenarios
 
 Both may coexist in one deployment.
+
+## Extension Runtime Surface
+
+The extension ships a standalone fullscreen shell page:
+
+- `extensions/thin-gui/assets/index.html`
+- `extensions/thin-gui/assets/thin-gui.css`
+- `extensions/thin-gui/assets/thin-gui.js`
+
+The shell can load target URLs via query params or a persisted intent payload.
 
 ## Non-Goals
 

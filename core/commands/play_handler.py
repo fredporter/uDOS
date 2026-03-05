@@ -30,6 +30,9 @@ class PlayHandler(BaseCommandHandler):
       PLAY GATE RESET <gate_id>
       PLAY TOYBOX LIST
       PLAY TOYBOX SET <hethack|elite|rpgbbs|crawler3d>
+      PLAY GUI STATUS
+      PLAY GUI OPEN [profile]
+      PLAY GUI INTENT [profile]
             PLAY LENS LIST
             PLAY LENS SHOW
             PLAY LENS SET <lens>
@@ -55,6 +58,7 @@ class PlayHandler(BaseCommandHandler):
         "map",
         "gate",
         "toybox",
+        "gui",
         "lens",
         "proceed",
         "next",

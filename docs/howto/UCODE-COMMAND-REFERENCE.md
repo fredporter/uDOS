@@ -159,6 +159,7 @@ This guide is organized by:
 GUI lane summary:
 - `THINGUI` = extension-owned fullscreen/single-window/kiosk bridge.
 - `SKIN` + `WIZARD` = bundled browser shelf path and web publishing workflows.
+- `PLAY GUI` = gameplay-aware bridge that resolves active TOYBOX profile to Thin GUI target/intent.
 
 Seed template families exposed through the Python `UCODE` surface:
 - `workflows`

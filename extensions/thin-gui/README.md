@@ -26,3 +26,15 @@ It is not part of core ownership. Core can call it via `THINGUI` commands.
 - No OS-specific compositor or browser launcher logic in this package.
 
 Platform launch ownership stays in runtime adapters and packaging contracts.
+
+## Runtime Shell
+
+The extension includes a standalone fullscreen shell:
+
+- `assets/index.html`
+- `assets/thin-gui.css`
+- `assets/thin-gui.js`
+
+The shell accepts query params (`target`, `title`, `label`) and can fallback to
+`memory/ucode/thin_gui_intent.json` written by `PLAY GUI INTENT` or
+`THINGUI INTENT`.

@@ -28,6 +28,7 @@ Wizard/extension layers may present and orchestrate, but must not fork canonical
 - `PLAY MAP STATUS|ENTER|MOVE|INSPECT|INTERACT|COMPLETE|TICK`
 - `PLAY GATE STATUS|COMPLETE|RESET <gate_id>`
 - `PLAY TOYBOX LIST|SET <profile>`
+- `PLAY GUI STATUS|OPEN|INTENT [profile]`
 - `PLAY LENS LIST|SHOW|SET|STATUS|SCORE|CHECKPOINTS|ENABLE|DISABLE`
 - `PLAY PROFILE STATUS [--group <id>] [--session <id>]`
 - `PLAY PROFILE GROUP|SESSION SET|CLEAR ...`
@@ -51,6 +52,7 @@ Runtime events file:
 Progression contract source:
 
 - `core/services/progression_contract_service.py`
+- `core/services/thin_gui_bridge_service.py`
 
 ## Lens and Skin Framework (Scaffold)
 

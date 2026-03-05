@@ -31,6 +31,9 @@ class GameplayHandler(BaseCommandHandler):
       PLAY GATE RESET <gate_id>
       PLAY TOYBOX LIST
       PLAY TOYBOX SET <hethack|elite|rpgbbs|crawler3d>
+      PLAY GUI STATUS
+      PLAY GUI OPEN [profile]
+      PLAY GUI INTENT [profile]
     PLAY LENS LIST
     PLAY LENS SHOW
       PLAY LENS SET <lens>
@@ -81,6 +84,9 @@ class GameplayHandler(BaseCommandHandler):
 
         if sub == "toybox":
             return self._handle_toybox(gameplay, username, role, params[1:])
+
+        if sub == "gui":
+            return self._handle_gui(gameplay, username, params[1:])
 
         if sub == "lens":
             return self._handle_lens(gameplay, username, role, params[1:])
@@ -382,6 +388,77 @@ class GameplayHandler(BaseCommandHandler):
             "required_gate": "dungeon_l32_amulet",
             "output": "Blocked: complete dungeon level 32 and retrieve the Amulet of Yendor.",
         }
+
+    def _handle_gui(self, gameplay, username: str, params: List[str]) -> Dict:
+        from core.services.thin_gui_bridge_service import get_thin_gui_bridge_service
+
+        bridge = get_thin_gui_bridge_service()
+        action = params[0].lower() if params else "status"
+        profile = params[1].lower() if len(params) > 1 and params[1].strip() else gameplay.get_active_toybox()
+        launch = bridge.resolve_target(profile)
+        route = bridge.wizard_route(launch)
+
+        if action in {"status", "show"}:
+            lines = [
+                "PLAY GUI STATUS",
+                f"Profile: {launch.profile_id}",
+                f"Mode: {launch.mode}",
+                f"Owner: {launch.extension_owner}",
+                f"Target: {launch.target_url or '(unset)'}",
+                f"Wizard route: {route}",
+            ]
+            if not launch.target_url:
+                lines.append(
+                    "Set UDOS_THINGUI_TARGET_<PROFILE> to map a runtime URL before launch."
+                )
+            return {
+                "status": "success",
+                "message": "Gameplay GUI bridge status",
+                "gui": {
+                    "profile": launch.profile_id,
+                    "target": launch.target_url,
+                    "mode": launch.mode,
+                    "owner": launch.extension_owner,
+                    "route": route,
+                },
+                "output": "\n".join(lines),
+            }
+
+        if action == "open":
+            return {
+                "status": "success",
+                "message": f"Gameplay GUI route ready for {launch.profile_id}",
+                "route": route,
+                "gui": {"profile": launch.profile_id, "target": launch.target_url},
+                "output": "\n".join(
+                    [
+                        f"PLAY GUI OPEN {launch.profile_id}",
+                        f"Wizard route: {route}",
+                    ]
+                ),
+            }
+
+        if action == "intent":
+            payload = bridge.write_intent(launch)
+            return {
+                "status": "success",
+                "message": f"Gameplay GUI intent written for {launch.profile_id}",
+                "intent": payload,
+                "output": "\n".join(
+                    [
+                        f"PLAY GUI INTENT {launch.profile_id}",
+                        f"Intent saved: {bridge.intent_path}",
+                        f"Target: {launch.target_url or '(unset)'}",
+                    ]
+                ),
+            }
+
+        raise CommandError(
+            code="ERR_COMMAND_INVALID_ARG",
+            message="Syntax: PLAY GUI <STATUS|OPEN|INTENT> [profile]",
+            recovery_hint="Usage: PLAY GUI OPEN crawler3d",
+            level="INFO",
+        )
 
     def _handle_lens(self, gameplay, username: str, role: str, params: List[str]) -> Dict:
         from core.services.map_runtime_service import get_map_runtime_service

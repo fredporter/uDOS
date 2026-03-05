@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>uDOS Thin GUI</title>
+    <link rel="stylesheet" href="./thin-gui.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="left">
+        <div class="eyebrow">uDOS Thin GUI</div>
+        <h1 id="screen-title">Thin GUI Shell</h1>
+        <p id="screen-meta">extension-owned fullscreen lane</p>
+      </div>
+      <div class="actions">
+        <button id="open-direct" type="button">Open Direct</button>
+        <button id="toggle-hud" type="button">Toggle HUD</button>
+      </div>
+    </header>
+
+    <main class="viewport">
+      <iframe id="target-frame" title="Thin GUI Target" loading="eager"></iframe>
+      <section class="placeholder" id="placeholder">
+        <h2>No target configured</h2>
+        <p>
+          Provide <code>?target=http://127.0.0.1:7424</code> in the URL, or write
+          <code>memory/ucode/thin_gui_intent.json</code> via
+          <code>PLAY GUI INTENT</code> / <code>THINGUI INTENT</code>.
+        </p>
+      </section>
+    </main>
+
+    <aside class="hud" id="hud">
+      <h3>Session</h3>
+      <dl>
+        <dt>Profile</dt>
+        <dd id="hud-profile">-</dd>
+        <dt>Mode</dt>
+        <dd id="hud-mode">-</dd>
+        <dt>Target</dt>
+        <dd id="hud-target">-</dd>
+      </dl>
+    </aside>
+
+    <script type="module" src="./thin-gui.js"></script>
+  </body>
+</html>
