@@ -1,0 +1,39 @@
+title = "uDOS gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Vendored third-party datasets and mirrored upstream code"
+paths = [
+  '''^library/(home-assistant|containers/home-assistant)/''',
+  '''^library/containers/hethack/''',
+]
+
+[[allowlists]]
+description = "Timezone literals can trigger generic-api-key entropy rules"
+paths = [
+  '''^core/tui/form_field_suggestions\.py$''',
+]
+
+[[allowlists]]
+description = "Documentation placeholders that describe env keys, not live secrets"
+paths = [
+  '''^docs/howto/SETUP-SECRETS\.md$''',
+  '''^docs/howto/UCODE-ENV-COMMAND\.md$''',
+  '''^docs/howto/WIZARD-ADMIN-SECRET-CONTRACT-RECOVERY\.md$''',
+  '''^docs/howto/renderer-indexer-runbook\.md$''',
+]
+regexTarget = "line"
+regexes = [
+  '''MISTRAL_API_KEY''',
+  '''WIZARD_ADMIN_TOKEN''',
+  '''WIZARD_KEY''',
+  '''Authorization: Bearer \$WIZARD_ADMIN_TOKEN''',
+]
+
+[[allowlists]]
+description = "Local-only ignored workspace snapshots"
+paths = [
+  '''^dev/files/''',
+]
