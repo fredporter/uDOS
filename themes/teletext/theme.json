@@ -27,6 +27,10 @@
     "recommended_lenses": ["elite"],
     "score_profile": "terminal-score",
     "checkpoint_profile": "terminal-checkpoints",
-    "overlay_defaults": {}
+    "overlay_defaults": {},
+    "insertion_scaffold": {
+      "css": "assets/ucode-overrides.css",
+      "slots": "assets/ucode-slots.json"
+    }
   }
 }

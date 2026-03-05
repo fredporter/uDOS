@@ -31,9 +31,9 @@ def test_skin_policy_flags_mismatch(monkeypatch):
         "core.services.gameplay_service.get_gameplay_service",
         lambda: _FakeGameplayService(active_lens="elite"),
     )
-    monkeypatch.setattr(handler, "_available_skins", lambda: ["galaxy", "dungeon"])
+    monkeypatch.setattr(handler, "_available_skins", lambda: ["teletext", "c64", "default"])
 
-    progression, policy_flag, policy_note = handler._skin_policy_context("dungeon")
+    progression, policy_flag, policy_note = handler._skin_policy_context("c64")
     assert progression is not None
     assert policy_flag == "skin_lens_mismatch"
     assert "Recommended for elite" in (policy_note or "")
@@ -60,8 +60,8 @@ def test_skin_check_returns_recommendations(monkeypatch):
         "core.services.gameplay_service.get_gameplay_service",
         lambda: _FakeGameplayService(active_lens="elite"),
     )
-    monkeypatch.setattr(handler, "_active_skin", lambda: "dungeon")
-    monkeypatch.setattr(handler, "_available_skins", lambda: ["galaxy", "dungeon", "default"])
+    monkeypatch.setattr(handler, "_active_skin", lambda: "c64")
+    monkeypatch.setattr(handler, "_available_skins", lambda: ["teletext", "c64", "default"])
 
     result = handler.handle("SKIN", ["CHECK"])
     assert result["status"] == "success"
@@ -92,9 +92,9 @@ def test_skin_policy_flags_progression_drift(monkeypatch):
         "core.services.gameplay_service.get_gameplay_service",
         lambda: _BlockedEliteGameplay(active_lens="elite"),
     )
-    monkeypatch.setattr(handler, "_available_skins", lambda: ["galaxy", "dungeon", "default"])
+    monkeypatch.setattr(handler, "_available_skins", lambda: ["teletext", "c64", "default"])
 
-    _, policy_flag, policy_note = handler._skin_policy_context("galaxy")
+    _, policy_flag, policy_note = handler._skin_policy_context("teletext")
     assert policy_flag == "skin_lens_progression_drift"
     assert "not enforce" in (policy_note or "").lower()
 
@@ -106,7 +106,7 @@ def test_skin_status_compact(monkeypatch):
         "core.services.gameplay_service.get_gameplay_service",
         lambda: _FakeGameplayService(active_lens="elite"),
     )
-    monkeypatch.setattr(handler, "_active_skin", lambda: "galaxy")
+    monkeypatch.setattr(handler, "_active_skin", lambda: "teletext")
 
     result = handler.handle("SKIN", ["STATUS", "--compact"])
     assert result["status"] == "success"
@@ -124,8 +124,8 @@ def test_skin_check_compact(monkeypatch):
         "core.services.gameplay_service.get_gameplay_service",
         lambda: _FakeGameplayService(active_lens="elite"),
     )
-    monkeypatch.setattr(handler, "_active_skin", lambda: "dungeon")
-    monkeypatch.setattr(handler, "_available_skins", lambda: ["galaxy", "dungeon", "default"])
+    monkeypatch.setattr(handler, "_active_skin", lambda: "c64")
+    monkeypatch.setattr(handler, "_available_skins", lambda: ["teletext", "c64", "default"])
 
     result = handler.handle("SKIN", ["CHECK", "--compact"])
     assert result["status"] == "success"

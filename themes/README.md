@@ -23,3 +23,19 @@ python3 themes/scripts/generate_stub_themes.py
 ```
 
 This clones the `prose` theme into `nes`, `c64`, `medium`, and `teletext` stubs with updated `theme.json` metadata.
+
+## ucode Skin Inserts
+
+Wizard GUI skins support ucode-managed insertion scaffolds:
+
+```bash
+SKIN SCAFFOLD <theme-name>
+SKIN INSERT <theme-name> CSS <css...>
+SKIN INSERT <theme-name> SLOT <slot> <content...>
+```
+
+The scaffold writes:
+- `themes/<name>/assets/ucode-overrides.css`
+- `themes/<name>/assets/ucode-slots.json`
+
+and ensures `theme.css` imports `ucode-overrides.css`.

@@ -1,5 +1,8 @@
 # TOYBOX Gameplay Scaffold (v1.3)
 
+Superseded for command/runtime authority by:
+- `docs/specs/GAMEPLAY-COMMAND-CONTRACT-v1.5.md`
+
 Status: scaffold implemented on 2026-02-15.
 
 Companion specs:

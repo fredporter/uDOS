@@ -3,23 +3,58 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from typing import Any
 
 from core.services.gameplay_service import PLAY_OPTIONS, PLAY_UNLOCK_RULES
+from core.services.logging_api import get_repo_root
 
-LENS_SKIN_RECOMMENDATIONS: dict[str, set[str]] = {
-    "hethack": {"dungeon", "fantasy", "hacker", "default"},
-    "elite": {"galaxy", "pilot", "bridge", "default"},
-    "rpgbbs": {"roleplay", "fantastic", "default"},
-    "crawler3d": {"foundation", "survival", "adventure", "default"},
+_DEFAULT_LENS_SKIN_RECOMMENDATIONS: dict[str, set[str]] = {
+    "hethack": {"c64", "teletext", "nes", "default"},
+    "nethack": {"c64", "teletext", "nes", "default"},
+    "elite": {"teletext", "medium", "prose", "default"},
+    "rpgbbs": {"prose", "medium", "c64", "default"},
+    "crawler3d": {"nes", "teletext", "c64", "default"},
 }
 
 LENS_OPTION_MAP: dict[str, str] = {
     "hethack": "dungeon",
+    "nethack": "dungeon",
     "elite": "galaxy",
     "rpgbbs": "social",
     "crawler3d": "ascension",
 }
+
+
+def _load_lens_skin_recommendations() -> dict[str, set[str]]:
+    config_path = get_repo_root() / "core" / "config" / "lens_skin_game_catalog_v1_5.json"
+    if not config_path.exists():
+        return dict(_DEFAULT_LENS_SKIN_RECOMMENDATIONS)
+    try:
+        payload = json.loads(config_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return dict(_DEFAULT_LENS_SKIN_RECOMMENDATIONS)
+    if not isinstance(payload, dict):
+        return dict(_DEFAULT_LENS_SKIN_RECOMMENDATIONS)
+
+    profiles = payload.get("profiles", {})
+    if not isinstance(profiles, dict):
+        return dict(_DEFAULT_LENS_SKIN_RECOMMENDATIONS)
+
+    out = dict(_DEFAULT_LENS_SKIN_RECOMMENDATIONS)
+    for lens_id, row in profiles.items():
+        if not isinstance(row, dict):
+            continue
+        recommended = row.get("recommended_skins", [])
+        if not isinstance(recommended, list):
+            continue
+        items = {str(item).strip().lower() for item in recommended if str(item).strip()}
+        if items:
+            out[str(lens_id).strip().lower()] = items
+    return out
+
+
+LENS_SKIN_RECOMMENDATIONS: dict[str, set[str]] = _load_lens_skin_recommendations()
 
 
 @dataclass(frozen=True)

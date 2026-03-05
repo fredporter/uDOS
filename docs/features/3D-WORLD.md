@@ -1,5 +1,8 @@
 # 3DWORLD Extension Architecture (v1.5 Planning)
 
+Canonical extension authority now lives in:
+- `docs/specs/3DWORLD-EXTENSION-CONTRACT-v1.5.md`
+
 Status: Planned (pre-v1.5 stable)
 Owner: Core + Extensions + Wizard networking
 Updated: 2026-02-22

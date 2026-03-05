@@ -1,0 +1,20 @@
+{
+  "label": "3DWORLD",
+  "summary": "Advanced 3D gameplay render extension for TOYBOX crawler3d and future world lenses.",
+  "description": "Separate extension/server lane for advanced GUI 3D rendering while preserving core gameplay ownership.",
+  "category": "gaming",
+  "visibility": "official",
+  "runtime_owner": "wizard",
+  "execution_model": "extension-3dworld-v1",
+  "standalone_capable": true,
+  "api_prefix": "/api/3dworld",
+  "wizard_route": "#3dworld",
+  "callable_from": ["wizard", "extensions", "sonic", "uhome"],
+  "profiles": ["gaming", "dev"],
+  "lens_vars": {
+    "lens": "crawler3d",
+    "map_level": "foundation",
+    "node_lane": "toybox-3d-node",
+    "contract": "v1.5"
+  }
+}

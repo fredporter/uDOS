@@ -1,0 +1,39 @@
+{
+  "version": "v1.5",
+  "profiles": {
+    "hethack": {
+      "container_id": "hethack",
+      "lens": "dungeon",
+      "recommended_skins": ["c64", "teletext", "nes"],
+      "compatible_skins": ["c64", "teletext", "nes", "prose", "medium"],
+      "slot_defaults": ["hud", "status", "events"],
+      "ui_mode": "tui"
+    },
+    "nethack": {
+      "container_id": "hethack",
+      "lens": "dungeon",
+      "recommended_skins": ["c64", "teletext", "nes"],
+      "compatible_skins": ["c64", "teletext", "nes", "prose", "medium"],
+      "slot_defaults": ["hud", "status", "events"],
+      "ui_mode": "tui"
+    },
+    "elite": {
+      "container_id": "elite",
+      "lens": "galaxy",
+      "recommended_skins": ["teletext", "medium", "prose"],
+      "compatible_skins": ["teletext", "medium", "prose", "c64", "nes"],
+      "slot_defaults": ["hud", "telemetry", "targeting"],
+      "ui_mode": "tui"
+    },
+    "crawler3d": {
+      "container_id": "crawler3d",
+      "lens": "crawler3d",
+      "recommended_skins": ["nes", "teletext", "c64"],
+      "compatible_skins": ["nes", "teletext", "c64", "medium", "prose"],
+      "slot_defaults": ["hud", "minimap", "events"],
+      "ui_mode": "advanced-gui-extension",
+      "extension_owner": "3dworld",
+      "node_lane": "toybox-3d-node"
+    }
+  }
+}

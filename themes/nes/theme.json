@@ -27,6 +27,10 @@
     "recommended_lenses": ["crawler3d"],
     "score_profile": "arcade-score",
     "checkpoint_profile": "arcade-checkpoints",
-    "overlay_defaults": {}
+    "overlay_defaults": {},
+    "insertion_scaffold": {
+      "css": "assets/ucode-overrides.css",
+      "slots": "assets/ucode-slots.json"
+    }
   }
 }

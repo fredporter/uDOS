@@ -255,11 +255,11 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         },
         "SKIN": {
             "description": "Wizard GUI skin manager (HTML/CSS)",
-            "usage": "SKIN [STATUS|CHECK|LIST|SHOW|SET|CLEAR] [name]",
+            "usage": "SKIN [STATUS|CHECK|LIST|SHOW|SET|CLEAR|SCAFFOLD|INSERT] [name]",
             "example": "SKIN SET prose",
-            "notes": "Selects Wizard GUI skin packs stored under /themes. In current cycles, progression/lens fit is flagged (not enforced).",
+            "notes": "Selects Wizard GUI skin packs under /themes and can scaffold/insert ucode-managed CSS/slot content.",
             "category": "System & Maintenance",
-            "syntax": "SKIN STATUS [--compact] | SKIN CHECK [--compact] | SKIN LIST | SKIN SHOW <name> | SKIN SET <name> | SKIN CLEAR",
+            "syntax": "SKIN STATUS [--compact] | SKIN CHECK [--compact] | SKIN LIST | SKIN SHOW <name> | SKIN SET <name> | SKIN CLEAR | SKIN SCAFFOLD <name> | SKIN INSERT <name> CSS <css...> | SKIN INSERT <name> SLOT <slot> <content...>",
         },
         "DRAW": {
             "description": "Render viewport-aware ASCII panels",

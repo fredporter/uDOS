@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "udos:3dworld:lens-skin-mapping:v1",
+  "title": "3DWORLD Lens/Skin Mapping",
+  "type": "object",
+  "required": ["version", "profile", "lens", "skin", "spatial"],
+  "properties": {
+    "version": { "type": "string" },
+    "profile": { "type": "string" },
+    "lens": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string" },
+        "camera_mode": { "type": "string" },
+        "hud_mode": { "type": "string" }
+      }
+    },
+    "skin": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "css_overrides": { "type": "string" },
+        "slot_payload": { "type": "string" }
+      }
+    },
+    "spatial": {
+      "type": "object",
+      "required": ["place_ref", "x", "y", "z"],
+      "properties": {
+        "place_ref": { "type": "string" },
+        "x": { "type": "integer" },
+        "y": { "type": "integer" },
+        "z": { "type": "integer" }
+      }
+    }
+  }
+}

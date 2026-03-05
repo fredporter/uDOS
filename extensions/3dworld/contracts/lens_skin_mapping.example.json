@@ -1,0 +1,20 @@
+{
+  "version": "v1.5",
+  "profile": "crawler3d",
+  "lens": {
+    "id": "crawler3d",
+    "camera_mode": "first_person",
+    "hud_mode": "dungeon_hud"
+  },
+  "skin": {
+    "name": "nes",
+    "css_overrides": "themes/nes/assets/ucode-overrides.css",
+    "slot_payload": "themes/nes/assets/ucode-slots.json"
+  },
+  "spatial": {
+    "place_ref": "EARTH:SUB:L500-AA10-Z1",
+    "x": 0,
+    "y": 0,
+    "z": 1
+  }
+}

@@ -1,5 +1,8 @@
 # Gameplay LENS + SKIN Progression Contract (v1.4.8)
 
+Superseded for command/runtime authority by:
+- `docs/specs/GAMEPLAY-COMMAND-CONTRACT-v1.5.md`
+
 ## Purpose
 
 Define and lock the shared progression contract consumed by `PLAY LENS`, `SKIN`, and `MODE`, so all three surfaces use the same readiness and advisory model.

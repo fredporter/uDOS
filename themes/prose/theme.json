@@ -16,6 +16,10 @@
     "recommended_lenses": ["rpgbbs"],
     "score_profile": "prose-score",
     "checkpoint_profile": "prose-checkpoints",
-    "overlay_defaults": {}
+    "overlay_defaults": {},
+    "insertion_scaffold": {
+      "css": "assets/ucode-overrides.css",
+      "slots": "assets/ucode-slots.json"
+    }
   }
 }

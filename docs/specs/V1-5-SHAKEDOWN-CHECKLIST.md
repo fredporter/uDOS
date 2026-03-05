@@ -46,8 +46,8 @@ Status values:
 | `docs/specs/PACKAGING-RELEASE-CONTRACT-v1.5.md` | `implemented` | `distribution/`, `distribution/profiles/certified-profiles.json`, `docs/specs/V1-5-STABLE-SIGNOFF.md` | Certified profile install, verify, repair, rollback-or-recovery, and demo evidence are now checked in for the v1.5 release lane. |
 | `docs/specs/INTEGRATION-READINESS.md` | `implemented` | `wizard/routes/`, `wizard/tests/`, `docs/examples/ucode_v1_5_release_pack/CERTIFICATION.md` | Managed operations, local assist, self-hosted `@dev`, and demo certification now provide integrated release evidence. |
 | `dev/docs/specs/DEV-WORKSPACE-SPEC.md` | `implemented` | `dev/docs/specs/DEV-WORKSPACE-SPEC.md`, `wizard/services/dev_mode_service.py`, `wizard/services/dev_extension_service.py`, `wizard/routes/dev_routes.py` | Dev Mode is now explicitly defined as a Wizard-gated `@dev` workspace rooted at `/dev`, with a tracked sync boundary. |
-| `docs/specs/3DWORLD-EXTENSION-SPEC-v1.5.0.md` | `deferred` | `wizard/services/toybox/crawler3d_adapter.py`, `core/lenses/crawler3d_lens.py` | Keep tracked as an extension lane, but do not block v1.5 mainline release. |
-| `docs/specs/GAMEPLAY-LENS-SKIN-PROGRESSION-v1.4.8.md` | `partial` | `core/commands/gameplay_handler.py`, `core/services/gameplay_service.py`, `core/services/gameplay_replay_service.py` | Gameplay surfaces exist; Round 4 still needs certified gaming profile acceptance proof. |
+| `docs/specs/3DWORLD-EXTENSION-CONTRACT-v1.5.md` | `deferred` | `extensions/3dworld/`, `wizard/services/toybox/crawler3d_adapter.py`, `core/lenses/crawler3d_lens.py` | Keep tracked as an extension lane with dedicated runtime/server ownership; do not block v1.5 mainline release. |
+| `docs/specs/GAMEPLAY-COMMAND-CONTRACT-v1.5.md` | `implemented` | `core/commands/play_handler.py`, `core/commands/gameplay_handler.py`, `core/commands/skin_handler.py`, `core/services/gameplay_service.py` | Canonical gameplay/lens/skin command contract consolidated and wired into runtime handlers. |
 
 ## Spatial and TypeScript Runtime
 
@@ -79,9 +79,8 @@ Status values:
   - `PORT-REGISTRY`
   - `UCODE-SELECTOR-INTEGRATION-BRIEF`
   - `wiki_spec_obsidian`
-  - `GAMEPLAY-LENS-SKIN-PROGRESSION-v1.4.8`
 - `deferred`
-  - `3DWORLD-EXTENSION-SPEC-v1.5.0`
+  - `3DWORLD-EXTENSION-CONTRACT-v1.5.md`
 
 ## Round 1 Follow-up
 

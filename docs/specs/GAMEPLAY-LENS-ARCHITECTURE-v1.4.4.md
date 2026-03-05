@@ -1,5 +1,8 @@
 # Gameplay Lens Architecture — v1.4.4
 
+Superseded for command/runtime authority by:
+- `docs/specs/GAMEPLAY-COMMAND-CONTRACT-v1.5.md`
+
 **Status:** Architecture Specification
 **Target:** Game variant rendering abstraction layer
 **Version:** v1.4.4

@@ -1,5 +1,8 @@
 # 3DWORLD Extension Spec v1.5.0 (Draft)
 
+Superseded for extension boundary authority by:
+- `docs/specs/3DWORLD-EXTENSION-CONTRACT-v1.5.md`
+
 Status: Draft for Cycle D
 Owner: Core + Extensions + Wizard
 Last Updated: 2026-02-22

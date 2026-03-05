@@ -27,6 +27,10 @@
     "recommended_lenses": ["hethack"],
     "score_profile": "retro-score",
     "checkpoint_profile": "retro-checkpoints",
-    "overlay_defaults": {}
+    "overlay_defaults": {},
+    "insertion_scaffold": {
+      "css": "assets/ucode-overrides.css",
+      "slots": "assets/ucode-slots.json"
+    }
   }
 }

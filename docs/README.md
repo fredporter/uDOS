@@ -14,6 +14,8 @@ Contributor-only Dev Mode documentation does not live here. Use `dev/docs/` for 
 - Public status: `docs/STATUS.md`
 - Architecture: `docs/ARCHITECTURE.md`
 - Public specs catalog: `docs/specs/README.md`
+- Gameplay command contract: `docs/specs/GAMEPLAY-COMMAND-CONTRACT-v1.5.md`
+- 3D extension contract: `docs/specs/3DWORLD-EXTENSION-CONTRACT-v1.5.md`
 - Public decisions catalog: `docs/decisions/README.md`
 - Workflow quickstart: `docs/howto/WORKFLOW-SCHEDULER-QUICKSTART.md`
 - Alpine packaging contract: `docs/specs/ALPINE-CORE-PLUGIN-FORMAT-v1.5.md`

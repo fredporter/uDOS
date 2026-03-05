@@ -67,6 +67,24 @@ class TestSkinHandler(unittest.TestCase):
         result = self.handler.handle("SKIN", ["clear"])
         assert result["status"] in {"success", "warning"}
 
+    def test_skin_scaffold_and_insert_css(self):
+        """Test SKIN SCAFFOLD + INSERT CSS writes override payload."""
+        scaffold = self.handler.handle("SKIN", ["scaffold", "prose"])
+        assert scaffold["status"] == "success"
+
+        insert = self.handler.handle("SKIN", ["insert", "prose", "css", ".hud { color: #0ff; }"])
+        assert insert["status"] == "success"
+        assert "Inserted CSS" in insert.get("output", "")
+
+    def test_skin_insert_slot_payload(self):
+        """Test SKIN INSERT SLOT stores slot payload content."""
+        result = self.handler.handle(
+            "SKIN",
+            ["insert", "prose", "slot", "hud", "<div>HUD PANEL</div>"],
+        )
+        assert result["status"] == "success"
+        assert result.get("slot") == "hud"
+
     def test_skin_help_includes_syntax(self):
         """Test SKIN HELP shows usage."""
         with self.assertRaises(CommandError):

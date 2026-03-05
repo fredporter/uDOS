@@ -482,3 +482,6 @@ Notes:
 - `PLAY PROFILE GROUP|SESSION SET|CLEAR ...` manages optional group/session overlay values
 - `SKIN CHECK` and `SKIN STATUS` may return advisory `policy_flag` values (`skin_lens_mismatch`, `skin_lens_unmapped`, `skin_lens_progression_drift`) without enforcement in dev rounds
 - `SKIN SHOW <name>` reports explicit gameplay metadata contract validity from `themes/*/theme.json`
+- `SKIN SCAFFOLD <name>` creates skin insertion scaffolds (`assets/ucode-overrides.css`, `assets/ucode-slots.json`) and imports overrides into `theme.css`
+- `SKIN INSERT <name> CSS <css...>` appends ucode-managed CSS overrides for GUI theming
+- `SKIN INSERT <name> SLOT <slot> <content...>` records slot payloads for theme-integrated content injection

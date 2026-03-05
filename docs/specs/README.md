@@ -9,13 +9,13 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 
 - `docs/specs/wiki_spec_obsidian.md` — Wiki authoring/profile spec
 - `docs/specs/UCODE-COMMAND-CONTRACT-v1.3.md` — command contract baseline
+- `docs/specs/GAMEPLAY-COMMAND-CONTRACT-v1.5.md` — canonical gameplay/lens/skin command contract
 - `docs/specs/RUNTIME-INTERFACE-SPEC.md` — runtime interface
 - `docs/specs/PORT-REGISTRY.md` — shared port ownership
 - `docs/specs/PLUGIN-MANIFEST-SPEC.md` — extension/plugin manifest
 - `docs/specs/GHOST-MODE-POLICY.md` — ghost mode policy
 - `dev/docs/specs/DEV-WORKSPACE-SPEC.md` — `@dev` workspace and Dev Mode behavior
-- `docs/specs/GAMEPLAY-LENS-SKIN-PROGRESSION-v1.4.8.md` — unified progression contract for PLAY LENS and SKIN
-- `docs/specs/3DWORLD-EXTENSION-SPEC-v1.5.0.md` — containerized 3D world extension contract (draft lane toward v1.5)
+- `docs/specs/3DWORLD-EXTENSION-CONTRACT-v1.5.md` — canonical 3D extension boundary and integration contract
 - `docs/specs/WORKFLOW-SCHEDULER-v1.5.md` — core workflow scheduler contract for v1.5
 - `docs/specs/OFFLINE-ASSIST-STANDARD-v1.5.md` — canonical offline assist and `uLogic` standard for v1.5, grounded in the `udos_ulogic_pack` reference scaffold
 - `docs/specs/LOGIC-INPUT-HANDLER-v1.5.md` — canonical smart logic input handler contract for the refactored v1.5 `ucode` shell
@@ -40,7 +40,7 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 - `docs/specs/v1.4.0-*.md` — v1.4 execution artifacts consolidated by v1.4.3 notes
 - `docs/specs/03-contributions-contract.md` — historical contribution-bundle contract snapshot
 - `docs/specs/WIZARD-WEB-PUBLISH-SPEC-v1.3.15.md` — wizard publish contract
-- `docs/specs/TOYBOX-*.md` — TOYBOX gameplay/runtime contracts
+- `docs/specs/TOYBOX-*.md` and legacy gameplay/lens specs — historical scaffolds and migration references
 - `docs/specs/Spatial-*.md` and numbered specs (`01-*`, `02-*`, etc.) — architecture and schema details
 
 ## Release Context
