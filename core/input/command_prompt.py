@@ -567,7 +567,7 @@ def create_default_registry() -> CommandRegistry:
     registry.register(
         name="SETUP",
         help_text="Run setup story (default) or view profile",
-        syntax="SETUP [--profile|--story|--wizard|vibe|<provider>]",
+        syntax="SETUP [--profile|--story|--wizard|dev|<provider>]",
         examples=["SETUP", "SETUP --profile"],
         icon="•",
         category="Management",

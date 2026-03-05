@@ -521,7 +521,7 @@ EXAMPLES:
                 root_parent / "wizard" / "github_integration",
             ),
             (
-                "Legacy Dev Mode Vibe mirror",
+                "Legacy Dev Mode mirror",
                 repo_root / "library" / "wizard" / "mistral-vibe",
             ),
             ("Legacy local model container", root_parent / "library" / "local-models"),

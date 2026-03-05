@@ -145,7 +145,7 @@ class CoreCompleter(Completer):
 
         debug_logger.debug(f"  Words: {words}, word count: {len(words)}")
 
-        # Slash-command completion (Vibe-style UX)
+        # Slash-command completion (Dev Mode tool style UX)
         if text.startswith("/"):
             slash_commands = [
                 "/help",
@@ -167,7 +167,7 @@ class CoreCompleter(Completer):
                     )
             return
 
-        # @path completion (Vibe-style UX)
+        # @path completion (Dev Mode tool style UX)
         path_match = re.search(r"(?:^|\s)@([^\s]*)$", text)
         if path_match:
             partial_path = path_match.group(1)

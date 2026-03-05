@@ -329,7 +329,7 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
                     OutputToolkit.banner("WIZARD KEY SET"),
                     "",
                     "✅ MISTRAL_API_KEY updated in .env",
-                    "Restart Vibe to pick up the new key value.",
+                    "Restart the Dev Mode tool to pick up the new key value.",
                 ]),
             }
 

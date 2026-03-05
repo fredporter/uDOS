@@ -29,7 +29,7 @@ def _guidance_lines(local_model_name: str, local_runtime: str) -> str:
                 "",
                 "The v1.5 local logic-assist runtime does not auto-download model files.",
                 "Wizard network escalation remains optional and separately budgeted.",
-                "Dev Mode Vibe tooling is managed separately through the dev profile.",
+                "Dev Mode contributor tooling is managed separately through the dev profile.",
             ]
         )
         + "\n"

@@ -440,7 +440,7 @@ Key fields to edit:
         output.append("\n⚙️  SETUP: Preparing Dev extension contributor tooling\n")
         output.append("=" * 60)
         if legacy_alias:
-            output.append("Legacy alias detected: `SETUP vibe` now routes to `SETUP dev`.")
+            output.append("Legacy alias detected: `SETUP vibe` routes to `SETUP dev` (deprecated alias).")
         try:
             from core.services.logic_assist_setup import run_logic_assist_setup
             from core.services.logging_api import get_repo_root

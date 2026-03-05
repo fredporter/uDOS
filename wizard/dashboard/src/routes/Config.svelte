@@ -1763,7 +1763,7 @@
           </span>
         </div>
         <div class="flex items-center justify-between">
-          <span>Vibe CLI</span>
+          <span>Dev Tool CLI</span>
           <span
             class={selfHealStatus.vibe_cli?.installed
               ? "text-emerald-300"

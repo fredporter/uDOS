@@ -364,7 +364,7 @@ class UCODE:
         self._io_phase = IOLifecyclePhase.BACKGROUND
         self._io_phase_lock = threading.RLock()
 
-        # Initialize routing components without vibe.core runtime dependencies.
+        # Initialize routing components without external Dev Mode runtime dependencies.
         try:
             from core.services.interactive_runtime import (
                 CommandEngine,
@@ -528,8 +528,8 @@ class UCODE:
             full_cmd, parser=self.prompt, game_state=self.state
         )
 
-    def _dispatch_with_vibe(self, user_input: str) -> dict[str, Any]:
-        """Three-stage dispatch with Dev extension vibe routing and local operator fallback.
+    def _dispatch_with_dev_tool(self, user_input: str) -> dict[str, Any]:
+        """Three-stage dispatch with Dev extension routing and local operator fallback.
 
         Uses command-first dispatch for:
           1. uCODE command matching (fuzzy, confidence scoring)
@@ -925,7 +925,7 @@ class UCODE:
             return self._route_frame(frame)
 
         # Mode 4: Dev extension routing / provider fallback
-        return self._dispatch_with_vibe(user_input)
+        return self._dispatch_with_dev_tool(user_input)
 
     def _dev_mode_active(self) -> bool:
         return resolve_runtime_mode() == RuntimeMode.DEV
@@ -1338,7 +1338,7 @@ class UCODE:
 
     def _handle_question_mode(self, user_input: str) -> dict[str, Any]:
         """Compatibility path for dispatch; delegates to canonical route."""
-        return self._dispatch_with_vibe(user_input)
+        return self._dispatch_with_dev_tool(user_input)
 
     def run(self) -> None:
         """Start uCODE TUI."""
@@ -1824,9 +1824,9 @@ class UCODE:
 
         if get_bool_config("UDOS_LAUNCHER_BANNER"):
             return
-        vibe_banner = self._get_vibe_banner()
-        if vibe_banner:
-            print(self._theme_text(vibe_banner))
+        startup_banner = self._get_startup_banner()
+        if startup_banner:
+            print(self._theme_text(startup_banner))
         # Startup grid art removed (legacy uCODE banner)
 
     def _get_repo_display_version(self) -> str:
@@ -1840,8 +1840,8 @@ class UCODE:
             pass
         return self.ucode_version
 
-    def _get_vibe_banner(self) -> str:
-        """Return the Vibe-style ASCII startup banner."""
+    def _get_startup_banner(self) -> str:
+        """Return the Dev Mode tool-style ASCII startup banner."""
         lines = [
             "████████████████████████████████████████████████████████████",
             "██                                                        ██",
@@ -2155,7 +2155,7 @@ class UCODE:
                 return int(vibe_provider.context_window)
             if hasattr(vibe_provider, "get_context_window"):
                 return int(vibe_provider.get_context_window())
-            raise ProviderNotAvailableError("Vibe provider missing context_window")
+            raise ProviderNotAvailableError("Dev tool provider missing context_window")
         except Exception:
             return 8192
 
@@ -3744,7 +3744,7 @@ class UCODE:
         )
 
         try:
-            vibe_provider = get_provider(ProviderType.VIBE_SERVICE)
+            provider_client = get_provider(ProviderType.VIBE_SERVICE)
         except ProviderNotAvailableError as exc:
             raise RuntimeError("Local logic-assist provider not available") from exc
 
@@ -3752,9 +3752,9 @@ class UCODE:
 
         import concurrent.futures
 
-        def generate_with_timeout(vibe, prompt, timeout=30):
+        def generate_with_timeout(client, prompt, timeout=30):
             with concurrent.futures.ThreadPoolExecutor() as executor:
-                future = executor.submit(vibe.generate, prompt, "markdown")
+                future = executor.submit(client.generate, prompt, "markdown")
                 try:
                     return future.result(timeout=timeout)
                 except concurrent.futures.TimeoutError:
@@ -3762,13 +3762,13 @@ class UCODE:
 
         # Try primary model
         try:
-            if callable(vibe_provider):
-                vibe = vibe_provider(model=target_model)
-            elif hasattr(vibe_provider, "create"):
-                vibe = vibe_provider.create(model=target_model)
+            if callable(provider_client):
+                client = provider_client(model=target_model)
+            elif hasattr(provider_client, "create"):
+                client = provider_client.create(model=target_model)
             else:
-                vibe = vibe_provider
-            return generate_with_timeout(vibe, prompt, timeout=30)
+                client = provider_client
+            return generate_with_timeout(client, prompt, timeout=30)
         except Exception as exc:
             fallback_model = self._get_dev_mode_fallback_model()
             if fallback_model and fallback_model != target_model:
@@ -3776,13 +3776,13 @@ class UCODE:
                     f"[LOGIC] Primary model {target_model} failed, trying fallback {fallback_model}: {exc}"
                 )
                 try:
-                    if callable(vibe_provider):
-                        vibe = vibe_provider(model=fallback_model)
-                    elif hasattr(vibe_provider, "create"):
-                        vibe = vibe_provider.create(model=fallback_model)
+                    if callable(provider_client):
+                        client = provider_client(model=fallback_model)
+                    elif hasattr(provider_client, "create"):
+                        client = provider_client.create(model=fallback_model)
                     else:
-                        vibe = vibe_provider
-                    return generate_with_timeout(vibe, prompt, timeout=30)
+                        client = provider_client
+                    return generate_with_timeout(client, prompt, timeout=30)
                 except Exception as fallback_exc:
                     self.logger.error(
                         f"[LOGIC] Fallback model {fallback_model} also failed: {fallback_exc}"
