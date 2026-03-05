@@ -95,8 +95,8 @@ udos-core grid render --mode workflow --input memory/system/grid-workflow-sample
 ### Vibe Integration
 
 ```bash
-vibe grid render --mode calendar --input events.json
-vibe grid render --mode map --loc "EARTH:SUR:L305-DA11"
+ucode GRID calendar --input events.json
+ucode GRID map --loc "EARTH:SUR:L305-DA11"
 ```
 
 ## Canvas Primitives

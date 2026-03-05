@@ -16,6 +16,10 @@ class PublishCreateRequest(BaseModel):
     source_workspace: str = Field(default="memory/vault")
     provider: str = Field(default="wizard")
     options: dict[str, Any] = Field(default_factory=dict)
+    portal_class: str = Field(default="private_resource_library")
+    auth_required: bool = Field(default=True)
+    library_kind: str = Field(default="markdown_vault")
+    site_root: str = Field(default="memory/vault/_site")
 
 
 class OCAttachmentPayload(BaseModel):
@@ -73,7 +77,13 @@ def create_publish_routes(
             job = service.create_job(
                 source_workspace=payload.source_workspace,
                 provider=payload.provider,
-                options=payload.options,
+                options={
+                    **payload.options,
+                    "portal_class": payload.portal_class,
+                    "auth_required": payload.auth_required,
+                    "library_kind": payload.library_kind,
+                    "site_root": payload.site_root,
+                },
             )
             return {"success": True, "job": job}
         except KeyError:

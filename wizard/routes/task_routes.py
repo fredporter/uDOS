@@ -20,6 +20,7 @@ from core.services.todo_service import (
     GanttGridRenderer,
     get_service,
 )
+from core.ulogic import format_json_text
 from wizard.services.task_scheduler import TaskScheduler
 from wizard.services.path_utils import get_repo_root, get_vault_dir
 
@@ -132,6 +133,11 @@ def create_task_routes(auth_guard: AuthGuard = None) -> APIRouter:
         kind: Optional[str] = None
         payload: Optional[dict] = None
 
+    class TaskFormatRequest(BaseModel):
+        content: str
+        path: Optional[str] = None
+        target: str = "auto"
+
     @router.get("")
     async def list_tasks(request: Request, state: Optional[str] = None, limit: int = 50):
         if auth_guard:
@@ -167,6 +173,32 @@ def create_task_routes(auth_guard: AuthGuard = None) -> APIRouter:
             )
             return {"status": "success", "task": created}
         except Exception as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @router.post("/format")
+    async def format_task_payload(request: Request, body: TaskFormatRequest):
+        if auth_guard:
+            await auth_guard(request)
+        try:
+            result = format_json_text(
+                body.content,
+                target=body.target,
+                source_path=body.path,
+            )
+            return {
+                "status": "ok" if result.ok else "warning",
+                "content": result.content,
+                "changed": result.changed,
+                "format_helper": {
+                    "profile": result.profile,
+                    "profile_label": result.profile_label,
+                    "format_label": result.format_label,
+                    "validation_label": result.validation_label,
+                    "valid": result.ok,
+                    "errors": list(result.errors),
+                },
+            }
+        except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc))
 
     @router.get("/health")

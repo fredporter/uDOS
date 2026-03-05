@@ -11,12 +11,14 @@ from core.services.time_utils import render_utc_as_local, utc_from_timestamp, ut
 from core.services.prompt_parser_service import get_prompt_parser_service
 from core.workflows.scheduler import WorkflowScheduler
 from wizard.services.deploy_mode import get_deploy_mode, is_managed_mode
+from wizard.services.cloud_provider_executor import get_cloud_execution_plan
 from wizard.services.logging_api import get_log_stats, get_logger, get_logs_root
 from wizard.services.markdown_job_service import MarkdownJobService
 from wizard.services.monitoring_manager import AlertSeverity, AlertType, MonitoringManager
 from wizard.services.ops_workspace_service import OpsWorkspaceService
 from wizard.services.ops_role_service import load_ops_role_contract
 from wizard.services.path_utils import get_repo_root
+from wizard.services.quota_tracker import get_quota_tracker
 from wizard.services.setup_manager import get_full_config_status
 from wizard.services.task_scheduler import TaskScheduler
 from wizard.routes.ucode_template_dispatch import (
@@ -335,10 +337,20 @@ def create_ops_routes(
             "defer_reasons": _sorted_values("defer_reason"),
         }
 
+    def _managed_operations_payload() -> dict[str, Any]:
+        stats = scheduler.get_stats()
+        return {
+            "cloud_execution": get_cloud_execution_plan(),
+            "quota_status": get_quota_tracker().get_all_quotas(),
+            "scheduler_budget": stats.get("api_budget", {}),
+            "defer_reasons": stats.get("defer_reasons", {}),
+        }
+
     def _jobs_payload(limit: int) -> dict[str, Any]:
         return {
             "runtime": {
                 "server_time": _server_time_metadata(),
+                "managed_operations": _managed_operations_payload(),
             },
             "tasks": scheduler.list_tasks(limit=limit),
             "queue": scheduler.get_scheduled_queue(limit=limit),
@@ -430,7 +442,12 @@ def create_ops_routes(
                 "RENDER_EXTERNAL_URL",
             )
         }
-        return {"deploy_mode": get_deploy_mode(), "managed_contract": managed_contract, "status": status}
+        return {
+            "deploy_mode": get_deploy_mode(),
+            "managed_contract": managed_contract,
+            "managed_operations": _managed_operations_payload(),
+            "status": status,
+        }
 
     def _releases_payload() -> dict[str, Any]:
         workflow_dir = Path(get_repo_root()) / ".github" / "workflows"

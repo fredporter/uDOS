@@ -356,8 +356,8 @@ class GridRenderer:
             return False
         return sys.stdout.isatty()
 
-    def stream_text(self, text: str, prefix: str = "vibe> ") -> None:
-        """Stream text line-by-line with a prefix (used for Vibe-style output)."""
+    def stream_text(self, text: str, prefix: str = "dev> ") -> None:
+        """Stream text line-by-line with a prefix (used for contributor-tool style output)."""
         delay_ms = int(get_config("VIBE_STREAM_DELAY_MS", "0") or "0")
         lines = text.splitlines() if text else [""]
         for line in lines:

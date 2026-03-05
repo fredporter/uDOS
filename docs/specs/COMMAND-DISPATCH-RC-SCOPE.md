@@ -13,7 +13,7 @@ Route order is fixed:
 
 1. `ucode` command match (Stage 1)
 2. `shell` passthrough (Stage 2, safety-gated)
-3. `vibe` fallback (Stage 3 skill routing)
+3. `dev_tool` fallback (Stage 3 skill routing)
 
 ## Canonical Alias Bridges (Locked)
 

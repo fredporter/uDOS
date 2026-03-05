@@ -6,10 +6,10 @@ Contributor devlogs and milestone evidence now live in local `@dev` workspace pa
 
 Canonical contributor devlog index:
 
-- [README.md](/Users/fredbook/Code/uDOS/dev/docs/devlog/README.md)
-- [DEVLOG.md](/Users/fredbook/Code/uDOS/dev/ops/DEVLOG.md)
+- [README.md](../../dev/docs/devlog/README.md)
+- [DEVLOG.md](../../dev/ops/DEVLOG.md)
 
 Use these public pages instead:
 
-- [STATUS.md](/Users/fredbook/Code/uDOS/docs/STATUS.md)
-- [README.md](/Users/fredbook/Code/uDOS/docs/README.md)
+- [STATUS.md](../STATUS.md)
+- [README.md](../README.md)

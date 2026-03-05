@@ -1,6 +1,117 @@
 {
   "completed_milestones": [
     {
+      "id": "v1-5-goblin-drain-and-format-helper-closure",
+      "name": "v1.5 Goblin Drain And Format Helper Closure",
+      "version": "1.5",
+      "completed_date": "2026-03-04",
+      "summary": "Completed the contributor overlay drain into Goblin and finished the tracked editor helper contract with backend-owned format, normalize, and cleanup actions.",
+      "tasks": [
+        {
+          "id": "close-goblin-overlay-drain",
+          "name": "Finish moving contributor scaffold and profile-policy checks into Goblin",
+          "completed_date": "2026-03-04",
+          "owner": "Wizard Team"
+        },
+        {
+          "id": "align-scaffold-status-contract",
+          "name": "Align platform scaffold status to the canonical Dev extension contract",
+          "completed_date": "2026-03-04",
+          "owner": "Wizard Team"
+        },
+        {
+          "id": "finish-format-helper-contract",
+          "name": "Finish helper-aware save actions for tracked editor file types",
+          "completed_date": "2026-03-04",
+          "owner": "Wizard Team"
+        }
+      ],
+      "metrics": {
+        "goblin_overlay_test_files": 5,
+        "wizard_dev_overlay_tests_remaining": 0,
+        "helper_action_modes": 3
+      },
+      "notes": "Goblin now owns the contributor scaffold and policy overlay assertions, while the tracked editor helper labels now match actual backend-owned behavior per file type."
+    },
+    {
+      "id": "v1-5-tracked-editor-round",
+      "name": "v1.5 @dev Tracked Editor Round",
+      "version": "1.5",
+      "completed_date": "2026-03-04",
+      "summary": "Completed the tracked Dev Mode editor lane with nested navigation, guarded saves, format validation, and optional normalization across the canonical @dev payload.",
+      "tasks": [
+        {
+          "id": "tracked-preview-edit",
+          "name": "Add tracked preview and edit support in the Dev Mode GUI",
+          "completed_date": "2026-03-04",
+          "owner": "Wizard Team"
+        },
+        {
+          "id": "tracked-navigation",
+          "name": "Add nested tracked browser navigation for ops, docs, and goblin roots",
+          "completed_date": "2026-03-04",
+          "owner": "Wizard Team"
+        },
+        {
+          "id": "tracked-validation",
+          "name": "Validate tracked JSON, TOML, YAML, Python, shell, and Markdown content before save",
+          "completed_date": "2026-03-04",
+          "owner": "Wizard Team"
+        },
+        {
+          "id": "tracked-normalization",
+          "name": "Add optional tracked normalization for structured and text contributor files",
+          "completed_date": "2026-03-04",
+          "owner": "Wizard Team"
+        }
+      ],
+      "metrics": {
+        "tracked_roots_supported": 3,
+        "validated_formats": 6,
+        "ui_route_tests_passing": 3
+      },
+      "notes": "The tracked editor lane is complete; follow-on helper and Goblin closure work landed in the dedicated v1.5 Goblin Drain And Format Helper Closure milestone."
+    },
+    {
+      "id": "v1-5-dev-provisioning-round",
+      "name": "v1.5 @dev Provisioning Round",
+      "version": "1.5",
+      "completed_date": "2026-03-04",
+      "summary": "Closed the contributor workspace migration onto canonical dev/ops, dev/docs, and dev/goblin roots and removed the temporary compatibility layer.",
+      "tasks": [
+        {
+          "id": "drop-compat-layer",
+          "name": "Remove root and dev compatibility tracker files",
+          "completed_date": "2026-03-04",
+          "owner": "Architecture Team"
+        },
+        {
+          "id": "wire-dev-browser",
+          "name": "Expose tracked browser and file preview support in the Dev Mode GUI",
+          "completed_date": "2026-03-04",
+          "owner": "Wizard Team"
+        },
+        {
+          "id": "seed-goblin-overlay-tests",
+          "name": "Move the first contributor-overlay tests into Goblin",
+          "completed_date": "2026-03-04",
+          "owner": "Wizard Team"
+        },
+        {
+          "id": "align-editor-templates",
+          "name": "Unify Codex, Copilot, and VS Code contributor templates under dev/ops",
+          "completed_date": "2026-03-04",
+          "owner": "Architecture Team"
+        }
+      ],
+      "metrics": {
+        "canonical_roots": 3,
+        "compatibility_files_removed": 11,
+        "goblin_overlay_tests_seeded": 5
+      },
+      "notes": "Follow-on Goblin drain and tracked editor helper work is complete and recorded in the dedicated v1.5 Goblin Drain And Format Helper Closure milestone."
+    },
+    {
       "id": "v1-5-roadmap-rebaseline",
       "name": "v1.5 Roadmap Rebaseline Consolidation",
       "version": "1.5",

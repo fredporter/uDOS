@@ -9,12 +9,11 @@
   
   "compatibility": {
     "udos_version": ">=1.0.0",
-    "platforms": ["linux", "tinycore"],
+    "platforms": ["linux", "macos"],
     "requires_gui": false
   },
   
   "dependencies": {
-    "tcz": [],
     "python": []
   },
   

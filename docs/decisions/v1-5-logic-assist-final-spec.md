@@ -1,3 +1,9 @@
+# v1.5 Logic Assist Final Spec (Supporting Narrative)
+
+Status: active supporting narrative  
+Updated: 2026-03-05
+Scope: supplemental narrative for the v1.5 logic-assist lane; canonical release contracts remain in `v1-5-logic-input-handler.md`, `v1-5-python-runtime-contract.md`, `v1-5-workflow-manager.md`, and active specs under `docs/specs/`.
+
 uDOS v1.5 Standard
 
 Offline-First Architecture with GPT4All Local Assist + Wizard Network API Budget Control

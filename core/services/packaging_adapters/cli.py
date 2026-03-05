@@ -34,12 +34,6 @@ def main() -> int:
     repo_root = Path(args.repo_root).resolve()
 
     match (args.platform, args.action):
-        case ("linux", "installer-default-tier"):
-            print(linux.installer_default_tier(repo_root))
-        case ("linux", "installer-tier-packages"):
-            if not args.tier:
-                raise SystemExit("--tier is required")
-            print(" ".join(linux.installer_tier_packages(repo_root, args.tier)))
         case ("linux", "sonic-default-profile"):
             print(linux.sonic_default_profile(repo_root))
         case ("linux", "build-sonic-stick"):
@@ -66,4 +60,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

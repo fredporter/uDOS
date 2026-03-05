@@ -5,7 +5,7 @@ Template extension demonstrating uDOS extension system structure.
 ## Installation
 
 ### System Extension (Trusted)
-Copy to `/opt/udos/lib/extensions/example/` (TinyCore) or `extensions/example/` (development).
+Copy to `extensions/example/` during development or to the active runtime extension path for packaged builds.
 
 ### User Extension (Sandboxed)
 Copy to `~/.udos/memory/sandbox/extensions/example/`.
@@ -41,7 +41,7 @@ To create a new extension:
 2. Edit `extension.json` (change id, name, description)
 3. Implement handlers in `__init__.py`
 4. Test in development mode
-5. Package as TCZ for distribution
+5. Package as an Alpine plugin artifact for distribution
 
 ## License
 

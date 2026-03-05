@@ -19,7 +19,7 @@ updated: 2026-02-06
 uDOS provides multiple mechanisms to bootstrap framework seed data into fresh installations:
 
 1. **Automatic Bootstrap** — Triggered on first interactive run (no user action needed)
-2. **`SEED` Command** — Manual control and status checking through `vibe` or `ucode`
+2. **`SEED` Command** — Manual control and status checking through `ucode`
 3. **Standalone Python Script** — For CI/CD, Docker, or headless installations
 4. **Shell Installer** — Updated bin/install.sh with seed directory structure
 
@@ -32,7 +32,7 @@ uDOS provides multiple mechanisms to bootstrap framework seed data into fresh in
 When you launch uDOS for the first time:
 
 ```bash
-vibe
+ucode
 # or
 ./bin/udos
 ```
@@ -265,7 +265,7 @@ Registered in `core/tui/dispatcher.py`
 
 ```bash
 # Clone and enter repo
-git clone https://github.com/fredporter/uDOS-vibe.git
+git clone https://github.com/fredporter/uDOS.git
 cd uDOS
 
 # Sync repo environment

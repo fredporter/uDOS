@@ -1,15 +1,8 @@
-"""
-Beacon Portal Service
+"""Beacon portal service plus Wizard-side network support metadata.
 
-Core business logic for beacon node management, VPN tunnel configuration,
-and device quota tracking.
-
-Provides interfaces for:
-  - Beacon WiFi configuration
-  - VPN tunnel lifecycle management
-  - Device quota enforcement
-  - Local plugin caching
-  - Health monitoring
+Beacon stays the minimal presence/connect/redirect layer. This service also
+stores Wizard-managed support state that may sit behind the Beacon lane:
+tunnels, quota policy, cache metadata, and relay-adjacent runtime data.
 """
 
 from pathlib import Path

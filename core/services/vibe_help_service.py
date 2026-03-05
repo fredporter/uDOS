@@ -1,7 +1,7 @@
 """
-Vibe Help Service
+Dev Mode tool help service.
 
-Provides documentation, command references, and tutorial guidance.
+Provides contributor-tool documentation, command references, and tutorial guidance.
 """
 
 from typing import Dict, List, Any, Optional
@@ -9,12 +9,12 @@ from typing import Dict, List, Any, Optional
 from core.services.logging_manager import get_logger
 
 
-class VibeHelpService:
-    """Provide help, documentation, and learning resources."""
+class DevModeToolHelpService:
+    """Provide Dev Mode contributor-tool help and learning resources."""
 
     def __init__(self):
         """Initialize help service."""
-        self.logger = get_logger("vibe-help-service")
+        self.logger = get_logger("dev-mode-tool-help-service")
         self.help_topics = self._build_help_index()
 
     def _build_help_index(self) -> Dict[str, Dict[str, str]]:
@@ -31,9 +31,9 @@ class VibeHelpService:
                 "url": "docs/reference/commands.md",
             },
             "skills": {
-                "title": "Vibe Skills Guide",
-                "description": "Guide to using Vibe skills (device, vault, workspace, etc.)",
-                "url": "docs/guides/vibe-skills.md",
+                "title": "Dev Mode Tool Skills Guide",
+                "description": "Guide to using Dev Mode contributor-tool skills (device, vault, workspace, etc.)",
+                "url": "docs/howto/HOW-TO-USE-SKILLS.md",
             },
             "troubleshooting": {
                 "title": "Troubleshooting Guide",
@@ -101,12 +101,14 @@ class VibeHelpService:
 
 
 # Global singleton
-_help_service: Optional[VibeHelpService] = None
+VibeHelpService = DevModeToolHelpService
+
+_help_service: Optional[DevModeToolHelpService] = None
 
 
-def get_help_service() -> VibeHelpService:
+def get_help_service() -> DevModeToolHelpService:
     """Get or create the global help service."""
     global _help_service
     if _help_service is None:
-        _help_service = VibeHelpService()
+        _help_service = DevModeToolHelpService()
     return _help_service

@@ -1,12 +1,12 @@
-# How to Use Vibe Skills in uDOS-Vibe
+# How to Use Dev Mode Skills in uDOS
 
-Vibe in the Dev extension lane exposes a small contributor-facing `ucode` subset. It is not the full uDOS operator command surface.
+The external Dev Mode contributor tool exposes a small contributor-facing `ucode` subset in the Dev extension lane. It is not the full uDOS operator command surface.
 
 You have **4 uDOS skills** available in this lane:
 
 ## 1. **ucode-help** — Documentation & Command Lookup
 ```
-Type in Vibe:
+Type in the Dev Mode contributor tool:
 /ucode-help COMMAND_NAME
 
 Examples:
@@ -65,7 +65,7 @@ If you want tools (not skills), use natural language prompts like:
    uv run --project . wizard/mcp/mcp_server.py --tools
    ```
 
-2. Then run vibe:
+2. Then run the Dev Mode contributor tool:
    ```bash
    vibe trust && vibe
    ```
@@ -76,7 +76,7 @@ If you want tools (not skills), use natural language prompts like:
 Just type what they ask for. Skills are interactive and guide you through workflows.
 
 ### Want to See All Available Tools?
-Ask Vibe:
+Ask the Dev Mode contributor tool:
 ```
 "What tools are available?"
 ```
@@ -116,7 +116,7 @@ vibe trust && vibe
 
 ## What Tools Are Available?
 
-You have 10 Vibe-exposed uDOS tools in the Dev extension lane:
+You have 10 contributor-tool-exposed uDOS tools in the Dev extension lane:
 
 ### Health and Repair (5)
 - Health checks, verification, repair, tokens, command help
@@ -127,7 +127,7 @@ You have 10 Vibe-exposed uDOS tools in the Dev extension lane:
 ### Repo and Asset Operations (2)
 - Run, read
 
-For binder, story, spatial, gameplay, media, and destructive commands, use the full uDOS TUI instead of Vibe.
+For binder, story, spatial, gameplay, media, and destructive commands, use the full uDOS TUI instead of the contributor tool.
 
 ---
 

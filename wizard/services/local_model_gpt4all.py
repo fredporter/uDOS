@@ -18,10 +18,13 @@ class GPT4AllStatus:
     issue: str | None
     model: str
     model_path: str
+    model_dir: str
     context_window: int
     runtime: str = "gpt4all"
     package_available: bool = False
     model_present: bool = False
+    guidance_path: str = ""
+    guidance_present: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -29,10 +32,13 @@ class GPT4AllStatus:
             "issue": self.issue,
             "model": self.model,
             "model_path": self.model_path,
+            "model_dir": self.model_dir,
             "context_window": self.context_window,
             "runtime": self.runtime,
             "package_available": self.package_available,
             "model_present": self.model_present,
+            "guidance_path": self.guidance_path,
+            "guidance_present": self.guidance_present,
         }
 
 
@@ -50,10 +56,16 @@ class GPT4AllLocalAssist:
     def _model_file(self) -> Path:
         return self._model_dir() / self.profile.local_model_name
 
+    def _guidance_file(self) -> Path:
+        return self._model_dir() / "README.md"
+
     def status(self) -> GPT4AllStatus:
         package_available = self._package_available()
+        model_dir = self._model_dir()
         model_file = self._model_file()
+        guidance_file = self._guidance_file()
         model_present = model_file.exists()
+        guidance_present = guidance_file.exists()
         issue = None
         ready = package_available and model_present
         if not package_available:
@@ -65,9 +77,12 @@ class GPT4AllLocalAssist:
             issue=issue,
             model=self.profile.local_model_name,
             model_path=str(model_file),
+            model_dir=str(model_dir),
             context_window=self.profile.local_context_window,
             package_available=package_available,
             model_present=model_present,
+            guidance_path=str(guidance_file),
+            guidance_present=guidance_present,
         )
 
     def generate(self, prompt: str, system: str = "") -> str:

@@ -30,8 +30,7 @@ The repo follows a non-fork integration model:
 
 ## Start Here
 
-- [Architecture Integration Reference](/Users/fredbook/Code/uDOS/docs/ARCHITECTURE-INTEGRATION-REFERENCE.md)
-- [Workflow Decision](/Users/fredbook/Code/uDOS/docs/decisions/v1-5-workflow.md)
-- [Workflow Scheduler Spec](/Users/fredbook/Code/uDOS/docs/specs/WORKFLOW-SCHEDULER-v1.5.md)
-- [OK Governance Policy](/Users/fredbook/Code/uDOS/docs/decisions/OK-GOVERNANCE-POLICY.md)
-
+- [Architecture Integration Reference](ARCHITECTURE-INTEGRATION-REFERENCE.md)
+- [Workflow Decision](decisions/v1-5-workflow.md)
+- [Workflow Scheduler Spec](specs/WORKFLOW-SCHEDULER-v1.5.md)
+- [OK Governance Policy](decisions/OK-GOVERNANCE-POLICY.md)

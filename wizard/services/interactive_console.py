@@ -71,7 +71,7 @@ from wizard.services.path_utils import get_repo_root
 from wizard.services.pdf_ocr_service import get_pdf_ocr_service
 from wizard.services.tree_service import TreeStructureService
 from wizard.services.url_to_markdown_service import get_url_to_markdown_service
-from wizard.services.vibe_service import VibeService
+from wizard.services.vibe_service import DevModeToolService
 from wizard.services.workflow_manager import WorkflowManager
 
 
@@ -555,9 +555,9 @@ class WizardConsole:
                 print("\nUsage: logic local <prompt>\n")
                 return
             prompt = " ".join(args[1:])
-            vibe = VibeService()
-            context = vibe.load_default_context()
-            result = vibe.generate(prompt=prompt, system=context)
+            contributor_tool = DevModeToolService()
+            context = contributor_tool.load_default_context()
+            result = contributor_tool.generate(prompt=prompt, system=context)
             print(f"\n{result}\n")
             return
         if action == "cloud":
@@ -628,7 +628,7 @@ class WizardConsole:
 
         Examples:
             peek https://example.com
-            peek https://github.com/fredporter/uDOS-vibe my-readme
+            peek https://github.com/fredporter/uDOS my-readme
         """
         if not args:
             print("\n❌ PEEK requires a URL")

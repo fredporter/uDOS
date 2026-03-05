@@ -167,7 +167,7 @@ class WikiProvisioningService:
                     order=5,
                     pages=[
                         "local-logic-assist",
-                        "mistral-vibe-setup",
+                        "dev-mode-tooling",
                         "meshcore-deployment",
                         "plugin-installation",
                         "library-management",
@@ -348,10 +348,10 @@ class WikiProvisioningService:
                     status="draft",
                 ),
                 WikiPage(
-                    slug="mistral-vibe-setup",
-                    title="Mistral Vibe Setup",
+                    slug="dev-mode-tooling",
+                    title="Dev Mode Tooling",
                     category="integrations",
-                    description="Configuring Mistral Vibe for offline OK use",
+                    description="Configuring the Dev Mode contributor tooling lane",
                     status="draft",
                 ),
                 WikiPage(

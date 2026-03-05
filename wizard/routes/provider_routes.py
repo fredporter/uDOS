@@ -324,6 +324,11 @@ def create_provider_routes(auth_guard=None):
     @router.get("/{provider_id}/status")
     async def get_provider_status(provider_id: str):
         """Get detailed status for a specific provider."""
+        if provider_id == "gpt4all":
+            return {
+                "success": True,
+                "logic": get_logic_assist_service(get_repo_root()).get_status()["local"],
+            }
         if provider_id not in PROVIDERS:
             raise HTTPException(status_code=404, detail="Provider not found")
 
@@ -481,13 +486,5 @@ def create_provider_routes(auth_guard=None):
                 json.dump(config, f, indent=2)
 
         return {"success": True, "message": "Provider disabled"}
-
-    @router.get("/gpt4all/status")
-    async def get_gpt4all_status():
-        """Return the active GPT4All local-assist status."""
-        return {
-            "success": True,
-            "logic": get_logic_assist_service(get_repo_root()).get_status()["local"],
-        }
 
     return router

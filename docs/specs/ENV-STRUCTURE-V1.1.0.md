@@ -113,7 +113,7 @@ Creates `.env` with core identity fields only.
 
 ```bash
 python -m wizard.server --no-interactive
-# Visit http://localhost:8765/dashboard
+# Visit ${WIZARD_BASE_URL}/dashboard
 # Navigate to Settings > Integrations
 ```
 

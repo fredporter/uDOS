@@ -453,7 +453,7 @@ See the specification documents for full context:
 - [docs/v1-3 UNIVERSE.md](../v1-3%20UNIVERSE.md) — Fractal grid & anchor model
 - [sonic/docs/specs/uDOS-Gameplay-Anchors-v1.3-Spec.md](../../sonic/docs/specs/uDOS-Gameplay-Anchors-v1.3-Spec.md) — Gameplay anchors & transforms
 - [core/src/spatial/README.md](../../core/src/spatial/README.md) — Spatial module guide
-- [docs/STATUS.md](/Users/fredbook/Code/uDOS/docs/STATUS.md) — current public release status
+- [docs/STATUS.md](../STATUS.md) — current public release status
 
 ---
 

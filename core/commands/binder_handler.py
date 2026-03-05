@@ -14,7 +14,7 @@ from pathlib import Path
 from core.binder import BinderCompiler
 from core.commands.base import BaseCommandHandler
 from core.services.error_contract import CommandError
-from core.services.vibe_binder_service import get_binder_service
+from core.services.dev_mode_compat import get_binder_service
 from core.services.logging_api import get_repo_root
 from core.tui.file_browser import FileBrowser
 from core.tui.output import OutputToolkit

@@ -17,7 +17,7 @@ communicate with Wizard via private transports only (mesh/QR/audio).
 Components
 ----------
 - server.py: Main FastAPI server
-- plugin_factory.py: TCZ package builder
+- plugin_factory.py: Alpine plugin package builder
 - web_proxy.py: Web content fetching for user devices
 - logic-assist routes: local and cloud OK Provider routing
 

@@ -1,7 +1,7 @@
 """
 Webhook Setup Handler - Interactive GitHub integration setup.
 
-Provides vibe-cli style interactive prompts:
+Provides interactive Dev Mode helper prompts:
 - Tells you what to do
 - Opens URLs automatically
 - Waits for you to press ENTER
@@ -20,12 +20,13 @@ from datetime import datetime
 
 from core.commands.base import BaseCommandHandler
 from core.services.logging_api import get_repo_root, get_logger
+from core.services.wizard_runtime_config import get_wizard_base_url, get_wizard_dashboard_url
 
 logger = get_logger('webhook-setup')
 
 
 class WebhookSetupHandler(BaseCommandHandler):
-    """Interactive webhook setup handler with vibe-cli UX."""
+    """Interactive webhook setup handler with the standard Dev Mode helper UX."""
 
     def __init__(self):
         """Initialize webhook setup handler."""
@@ -47,7 +48,7 @@ class WebhookSetupHandler(BaseCommandHandler):
 
 WEBHOOK SETUP connects GitHub to uDOS with interactive prompts.
 
-INTERACTIVE FEATURES (vibe-cli style):
+INTERACTIVE FEATURES (Dev Mode helper style):
   ✓ Step-by-step guidance
   ✓ Automatic URL opening
   ✓ Press ENTER to continue prompts
@@ -79,7 +80,7 @@ VERIFICATION:
 
   After setup:
     WIZARD                    Start Wizard server
-    http://localhost:8765     Open dashboard
+    ${WIZARD_BASE_URL:-http://localhost:8765}     Open dashboard
     Settings → Webhooks       Verify connections
 
 REQUIREMENTS:
@@ -171,7 +172,7 @@ LEARN MORE:
         }
 
     def _setup_github_webhook(self) -> Dict:
-        """Interactive GitHub webhook setup with vibe-cli UX."""
+        """Interactive GitHub webhook setup with the standard Dev Mode helper UX."""
         print("\n" + "-" * 70)
         print("🐙  GITHUB WEBHOOK SETUP")
         print("-" * 70 + "\n")
@@ -199,7 +200,7 @@ LEARN MORE:
         print("  2. Settings → Webhooks → Add webhook")
         print("  3. Use these settings:\n")
 
-        print(f"  Payload URL:     http://localhost:8765/api/github/webhook")
+        print(f"  Payload URL:     {get_wizard_base_url()}/api/github/webhook")
         print(f"  Content type:    application/json")
         print(f"  Secret:          [Will paste below]")
         print(f"  Events:          Push, Pull requests, Issues\n")
@@ -311,7 +312,7 @@ LEARN MORE:
         lines.append("-" * 70)
         lines.append("\nNext steps:")
         lines.append("  1. Start Wizard server: WIZARD")
-        lines.append("  2. Open dashboard: http://localhost:8765")
+        lines.append(f"  2. Open dashboard: {get_wizard_dashboard_url()}")
         lines.append("  3. Go to Settings → Webhooks")
         lines.append("  4. Verify GitHub is 'Connected'\n")
 

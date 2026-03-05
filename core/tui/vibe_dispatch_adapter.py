@@ -1,13 +1,13 @@
 """
-Vibe Dispatch Adapter for TUI
+Dev Mode tool dispatch adapter for TUI
 
-Integrates CommandDispatchService (three-stage dispatch + Vibe skill routing)
+Integrates CommandDispatchService (three-stage dispatch + Dev Mode tool routing)
 with the TUI's command handling pipeline.
 
 This adapter bridges:
   - uCODE command matching (fuzzy, confidence scoring)
   - Shell command validation
-  - Vibe skill routing (device, vault, workspace, etc.)
+  - Dev Mode contributor tool routing (device, vault, workspace, etc.)
   - Fallback to OK (language model)
 
 Integration point: core/tui/ucode.py::_route_input()
@@ -22,20 +22,17 @@ from core.services.command_dispatch_service import (
     DispatchConfig,
     match_ucode_command,
     validate_shell_command,
-    infer_vibe_skill,
+    infer_dev_tool_skill,
 )
-from core.services.vibe_skill_mapper import (
-    VibeSkillMapper,
-    get_default_mapper,
-)
+from core.services.vibe_skill_mapper import get_default_mapper
 from core.services.mode_policy import user_mode_scope_flag
 from core.services.logging_manager import get_logger
 
 
 @dataclass
-class VibeDispatchResult:
-    """Result of Vibe-integrated dispatch."""
-    status: str  # "success", "error", "need_confirmation", "vibe_routed", "fallback_ok"
+class DevModeToolDispatchResult:
+    """Result of Dev Mode contributor-tool-integrated dispatch."""
+    status: str  # "success", "error", "need_confirmation", "dev_tool_routed", "fallback_ok"
     command: Optional[str] = None
     skill: Optional[str] = None
     action: Optional[str] = None
@@ -60,21 +57,21 @@ class VibeDispatchResult:
         }
 
 
-class VibeDispatchAdapter:
+class DevModeToolDispatchAdapter:
     """
     Adapter for integrating CommandDispatchService (three-stage) with TUI.
 
     Handles:
       1. uCODE command matching with confidence scoring
       2. Shell validation (safety checks)
-      3. Vibe skill routing (natural language inference)
+      3. Dev Mode contributor tool routing (natural language inference)
       4. Confidence-based confirmation for fuzzy matches
       5. OK fallback routing
     """
 
     def __init__(self):
         """Initialize the adapter."""
-        self.logger = get_logger("vibe-dispatch-adapter")
+        self.logger = get_logger("dev-mode-tool-dispatch-adapter")
         self.dispatcher = CommandDispatchService()
         self.skill_mapper = get_default_mapper()
 
@@ -85,9 +82,9 @@ class VibeDispatchAdapter:
         *,
         allow_skill_routing: bool = True,
         allow_model_fallback: bool = True,
-    ) -> VibeDispatchResult:
+    ) -> DevModeToolDispatchResult:
         """
-        Three-stage dispatch w/ Vibe skill routing.
+        Three-stage dispatch w/ Dev Mode contributor tool routing.
 
         Args:
             user_input: Raw command string from user
@@ -95,10 +92,10 @@ class VibeDispatchAdapter:
                            Returns "yes", "no", or "skip"
 
         Returns:
-            VibeDispatchResult with status, command, skill, confidence, etc.
+            DevModeToolDispatchResult with status, command, skill, confidence, etc.
         """
         if not user_input or not user_input.strip():
-            return VibeDispatchResult(
+            return DevModeToolDispatchResult(
                 status="error",
                 message="Empty input",
             )
@@ -123,7 +120,7 @@ class VibeDispatchAdapter:
                 )
 
                 if choice == "yes":
-                    return VibeDispatchResult(
+                    return DevModeToolDispatchResult(
                         status="success",
                         command=cmd,
                         confidence=confidence,
@@ -146,14 +143,14 @@ class VibeDispatchAdapter:
 
             elif confidence >= 0.95:
                 # High confidence: execute directly
-                return VibeDispatchResult(
+                return DevModeToolDispatchResult(
                     status="success",
                     command=cmd,
                     confidence=confidence,
                     message=f"Executing {cmd}",
                 )
 
-        # No uCODE match: Try shell or Vibe skill
+        # No uCODE match: Try shell or Dev Mode tool skill
         return self._try_shell_or_fallback(
             user_input,
             allow_skill_routing=allow_skill_routing,
@@ -166,9 +163,9 @@ class VibeDispatchAdapter:
         *,
         allow_skill_routing: bool,
         allow_model_fallback: bool,
-    ) -> VibeDispatchResult:
+    ) -> DevModeToolDispatchResult:
         """
-        Try shell command validation, then Vibe skill routing, then OK fallback.
+        Try shell command validation, then Dev Mode contributor tool routing, then OK fallback.
         """
         policy_flag = user_mode_scope_flag(user_input)
 
@@ -184,28 +181,28 @@ class VibeDispatchAdapter:
             data = {"shell_command": user_input}
             if policy_flag:
                 data["policy_flag"] = policy_flag
-            return VibeDispatchResult(
+            return DevModeToolDispatchResult(
                 status="success",
                 message=f"Executing shell command: {user_input}",
                 validation_reason="shell_valid",
                 data=data,
             )
 
-        # Stage 3: Vibe Skill Routing
+        # Stage 3: Dev Mode contributor tool routing
         if allow_skill_routing:
-            skill = infer_vibe_skill(user_input)
+            skill = infer_dev_tool_skill(user_input)
 
-            self.logger.debug(f"[STAGE3] Vibe skill inference: {skill}")
+            self.logger.debug(f"[STAGE3] Dev Mode tool skill inference: {skill}")
 
             try:
                 skill_contract = self.skill_mapper.get_skill(skill)
                 if skill_contract:
                     action = self._infer_skill_action(user_input, skill)
-                    return VibeDispatchResult(
-                        status="vibe_routed",
+                    return DevModeToolDispatchResult(
+                        status="dev_tool_routed",
                         skill=skill,
                         action=action,
-                        message=f"Routed to Vibe skill '{skill}'",
+                        message=f"Routed to Dev Mode tool skill '{skill}'",
                         data={
                             "skill_contract": skill_contract.to_dict() if hasattr(skill_contract, 'to_dict') else {},
                             "inferred_action": action,
@@ -216,7 +213,7 @@ class VibeDispatchAdapter:
                 self.logger.warning(f"Failed to get skill {skill}: {e}")
 
         if not allow_model_fallback:
-            return VibeDispatchResult(
+            return DevModeToolDispatchResult(
                 status="fallback_local",
                 message="Routing to local operator mode",
                 data={
@@ -228,7 +225,7 @@ class VibeDispatchAdapter:
         # Fallback: Route to OK (language model)
         self.logger.debug(f"[FALLBACK] Routing to OK for: {user_input}")
 
-        return VibeDispatchResult(
+        return DevModeToolDispatchResult(
             status="fallback_ok",
             message=f"Sending to language model",
             data={
@@ -310,12 +307,15 @@ class VibeDispatchAdapter:
 
 
 # Global Singleton
-_adapter_instance: Optional[VibeDispatchAdapter] = None
+VibeDispatchResult = DevModeToolDispatchResult
+VibeDispatchAdapter = DevModeToolDispatchAdapter
+
+_adapter_instance: Optional[DevModeToolDispatchAdapter] = None
 
 
-def get_vibe_adapter() -> VibeDispatchAdapter:
-    """Get or create the global Vibe dispatch adapter."""
+def get_vibe_adapter() -> DevModeToolDispatchAdapter:
+    """Get or create the global Dev Mode tool dispatch adapter."""
     global _adapter_instance
     if _adapter_instance is None:
-        _adapter_instance = VibeDispatchAdapter()
+        _adapter_instance = DevModeToolDispatchAdapter()
     return _adapter_instance

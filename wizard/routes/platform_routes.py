@@ -17,7 +17,10 @@ from pydantic import BaseModel, Field
 from sonic.core.verify import verify_sonic_ready
 
 from core.services.template_workspace_service import get_template_workspace_service
+from wizard.services.launch_adapters import LaunchAdapterExecution
+from wizard.services.launch_orchestrator import LaunchIntent, get_launch_orchestrator
 from wizard.services.launch_session_service import get_launch_session_service
+from wizard.services.dev_extension_service import get_dev_extension_service
 from wizard.services.sonic_adapters import to_sync_status_payload
 from wizard.services.sonic_bridge_service import get_sonic_bridge_service
 from wizard.services.sonic_build_service import get_sonic_build_service
@@ -81,6 +84,41 @@ class SonicLinuxLauncherActionRequest(BaseModel):
 class SonicGamingProfileRequest(BaseModel):
     profile_id: str
     extra: dict = Field(default_factory=dict)
+
+
+class GenericLaunchRequest(BaseModel):
+    target: str
+    mode: str
+    launcher: Optional[str] = None
+    workspace: Optional[str] = None
+    profile_id: Optional[str] = None
+    auth: dict = Field(default_factory=dict)
+    portal_class: Optional[str] = None
+    library_kind: Optional[str] = None
+
+
+class _GenericLaunchAdapter:
+    def __init__(self, payload: GenericLaunchRequest):
+        self.payload = payload
+
+    def starting_state(self, intent: LaunchIntent) -> str:
+        return "starting"
+
+    def execute(self, intent: LaunchIntent) -> LaunchAdapterExecution:
+        return LaunchAdapterExecution(
+            final_state="ready",
+            state_payload={
+                "target": intent.target,
+                "mode": intent.mode,
+                "launcher": intent.launcher,
+                "workspace": intent.workspace,
+                "profile_id": intent.profile_id,
+                "portal_class": self.payload.portal_class,
+                "library_kind": self.payload.library_kind,
+                "auth": dict(intent.auth),
+                "updated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+            },
+        )
 
 
 def _build_release_signing_alert(release_readiness: Optional[dict]) -> Optional[dict]:
@@ -177,6 +215,20 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
     themes = get_theme_extension_service(repo_root=repo_root)
     uhome_presentation = get_uhome_presentation_service(repo_root=repo_root)
     launch_sessions = get_launch_session_service(repo_root=repo_root)
+    launch_orchestrator = get_launch_orchestrator(repo_root=repo_root)
+
+    @router.post("/launch")
+    async def launch_generic_surface(payload: GenericLaunchRequest):
+        intent = LaunchIntent(
+            target=payload.target,
+            mode=payload.mode,
+            launcher=payload.launcher,
+            workspace=payload.workspace,
+            profile_id=payload.profile_id,
+            auth=payload.auth,
+        )
+        adapter = _GenericLaunchAdapter(payload)
+        return {"success": True, **launch_orchestrator.execute(intent, adapter)}
 
     @router.get("/sonic/status")
     async def sonic_status():
@@ -580,18 +632,15 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
 
     @router.get("/dev/scaffold")
     async def dev_scaffold_status():
-        root = (repo_root or Path(__file__).resolve().parent.parent.parent) / "dev"
+        dev_extension = get_dev_extension_service(repo_root=repo_root)
+        status = dev_extension.framework_status()
+        root = Path(status["dev_root"])
         if not root.exists():
             raise HTTPException(status_code=404, detail="/dev extension scaffold not found")
+
         required = {
-            "agents": (root / "AGENTS.md").exists(),
-            "ops": (root / "ops").exists(),
-            "devlog": (root / "ops" / "DEVLOG.md").exists(),
-            "project": (root / "ops" / "project.json").exists(),
-            "tasks": (root / "ops" / "tasks.md").exists(),
-            "tasks_json": (root / "ops" / "tasks.json").exists(),
-            "completed": (root / "ops" / "completed.json").exists(),
-            "extension_manifest": (root / "extension.json").exists(),
+            relative_path: (root / relative_path).exists()
+            for relative_path in status["required_files"]
         }
         local_workdirs = {
             "files": (root / "files").exists(),
@@ -600,11 +649,20 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
             "testing": (root / "testing").exists(),
         }
         return {
+            "workspace_alias": status["workspace_alias"],
             "root": str(root),
             "mode": "dev-extension-scaffold",
             "required": required,
+            "required_files": status["required_files"],
+            "missing_files": status["missing_files"],
+            "missing_count": len(status["missing_files"]),
+            "framework_manifest_path": status["framework_manifest_path"],
+            "framework_manifest_present": status["framework_manifest_present"],
+            "tracked_sync_paths": status["tracked_sync_paths"],
+            "goblin_layers": status["goblin_layers"],
+            "ops_paths": status["ops_paths"],
             "local_workdirs": local_workdirs,
-            "ready": all(required.values()),
+            "ready": status["framework_ready"],
         }
 
     return router

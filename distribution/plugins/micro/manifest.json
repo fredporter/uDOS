@@ -31,12 +31,7 @@
   
   "platform": {
     "os": ["linux", "macos", "windows"],
-    "arch": ["amd64", "arm64", "arm"],
-    "tinycore": {
-      "compatible": true,
-      "tcz_name": "micro.tcz",
-      "extensions": []
-    }
+    "arch": ["amd64", "arm64", "arm"]
   },
   
   "installation": {

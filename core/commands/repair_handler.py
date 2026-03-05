@@ -521,8 +521,8 @@ EXAMPLES:
                 root_parent / "wizard" / "github_integration",
             ),
             (
-                "Local logic-assist assets (Vibe CLI)",
-                root_parent / "library" / "mistral-vibe",
+                "Legacy Dev Mode Vibe mirror",
+                repo_root / "library" / "wizard" / "mistral-vibe",
             ),
             ("Legacy local model container", root_parent / "library" / "local-models"),
         ]

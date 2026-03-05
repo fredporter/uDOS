@@ -1,4 +1,4 @@
-"""Vibe contributor helper on the v1.5 logic-assist contract."""
+"""Dev Mode contributor helper on the v1.5 logic-assist contract."""
 
 from __future__ import annotations
 
@@ -13,11 +13,11 @@ from wizard.services.logging_api import get_logger
 from wizard.services.logic_assist_profile import load_logic_assist_profile
 from wizard.services.path_utils import get_repo_root
 
-logger = get_logger("vibe-service")
+logger = get_logger("dev-mode-tool-service")
 
 
 @dataclass
-class VibeConfig:
+class DevModeToolConfig:
     """Configuration for the contributor helper."""
 
     model: str | None = None
@@ -25,13 +25,13 @@ class VibeConfig:
     context_window: int | None = None
 
 
-class VibeService:
+class DevModeToolService:
     """Run contributor prompts through the local GPT4All advisory lane."""
 
-    def __init__(self, config: Optional[VibeConfig] = None):
+    def __init__(self, config: Optional[DevModeToolConfig] = None):
         self.repo_root = get_repo_root()
         self.profile = load_logic_assist_profile(self.repo_root)
-        self.config = config or VibeConfig()
+        self.config = config or DevModeToolConfig()
         self.local = GPT4AllLocalAssist(self.profile, self.repo_root)
         self.conversation_history: List[Dict[str, str]] = []
 
@@ -39,12 +39,12 @@ class VibeService:
         status = self.local.status()
         if status.ready:
             logger.info(
-                "[LOCAL] Vibe: Logic assist ready (%s)",
+                "[LOCAL] Dev Mode tool: Logic assist ready (%s)",
                 status.model,
             )
             return True
         logger.warning(
-            "[LOCAL] Vibe: Logic assist unavailable (%s)",
+            "[LOCAL] Dev Mode tool: Logic assist unavailable (%s)",
             status.issue or "unknown issue",
         )
         return False
@@ -62,7 +62,7 @@ class VibeService:
         response_text = self.local.generate(prompt=prompt, system=system or "")
         self.conversation_history.append({"role": "user", "content": prompt})
         self.conversation_history.append({"role": "assistant", "content": response_text})
-        logger.info("[LOCAL] Vibe: Generated %s chars", len(response_text))
+        logger.info("[LOCAL] Dev Mode tool: Generated %s chars", len(response_text))
 
         if stream:
             return self._stream_response(response_text)
@@ -96,7 +96,7 @@ class VibeService:
 
     def clear_history(self) -> None:
         self.conversation_history = []
-        logger.info("[LOCAL] Vibe: Conversation history cleared")
+        logger.info("[LOCAL] Dev Mode tool: Conversation history cleared")
 
     def get_status(self) -> Dict[str, Any]:
         status = self.local.status()
@@ -111,3 +111,7 @@ class VibeService:
             "temperature": self.config.temperature,
             "context_window": self.config.context_window or self.profile.local_context_window,
         }
+
+
+VibeConfig = DevModeToolConfig
+VibeService = DevModeToolService

@@ -364,13 +364,13 @@ class UCODE:
         self._io_phase = IOLifecyclePhase.BACKGROUND
         self._io_phase_lock = threading.RLock()
 
-        # Initialize routing components (v1.4.6 architecture fix)
-        # Lazy imports keep core/ free of top-level wizard/vibe dependencies.
+        # Initialize routing components without vibe.core runtime dependencies.
         try:
-            from vibe.core.command_engine import CommandEngine
-            from vibe.core.input_router import InputRouter
-            from vibe.core.provider_engine import ProviderEngine
-            from vibe.core.response_normaliser import ResponseNormaliser
+            from core.services.interactive_runtime import (
+                CommandEngine,
+                InputRouter,
+                ResponseNormaliser,
+            )
             from wizard.services.provider_registry import get_provider_registry
 
             self.input_router = InputRouter(
@@ -378,14 +378,12 @@ class UCODE:
             )
             self.command_engine = CommandEngine()
             self.response_normaliser = ResponseNormaliser()
-            self.provider_engine = ProviderEngine(
-                normaliser=self.response_normaliser, timeout=30
-            )
             self.provider_registry = get_provider_registry()
             self._register_providers()
-            self.logger.info("[v1.4.6] Routing components initialized")
+            self.provider_engine = None
+            self.logger.info("[v1.5.1] Routing components initialized")
         except Exception as exc:
-            self.logger.warning(f"[v1.4.6] Failed to initialize routing: {exc}")
+            self.logger.warning(f"[v1.5.1] Failed to initialize routing: {exc}")
             # Fallback to None - old routing will be used
             self.input_router = None
             self.command_engine = None
@@ -426,7 +424,7 @@ class UCODE:
     def _register_providers(self) -> None:
         """Register available providers with the routing registry."""
         import asyncio
-        from vibe.core.provider_engine import ProviderType
+        from wizard.services.provider_registry import ProviderType
         from wizard.services.adapters import MistralAdapter
 
         # Try registering Mistral (cloud)
@@ -570,8 +568,8 @@ class UCODE:
                 rest = parts[1]
             return self._execute_ucode_command(result.command, rest)
 
-        elif result.status == "vibe_routed":
-            # Routed to a Dev extension Vibe skill from the reduced contributor set.
+        elif result.status == "dev_tool_routed":
+            # Routed to a Dev Mode contributor tool skill from the reduced contributor set.
             skill = result.skill
             action = result.action
 
@@ -586,7 +584,7 @@ class UCODE:
                 message += f" → {action}"
 
             return {
-                "status": "vibe_routed",
+                "status": "dev_tool_routed",
                 "message": message,
                 "skill": skill,
                 "action": action,
@@ -1164,9 +1162,9 @@ class UCODE:
         import asyncio
 
         # Fallback to old system if new routing not available
-        if not self.provider_engine or not self.provider_registry:
+        if not self.response_normaliser or not self.provider_registry:
             self.logger.warning(
-                "[v1.4.6] Provider engine not available, using legacy routing"
+                "[v1.5.1] Provider runtime not available, using legacy routing"
             )
             self._run_logic_request(
                 prompt, mode="LOCAL", use_cloud=(self._get_dev_mode_primary_provider() == "cloud")
@@ -1187,33 +1185,48 @@ class UCODE:
         # Call provider
         self._ui_line(f"LOGIC → {provider_type.value} ({model})", level="info")
 
-        result = asyncio.run(
-            self.provider_engine.call_provider(
-                provider_type=provider_type.value,
-                model=model,
-                prompt=prompt,
-                system="You are a helpful coding assistant for uDOS.",
-            )
-        )
+        from wizard.services.cloud_provider_executor import run_cloud_with_fallback_detail
+        from wizard.services.provider_registry import ProviderStatus, ProviderType
+
+        try:
+            cloud_result = run_cloud_with_fallback_detail(prompt)
+            result_provider = str(cloud_result.get("provider") or provider_type.value)
+            result_model = str(cloud_result.get("model") or model)
+            raw_response = str(cloud_result.get("response") or "")
+            normalised = self.response_normaliser.normalise(raw_response)
+            success = True
+            error = None
+            status = ProviderStatus.AVAILABLE
+        except Exception as exc:
+            result_provider = provider_type.value
+            result_model = model
+            normalised = self.response_normaliser.normalise("")
+            success = False
+            error = str(exc)
+            status = ProviderStatus.ERROR
 
         # Record telemetry
+        try:
+            actual_provider = ProviderType(result_provider)
+        except ValueError:
+            actual_provider = provider_type
         self.provider_registry.record_call(
-            provider_type, result.success, result.execution_time, result.status
+            actual_provider, success, 0.0, status
         )
 
-        if not result.success:
+        if not success:
             return {
                 "status": "error",
-                "message": result.error or "Provider call failed",
+                "message": error or "Provider call failed",
             }
 
         # Display response
-        self.renderer.stream_text(result.normalised.text, prefix="logic> ")
+        self.renderer.stream_text(normalised.text, prefix="logic> ")
 
         # Check for extracted ucode commands (but DO NOT auto-execute)
-        if result.normalised.contains_ucode:
+        if normalised.contains_ucode:
             self._ui_line(
-                f"Response contains {len(result.normalised.ucode_commands)} ucode commands",
+                f"Response contains {len(normalised.ucode_commands)} ucode commands",
                 level="warn",
             )
             # Future: Prompt user for confirmation before execution
@@ -1221,9 +1234,9 @@ class UCODE:
         return {
             "status": "success",
             "command": "LOGIC",
-            "response": result.normalised.text,
-            "provider": provider_type.value,
-            "model": model,
+            "response": normalised.text,
+            "provider": result_provider,
+            "model": result_model,
         }
 
     def _infer_task_mode(self, prompt: str) -> str:
@@ -3718,6 +3731,10 @@ class UCODE:
             "model": "wizard-cloud-error",
         }
 
+    def _run_ok_cloud(self, prompt: str) -> dict[str, Any]:
+        """Compatibility alias for older ok-cloud callers."""
+        return self._run_logic_cloud(prompt)
+
     def _run_logic_local(self, prompt: str, model: str | None = None) -> str:
         """Run the local logic-assist request through the contributor lane."""
         from core.services.provider_registry import (
@@ -4243,6 +4260,9 @@ class UCODE:
         """Show Wizard page via API."""
         wizard_base_url = self._wizard_base_url().rstrip("/")
         try:
+            normalized_page = page.lower()
+            if normalized_page == "ai":
+                normalized_page = "logic"
             # Map page names to API endpoints
             page_map = {
                 "status": "/health",
@@ -4253,7 +4273,7 @@ class UCODE:
                 "logs": "/api/logs",
             }
 
-            endpoint = page_map.get(page.lower())
+            endpoint = page_map.get(normalized_page)
             if not endpoint:
                 self._ui_line(f"Unknown page: {page}", level="error")
                 self._ui_line(f"Available: {', '.join(page_map.keys())}", level="info")
@@ -4261,9 +4281,9 @@ class UCODE:
 
             resp = self._run_with_progress(
                 "loading",
-                f"Wizard page fetch ({page.lower()})",
+                f"Wizard page fetch ({normalized_page})",
                 lambda: http_get(f"{wizard_base_url}{endpoint}", timeout=5),
-                spinner_label=f"⏳ Fetching Wizard page: {page.lower()}",
+                spinner_label=f"⏳ Fetching Wizard page: {normalized_page}",
             )
             if resp.get("status_code") == 200:
                 data = resp.get("json") if isinstance(resp.get("json"), dict) else {}

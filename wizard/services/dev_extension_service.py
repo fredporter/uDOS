@@ -176,6 +176,28 @@ class DevExtensionService:
                 return active_error
         return None
 
+    def vibe_tool_status(self) -> dict[str, Any]:
+        """Return external Dev Mode contributor tool availability."""
+        access_error = self.ensure_access(require_active=True)
+        vibe_path = shutil.which("vibe")
+        return {
+            "dev_mode_only": True,
+            "ready": access_error is None and bool(vibe_path),
+            "available": bool(vibe_path),
+            "path": vibe_path,
+            "access_error": access_error,
+            "install_hint": "./bin/setup-dev-mode.sh",
+        }
+
+    def ensure_vibe_tool_access(self) -> Optional[str]:
+        """Return an error string when the external Dev Mode contributor tool is unavailable."""
+        access_error = self.ensure_access(require_active=True)
+        if access_error:
+            return access_error
+        if not shutil.which("vibe"):
+            return "Dev Mode contributor tool not installed. Enable the dev profile and run setup-dev-mode.sh."
+        return None
+
     def status(self) -> dict[str, Any]:
         config = self._wizard_config()
         return {
@@ -184,6 +206,7 @@ class DevExtensionService:
             "permissions": self._permission_status(),
             "framework": self.framework_status(),
             "active": self.dev_mode_service.active,
+            "vibe_tool": self.vibe_tool_status(),
             "github": {
                 "allowed_repo": config.github_allowed_repo,
                 "default_branch": config.github_default_branch,

@@ -28,21 +28,21 @@ Vibe Dev Mode subset:
 
 ## Tool Categories
 
-- [System and Health](/Users/fredbook/Code/uDOS/docs/howto/TOOLS-SYSTEM-HEALTH-REFERENCE.md)
+- [System and Health](TOOLS-SYSTEM-HEALTH-REFERENCE.md)
   Commands for health, verification, repair, identity, tokens, and viewport checks.
-- [Navigation and Spatial](/Users/fredbook/Code/uDOS/docs/howto/TOOLS-SPATIAL-REFERENCE.md)
+- [Navigation and Spatial](TOOLS-SPATIAL-REFERENCE.md)
   Commands for maps, grids, anchors, movement, and search.
-- [Data, Workspace, and Execution](/Users/fredbook/Code/uDOS/docs/howto/TOOLS-DATA-WORKSPACE-REFERENCE.md)
+- [Data, Workspace, and Execution](TOOLS-DATA-WORKSPACE-REFERENCE.md)
   Commands for binders, saving/loading, seeds, migration, config, places, scheduling, scripts, setup, run, and users.
-- [Content and Creative](/Users/fredbook/Code/uDOS/docs/howto/TOOLS-CONTENT-CREATIVE-REFERENCE.md)
+- [Content and Creative](TOOLS-CONTENT-CREATIVE-REFERENCE.md)
   Commands for stories, reading, games, drawing, sound, music, empire, formatting, undo, and destructive operations.
 
 ## Quick Start
 
 For the canonical command surface, start with:
-- [UCODE Command Reference](/Users/fredbook/Code/uDOS/docs/howto/UCODE-COMMAND-REFERENCE.md)
-- [Workflow Scheduler Quickstart](/Users/fredbook/Code/uDOS/docs/howto/WORKFLOW-SCHEDULER-QUICKSTART.md)
-- [Managed Wizard Operations](/Users/fredbook/Code/uDOS/docs/howto/MANAGED-WIZARD-OPERATIONS.md)
+- [UCODE Command Reference](UCODE-COMMAND-REFERENCE.md)
+- [Workflow Scheduler Quickstart](WORKFLOW-SCHEDULER-QUICKSTART.md)
+- [Managed Wizard Operations](MANAGED-WIZARD-OPERATIONS.md)
 
 ## Common Workflows
 

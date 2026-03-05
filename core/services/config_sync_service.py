@@ -30,6 +30,7 @@ from core.services.paths import get_memory_root, get_vault_md_root, get_vault_ro
 from core.services.rate_limit_helpers import guard_wizard_endpoint
 from core.services.stdlib_http import HTTPError, http_post
 from core.services.unified_config_loader import get_process_env
+from core.services.wizard_runtime_config import get_wizard_base_url
 
 logger = get_logger("config-sync-manager")
 
@@ -376,13 +377,13 @@ class ConfigSyncManager:
         """Sync .env identity to Wizard profiles via API.
 
         Args:
-            wizard_api_url: Wizard API base URL (default: http://localhost:8765/api/v1)
+            wizard_api_url: Wizard API base URL (default: ${WIZARD_BASE_URL}/api/v1)
 
         Returns:
             Tuple of (success: bool, message: str)
         """
         if wizard_api_url is None:
-            wizard_api_url = "http://localhost:8765/api/v1"
+            wizard_api_url = f"{get_wizard_base_url()}/api/v1"
         wizard_api_url = wizard_api_url.rstrip("/")
         parsed = urlparse(wizard_api_url)
         host = (parsed.hostname or "").strip().lower()

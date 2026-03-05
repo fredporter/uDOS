@@ -21,6 +21,8 @@ from core.services.maintenance_utils import compost_cleanup, run_housekeeping
 from core.services.time_utils import parse_utc_datetime, utc_now, utc_now_iso
 from core.workflows.scheduler import WorkflowScheduler
 from wizard.services.repair_service import get_repair_service
+from wizard.services.quota_tracker import APIProvider, get_quota_tracker
+from wizard.services.workflow_manager import WorkflowManager
 
 logger = get_logger("wizard.tasks")
 
@@ -210,8 +212,10 @@ class TaskScheduler:
         merged["max_tasks_per_tick"] = int(merged.get("max_tasks_per_tick", 2) or 2)
         merged["tick_seconds"] = int(merged.get("tick_seconds", 60) or 60)
         merged["allow_network"] = bool(merged.get("allow_network", True))
-        merged["off_peak_start_hour"] = int(merged.get("off_peak_start_hour", 20) or 20) % 24
-        merged["off_peak_end_hour"] = int(merged.get("off_peak_end_hour", 6) or 6) % 24
+        start_hour = merged.get("off_peak_start_hour", 20)
+        end_hour = merged.get("off_peak_end_hour", 6)
+        merged["off_peak_start_hour"] = int(20 if start_hour is None else start_hour) % 24
+        merged["off_peak_end_hour"] = int(6 if end_hour is None else end_hour) % 24
         merged["api_budget_daily"] = int(merged.get("api_budget_daily", 10) or 0)
         merged["api_budget_used"] = int(merged.get("api_budget_used", 0) or 0)
         merged["api_budget_day"] = str(merged.get("api_budget_day", "") or "")
@@ -479,7 +483,7 @@ class TaskScheduler:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.execute(
                     """
-                    SELECT q.*, t.name, t.schedule, t.priority, t.need, t.mission,
+                    SELECT q.*, t.name, t.schedule, t.provider, t.priority, t.need, t.mission,
                            t.objective, t.resource_cost, t.requires_network,
                            t.kind, t.payload
                     FROM task_queue q
@@ -502,7 +506,7 @@ class TaskScheduler:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.execute(
                     """
-                    SELECT q.*, t.name, t.schedule, t.priority, t.need, t.mission,
+                    SELECT q.*, t.name, t.schedule, t.provider, t.priority, t.need, t.mission,
                            t.objective, t.resource_cost, t.requires_network,
                            t.kind, t.payload
                     FROM task_queue q
@@ -640,7 +644,7 @@ class TaskScheduler:
                     return None
                 cursor = conn.execute(
                     """
-                    SELECT q.*, t.name, t.schedule, t.priority, t.need, t.mission,
+                    SELECT q.*, t.name, t.schedule, t.provider, t.priority, t.need, t.mission,
                            t.objective, t.resource_cost, t.requires_network,
                            t.kind, t.payload
                     FROM task_queue q
@@ -875,6 +879,28 @@ class TaskScheduler:
                 payload = {}
         return int(payload.get("budget_units") or task.get("resource_cost") or 1)
 
+    def _task_estimated_tokens(self, task: Dict[str, Any]) -> int:
+        payload = task.get("payload") or {}
+        if isinstance(payload, str):
+            try:
+                payload = json.loads(payload)
+            except json.JSONDecodeError:
+                payload = {}
+        if payload.get("estimated_tokens") is not None:
+            return max(int(payload.get("estimated_tokens") or 0), 0)
+        return self._task_budget_units(task) * 1000
+
+    def _task_quota_provider(self, task: Dict[str, Any]) -> APIProvider | None:
+        provider = str(task.get("provider") or "").strip().lower()
+        mapping = {
+            "openrouter": APIProvider.MISTRAL,
+            "mistral": APIProvider.MISTRAL,
+            "openai": APIProvider.OPENAI,
+            "anthropic": APIProvider.ANTHROPIC,
+            "gemini": APIProvider.GEMINI,
+        }
+        return mapping.get(provider)
+
     def _budget_state(self, settings: Dict[str, Any], now: datetime) -> Dict[str, Any]:
         today = now.date().isoformat()
         if settings.get("api_budget_day") != today:
@@ -889,7 +915,18 @@ class TaskScheduler:
         budget_daily = int(settings.get("api_budget_daily", 0) or 0)
         if budget_daily <= 0:
             return False
-        return int(settings.get("api_budget_used", 0) or 0) + self._task_budget_units(task) <= budget_daily
+        within_scheduler_budget = (
+            int(settings.get("api_budget_used", 0) or 0) + self._task_budget_units(task) <= budget_daily
+        )
+        if not within_scheduler_budget:
+            return False
+        quota_provider = self._task_quota_provider(task)
+        if quota_provider is None:
+            return True
+        return get_quota_tracker().can_request(
+            quota_provider,
+            self._task_estimated_tokens(task),
+        )
 
     def _record_budget_use(self, task: Dict[str, Any], settings: Dict[str, Any], now: datetime) -> Dict[str, Any]:
         settings = self._budget_state(settings, now)
@@ -1166,6 +1203,13 @@ class TaskScheduler:
             return {"result": "success" if result.get("success") else "error", "output": json.dumps(result)}
         if kind == "workflow_phase":
             return self._execute_workflow_phase(payload)
+        if isinstance(kind, str) and kind.startswith("dev_scheduler:"):
+            project_id = payload.get("workflow_project_id")
+            if not project_id:
+                return {"result": "error", "output": "dev scheduler task missing payload.workflow_project_id"}
+            manager = WorkflowManager()
+            result = manager.run_workflow(project_id)
+            return {"result": "success", "output": json.dumps(result)}
 
         return {"result": "skipped", "output": "No executor for task kind"}
 

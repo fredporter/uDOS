@@ -27,6 +27,10 @@ def test_publish_capabilities_and_job_lifecycle():
             "source_workspace": "memory/vault",
             "provider": "wizard",
             "options": {"mode": "snapshot"},
+            "portal_class": "protected_portal",
+            "auth_required": True,
+            "library_kind": "markdown_vault",
+            "site_root": "memory/vault/_site/prose",
         },
     )
     assert create_res.status_code == 200
@@ -48,6 +52,10 @@ def test_publish_capabilities_and_job_lifecycle():
     assert manifest["publish_job_id"] == job_id
     assert manifest["module"] == "wizard"
     assert manifest["publish_lane"] == "core"
+    assert manifest["artifact_manifest"]["site_root"] == "memory/vault/_site/prose"
+    assert manifest["portal"]["portal_class"] == "protected_portal"
+    assert manifest["portal"]["auth_required"] is True
+    assert manifest["portal"]["library_kind"] == "markdown_vault"
     assert "source_workspace_sha256" in manifest["checksum_set"]
 
 

@@ -7,26 +7,17 @@ Uses a short TTL cache to avoid spamming the Wizard API.
 
 from __future__ import annotations
 
-import os
 import time
-from urllib.parse import urlparse
 
 from core.services.stdlib_http import HTTPError, http_get
 from core.services.unified_config_loader import get_config
+from core.services.wizard_runtime_config import get_loopback_wizard_base_url
 
 _CACHE_ACTIVE: bool | None = None
 _CACHE_TS: float = 0.0
 _CACHE_TTL = 2.0
-_LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
-
-
 def _loopback_wizard_base_url(raw_base_url: str) -> str:
-    candidate = (raw_base_url or "").strip().rstrip("/") or "http://localhost:8765"
-    parsed = urlparse(candidate)
-    host = (parsed.hostname or "").strip().lower()
-    if host in _LOOPBACK_HOSTS:
-        return candidate
-    return "http://localhost:8765"
+    return get_loopback_wizard_base_url(raw_base_url)
 
 
 def _env_dev_active() -> bool | None:
@@ -43,7 +34,7 @@ def get_dev_active(force: bool = False, ttl: float = _CACHE_TTL) -> bool | None:
         return _CACHE_ACTIVE
 
     base_url = _loopback_wizard_base_url(
-        get_config("WIZARD_BASE_URL", "http://localhost:8765")
+        get_config("WIZARD_BASE_URL", "")
     )
     admin_token = get_config("WIZARD_ADMIN_TOKEN", "")
     if not admin_token:
@@ -61,6 +52,8 @@ def get_dev_active(force: bool = False, ttl: float = _CACHE_TTL) -> bool | None:
         if resp.get("status_code") == 200:
             data = resp.get("json") or {}
             active = bool(data.get("active"))
+            import os
+
             os.environ["UDOS_DEV_MODE"] = "1" if active else "0"
         else:
             active = _env_dev_active()

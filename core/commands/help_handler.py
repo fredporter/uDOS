@@ -462,7 +462,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "syntax": "STORY [<file>] | STORY PARSE <file> | STORY NEW <name>",
         },
         "SETUP": {
-            "description": "Local setup & webhook configuration (vibe-cli interactive)",
+            "description": "Local setup & webhook configuration (interactive Dev Mode helper flow)",
             "usage": "SETUP [webhook|provider|--profile|--edit|--clear|--help]",
             "example": "SETUP webhook or SETUP github or SETUP --profile",
             "notes": "Configure local identity, webhooks (interactive), or providers",

@@ -62,9 +62,9 @@ def test_handle_slash_command_executes_shell(monkeypatch):
     assert command == "/echo ok"
     assert response is not None
     assert response["result"]["status"] == "success"
-    assert response["routing_contract"]["interactive_owner"] == "vibe-cli"
+    assert response["routing_contract"]["interactive_owner"] == "dev-mode-tool"
     assert response["routing_contract"]["tool_gateway"] == "wizard-mcp"
-    assert response["routing_contract"]["dispatch_route_order"] == ["ucode", "shell", "vibe"]
+    assert response["routing_contract"]["dispatch_route_order"] == ["ucode", "shell", "dev_tool"]
 
 
 def test_dispatch_non_ok_setup_story():
@@ -81,8 +81,8 @@ def test_dispatch_non_ok_setup_story():
     )
     assert response["status"] == "ok"
     assert response["result"]["message"] == "Setup story ready"
-    assert response["routing_contract"]["interactive_owner"] == "vibe-cli"
-    assert response["routing_contract"]["dispatch_route_order"] == ["ucode", "shell", "vibe"]
+    assert response["routing_contract"]["interactive_owner"] == "dev-mode-tool"
+    assert response["routing_contract"]["dispatch_route_order"] == ["ucode", "shell", "dev_tool"]
 
 
 def test_dispatch_non_ok_allowlisted_dispatch():

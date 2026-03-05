@@ -62,10 +62,10 @@ class RepoSync:
             ref: "main"
 
         wizard:
-          - name: "mistral-vibe"
-            owner: "mistralai"
-            repo: "mistral-vibe"
-            path: "library/wizard/mistral-vibe"
+          - name: "gemini-cli"
+            owner: "BanDev"
+            repo: "google-ai-cli"
+            path: "library/wizard/gemini-cli"
             ref: "main"
         ```
 
@@ -107,7 +107,7 @@ class RepoSync:
         Returns:
             {
                 "micro": (True, "Successfully cloned"),
-                "mistral-vibe": (False, "Repository not found"),
+                "gemini-cli": (False, "Repository not found"),
                 ...
             }
         """
@@ -157,7 +157,7 @@ class RepoSync:
         Returns:
             {
                 "micro": (True, "Updated"),
-                "mistral-vibe": (False, "Not a git repository"),
+                "gemini-cli": (False, "Not a git repository"),
                 ...
             }
         """

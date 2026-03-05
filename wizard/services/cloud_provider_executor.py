@@ -24,6 +24,7 @@ from core.services.cloud_provider_policy import (
     should_failover,
 )
 from wizard.services.logging_api import get_logger
+from wizard.services.quota_tracker import APIProvider, get_quota_tracker
 
 logger = get_logger("wizard.cloud-executor")
 
@@ -91,6 +92,75 @@ def _env_getter(key: str) -> str:
         return os.environ.get(key, "")
 
 
+def _provider_to_quota_provider(provider: CloudProvider) -> APIProvider | None:
+    mapping = {
+        CloudProvider.MISTRAL: APIProvider.MISTRAL,
+        CloudProvider.OPENROUTER: APIProvider.MISTRAL,
+        CloudProvider.OPENAI: APIProvider.OPENAI,
+        CloudProvider.ANTHROPIC: APIProvider.ANTHROPIC,
+        CloudProvider.GEMINI: APIProvider.GEMINI,
+    }
+    return mapping.get(provider)
+
+
+def _estimated_tokens(prompt: str, estimated_tokens: int | None = None) -> int:
+    if estimated_tokens is not None:
+        return max(int(estimated_tokens), 0)
+    words = max(len((prompt or "").split()), 1)
+    return words * 2
+
+
+def get_cloud_execution_plan(
+    prompt: str = "",
+    *,
+    estimated_tokens: int | None = None,
+) -> dict[str, Any]:
+    chain = resolve_cloud_provider_chain(_env_getter)
+    contracts = canonical_cloud_provider_contracts()
+    quota = get_quota_tracker()
+    estimate = _estimated_tokens(prompt, estimated_tokens)
+    available: list[str] = []
+    unavailable: list[str] = []
+    quota_ready: list[str] = []
+    blocked_by_quota: list[str] = []
+    providers: list[dict[str, Any]] = []
+
+    for provider in chain:
+        contract = contracts[provider]
+        api_key = resolve_provider_api_key(contract, _env_getter)
+        configured = bool(api_key)
+        quota_provider = _provider_to_quota_provider(provider)
+        quota_allowed = True
+        if quota_provider is not None:
+            quota_allowed = quota.can_request(quota_provider, estimate)
+        entry = {
+            "provider": provider.value,
+            "configured": configured,
+            "quota_allowed": quota_allowed,
+        }
+        providers.append(entry)
+        if configured:
+            available.append(provider.value)
+            if quota_allowed:
+                quota_ready.append(provider.value)
+            else:
+                blocked_by_quota.append(provider.value)
+        else:
+            unavailable.append(provider.value)
+
+    return {
+        "ready": bool(quota_ready),
+        "issue": None if quota_ready else ("all configured providers blocked by quota" if available else "no cloud provider API keys configured"),
+        "available_providers": available,
+        "unavailable_providers": unavailable,
+        "quota_ready_providers": quota_ready,
+        "blocked_by_quota": blocked_by_quota,
+        "primary": quota_ready[0] if quota_ready else (available[0] if available else None),
+        "estimated_tokens": estimate,
+        "providers": providers,
+    }
+
+
 def _try_provider(
     provider: CloudProvider,
     prompt: str,
@@ -154,6 +224,15 @@ def _try_provider(
 
 
 def run_cloud_with_fallback(prompt: str) -> tuple[str, str]:
+    result = run_cloud_with_fallback_detail(prompt)
+    return result["response"], result["model"]
+
+
+def run_cloud_with_fallback_detail(
+    prompt: str,
+    *,
+    estimated_tokens: int | None = None,
+) -> dict[str, Any]:
     """Run a cloud OK request using the configured provider fallback chain.
 
     Args:
@@ -167,14 +246,49 @@ def run_cloud_with_fallback(prompt: str) -> tuple[str, str]:
     """
     chain = resolve_cloud_provider_chain(_env_getter)
     context = _load_context()
+    plan = get_cloud_execution_plan(prompt, estimated_tokens=estimated_tokens)
+    quota = get_quota_tracker()
+    estimate = int(plan.get("estimated_tokens") or 0)
     skipped: list[str] = []
+    attempts: list[dict[str, Any]] = []
 
     for provider in chain:
+        quota_provider = _provider_to_quota_provider(provider)
+        if quota_provider is not None and not quota.can_request(quota_provider, estimate):
+            attempts.append(
+                {
+                    "provider": provider.value,
+                    "result": "skipped",
+                    "reason": "quota_exceeded",
+                }
+            )
+            skipped.append(f"{provider.value}:quota_exceeded")
+            continue
         response, model, reason = _try_provider(provider, prompt, context)
 
         if reason == FailoverReason.NONE:
-            return response, model
+            attempts.append(
+                {
+                    "provider": provider.value,
+                    "result": "success",
+                    "model": model,
+                }
+            )
+            return {
+                "response": response,
+                "model": model,
+                "provider": provider.value,
+                "attempts": attempts,
+                "plan": plan,
+            }
 
+        attempts.append(
+            {
+                "provider": provider.value,
+                "result": "failed",
+                "reason": reason.value,
+            }
+        )
         skipped.append(f"{provider.value}:{reason.value}")
 
         if not should_failover(reason):
@@ -200,32 +314,4 @@ def get_cloud_availability() -> dict[str, Any]:
     Returns:
         Dict with ready flag, available providers, and issue summary.
     """
-    chain = resolve_cloud_provider_chain(_env_getter)
-    contracts = canonical_cloud_provider_contracts()
-    available: list[str] = []
-    unavailable: list[str] = []
-
-    for provider in chain:
-        contract = contracts[provider]
-        api_key = resolve_provider_api_key(contract, _env_getter)
-        if api_key:
-            available.append(provider.value)
-        else:
-            unavailable.append(provider.value)
-
-    if available:
-        return {
-            "ready": True,
-            "issue": None,
-            "available_providers": available,
-            "unavailable_providers": unavailable,
-            "primary": available[0],
-        }
-
-    return {
-        "ready": False,
-        "issue": "no cloud provider API keys configured",
-        "available_providers": [],
-        "unavailable_providers": unavailable,
-        "primary": None,
-    }
+    return get_cloud_execution_plan()

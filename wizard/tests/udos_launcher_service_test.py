@@ -91,7 +91,6 @@ def test_start_runtime_records_ready_launch_session(monkeypatch, tmp_path: Path)
     monkeypatch.setattr(launcher_mod, "get_port_manager", lambda: fake_ports)
 
     service = launcher_mod.UdosLauncherService(repo_root=tmp_path)
-    monkeypatch.setattr(service, "_dev_mode_active", lambda: True)
     monkeypatch.setattr(service, "_repair_ports", lambda: {"healed": {"wizard": True}})
 
     result = service.start_runtime(auto_repair=True, wait_seconds=3)
@@ -99,7 +98,7 @@ def test_start_runtime_records_ready_launch_session(monkeypatch, tmp_path: Path)
     assert result.success is True
     assert result.details["session_id"] == "session-001"
     assert result.details["repair"] == {"healed": {"wizard": True}}
-    assert fake_sessions.created[0]["workspace"] == "@dev"
+    assert fake_sessions.created[0]["workspace"] == "core"
     assert fake_sessions.transitions == [
         ("session-001", "starting", None, None),
         ("session-001", "ready", None, {"wizard_base_url": "http://127.0.0.1:58008"}),

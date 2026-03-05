@@ -1,6 +1,6 @@
-"""Vibe skill mapper for uCODE Vibe protocol.
+"""Dev Mode tool skill mapper for the contributor-tool protocol.
 
-Maps uCODE commands to Vibe skills and handles skill invocation.
+Maps uCODE commands to Dev Mode contributor-tool skills and handles skill invocation.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ logger = get_logger(__name__)
 
 @dataclass
 class SkillAction:
-    """Definition of a Vibe skill action."""
+    """Definition of a Dev Mode contributor-tool skill action."""
     name: str
     description: str
     args: List[str]  # Argument names
@@ -34,7 +34,7 @@ class SkillAction:
 
 @dataclass
 class SkillContract:
-    """Contract for a Vibe skill."""
+    """Contract for a Dev Mode contributor-tool skill."""
     name: str
     description: str
     actions: Dict[str, SkillAction]
@@ -169,7 +169,7 @@ WORKSPACE_SKILL = SkillContract(
 
 WIZOPS_SKILL = SkillContract(
     name="wizops",
-    description="Vibe automation/task operations (distinct from core WIZARD command domain)",
+    description="Dev Mode tool automation/task operations (distinct from core WIZARD command domain)",
     actions={
         "start": SkillAction(
             name="start",
@@ -542,12 +542,12 @@ SKILL_ALIASES = {
 # Skill Mapper
 # ─────────────────────────────────────────────────────────────────────────────
 
-class VibeSkillMapper:
-    """Maps uCODE input to Vibe skills."""
+class DevModeToolSkillMapper:
+    """Maps uCODE input to Dev Mode contributor-tool skills."""
 
     def __init__(self):
         """Initialize skill mapper."""
-        self.logger = get_logger("vibe-skill-mapper")
+        self.logger = get_logger("dev-mode-tool-skill-mapper")
         self.registry = SKILL_REGISTRY
 
     def resolve_skill_name(self, skill_name: str) -> str:
@@ -624,19 +624,21 @@ class VibeSkillMapper:
 # Convenience Functions
 # ─────────────────────────────────────────────────────────────────────────────
 
-_default_mapper: Optional[VibeSkillMapper] = None
+VibeSkillMapper = DevModeToolSkillMapper
+
+_default_mapper: Optional[DevModeToolSkillMapper] = None
 
 
-def get_default_mapper() -> VibeSkillMapper:
+def get_default_mapper() -> DevModeToolSkillMapper:
     """Get or create default skill mapper."""
     global _default_mapper
     if _default_mapper is None:
-        _default_mapper = VibeSkillMapper()
+        _default_mapper = DevModeToolSkillMapper()
     return _default_mapper
 
 
 def list_all_skills() -> List[str]:
-    """List all available Vibe skills."""
+    """List all available Dev Mode contributor-tool skills."""
     return get_default_mapper().list_skills()
 
 

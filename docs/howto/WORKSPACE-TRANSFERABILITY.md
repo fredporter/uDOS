@@ -84,6 +84,6 @@ To preserve an existing local workspace, transfer:
 
 ## Canonical Paths
 
-- [INSTALLATION.md](/Users/fredbook/Code/uDOS/docs/INSTALLATION.md)
-- [COMPOST-POLICY.md](/Users/fredbook/Code/uDOS/docs/COMPOST-POLICY.md)
-- [UCODE Command Reference](/Users/fredbook/Code/uDOS/docs/howto/UCODE-COMMAND-REFERENCE.md)
+- [INSTALLATION.md](../INSTALLATION.md)
+- [COMPOST-POLICY.md](../COMPOST-POLICY.md)
+- [UCODE Command Reference](UCODE-COMMAND-REFERENCE.md)

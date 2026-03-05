@@ -3,7 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from core.services.mission_templates import ProjectInitializer
-from core.services.vibe_binder_service import VibeBinderService
+from core.services.vibe_binder_service import DevModeToolBinderService, VibeBinderService
+
+
+def test_canonical_binder_service_alias_is_stable() -> None:
+    assert DevModeToolBinderService is VibeBinderService
 
 
 def test_project_initializer_writes_validated_project_and_tasks(tmp_path: Path) -> None:
@@ -25,7 +29,7 @@ def test_vibe_binder_service_rejects_invalid_project_payload(monkeypatch, tmp_pa
         "core.services.vibe_binder_service.get_vault_root",
         lambda: tmp_path,
     )
-    service = VibeBinderService()
+    service = DevModeToolBinderService()
 
     ok = service._save_mission_file(
         "binder-beta",
@@ -41,7 +45,7 @@ def test_vibe_binder_service_rejects_invalid_tasks_payload(monkeypatch, tmp_path
         "core.services.vibe_binder_service.get_vault_root",
         lambda: tmp_path,
     )
-    service = VibeBinderService()
+    service = DevModeToolBinderService()
 
     ok = service._save_mission_file(
         "binder-gamma",
@@ -61,7 +65,7 @@ def test_vibe_binder_service_rejects_invalid_completed_payload(monkeypatch, tmp_
         "core.services.vibe_binder_service.get_udos_root",
         lambda: tmp_path,
     )
-    service = VibeBinderService()
+    service = DevModeToolBinderService()
 
     ok = service._save_mission_file(
         "binder-delta",

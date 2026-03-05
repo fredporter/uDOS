@@ -60,7 +60,7 @@ python -m wizard.cli_port_manager check wizard
    Environment: production
    Description: Wizard Server - Production always-on service
    Status: running
-   Health: http://localhost:8765/health
+   Health: ${UDOS_WIZARD_URL}/health
 ```
 
 ### 3. Port Management
@@ -98,10 +98,10 @@ export UDOS_API_PORT=5001
 export UDOS_VITE_PORT=5173
 
 # Service URLs
-export UDOS_WIZARD_URL=http://localhost:8765
-export UDOS_GOBLIN_URL=http://localhost:8767
-export UDOS_API_URL=http://localhost:5001
-export UDOS_VITE_URL=http://localhost:5173
+export UDOS_WIZARD_URL=http://localhost:${UDOS_WIZARD_PORT}
+export UDOS_GOBLIN_URL=http://localhost:${UDOS_GOBLIN_PORT}
+export UDOS_API_URL=http://localhost:${UDOS_API_PORT}
+export UDOS_VITE_URL=http://localhost:${UDOS_VITE_PORT}
 ```
 
 ## REST API Endpoints
@@ -261,7 +261,7 @@ Port registry stored in: `wizard/config/port_registry.json`
       "process_name": "python",
       "description": "Wizard Server - Production always-on service",
       "startup_cmd": "python -m wizard.server",
-      "health_endpoint": "http://localhost:8765/health",
+      "health_endpoint": "${UDOS_WIZARD_URL}/health",
       "enabled": true
     }
   ]

@@ -7,6 +7,7 @@ from typing import Callable, Awaitable, Optional
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
+from core.ulogic import format_json_text
 from wizard.routes.ucode_template_dispatch import (
     duplicate_template as dispatch_duplicate_template,
     list_family_templates as dispatch_list_family_templates,
@@ -49,11 +50,42 @@ def create_workflow_routes(auth_guard: AuthGuard = None) -> APIRouter:
     class TemplateDuplicateRequest(BaseModel):
         target_name: Optional[str] = None
 
+    class WorkflowFormatRequest(BaseModel):
+        content: str
+        path: Optional[str] = None
+        target: str = "auto"
+
     @router.get("/health")
     async def health_check(request: Request):
         if auth_guard:
             await auth_guard(request)
         return {"status": "ok", "workflow_manager": "ready"}
+
+    @router.post("/format")
+    async def format_workflow_payload(request: Request, body: WorkflowFormatRequest):
+        if auth_guard:
+            await auth_guard(request)
+        try:
+            result = format_json_text(
+                body.content,
+                target=body.target,
+                source_path=body.path,
+            )
+            return {
+                "status": "ok" if result.ok else "warning",
+                "content": result.content,
+                "changed": result.changed,
+                "format_helper": {
+                    "profile": result.profile,
+                    "profile_label": result.profile_label,
+                    "format_label": result.format_label,
+                    "validation_label": result.validation_label,
+                    "valid": result.ok,
+                    "errors": list(result.errors),
+                },
+            }
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
 
     @router.get("/projects")
     async def list_projects(request: Request):

@@ -1,9 +1,9 @@
 """
-Vibe CLI Service - Mistral AI Coding Assistant Integration
-===========================================================
+Dev Mode Tool CLI Service - contributor coding tool integration
+==============================================================
 
-Provides integration between uDOS and Mistral's Vibe CLI coding agent.
-This is a WIZARD-ONLY service that requires API access.
+Provides integration between uDOS and the external Dev Mode contributor tool.
+This service is gated behind the v1.5 Dev Mode profile.
 
 Features:
   - Code analysis and fixing (OK FIX)
@@ -30,14 +30,15 @@ from typing import Optional, Dict, Any, List
 from dataclasses import dataclass
 
 from wizard.services.logging_api import get_logger
+from wizard.services.dev_extension_service import get_dev_extension_service
 from wizard.security.key_store import get_wizard_key
 
-logger = get_logger("vibe-cli")
+logger = get_logger("dev-mode-tool-service")
 
 
 @dataclass
-class VibeConfig:
-    """Vibe CLI configuration."""
+class DevModeToolCliConfig:
+    """External Dev Mode contributor tool CLI configuration."""
 
     home_dir: Path = Path.home() / ".vibe"
     config_file: str = "config.toml"
@@ -55,8 +56,8 @@ class VibeConfig:
 
 
 @dataclass
-class VibeResponse:
-    """Response from Vibe CLI."""
+class DevModeToolCliResponse:
+    """Response from the external Dev Mode contributor tool CLI."""
 
     success: bool
     output: str
@@ -65,22 +66,22 @@ class VibeResponse:
     tokens_used: int = 0
 
 
-class VibeCliService:
+class DevModeToolCliService:
     """
-    Service for interacting with Mistral Vibe CLI.
+    Service for interacting with the external Dev Mode contributor tool.
 
-    Provides a Python interface to the vibe command-line tool
+    Provides a Python interface to the `vibe` command-line tool
     for code analysis, fixing, and natural language queries.
     """
 
     def __init__(self, config_manager=None):
         """
-        Initialize Vibe CLI service.
+        Initialize the external Dev Mode contributor tool service.
 
         Args:
             config_manager: uDOS Config instance for settings
         """
-        self.config = VibeConfig()
+        self.config = DevModeToolCliConfig()
         self._config_manager = config_manager
         self._api_key: Optional[str] = None
         self._vibe_path: Optional[str] = None
@@ -90,17 +91,15 @@ class VibeCliService:
         self._load_api_key()
 
     def _check_installation(self):
-        """Check if Vibe CLI is installed."""
+        """Check if the external Dev Mode contributor tool is installed."""
         self._vibe_path = shutil.which("vibe")
         if self._vibe_path:
-            logger.info(f"[WIZ] Vibe CLI found at: {self._vibe_path}")
+            logger.info(f"[WIZ] Dev Mode tool CLI found at: {self._vibe_path}")
         else:
-            logger.warning(
-                "[WIZ] Vibe CLI not installed. Run: pip install mistral-vibe"
-            )
+            logger.warning("[WIZ] Dev Mode tool CLI not installed in the active Dev Mode lane")
 
     def _load_api_key(self):
-        """Load Mistral API key from KeyStore or environment."""
+        """Load the contributor tool provider key from KeyStore or environment."""
         # Try KeyStore first (secure)
         self._api_key = get_wizard_key("MISTRAL_API_KEY")
 
@@ -129,8 +128,8 @@ class VibeCliService:
 
     @property
     def is_available(self) -> bool:
-        """Check if Vibe CLI is available and configured."""
-        return bool(self._vibe_path and self._api_key)
+        """Check if the external Dev Mode contributor tool is available and configured."""
+        return bool(self._vibe_path and self._api_key and self._dev_mode_error() is None)
 
     @property
     def status(self) -> Dict[str, Any]:
@@ -142,7 +141,12 @@ class VibeCliService:
             "home_dir": str(self.config.home_dir),
             "model": self.config.model,
             "agent": self.config.agent,
+            "dev_mode_error": self._dev_mode_error(),
         }
+
+    def _dev_mode_error(self) -> Optional[str]:
+        """Return access error when the external Dev Mode contributor tool is unavailable."""
+        return get_dev_extension_service().ensure_vibe_tool_access()
 
     def analyze_code(
         self,
@@ -150,9 +154,9 @@ class VibeCliService:
         context: Optional[str] = None,
         include_logs: bool = False,
         auto_approve: bool = False,
-    ) -> VibeResponse:
+    ) -> DevModeToolCliResponse:
         """
-        Analyze code file using Vibe CLI.
+        Analyze a code file using the external Dev Mode contributor tool.
 
         Args:
             file_path: Path to file to analyze
@@ -161,13 +165,13 @@ class VibeCliService:
             auto_approve: Auto-approve tool executions
 
         Returns:
-            VibeResponse with analysis results
+            DevModeToolCliResponse with analysis results
         """
         if not self.is_available:
-            return VibeResponse(
+            return DevModeToolCliResponse(
                 success=False,
                 output="",
-                error="Vibe CLI not available. Install with: pip install mistral-vibe",
+                error=self._dev_mode_error() or "Dev Mode contributor tool not available in the active Dev Mode lane",
             )
 
         # Build prompt
@@ -190,9 +194,9 @@ class VibeCliService:
         question: str,
         file_context: Optional[str] = None,
         auto_approve: bool = False,
-    ) -> VibeResponse:
+    ) -> DevModeToolCliResponse:
         """
-        Ask a coding question using Vibe CLI.
+        Ask a coding question using the external Dev Mode contributor tool.
 
         Args:
             question: Natural language question
@@ -200,13 +204,13 @@ class VibeCliService:
             auto_approve: Auto-approve tool executions
 
         Returns:
-            VibeResponse with answer
+            DevModeToolCliResponse with answer
         """
         if not self.is_available:
-            return VibeResponse(
+            return DevModeToolCliResponse(
                 success=False,
                 output="",
-                error="Vibe CLI not available. Install with: pip install mistral-vibe",
+                error=self._dev_mode_error() or "Dev Mode contributor tool not available in the active Dev Mode lane",
             )
 
         prompt = question
@@ -220,9 +224,9 @@ class VibeCliService:
         file_path: str,
         error_message: Optional[str] = None,
         auto_approve: bool = False,
-    ) -> VibeResponse:
+    ) -> DevModeToolCliResponse:
         """
-        Request code fix using Vibe CLI.
+        Request a code fix using the external Dev Mode contributor tool.
 
         Args:
             file_path: Path to file to fix
@@ -230,13 +234,13 @@ class VibeCliService:
             auto_approve: Auto-approve tool executions
 
         Returns:
-            VibeResponse with fix suggestions
+            DevModeToolCliResponse with fix suggestions
         """
         if not self.is_available:
-            return VibeResponse(
+            return DevModeToolCliResponse(
                 success=False,
                 output="",
-                error="Vibe CLI not available. Install with: pip install mistral-vibe",
+                error=self._dev_mode_error() or "Dev Mode contributor tool not available in the active Dev Mode lane",
             )
 
         prompt = f"Fix the code in @{file_path}"
@@ -246,16 +250,16 @@ class VibeCliService:
 
         return self._run_vibe(prompt, auto_approve=auto_approve)
 
-    def _run_vibe(self, prompt: str, auto_approve: bool = False) -> VibeResponse:
+    def _run_vibe(self, prompt: str, auto_approve: bool = False) -> DevModeToolCliResponse:
         """
-        Run Vibe CLI with given prompt.
+        Run the external Dev Mode contributor tool with a given prompt.
 
         Args:
             prompt: The prompt to send
             auto_approve: Auto-approve tool executions
 
         Returns:
-            VibeResponse with results
+            DevModeToolCliResponse with results
         """
         try:
             # Build command
@@ -290,23 +294,24 @@ class VibeCliService:
             )
 
             if result.returncode == 0:
-                return VibeResponse(
+                return DevModeToolCliResponse(
                     success=True, output=result.stdout, model=self.config.model
                 )
             else:
-                return VibeResponse(
+                return DevModeToolCliResponse(
                     success=False,
                     output=result.stdout,
-                    error=result.stderr or "Vibe command failed",
+                    error=result.stderr or "Dev Mode contributor tool command failed",
                 )
 
         except subprocess.TimeoutExpired:
-            return VibeResponse(
-                success=False, output="", error="Vibe CLI timed out after 5 minutes"
+            return DevModeToolCliResponse(
+                success=False, output="", error="Dev Mode contributor tool timed out after 5 minutes"
             )
         except Exception as e:
-            logger.error(f"[WIZ] Vibe CLI error: {e}")
-            return VibeResponse(success=False, output="", error=str(e))
+            logger.error(f"[WIZ] Dev Mode contributor tool error: {e}")
+            return DevModeToolCliResponse(success=False, output="", error=str(e))
+
 
     def _get_recent_logs(self, lines: int = 50) -> str:
         """Get recent session logs for context."""
@@ -330,7 +335,7 @@ class VibeCliService:
             return ""
 
     def ensure_udos_config(self):
-        """Ensure uDOS-specific Vibe configuration exists."""
+        """Ensure uDOS-specific external contributor tool configuration exists."""
         prompts_dir = self.config.home_dir / "prompts"
         agents_dir = self.config.home_dir / "agents"
 
@@ -348,6 +353,11 @@ class VibeCliService:
         if not udos_agent.exists():
             udos_agent.write_text(UDOS_AGENT)
             logger.info("[WIZ] Created ~/.vibe/agents/udos.toml")
+
+
+VibeConfig = DevModeToolCliConfig
+VibeResponse = DevModeToolCliResponse
+VibeCliService = DevModeToolCliService
 
 
 # uDOS system prompt for Vibe

@@ -206,7 +206,7 @@ class UdosLauncherService:
         )
 
     def install_runtime(self, extra_args: list[str]) -> int:
-        script = self.repo_root / "bin" / "install-udos-vibe.sh"
+        script = self.repo_root / "bin" / "install-udos.sh"
         os.execv("/bin/bash", ["/bin/bash", str(script), *extra_args])
         raise AssertionError("unreachable")
 

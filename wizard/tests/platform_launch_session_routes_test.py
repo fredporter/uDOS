@@ -99,3 +99,28 @@ def test_launch_session_get_list_stream(monkeypatch, tmp_path):
     assert stream.status_code == 200
     assert "event: session" in stream.text
     assert "event: end" in stream.text
+
+
+def test_generic_launch_route(monkeypatch, tmp_path):
+    client = _client(monkeypatch, tmp_path)
+
+    launched = client.post(
+        "/api/platform/launch",
+        json={
+            "target": "alpine-core-one-app-shell",
+            "mode": "gui",
+            "launcher": "thin-gui",
+            "workspace": "uhome",
+            "profile_id": "server",
+            "auth": {"wizard_mode_active": False},
+            "portal_class": "private_resource_library",
+            "library_kind": "markdown_vault",
+        },
+    )
+    assert launched.status_code == 200
+    body = launched.json()
+    assert body["success"] is True
+    assert body["session"]["target"] == "alpine-core-one-app-shell"
+    assert body["state"]["portal_class"] == "private_resource_library"
+    assert body["state"]["library_kind"] == "markdown_vault"
+    assert "thin_gui" in body["state"]

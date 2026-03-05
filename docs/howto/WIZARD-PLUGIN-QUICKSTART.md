@@ -21,7 +21,7 @@ The system discovers plugin metadata, install pathways, and status through the W
 ### 1. Set the repo root for Wizard git operations
 
 ```dotenv
-UDOS_ROOT="/Users/fredbook/Code/uDOS"
+UDOS_ROOT="/path/to/uDOS"
 ```
 
 ### 2. Start Wizard
@@ -45,6 +45,5 @@ Common install types:
 
 ## Companion Guides
 
-- [Wizard Plugin Reference](/Users/fredbook/Code/uDOS/docs/howto/WIZARD-PLUGIN-REFERENCE.md)
-- [Managed Wizard Operations](/Users/fredbook/Code/uDOS/docs/howto/MANAGED-WIZARD-OPERATIONS.md)
-
+- [Wizard Plugin Reference](WIZARD-PLUGIN-REFERENCE.md)
+- [Managed Wizard Operations](MANAGED-WIZARD-OPERATIONS.md)

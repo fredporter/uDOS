@@ -9,21 +9,22 @@ Use this guide for the v1.5 SVG workflow: local-first generation, Markdown-safe 
 
 ## Fastest Path
 
-1. Prepare the standard runtime with [INSTALLATION.md](/Users/fredbook/Code/uDOS/docs/INSTALLATION.md).
-2. If you want contributor-side local generation, prepare the `@dev` workspace lane with [VIBE-Setup-Guide.md](/Users/fredbook/Code/uDOS/dev/docs/howto/VIBE-Setup-Guide.md).
+1. Prepare the standard runtime with [INSTALLATION.md](../INSTALLATION.md).
+2. If you want contributor-side local generation, prepare the `@dev` workspace lane with [VIBE-Setup-Guide.md](../../dev/docs/howto/VIBE-Setup-Guide.md).
 3. Generate or review SVG assets through the Wizard graphics service or the matching workflow/template lane.
 
 ## Local-First Example
 
 ```python
-from wizard.services.graphics_service import SVGGenerator
+from wizard.services.graphics_service import get_graphics_service
 
-gen = SVGGenerator()
-svg = await gen.generate_diagram(
-    description="A distributed system with 3 nodes and message flow",
-    style="technical",
-    size="800x600",
+graphics = get_graphics_service()
+artifact = graphics.render_mermaid_svg(
+    source="graph TD; A[Wizard]-->B[Beacon Portal]; B-->C[Resource Library]",
+    output_file="architecture/wizard-beacon.svg",
 )
+
+svg = artifact.content
 ```
 
 ## When To Escalate To Cloud
@@ -44,6 +45,6 @@ Always specify:
 
 ## Related Docs
 
-- [SVG Graphics Reference](/Users/fredbook/Code/uDOS/docs/howto/SVG-GRAPHICS-REFERENCE.md)
-- [INSTALLATION.md](/Users/fredbook/Code/uDOS/docs/INSTALLATION.md)
-- [VIBE-Setup-Guide.md](/Users/fredbook/Code/uDOS/dev/docs/howto/VIBE-Setup-Guide.md)
+- [SVG Graphics Reference](SVG-GRAPHICS-REFERENCE.md)
+- [INSTALLATION.md](../INSTALLATION.md)
+- [VIBE-Setup-Guide.md](../../dev/docs/howto/VIBE-Setup-Guide.md)

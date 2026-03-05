@@ -75,7 +75,7 @@ def main(argv: list[str] | None = None) -> int:
         raise AssertionError("unreachable")
     if command == "install":
         repo_root = Path(__file__).resolve().parents[2]
-        script = repo_root / "bin" / "install-udos-vibe.sh"
+        script = repo_root / "bin" / "install-udos.sh"
         os.execv("/bin/bash", ["/bin/bash", str(script), *list(args.args)])
         raise AssertionError("unreachable")
 

@@ -7,7 +7,7 @@
 
 ## Overview
 
-The `UCODE ENV` command provides a shell interface for managing `.env` variables directly from the uDOS-vibe TUI and Wizard. It can be used in hints, configuration messages, and automated workflows.
+The `UCODE ENV` command provides a shell interface for managing `.env` variables directly from the uDOS TUI and Wizard. It can be used in hints, configuration messages, and automated workflows.
 
 ---
 
@@ -21,7 +21,7 @@ UCODE ENV
 **Output:**
 ```
 Current .env variables:
-  UDOS_ROOT = /Users/fredrick/Code/uDOS-vibe
+  UDOS_ROOT = /Users/fredrick/Code/uDOS
   USER_NAME = Fredrick
   UDOS_TIMEZONE = America/Los_Angeles
   UDOS_LOCATION = San Francisco
@@ -46,7 +46,7 @@ UCODE ENV username="Fred"
 Set environment variables:
   ✓ username = Fred
 
-File: /path/to/uDOS-vibe/.env
+File: /path/to/uDOS/.env
 ```
 
 ### Set Multiple Variables
@@ -61,7 +61,7 @@ Set environment variables:
   ✓ mistral_api_key = ***
   ✓ udos_timezone = UTC
 
-File: /path/to/uDOS-vibe/.env
+File: /path/to/uDOS/.env
 ```
 
 ### With Quoted Values (Spaces)
@@ -329,7 +329,7 @@ UCODE ENV USER_NAME="Alice" OS_TYPE=mac UDOS_TIMEZONE="America/New_York"
 
 ### After Moving Machines
 ```bash
-UCODE ENV UDOS_ROOT="/Users/newuser/Code/uDOS-vibe"
+UCODE ENV UDOS_ROOT="/Users/newuser/Code/uDOS"
 ```
 
 ### Automation/CI Setup

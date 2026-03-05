@@ -112,18 +112,6 @@
           ]
         }
       },
-      "offline_installer": {
-        "script": "distribution/installer.sh",
-        "default_tier": "core",
-        "tiers": {
-          "ultra": ["udos-core.tcz"],
-          "micro": ["udos-core.tcz"],
-          "mini": ["udos-core.tcz", "udos-api.tcz"],
-          "core": ["udos-core.tcz", "udos-api.tcz"],
-          "standard": ["udos-core.tcz", "udos-api.tcz"],
-          "wizard": ["udos-core.tcz", "udos-api.tcz", "udos-wizard.tcz"]
-        }
-      },
       "app_bundle": {
         "build_script": "distribution/alpine-core/build-sonic-stick.sh",
         "default_profile": "alpine-core+sonic",

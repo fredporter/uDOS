@@ -263,7 +263,7 @@ Recommended next review targets:
 - `docs/specs/OK-MODES-v1.3.md` had completion-endpoint terminology normalized
 - `docs/specs/ERROR-HANDLING-v1.4.4.md` was retired from the active tree as a superseded draft-era contract
 - `docs/specs/INTEGRATION-READINESS.md` was reduced to a short active readiness summary
-- `docs/specs/MINIMUM-SPEC-VIBE-CLI-UCODE.md` was rewritten around the `ucode`-first runtime path
+- `docs/specs/MINIMUM-SPEC-DEV-MODE-UCODE.md` is the active minimum runtime pathway contract for the `ucode`-first runtime plus optional Dev Mode lane
 - `docs/decisions/SONIC-DB-SPEC-GPU-PROFILES.md` was reduced to a short Sonic launch-profile decision
 - `docs/decisions/UDOS-ALPINE-THIN-GUI-RUNTIME-SPEC.md` was reduced to a short Alpine thin-GUI runtime decision
 - `docs/decisions/v1-5-ucode-tui-spec.md` was rewritten as the active v1.5 `ucode` TUI source of truth

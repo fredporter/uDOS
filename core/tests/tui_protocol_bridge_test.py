@@ -98,3 +98,25 @@ def test_protocol_bridge_formats_knowledge_artifact_events() -> None:
     titles = [event["title"] for event in events if event.get("kind") == "block"]
     assert "UCODE ROUTE" in titles
     assert "KNOWLEDGE ARTIFACTS" in titles
+
+
+def test_protocol_bridge_formats_helper_events() -> None:
+    bridge = UdosProtocolBridge()
+    events = bridge._result_to_events(
+        {
+            "status": "success",
+            "source_path": "/tmp/dev/ops/tasks.json",
+            "written": False,
+            "format_helper": {
+                "profile": "tasks-ledger",
+                "profile_label": "Contributor Tasks",
+                "valid": True,
+                "changed": True,
+                "errors": [],
+            },
+            "output": '{\n  "version": "1.0"\n}',
+        }
+    )
+
+    titles = [event["title"] for event in events if event.get("kind") == "block"]
+    assert "FORMAT HELPER" in titles

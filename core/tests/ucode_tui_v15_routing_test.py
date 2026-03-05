@@ -27,7 +27,7 @@ def _build_ucode(dev_mode: bool = False) -> tuple[UCODE, _DispatcherStub]:
     ucode.logger = SimpleNamespace(info=lambda *a, **k: None, debug=lambda *a, **k: None)
     ucode._dev_mode_active = lambda: dev_mode
     ucode._dispatch_with_vibe = lambda text: {
-        "status": "vibe",
+        "status": "dev_tool",
         "message": text,
         "routing": {"route": "dispatch.dev"},
     }
@@ -110,5 +110,5 @@ def test_route_input_keeps_dev_fallback_for_ambiguous_prompts():
     result = ucode._route_input("help me organise binder tasks")
 
     assert dispatcher.calls == []
-    assert result["status"] == "vibe"
+    assert result["status"] == "dev_tool"
     assert result["message"] == "help me organise binder tasks"

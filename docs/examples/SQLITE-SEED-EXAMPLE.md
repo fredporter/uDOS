@@ -35,5 +35,4 @@ CREATE TABLE IF NOT EXISTS npc (
 
 ## Companion Example
 
-- [Movement Demo Script Example](/Users/fredbook/Code/uDOS/docs/examples/MOVEMENT-DEMO-SCRIPT-EXAMPLE.md)
-
+- [Movement Demo Script Example](MOVEMENT-DEMO-SCRIPT-EXAMPLE.md)

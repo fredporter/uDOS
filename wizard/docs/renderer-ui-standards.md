@@ -1,6 +1,6 @@
 # Renderer + UI Module Standards (Wizard)
 
-This doc ties the new MD→HTML pipeline and the Svelte UI module expectations together so the Wizard server stays aligned with `docs/uDOS-v1-3.md`’s deliverables.
+This doc ties the MD→HTML pipeline and the Svelte UI module expectations together so Wizard can host rendered portal surfaces and private resource libraries behind the Beacon access lane.
 
 ## 1. MD → HTML Renderer
 
@@ -16,6 +16,7 @@ This doc ties the new MD→HTML pipeline and the Svelte UI module expectations t
 
 3. **Outputs**
    - Static site under `memory/vault/_site/<theme>/...` that wizard/portal-static can serve.
+   - Rendered output is Wizard-hosted content, not Beacon-hosted content.
    - Theme metadata exposed via API so the portal UI can render previews and the SvelteKit control plane (`web-admin/`) can build theme pickers.
    - Logs and mission records appended to the vault SQLite/`06_RUNS/` directories along with slot token metadata (see `docs/CSS-Tokens.md`).
 

@@ -17,7 +17,7 @@ _logger = get_logger("admin-secret-contract")
 class SecureVault:
     """Thin contract interface for reading secrets from the vault.
 
-    Returns raw secret values (not the dict envelope from VibeVaultService).
+    Returns raw secret values (not the dict envelope from DevModeToolVaultService).
     Failures are silenced so callers can treat missing secrets as unconfigured.
     """
 
@@ -31,9 +31,9 @@ class SecureVault:
             The secret string value, or None if not found / vault unavailable.
         """
         try:
-            from core.services.vibe_vault_service import VibeVaultService
+            from core.services.dev_mode_compat import DevModeToolVaultService
 
-            vault = VibeVaultService()
+            vault = DevModeToolVaultService()
             result = vault.get_secret(key)
             if isinstance(result, dict) and result.get("status") == "success":
                 return result.get("value") or result.get("data", {}).get("value")

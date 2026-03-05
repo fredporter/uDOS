@@ -48,7 +48,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["linux", "tinycore", "macos", "windows"]
+            "enum": ["linux", "macos", "windows"]
           }
         },
         "requires_gui": {
@@ -61,11 +61,6 @@
     "dependencies": {
       "type": "object",
       "properties": {
-        "tcz": {
-          "type": "array",
-          "items": {"type": "string"},
-          "description": "TinyCore Linux dependencies (.tcz packages)"
-        },
         "python": {
           "type": "array",
           "items": {"type": "string"},

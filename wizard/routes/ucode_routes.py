@@ -1,7 +1,7 @@
 """uCODE Bridge Routes
 ===================
 
-Expose a minimal, allowlisted uCODE command dispatch endpoint for Vibe/MCP.
+Expose a minimal, allowlisted uCODE command dispatch endpoint for the Dev Mode tool lane and MCP.
 """
 
 from __future__ import annotations

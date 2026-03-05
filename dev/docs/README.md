@@ -12,6 +12,10 @@ Root `docs/` is reserved for runtime, operator, feature, and product-facing docu
   `DEV-MODE-POLICY.md`
 - Workspace contract:
   `specs/DEV-WORKSPACE-SPEC.md`
+- Stable release program:
+  `specs/V1-5-STABLE-RELEASE-PROGRAM.md`
+- Dev Mode compatibility inventory:
+  `specs/V1-5-DEV-MODE-COMPAT-INVENTORY.md`
 - Contributor operations:
   `../ops/README.md`
 - Contributor decisions:

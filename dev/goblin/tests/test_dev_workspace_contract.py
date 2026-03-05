@@ -114,3 +114,62 @@ def test_dev_extension_service_singleton_refreshes_when_repo_root_changes(tmp_pa
     assert first.repo_root == first_root
     assert second.repo_root == second_root
     assert first is not second
+
+
+def test_dev_mode_requirements_reuse_dev_extension_framework_status(tmp_path, monkeypatch) -> None:
+    repo_root = tmp_path / "repo"
+    monkeypatch.setattr(
+        "wizard.services.dev_mode_service.get_repo_root",
+        lambda: repo_root,
+    )
+
+    service = DevModeService()
+
+    monkeypatch.setattr(
+        "wizard.services.dev_extension_service.get_dev_mode_service",
+        lambda repo_root=None: object(),
+    )
+    framework_status = {
+        "workspace_alias": "@dev",
+        "dev_root": str(repo_root / "dev"),
+        "dev_root_present": True,
+        "framework_manifest_path": str(repo_root / "dev" / "extension.json"),
+        "framework_manifest_present": True,
+        "required_files": ["AGENTS.md", "goblin/tests/README.md"],
+        "missing_files": ["goblin/tests/README.md"],
+        "framework_ready": False,
+        "tracked_sync_paths": ["ops", "docs", "goblin", "goblin/tests"],
+        "goblin_layers": {
+            "server": str(repo_root / "dev" / "goblin" / "server"),
+            "seed": str(repo_root / "dev" / "goblin" / "seed"),
+            "scenarios": str(repo_root / "dev" / "goblin" / "scenarios"),
+            "test_vault": str(repo_root / "dev" / "goblin" / "test-vault"),
+            "tests": str(repo_root / "dev" / "goblin" / "tests"),
+        },
+        "ops_paths": {
+            "root": str(repo_root / "dev" / "ops"),
+            "project": str(repo_root / "dev" / "ops" / "project.json"),
+            "tasks": str(repo_root / "dev" / "ops" / "tasks.md"),
+            "tasks_json": str(repo_root / "dev" / "ops" / "tasks.json"),
+            "completed": str(repo_root / "dev" / "ops" / "completed.json"),
+            "devlog": str(repo_root / "dev" / "ops" / "DEVLOG.md"),
+        },
+        "local_only_dirs": {
+            "files": {"path": str(repo_root / "dev" / "files"), "present": False},
+            "relecs": {"path": str(repo_root / "dev" / "relecs"), "present": False},
+            "dev-work": {"path": str(repo_root / "dev" / "dev-work"), "present": False},
+            "testing": {"path": str(repo_root / "dev" / "testing"), "present": False},
+        },
+    }
+
+    monkeypatch.setattr(
+        "wizard.services.dev_extension_service.DevExtensionService.framework_status",
+        lambda self: framework_status,
+    )
+
+    requirements = service.check_requirements(force=True)
+
+    assert requirements["dev_template_present"] is False
+    assert requirements["framework_ready"] is False
+    assert requirements["required_files"] == ["AGENTS.md", "goblin/tests/README.md"]
+    assert requirements["missing_files"] == ["goblin/tests/README.md"]

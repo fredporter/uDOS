@@ -81,7 +81,11 @@ def get_logic_context_window() -> int:
 def get_logic_local_status() -> dict[str, Any]:
     from wizard.services.logic_assist_service import get_logic_assist_service
 
-    status = get_logic_assist_service().get_status()["local"]
+    full_status = get_logic_assist_service().get_status()
+    status = full_status["local"]
+    context = full_status.get("context") or {}
+    conversations = full_status.get("conversations") or {}
+    cache = full_status.get("cache") or {}
     return {
         "ready": bool(status.get("ready")),
         "issue": status.get("issue"),
@@ -89,6 +93,10 @@ def get_logic_local_status() -> dict[str, Any]:
         "model_path": status.get("model_path"),
         "runtime": status.get("runtime", "gpt4all"),
         "detail": None,
+        "context_hash": context.get("hash"),
+        "context_files": context.get("count", 0),
+        "conversation_store": conversations.get("stored", 0),
+        "cache_entries": cache.get("entries", 0),
     }
 
 
@@ -100,7 +108,12 @@ def get_logic_network_status() -> dict[str, Any]:
         "ready": bool(status.get("ready")),
         "issue": status.get("issue"),
         "available_providers": status.get("available_providers", []),
+        "unavailable_providers": status.get("unavailable_providers", []),
+        "quota_ready_providers": status.get("quota_ready_providers", []),
+        "blocked_by_quota": status.get("blocked_by_quota", []),
         "primary": status.get("primary"),
+        "estimated_tokens": status.get("estimated_tokens"),
+        "providers": status.get("providers", []),
         "budget": status.get("budget", {}),
     }
 

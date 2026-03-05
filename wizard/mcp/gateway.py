@@ -15,15 +15,14 @@ from urllib.parse import urlparse
 import requests
 
 from core.services.unified_config_loader import get_bool_config, get_config
+from core.services.wizard_runtime_config import get_wizard_base_url
 
 
 class WizardGateway:
     """HTTP client wrapper for Wizard services."""
 
     def __init__(self, base_url: str | None = None, admin_token: str | None = None):
-        self.base_url = (
-            base_url or get_config("WIZARD_BASE_URL", "http://localhost:8765")
-        ).rstrip("/")
+        self.base_url = get_wizard_base_url(base_url)
         self.admin_token = admin_token or get_config("WIZARD_ADMIN_TOKEN", "")
         self._repo_root = Path(__file__).resolve().parents[2]
         self._wizardd = self._repo_root / "bin" / "wizardd"

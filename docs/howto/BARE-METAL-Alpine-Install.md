@@ -20,14 +20,15 @@
 
 ## Quick Install
 
+The legacy distro installer is retired for v1.5 stable.
+
+Use the active host installer for standard runtime setup:
+
 ```bash
-./distribution/installer.sh --tier=core --from=/path/to/apk --yes
+./bin/install-udos.sh --core
 ```
 
-**Options:**
-
-- Custom packages: `--packages="udos-core,udos-api"`
-- Specific tier: `--tier=core|desktop|wizard`
+For Alpine-specific package operations, follow the manual APK installation flow below.
 
 ---
 
@@ -204,9 +205,9 @@ cat /etc/init.d/udos
 
 ---
 
-## Migration from TinyCore
+## Migration from Legacy Alpine-Predecessor Images
 
-If migrating from TinyCore Linux:
+If migrating from an older pre-v1.5 image:
 
 1. **Backup data:** `/opt/udos`, `/etc/udos`
 2. **Boot Alpine:** Use live USB or remastered ISO
@@ -214,13 +215,14 @@ If migrating from TinyCore Linux:
 4. **Restore data:** Copy backups to new system
 5. **Test:** Verify all functionality
 
-See [ADR-0003-alpine-linux-migration.md](../../docs/decisions/ADR-0003-alpine-linux-migration.md) for complete migration guide.
+Use the active Alpine core spec and plugin format as the canonical target. See [ADR-0003-alpine-linux-migration.md](../../docs/decisions/ADR-0003-alpine-linux-migration.md) for the migration baseline.
 
 ---
 
 ## References
 
 - **ADR:** [ADR-0003-alpine-linux-migration.md](../../docs/decisions/ADR-0003-alpine-linux-migration.md)
+- **Packaging Contract:** [ALPINE-CORE-PLUGIN-FORMAT-v1.5.md](../specs/ALPINE-CORE-PLUGIN-FORMAT-v1.5.md)
 - **Spec:** [alpine-core.md](../../../dev/roadmap/alpine-core.md)
 - **Alpine Docs:** https://docs.alpinelinux.org/
 - **APK Tools:** https://wiki.alpinelinux.org/wiki/Alpine_Package_Keeper
@@ -229,4 +231,4 @@ See [ADR-0003-alpine-linux-migration.md](../../docs/decisions/ADR-0003-alpine-li
 ---
 
 _Last Updated: 2026-01-24_  
-_Replaces: tinycore-install.md (deprecated)_
+_Replaces: legacy bare-metal install notes_

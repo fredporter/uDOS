@@ -6,6 +6,7 @@ Scope boundary:
 - This mapping is for **Core TUI message IO only**.
 - It is not a GUI/CSS/WebView styling system.
 - Wizard webview theme/styling is a separate future round.
+- Wizard portal HTML publishing and MD -> HTML library rendering are separate surfaces.
 - Legacy broad replacement seeds are archived at:
   - `core/framework/seed/bank/system/themes/.archive/2026-02-15-legacy-broad-replacements/`
 

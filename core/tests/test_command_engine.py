@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from vibe.core.command_engine import CommandEngine, ExecutionResult
+from core.services.interactive_runtime import CommandEngine, ExecutionResult
 
 
 class MockDispatcher:

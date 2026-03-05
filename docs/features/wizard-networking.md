@@ -8,6 +8,12 @@
 - **RadioLink (LoRa / MeshCore):** Long-range, low-bandwidth packet relay between Wizards/relays. Small signed payloads only.
 - **NetLink (WireGuard):** Encrypted fallback over internet/WWW when available.
 
+Wizard remains the host behind Beacon:
+
+- Beacon introduces nearby users to Wizard-hosted portal surfaces.
+- RadioLink and NetLink extend Wizard reach without changing the Beacon ritual.
+- Rendered HTML libraries and other resource portals remain Wizard-hosted, not Beacon-hosted.
+
 ### Why RadioLink
 
 - Wi-Fi stability is range-limited; shrinking payloads does not increase range.

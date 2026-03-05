@@ -302,11 +302,11 @@ class TestThreeStageDispatch:
         assert result["stage"] == 3
 
     def test_stage_3_fallback(self):
-        """Unknown input should fallback to Stage 3 (Vibe)."""
+        """Unknown input should fallback to Stage 3 (Dev Mode tool)."""
         service = CommandDispatchService()
         result = service.dispatch("how do I reset my password?")
         assert result["stage"] == 3
-        assert result["dispatch_to"] == "vibe"
+        assert result["dispatch_to"] == "dev_tool"
         assert result["skill"] == "ask"
 
     def test_stage_3_inferred_device_skill(self):
@@ -321,7 +321,7 @@ class TestThreeStageDispatch:
         service = CommandDispatchService()
         result = service.dispatch("device script diagnostics")
         assert result["stage"] == 3
-        assert result["dispatch_to"] == "vibe"
+        assert result["dispatch_to"] == "dev_tool"
         assert result["skill"] == "ask"
 
     def test_dispatch_with_debug(self):
@@ -341,7 +341,7 @@ class TestThreeStageDispatch:
         contract = result.get("contract")
         assert isinstance(contract, dict)
         assert contract.get("version") == "m1.1"
-        assert contract.get("route_order") == ["ucode", "shell", "vibe"]
+        assert contract.get("route_order") == ["ucode", "shell", "dev_tool"]
 
     def test_dispatch_debug_includes_shell_confirmation_trace(self):
         """Debug mode should record explicit confirmation gate on Stage 2."""

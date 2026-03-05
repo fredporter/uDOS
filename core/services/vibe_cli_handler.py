@@ -1,7 +1,7 @@
 """
-Vibe CLI Service Handler
+Dev Mode tool CLI service handler.
 
-Routes CLI commands to Vibe backend services.
+Routes CLI commands to the Dev Mode contributor-tool backend services.
 Integrates with bin/ucode command dispatcher.
 
 Format: <SKILL> <ACTION> [options]
@@ -20,37 +20,39 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 
 from core.services.logging_manager import get_logger
-from core.services.vibe_device_service import get_device_service
-from core.services.vibe_vault_service import get_vault_service
-from core.services.vibe_workspace_service import get_workspace_service
-from core.services.vibe_network_service import get_network_service
-from core.services.vibe_script_service import get_script_service
-from core.services.vibe_user_service import get_user_service
-from core.services.vibe_wizard_service import get_wizard_service
+from core.services.dev_mode_compat import (
+    get_device_service,
+    get_network_service,
+    get_script_service,
+    get_user_service,
+    get_vault_service,
+    get_wizard_service,
+    get_workspace_service,
+)
 from core.services.vibe_help_service import get_help_service
-from core.services.vibe_binder_service import get_binder_service
+from core.services.dev_mode_compat import get_binder_service
 from core.services.vibe_tui_service import get_tui_service
 from core.services.vibe_skill_mapper import get_default_mapper
-from core.services.vibe_sync_service import get_sync_service
+from core.services.dev_mode_compat import get_sync_service
 
 
-class VibeCliHandler:
-    """Handle Vibe skill commands from CLI."""
+class DevModeToolCliHandler:
+    """Handle Dev Mode contributor-tool skill commands from CLI."""
 
     def __init__(self):
         """Initialize CLI handler."""
-        self.logger = get_logger("vibe-cli")
+        self.logger = get_logger("dev-mode-tool-cli")
         self.mapper = get_default_mapper()
 
     def is_vibe_command(self, command_text: str) -> bool:
         """
-        Check if command is a Vibe skill command.
+        Check if command is a Dev Mode contributor-tool skill command.
 
         Args:
             command_text: Command text (e.g., "DEVICE LIST")
 
         Returns:
-            True if command matches a Vibe skill
+            True if command matches a Dev Mode contributor-tool skill
         """
         parts = command_text.strip().split(None, 1)
         if not parts:
@@ -61,7 +63,7 @@ class VibeCliHandler:
 
     def execute(self, command_text: str) -> Dict[str, Any]:
         """
-        Execute a Vibe skill command.
+        Execute a Dev Mode contributor-tool skill command.
 
         Args:
             command_text: Command text (e.g., "DEVICE LIST")
@@ -84,7 +86,9 @@ class VibeCliHandler:
             if not skill:
                 return self._error(f"Unknown skill: {skill_name}")
 
-            self.logger.info(f"Executing Vibe command: {resolved_skill_name} {action}")
+            self.logger.info(
+                f"Executing Dev Mode tool command: {resolved_skill_name} {action}"
+            )
 
             # Route to skill handler
             handler = getattr(self, f"_handle_{resolved_skill_name}", None)
@@ -552,26 +556,25 @@ def _infer_error_code(message: str) -> BackendErrorCode:
 
 
 # Global handler
-_handler: Optional[VibeCliHandler] = None
+VibeCliHandler = DevModeToolCliHandler
+
+_handler: Optional[DevModeToolCliHandler] = None
 
 
-def get_cli_handler() -> VibeCliHandler:
+def get_cli_handler() -> DevModeToolCliHandler:
     """Get or create CLI handler."""
     global _handler
     if _handler is None:
-        _handler = VibeCliHandler()
+        _handler = DevModeToolCliHandler()
     return _handler
 
 
-def handle_vibe_command(command_text: str) -> Dict[str, Any]:
-    """
-    Handle a Vibe skill command.
-
-    Args:
-        command_text: Command text (e.g., "DEVICE LIST")
-
-    Returns:
-        Dict with status, output, message
-    """
+def handle_dev_mode_tool_command(command_text: str) -> Dict[str, Any]:
+    """Handle a Dev Mode contributor-tool skill command."""
     handler = get_cli_handler()
     return handler.execute(command_text)
+
+
+def handle_vibe_command(command_text: str) -> Dict[str, Any]:
+    """Compatibility alias for the legacy contributor-tool command entrypoint."""
+    return handle_dev_mode_tool_command(command_text)

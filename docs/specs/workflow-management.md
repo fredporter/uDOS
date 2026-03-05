@@ -7,10 +7,10 @@ This file is retained only as a redirect note.
 
 The active v1.5 workflow-management standard now lives in:
 
-- [WORKFLOW-SCHEDULER-v1.5.md](/Users/fredbook/Code/uDOS/docs/specs/WORKFLOW-SCHEDULER-v1.5.md)
-- [v1-5-workflow.md](/Users/fredbook/Code/uDOS/docs/decisions/v1-5-workflow.md)
-- [WORKFLOW-SCHEDULER-QUICKSTART.md](/Users/fredbook/Code/uDOS/docs/howto/WORKFLOW-SCHEDULER-QUICKSTART.md)
-- [STATUS.md](/Users/fredbook/Code/uDOS/docs/STATUS.md)
+- [WORKFLOW-SCHEDULER-v1.5.md](WORKFLOW-SCHEDULER-v1.5.md)
+- [v1-5-workflow.md](../decisions/v1-5-workflow.md)
+- [WORKFLOW-SCHEDULER-QUICKSTART.md](../howto/WORKFLOW-SCHEDULER-QUICKSTART.md)
+- [STATUS.md](../STATUS.md)
 
 ## Reason for Supersession
 

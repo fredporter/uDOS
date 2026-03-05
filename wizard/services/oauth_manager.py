@@ -34,6 +34,7 @@ from enum import Enum
 from urllib.parse import urlencode, parse_qs, urlparse
 
 from core.services.time_utils import utc_now_iso_z
+from core.services.wizard_runtime_config import get_wizard_oauth_callback_url
 from wizard.services.logging_api import get_logger
 from core.services.integration_registry import get_oauth_provider_definitions
 
@@ -91,7 +92,7 @@ class OAuthConfig:
     token_url: str
 
     # Optional
-    redirect_uri: str = "http://localhost:8765/oauth/callback"
+    redirect_uri: str = field(default_factory=get_wizard_oauth_callback_url)
     extra_params: Dict[str, str] = field(default_factory=dict)
 
     # Provider-specific
@@ -314,7 +315,7 @@ class OAuthConnectionManager:
                             "token_url", defaults.get("token_url", "")
                         ),
                         redirect_uri=config_data.get(
-                            "redirect_uri", "http://localhost:8765/oauth/callback"
+                            "redirect_uri", get_wizard_oauth_callback_url()
                         ),
                         api_base_url=config_data.get(
                             "api_base_url", defaults.get("api_base_url", "")

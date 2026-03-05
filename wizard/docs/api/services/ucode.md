@@ -22,10 +22,10 @@ uCODE bridge APIs for command dispatch, metadata, and hotkey/keymap configuratio
   "status": "ok",
   "command": "HELP",
   "routing_contract": {
-    "interactive_owner": "vibe-cli",
+    "interactive_owner": "dev-mode-tool",
     "tool_gateway": "wizard-mcp",
     "dispatch_contract_version": "m1.1",
-    "dispatch_route_order": ["ucode", "shell", "vibe"]
+    "dispatch_route_order": ["ucode", "shell", "dev_tool"]
   },
   "result": {
     "status": "success",
@@ -76,6 +76,17 @@ Consumers:
 - `GET /api/workflows/templates`
 - `GET /api/workflows/templates/{template_name}`
 - `POST /api/workflows/templates/{template_name}/duplicate`
+
+## Format Surface
+
+The shared v1.5 formatter is exposed through the command layer as:
+- `UCODE FORMAT [AUTO|TASKS|COMPLETED|WORKFLOW|JSON] <json|@path> [--write]`
+
+Notes:
+- `TASKS` targets contributor task ledgers and task-file payloads.
+- `COMPLETED` targets contributor completed-milestone ledgers.
+- `WORKFLOW` targets `.workflow.json` plans and runtime `workflow.json` specs.
+- `--write` is only valid with an `@path` source and only writes when helper validation passes.
 
 ### `GET /api/ucode/keymap` Response (example)
 

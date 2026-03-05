@@ -1,27 +1,27 @@
-# uDOS-vibe Installation Scripts
+# uDOS Bin Launchers And Install Scripts
 
-This directory contains installation and setup scripts for uDOS-vibe.
+This directory contains the active install and launcher scripts for the v1.5 runtime.
 
 ## Files
 
-### `install-udos-vibe.command` (macOS)
-- Double-clickable macOS launcher
-- Opens Terminal and runs the installer
-- **Usage**: Double-click in Finder
-
-### `install-udos-vibe.sh` (Cross-platform)
+### `install-udos.sh` (Cross-platform)
 - Comprehensive installation script
 - Works on macOS, Ubuntu, Alpine, and generic Linux
 - Handles all dependencies and configuration
 
 **Usage:**
 ```bash
-./install-udos-vibe.sh              # Full install
-./install-udos-vibe.sh --core       # Core only
-./install-udos-vibe.sh --wizard     # Add wizard
-./install-udos-vibe.sh --update     # Update
-./install-udos-vibe.sh --help       #Show help
+./install-udos.sh              # Full install
+./install-udos.sh --core       # Core only
+./install-udos.sh --wizard     # Add wizard
+./install-udos.sh --update     # Update
+./install-udos.sh --help       #Show help
 ```
+
+### `ucode-tui-v1.5.command` (macOS)
+- Double-clickable macOS launcher for the stable `ucode` TUI path
+- Opens Terminal and runs `bin/udos tui`
+- **Usage**: Double-click in Finder after installation
 
 ### `smoke-test.sh`
 - Comprehensive test suite for the installer
@@ -42,11 +42,11 @@ This directory contains installation and setup scripts for uDOS-vibe.
 - DESTROY & REPAIR system validation
 - Installer options and help text
 
-### `setup-vibe.sh`
-- Legacy vibe integration script
+### `setup-dev-mode.sh`
+- Dev Mode tooling bridge setup script
 - Creates symlinks for tools and skills
 - Called automatically by the main installer
-- **Usage**: `./setup-vibe.sh`
+- **Usage**: `./setup-dev-mode.sh`
 
 ## What the Installer Does
 
@@ -68,9 +68,9 @@ This directory contains installation and setup scripts for uDOS-vibe.
    - Checks for Obsidian
    - Sets up vault structure
 
-5. **Vibe CLI**
-   - Installs mistral-vibe
-   - Creates .vibe/ symlinks
+5. **Dev Mode Tooling**
+   - Enables the optional Vibe contributor tool only for the `dev` profile
+   - Creates `.vibe/` symlinks for contributor tooling
    - Installs core dependencies
 
 6. **Wizard (optional)**
@@ -92,33 +92,33 @@ This directory contains installation and setup scripts for uDOS-vibe.
 ### Full Install (Default)
 Installs everything: core + wizard + optional components
 ```bash
-./install-udos-vibe.sh
+./install-udos.sh
 ```
 
 ### Core Only
-Minimal install: vibe-cli + uDOS tools (no wizard server)
+Minimal install: `ucode` + uDOS tools (no wizard server)
 ```bash
-./install-udos-vibe.sh --core
+./install-udos.sh --core
 ```
 
 ### Wizard Only
 Adds wizard to existing core installation
 ```bash
-./install-udos-vibe.sh --wizard
+./install-udos.sh --wizard
 ```
 
 ### Update Mode
 Updates existing installation
 ```bash
-./install-udos-vibe.sh --update
+./install-udos.sh --update
 ```
 
 ## After Installation
 
 1. **Test Installation**
    ```bash
-   vibe --version
-   vibe
+   ./bin/udos
+   ./bin/ucode-tui-v1.5.command
    ```
 
 2. **Run Setup Story**
@@ -142,8 +142,9 @@ export PATH="$HOME/.local/bin:$PATH"
 ### Permission denied
 Make executable:
 ```bash
-chmod +x install-udos-vibe.sh
-chmod +x install-udos-vibe.command
+chmod +x install-udos.sh
+chmod +x install-udos.command
+chmod +x ucode-tui-v1.5.command
 ```
 
 ### Installation failed

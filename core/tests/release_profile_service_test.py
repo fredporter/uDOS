@@ -35,7 +35,7 @@ def _write_manifest(repo_root: Path) -> None:
                 "profile_id": "dev",
                 "label": "Dev",
                 "summary": "Contributor tooling",
-                "components": ["vibe"],
+                "components": ["dev-tool"],
                 "package_groups": ["dev", "utilities"],
                 "extensions": ["dev-mode"],
                 "blockers": ["dev-mode-gate"],
@@ -67,7 +67,6 @@ def test_install_summary_resolves_mandatory_core_and_profile_outputs(tmp_path: P
     assert summary["extensions"] == ["dev-mode"]
     assert summary["requires_dev"] is True
     assert summary["requires_wizard"] is False
-    assert summary["tinycore_tier"] == "core"
     assert summary["template_workspace"]["editor_library_ref"] == "typo"
 
 
@@ -84,6 +83,38 @@ def test_install_profiles_persists_enabled_state(tmp_path: Path):
         "enabled": ["core", "dev", "home"],
         "installed": ["core", "dev", "home"],
     }
+
+
+def test_set_enabled_can_disable_and_reenable_optional_profile(tmp_path: Path):
+    _write_manifest(tmp_path)
+    service = ReleaseProfileService(tmp_path)
+    service.install_profiles(["home", "dev"])
+
+    disabled = service.set_enabled("dev", False)
+    assert disabled["profile_id"] == "dev"
+    assert disabled["enabled"] is False
+    state = json.loads((tmp_path / "memory" / "ucode" / "release-profiles.json").read_text(encoding="utf-8"))
+    assert state["installed"] == ["core", "dev", "home"]
+    assert state["enabled"] == ["core", "home"]
+
+    enabled = service.set_enabled("dev", True)
+    assert enabled["profile_id"] == "dev"
+    assert enabled["enabled"] is True
+    state = json.loads((tmp_path / "memory" / "ucode" / "release-profiles.json").read_text(encoding="utf-8"))
+    assert state["installed"] == ["core", "dev", "home"]
+    assert sorted(state["enabled"]) == ["core", "dev", "home"]
+
+
+def test_set_enabled_rejects_disabling_mandatory_profile(tmp_path: Path):
+    _write_manifest(tmp_path)
+    service = ReleaseProfileService(tmp_path)
+
+    try:
+        service.set_enabled("core", False)
+    except ValueError as exc:
+        assert str(exc) == "Mandatory profile cannot be disabled"
+    else:
+        raise AssertionError("Expected mandatory profile disable to fail")
 
 
 def test_empire_extension_status_exposes_official_contract_fields(tmp_path: Path):

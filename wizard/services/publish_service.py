@@ -245,6 +245,10 @@ class PublishService:
         created_at = utc_now_iso_z()
         job_id = f"pub_{uuid4().hex[:12]}"
         manifest_id = f"manifest_{uuid4().hex[:12]}"
+        portal_class = str(options.get("portal_class", "private_resource_library")).strip() or "private_resource_library"
+        auth_required = bool(options.get("auth_required", True))
+        library_kind = str(options.get("library_kind", "markdown_vault")).strip() or "markdown_vault"
+        site_root = str(options.get("site_root", "memory/vault/_site")).strip() or "memory/vault/_site"
 
         manifest_payload = {
             "manifest_id": manifest_id,
@@ -256,7 +260,12 @@ class PublishService:
             "publish_lane": module_gate["publish_lane"],
             "artifact_manifest": {
                 "files": [],
-                "site_root": "memory/vault/_site",
+                "site_root": site_root,
+            },
+            "portal": {
+                "portal_class": portal_class,
+                "auth_required": auth_required,
+                "library_kind": library_kind,
             },
             "checksum_set": {
                 "source_workspace_sha256": sha256_text(source_workspace)
@@ -277,6 +286,10 @@ class PublishService:
             "manifest_id": manifest_id,
             "module_gate": module_gate,
             "options": options,
+            "portal_class": portal_class,
+            "auth_required": auth_required,
+            "library_kind": library_kind,
+            "site_root": site_root,
         }
 
         with self._lock:

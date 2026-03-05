@@ -73,5 +73,4 @@ Validate:
 ## Canonical Front Door
 
 Start with:
-- [Wizard Plugin Quickstart](/Users/fredbook/Code/uDOS/docs/howto/WIZARD-PLUGIN-QUICKSTART.md)
-
+- [Wizard Plugin Quickstart](WIZARD-PLUGIN-QUICKSTART.md)

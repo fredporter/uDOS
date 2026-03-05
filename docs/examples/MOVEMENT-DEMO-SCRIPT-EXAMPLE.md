@@ -23,5 +23,4 @@ The demo uses:
 
 ## Companion Example
 
-- [SQLite Seed Example](/Users/fredbook/Code/uDOS/docs/examples/SQLITE-SEED-EXAMPLE.md)
-
+- [SQLite Seed Example](SQLITE-SEED-EXAMPLE.md)

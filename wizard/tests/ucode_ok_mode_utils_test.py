@@ -44,35 +44,49 @@ def test_get_ok_local_status_variants(monkeypatch):
             self._local = local
 
         def get_status(self):
-            return {"local": self._local}
+            return self._local
 
     monkeypatch.setattr(
         utils,
         "get_logic_assist_service",
         lambda: _LogicAssist(
             {
-                "ready": False,
-                "issue": "gpt4all package unavailable",
-                "model": "model-a",
-                "model_path": "/tmp/model-a.gguf",
-                "runtime": "gpt4all",
+                "local": {
+                    "ready": False,
+                    "issue": "gpt4all package unavailable",
+                    "model": "model-a",
+                    "model_path": "/tmp/model-a.gguf",
+                    "runtime": "gpt4all",
+                },
+                "context": {"hash": "hash-a", "count": 2},
+                "conversations": {"stored": 1},
+                "cache": {"entries": 3},
             }
         ),
     )
     down = utils.get_ok_local_status()
     assert down["ready"] is False
     assert down["issue"] == "local runtime down"
+    assert down["context_hash"] == "hash-a"
+    assert down["context_files"] == 2
+    assert down["conversation_store"] == 1
+    assert down["cache_entries"] == 3
 
     monkeypatch.setattr(
         utils,
         "get_logic_assist_service",
         lambda: _LogicAssist(
             {
-                "ready": False,
-                "issue": "gpt4all model missing",
-                "model": "model-a",
-                "model_path": "/tmp/model-a.gguf",
-                "runtime": "gpt4all",
+                "local": {
+                    "ready": False,
+                    "issue": "gpt4all model missing",
+                    "model": "model-a",
+                    "model_path": "/tmp/model-a.gguf",
+                    "runtime": "gpt4all",
+                },
+                "context": {"hash": "hash-b", "count": 3},
+                "conversations": {"stored": 0},
+                "cache": {"entries": 0},
             }
         ),
     )
@@ -85,17 +99,25 @@ def test_get_ok_local_status_variants(monkeypatch):
         "get_logic_assist_service",
         lambda: _LogicAssist(
             {
-                "ready": True,
-                "issue": None,
-                "model": "model-a",
-                "model_path": "/tmp/model-a.gguf",
-                "runtime": "gpt4all",
+                "local": {
+                    "ready": True,
+                    "issue": None,
+                    "model": "model-a",
+                    "model_path": "/tmp/model-a.gguf",
+                    "runtime": "gpt4all",
+                },
+                "context": {"hash": "hash-c", "count": 4},
+                "conversations": {"stored": 2},
+                "cache": {"entries": 1},
             }
         ),
     )
     ready = utils.get_ok_local_status()
     assert ready["ready"] is True
     assert ready["issue"] is None
+    assert ready["context_hash"] == "hash-c"
+    assert ready["context_files"] == 4
+    assert ready["conversation_store"] == 2
 
 
 def test_get_ok_local_status_accepts_tagged_alias(monkeypatch):
@@ -110,7 +132,10 @@ def test_get_ok_local_status_accepts_tagged_alias(monkeypatch):
                     "model": "devstral-small-2",
                     "model_path": "/tmp/devstral-small-2.gguf",
                     "runtime": "gpt4all",
-                }
+                },
+                "context": {"hash": "hash-dev", "count": 5},
+                "conversations": {"stored": 3},
+                "cache": {"entries": 4},
             }
 
     monkeypatch.setattr(utils, "get_logic_assist_service", lambda: _LogicAssist())
@@ -118,3 +143,4 @@ def test_get_ok_local_status_accepts_tagged_alias(monkeypatch):
     ready = utils.get_ok_local_status()
     assert ready["ready"] is True
     assert ready["issue"] is None
+    assert ready["context_hash"] == "hash-dev"

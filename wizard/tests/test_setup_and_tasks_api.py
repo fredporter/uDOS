@@ -58,3 +58,22 @@ def test_task_scheduler_status():
 
     res = client.get("/api/tasks/status")
     assert res.status_code == 200
+
+
+def test_task_format_route_formats_contributor_tasks_payload():
+    app = build_app()
+    client = TestClient(app)
+
+    res = client.post(
+        "/api/tasks/format",
+        json={
+            "path": "dev/ops/tasks.json",
+            "content": '{"updated":"2026-03-04","active_missions":[{"title":"Tracked editor","status":"done","id":"tracked-editor"}],"version":"1.0"}',
+        },
+    )
+
+    assert res.status_code == 200
+    payload = res.json()
+    assert payload["status"] == "ok"
+    assert payload["format_helper"]["profile"] == "tasks-ledger"
+    assert payload["content"].index('"version"') < payload["content"].index('"updated"')

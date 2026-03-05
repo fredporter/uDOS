@@ -64,5 +64,4 @@ Validate architecture changes with:
 ## Canonical Front Door
 
 Start with:
-- [Architecture](/Users/fredbook/Code/uDOS/docs/ARCHITECTURE.md)
-
+- [Architecture](ARCHITECTURE.md)

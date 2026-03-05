@@ -82,7 +82,7 @@ Same as "Arrow Keys Not Working" above.
 ## Tab Completion Not Working
 
 **Check:**
-1. Using active interface: `vibe` (interactive) or `./bin/udos` (direct command)
+1. Using active interface: `ucode` (interactive) or `./bin/udos` (direct command)
 2. Not in piped/redirected mode: `./bin/udos ... | tee` disables TAB
 3. `uv` environment is synced: `uv sync`
 
@@ -225,7 +225,8 @@ export DEBUG_SMARTPROMPT=1
 export WIZARD_AUTOSTART=0
 
 # Use custom Wizard URL
-export WIZARD_BASE_URL=http://localhost:8765
+export WIZARD_PORT="${WIZARD_PORT:-8765}"
+export WIZARD_BASE_URL="${WIZARD_BASE_URL:-http://localhost:${WIZARD_PORT}}"
 ```
 
 Add to `~/.bashrc` or `~/.zshrc` to persist.
@@ -237,7 +238,7 @@ Add to `~/.bashrc` or `~/.zshrc` to persist.
 1. **Enable Debug Mode:**
    ```bash
    export DEBUG_SMARTPROMPT=1
-   vibe
+   ucode
    ```
 
 2. **Check Logs:**

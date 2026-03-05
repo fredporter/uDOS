@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 import hashlib
+import json
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +19,8 @@ from wizard.services.logic_assist_profile import (
     LogicAssistProfile,
     load_logic_assist_profile,
 )
+from wizard.services.ok_context_store import build_ok_context_payload
+from wizard.services.ok_profile_service import render_system_prompt
 from wizard.services.quota_tracker import APIProvider, get_quota_tracker, record_usage
 
 logger = get_logger("wizard.logic-assist")
@@ -65,14 +68,25 @@ class LogicAssistService:
         self.quota = get_quota_tracker()
         self.cache_root = repo_root / "memory" / "wizard" / "logic_cache"
         self.cache_root.mkdir(parents=True, exist_ok=True)
+        self.conversation_root = repo_root / "memory" / "wizard" / "logic_conversations"
+        self.conversation_root.mkdir(parents=True, exist_ok=True)
 
     def get_status(self) -> dict[str, Any]:
         local = self.local.status().to_dict()
         network = get_cloud_availability()
+        context = build_ok_context_payload()
         return {
             "schema": "udos-logic-assist-v1.5",
             "profile": self.profile.to_dict(),
             "local": local,
+            "context": {
+                "workspace": context["workspace"],
+                "hash": context["hash"],
+                "files": context["files"],
+                "count": context["count"],
+            },
+            "conversations": self._conversation_status(),
+            "cache": self._cache_status(),
             "network": {
                 **network,
                 "budget": self._budget_status(),
@@ -109,7 +123,18 @@ class LogicAssistService:
         if not prompt:
             return LogicAssistResponse(success=False, error="prompt is required")
 
-        cache_key = self._cache_key(prompt, request)
+        if request.force_network and not request.allow_network:
+            return LogicAssistResponse(
+                success=False,
+                error="force_network requires allow_network",
+            )
+
+        context_payload = build_ok_context_payload(workspace=request.workspace)
+        conversation_id = self._conversation_id(request, device_id)
+        history = self._load_conversation_history(conversation_id)
+        system_prompt = self._build_system_prompt(request, context_payload)
+        effective_prompt = self._compose_prompt(prompt, request, history)
+        cache_key = self._cache_key(effective_prompt, system_prompt, request, context_payload, conversation_id)
         if self.profile.response_cache_enabled:
             cached = self._read_cache(cache_key)
             if cached:
@@ -123,12 +148,14 @@ class LogicAssistService:
             use_network = True
 
         try:
+            if request.offline_required and not local_status.ready:
+                raise RuntimeError(local_status.issue or "local assist unavailable")
             if use_network:
-                content, model = run_cloud_with_fallback(prompt)
+                content, model = run_cloud_with_fallback(effective_prompt)
                 provider = self.profile.network_primary_provider
                 backend = "wizard-network"
-                cost = self._estimate_network_cost(prompt, content, provider)
-                self._record_network_usage(provider, prompt, content, cost)
+                cost = self._estimate_network_cost(effective_prompt, content, provider)
+                self._record_network_usage(provider, effective_prompt, content, cost)
                 response = LogicAssistResponse(
                     success=True,
                     content=content,
@@ -140,10 +167,13 @@ class LogicAssistService:
                         "mode": request.mode or "general",
                         "source": "network",
                         "tier": self._provider_tier(provider),
+                        "conversation_id": conversation_id,
+                        "workspace": request.workspace,
+                        "context_hash": context_payload["hash"],
                     },
                 )
             else:
-                content = self.local.generate(prompt, system=request.system_prompt)
+                content = self.local.generate(effective_prompt, system=system_prompt)
                 response = LogicAssistResponse(
                     success=True,
                     content=content,
@@ -155,12 +185,55 @@ class LogicAssistService:
                         "mode": request.mode or "general",
                         "source": "local",
                         "tier": "local",
+                        "conversation_id": conversation_id,
+                        "workspace": request.workspace,
+                        "context_hash": context_payload["hash"],
                     },
                 )
         except Exception as exc:
-            logger.warn("logic assist request failed: %s", exc)
-            response = LogicAssistResponse(success=False, error=str(exc))
+            if (
+                not use_network
+                and not request.offline_required
+                and request.allow_network
+                and self.profile.network_enabled
+                and get_cloud_availability().get("ready")
+            ):
+                try:
+                    content, model = run_cloud_with_fallback(effective_prompt)
+                    provider = self.profile.network_primary_provider
+                    cost = self._estimate_network_cost(effective_prompt, content, provider)
+                    self._record_network_usage(provider, effective_prompt, content, cost)
+                    response = LogicAssistResponse(
+                        success=True,
+                        content=content,
+                        model=model,
+                        provider=provider,
+                        backend="wizard-network",
+                        cost=cost,
+                        route={
+                            "mode": request.mode or "general",
+                            "source": "network-fallback",
+                            "tier": self._provider_tier(provider),
+                            "conversation_id": conversation_id,
+                            "workspace": request.workspace,
+                            "context_hash": context_payload["hash"],
+                            "fallback_reason": str(exc),
+                        },
+                    )
+                except Exception as fallback_exc:
+                    logger.warn("logic assist request failed: %s", fallback_exc)
+                    response = LogicAssistResponse(success=False, error=str(fallback_exc))
+            else:
+                logger.warn("logic assist request failed: %s", exc)
+                response = LogicAssistResponse(success=False, error=str(exc))
 
+        self._append_conversation_event(
+            conversation_id=conversation_id,
+            request=request,
+            prompt=prompt,
+            effective_prompt=effective_prompt,
+            response=response,
+        )
         if response.success and self.profile.response_cache_enabled:
             self._write_cache(cache_key, response.to_dict())
         return response
@@ -217,22 +290,175 @@ class LogicAssistService:
             cost=cost,
         )
 
-    def _cache_key(self, prompt: str, request: LogicAssistRequest) -> str:
+    def _build_system_prompt(
+        self,
+        request: LogicAssistRequest,
+        context_payload: dict[str, Any],
+    ) -> str:
+        lines = [render_system_prompt(request.mode or "general")]
+        lines.append(f"Workspace: {request.workspace}")
+        lines.append(f"Privacy: {request.privacy}")
+        if request.actor:
+            lines.append(f"Actor: {request.actor}")
+        if request.tags:
+            lines.append(f"Tags: {', '.join(request.tags)}")
+        lines.append(f"Context bundle hash: {context_payload['hash']}")
+        if context_payload["files"]:
+            lines.append("Context files:")
+            lines.extend(f"- {item}" for item in context_payload["files"])
+        context_excerpt = self._context_excerpt(context_payload)
+        if context_excerpt:
+            lines.append("Active governance and workspace context:")
+            lines.append(context_excerpt)
+        if request.system_prompt:
+            lines.append("Additional operator instructions:")
+            lines.append(request.system_prompt.strip())
+        return "\n".join(lines).strip()
+
+    def _context_excerpt(self, context_payload: dict[str, Any]) -> str:
+        bundle = context_payload.get("bundle") or {}
+        if not isinstance(bundle, dict):
+            return ""
+
+        excerpts: list[str] = []
+        total = 0
+        max_chars = 1800
+        per_file = 320
+
+        for name in sorted(bundle):
+            content = str(bundle.get(name) or "").strip()
+            if not content:
+                continue
+            compact = " ".join(content.split())
+            excerpt = compact[:per_file].strip()
+            if len(compact) > per_file:
+                excerpt += "..."
+            block = f"[{name}] {excerpt}"
+            if total + len(block) > max_chars:
+                break
+            excerpts.append(block)
+            total += len(block)
+
+        return "\n".join(excerpts)
+
+    def _compose_prompt(
+        self,
+        prompt: str,
+        request: LogicAssistRequest,
+        history: list[dict[str, Any]],
+    ) -> str:
+        sections: list[str] = [f"Workspace request ({request.workspace}):", prompt.strip()]
+        recent = history[-4:]
+        if recent:
+            transcript = []
+            for item in recent:
+                transcript.append(f"User: {item.get('prompt', '').strip()}")
+                transcript.append(f"Assistant: {item.get('response', '').strip()}")
+            sections.append("Recent conversation:")
+            sections.append("\n".join(line for line in transcript if line.strip()))
+        sections.append("Respond with concise operational guidance aligned to uDOS and ucode.")
+        return "\n\n".join(section for section in sections if section.strip())
+
+    def _conversation_id(self, request: LogicAssistRequest, device_id: str) -> str:
+        if request.conversation_id and request.conversation_id.strip():
+            return request.conversation_id.strip()
+        digest = hashlib.sha256()
+        digest.update(str(device_id or "local").encode("utf-8"))
+        digest.update(b":")
+        digest.update(str(request.workspace or "core").encode("utf-8"))
+        digest.update(b":")
+        digest.update(str(request.actor or "operator").encode("utf-8"))
+        return digest.hexdigest()[:16]
+
+    def _conversation_path(self, conversation_id: str) -> Path:
+        return self.conversation_root / f"{conversation_id}.json"
+
+    def _load_conversation_history(self, conversation_id: str) -> list[dict[str, Any]]:
+        path = self._conversation_path(conversation_id)
+        if not path.exists():
+            return []
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            return []
+        items = payload.get("messages")
+        return items if isinstance(items, list) else []
+
+    def _append_conversation_event(
+        self,
+        *,
+        conversation_id: str,
+        request: LogicAssistRequest,
+        prompt: str,
+        effective_prompt: str,
+        response: LogicAssistResponse,
+    ) -> None:
+        path = self._conversation_path(conversation_id)
+        payload = {
+            "conversation_id": conversation_id,
+            "workspace": request.workspace,
+            "actor": request.actor,
+            "updated_at": utc_now_iso_z(),
+            "messages": self._load_conversation_history(conversation_id),
+        }
+        payload["messages"].append(
+            {
+                "created_at": utc_now_iso_z(),
+                "mode": request.mode or "general",
+                "prompt": prompt,
+                "effective_prompt": effective_prompt,
+                "response": response.content,
+                "success": response.success,
+                "backend": response.backend,
+                "provider": response.provider,
+                "error": response.error,
+            }
+        )
+        payload["messages"] = payload["messages"][-12:]
+        path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+    def _cache_key(
+        self,
+        prompt: str,
+        system_prompt: str,
+        request: LogicAssistRequest,
+        context_payload: dict[str, Any],
+        conversation_id: str,
+    ) -> str:
         digest = hashlib.sha256()
         digest.update(prompt.encode("utf-8"))
+        digest.update(system_prompt.encode("utf-8"))
         digest.update((request.mode or "").encode("utf-8"))
         digest.update(request.workspace.encode("utf-8"))
+        digest.update(request.privacy.encode("utf-8"))
+        digest.update(",".join(request.tags).encode("utf-8"))
+        digest.update(context_payload["hash"].encode("utf-8"))
+        digest.update(conversation_id.encode("utf-8"))
         return digest.hexdigest()
 
     def _cache_path(self, cache_key: str) -> Path:
         return self.cache_root / f"{cache_key}.json"
 
+    def _cache_status(self) -> dict[str, Any]:
+        entries = sorted(self.cache_root.glob("*.json"))
+        return {
+            "entries": len(entries),
+            "path": str(self.cache_root),
+        }
+
+    def _conversation_status(self) -> dict[str, Any]:
+        entries = sorted(self.conversation_root.glob("*.json"))
+        latest = max((path.stat().st_mtime for path in entries), default=None)
+        return {
+            "stored": len(entries),
+            "path": str(self.conversation_root),
+            "latest_epoch": latest,
+        }
+
     def _read_cache(self, cache_key: str) -> dict[str, Any] | None:
         path = self._cache_path(cache_key)
         if not path.exists():
             return None
-        import json
-
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
             return data if isinstance(data, dict) else None
@@ -240,8 +466,6 @@ class LogicAssistService:
             return None
 
     def _write_cache(self, cache_key: str, payload: dict[str, Any]) -> None:
-        import json
-
         path = self._cache_path(cache_key)
         path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 

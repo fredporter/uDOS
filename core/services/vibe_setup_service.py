@@ -1,14 +1,11 @@
-"""Vibe Setup Service
+"""Dev Mode setup service.
 
-Initializes uDOS configuration, including VAULT_ROOT in .env
-Ensures all required environment variables are set for Vibe operations.
+Initializes local uDOS configuration, including VAULT_ROOT in .env.
 """
 from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
-
-from dotenv import load_dotenv, set_key
 
 from core.services.logging_manager import get_logger
 from core.services.paths import get_memory_root, get_vault_root
@@ -19,14 +16,32 @@ _logger = get_logger(__name__)
 _setup_service_instance = None
 
 
-class VipeSetupService:
+def _set_env_key(env_file: Path, key: str, value: str) -> None:
+    lines: list[str] = []
+    if env_file.exists():
+        lines = env_file.read_text(encoding="utf-8").splitlines()
+
+    updated = False
+    for index, line in enumerate(lines):
+        if line.startswith(f"{key}="):
+            lines[index] = f'{key}="{value}"'
+            updated = True
+            break
+
+    if not updated:
+        lines.append(f'{key}="{value}"')
+
+    env_file.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+class DevModeToolSetupService:
     """Handles uDOS initialization and configuration setup.
     Ensures VAULT_ROOT and other critical environment variables are set.
     """
 
     def __init__(self):
         """Initialize setup service."""
-        self.logger = get_logger("vibe-setup-service")
+        self.logger = get_logger("dev-mode-tool-setup-service")
         self.repo_root = get_repo_root()
         self.env_file = self.repo_root / ".env"
 
@@ -45,9 +60,6 @@ class VipeSetupService:
         vault_root = Path(vault_path)
         vault_root.mkdir(parents=True, exist_ok=True)
 
-        # Load existing .env
-        load_dotenv(self.env_file)
-
         current_vault_root = get_config("VAULT_ROOT", "")
 
         if current_vault_root and current_vault_root == vault_path:
@@ -61,7 +73,7 @@ class VipeSetupService:
 
         # Set VAULT_ROOT in .env
         try:
-            set_key(str(self.env_file), "VAULT_ROOT", vault_path)
+            _set_env_key(self.env_file, "VAULT_ROOT", vault_path)
             import os
 
             os.environ["VAULT_ROOT"] = vault_path
@@ -148,10 +160,14 @@ class VipeSetupService:
         }
 
 
-def get_setup_service() -> VipeSetupService:
+VibeSetupService = DevModeToolSetupService
+VipeSetupService = DevModeToolSetupService
+
+
+def get_setup_service() -> DevModeToolSetupService:
     """Returns the singleton instance of the SetupService.
     """
     global _setup_service_instance
     if _setup_service_instance is None:
-        _setup_service_instance = VipeSetupService()
+        _setup_service_instance = DevModeToolSetupService()
     return _setup_service_instance

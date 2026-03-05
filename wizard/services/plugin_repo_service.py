@@ -55,7 +55,11 @@ class PluginRepoService:
         with open(manifest_path, "r", encoding="utf-8") as f:
             manifest = json.load(f)
 
-        packages = list(plugin_path.glob("*.tar.gz")) + list(plugin_path.glob("*.tcz"))
+        packages = (
+            list(plugin_path.glob("*.apk"))
+            + list(plugin_path.glob("*.tar.gz"))
+            + list(plugin_path.glob("*.zip"))
+        )
         package_info = None
         if packages:
             pkg = packages[0]
@@ -81,7 +85,11 @@ class PluginRepoService:
         if not plugin_path.exists():
             raise HTTPException(status_code=404, detail=f"Plugin not found: {plugin_id}")
 
-        packages = list(plugin_path.glob("*.tar.gz")) + list(plugin_path.glob("*.tcz"))
+        packages = (
+            list(plugin_path.glob("*.apk"))
+            + list(plugin_path.glob("*.tar.gz"))
+            + list(plugin_path.glob("*.zip"))
+        )
         if not packages:
             raise HTTPException(
                 status_code=404, detail=f"No downloadable package for: {plugin_id}"

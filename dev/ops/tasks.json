@@ -6,9 +6,121 @@
   "source_markdown": "tasks.md",
   "active_missions": [
     {
+      "id": "self-hosted-dev-loop",
+      "title": "Close the v1.5 self-hosted @dev contributor loop",
+      "status": "completed",
+      "lane": "runtime",
+      "priority": "high",
+      "artifacts": [
+        "dev/ops/tasks.md",
+        "dev/docs/roadmap/ROADMAP.md",
+        "dev/docs/specs/V1-5-STABLE-RELEASE-PROGRAM.md",
+        "wizard/services/dev_mode_service.py",
+        "wizard/routes/dev_routes.py",
+        "wizard/dashboard/src/routes/DevMode.svelte",
+        "core/commands/",
+        "core/workflows/",
+        "wizard/services/task_scheduler.py",
+        "dev/goblin/tests/test_dev_ops_routes.py"
+      ]
+    },
+    {
+      "id": "local-assist-reliability",
+      "title": "Harden the local conversation engine and uDOS knowledge bundle",
+      "status": "completed",
+      "lane": "wizard",
+      "priority": "high",
+      "artifacts": [
+        "wizard/services/logic_assist_service.py",
+        "wizard/services/ok_context_store.py",
+        "wizard/routes/provider_routes.py",
+        "wizard/tests/logic_assist_service_test.py",
+        "core/services/logic_assist_setup.py",
+        "wizard/services/local_model_gpt4all.py",
+        "wizard/routes/self_heal_routes.py",
+        "core/tests/logic_assist_setup_test.py",
+        "wizard/services/logic_assist_profile.py",
+        "wizard/services/cloud_provider_executor.py"
+      ]
+    },
+    {
+      "id": "managed-budget-rotation-closure",
+      "title": "Certify provider rotation, budget policy, and task-scheduler handoff",
+      "status": "completed",
+      "lane": "wizard",
+      "priority": "high",
+      "artifacts": [
+        "wizard/services/cloud_provider_executor.py",
+        "wizard/services/quota_tracker.py",
+        "wizard/services/task_scheduler.py",
+        "wizard/routes/ops_routes.py",
+        "wizard/routes/ucode_logic_mode_utils.py",
+        "wizard/tests/managed_operations_runtime_contract_test.py",
+        "wizard/tests/cloud_provider_executor_test.py",
+        "wizard/tests/task_scheduler_windows_test.py",
+        "wizard/tests/maintenance_job_test.py",
+        "wizard/tests/ops_routes_test.py",
+        "wizard/tests/ucode_ok_routes_test.py",
+        "docs/howto/MANAGED-WIZARD-OPERATIONS.md"
+      ]
+    },
+    {
+      "id": "release-demo-pack",
+      "title": "Build the v1.5 demo ucode release pack",
+      "status": "completed",
+      "lane": "release",
+      "priority": "high",
+      "artifacts": [
+        "docs/examples/ucode_v1_5_release_pack/",
+        "docs/examples/ucode_v1_5_release_pack/CERTIFICATION.md",
+        "docs/examples/ucode_v1_5_release_pack/certification.json",
+        "docs/examples/ucode_v1_5_release_pack/scripts/demo_runtime.py",
+        "docs/examples/ucode_v1_5_release_pack/scripts/run_demo_00_setup_and_status.py",
+        "docs/examples/ucode_v1_5_release_pack/scripts/run_demo_01_local_assist_and_knowledge.py",
+        "docs/examples/ucode_v1_5_release_pack/scripts/run_demo_02_workflow_and_task_planning.py",
+        "docs/examples/ucode_v1_5_release_pack/scripts/run_demo_03_managed_scheduler_and_budget.py",
+        "docs/examples/ucode_v1_5_release_pack/scripts/run_demo_04_self_hosted_dev_mode.py",
+        "core/tests/ucode_release_demo_pack_test.py",
+        "core/tests/ucode_release_demo_scripts_test.py",
+        "dev/docs/specs/V1-5-STABLE-RELEASE-PROGRAM.md",
+        "docs/specs/V1-5-SHAKEDOWN-CHECKLIST.md"
+      ]
+    },
+    {
+      "id": "certified-profile-signoff",
+      "title": "Close profile evidence and final stable freeze signoff",
+      "status": "completed",
+      "lane": "release",
+      "priority": "high",
+      "artifacts": [
+        "distribution/profiles/",
+        "memory/ucode/release-profiles.json",
+        "version.json",
+        "docs/STATUS.md",
+        "docs/specs/V1-5-STABLE-SIGNOFF.md",
+        "docs/specs/V1-5-STABLE-SIGNOFF.json"
+      ]
+    },
+    {
+      "id": "stable-freeze-summary",
+      "title": "Produce final release readiness summary and freeze evidence",
+      "status": "completed",
+      "lane": "release",
+      "priority": "high",
+      "artifacts": [
+        "docs/specs/V1-5-STABLE-SIGNOFF.md",
+        "docs/specs/V1-5-STABLE-SIGNOFF.json",
+        "docs/specs/V1-5-FREEZE-SUMMARY.md",
+        "docs/specs/V1-5-FREEZE-SUMMARY.json",
+        "docs/examples/ucode_v1_5_release_pack/CERTIFICATION.md",
+        "version.json",
+        "docs/STATUS.md"
+      ]
+    },
+    {
       "id": "dev-workspace-consolidation",
       "title": "Complete the @dev operations consolidation",
-      "status": "in_progress",
+      "status": "completed",
       "lane": "dev",
       "priority": "high",
       "artifacts": [
@@ -20,7 +132,7 @@
     {
       "id": "wizard-dev-service-alignment",
       "title": "Align Wizard Dev Mode services to the @dev operations model",
-      "status": "in_progress",
+      "status": "completed",
       "lane": "wizard",
       "priority": "high",
       "artifacts": [
@@ -32,7 +144,7 @@
     {
       "id": "goblin-overlay-testing",
       "title": "Expand Goblin as the contributor overlay test lane",
-      "status": "in_progress",
+      "status": "completed",
       "lane": "dev",
       "priority": "medium",
       "artifacts": [
@@ -44,7 +156,7 @@
     {
       "id": "editor-tooling-alignment",
       "title": "Unify Codex, Copilot, and VS Code contributor instructions",
-      "status": "in_progress",
+      "status": "completed",
       "lane": "dev",
       "priority": "medium",
         "artifacts": [
@@ -53,6 +165,31 @@
           ".vscode/settings.json",
           "dev/ops/templates/"
         ]
+    },
+    {
+      "id": "tracked-editor-round",
+      "title": "Complete the v1.5 @dev tracked editor round",
+      "status": "completed",
+      "lane": "wizard",
+      "priority": "medium",
+      "artifacts": [
+        "wizard/services/dev_mode_service.py",
+        "wizard/routes/dev_routes.py",
+        "wizard/dashboard/src/routes/DevMode.svelte",
+        "dev/goblin/tests/test_dev_ops_routes.py"
+      ]
+    },
+    {
+      "id": "goblin-overlay-drain",
+      "title": "Continue draining contributor-overlay coverage from wizard/tests into Goblin",
+      "status": "completed",
+      "lane": "dev",
+      "priority": "medium",
+      "artifacts": [
+        "dev/goblin/tests/",
+        "wizard/tests/",
+        "wizard/dashboard/src/routes/DevMode.svelte"
+      ]
     }
   ]
 }

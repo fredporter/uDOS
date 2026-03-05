@@ -1,10 +1,15 @@
-"""Tests for typed backend error mapping in VibeCliHandler."""
+"""Tests for typed backend error mapping in the Dev Mode tool CLI handler."""
 
 from core.services.vibe_cli_handler import (
     BackendErrorCode,
+    DevModeToolCliHandler,
     VibeCliHandler,
     _infer_error_code,
 )
+
+
+def test_canonical_cli_handler_alias_is_stable() -> None:
+    assert DevModeToolCliHandler is VibeCliHandler
 
 
 def test_infer_error_code_not_found() -> None:

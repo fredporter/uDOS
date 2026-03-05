@@ -1,3 +1,9 @@
+# Alpine Core One-App GUI Mode
+
+Status: active feature reference  
+Updated: 2026-03-05
+Scope: one-app Alpine GUI concept and acceptance model aligned to the v1.5 runtime.
+
 uDOS Alpine Core “One-App GUI Mode” (Alpine Diskless + Wayland + Cage + Thin UI)
 
 Goal
@@ -13,6 +19,11 @@ We will use:
 	•	Persistent storage via an overlay/apkovl and/or a dedicated persistence partition.
 
 Design principle: TUI-first OS; GUI is an optional membrane that boots fast and runs one trusted app.
+
+Concept boundary:
+	•	Beacon is not part of the Alpine GUI runtime.
+	•	Wizard-hosted portals and private resource libraries may be shown through the thin UI shell.
+	•	This remains a one-app front panel, not a general desktop or browser session.
 
 ⸻
 
@@ -205,16 +216,16 @@ Deliverables
 
 Alpine Core Standards & Plugin Model (Migration from Tiny Core)
 
-uDOS previously relied on Tiny Core Linux concepts such as .tcz extensions and tce-load. When migrating to Alpine Linux, uDOS must adopt Alpine-native primitives while preserving the plugin-oriented mental model.
+uDOS previously relied on a legacy extension model. The active v1.5 direction is the Alpine core spec and plugin format, using Alpine-native primitives while preserving the plugin-oriented mental model.
 
-Mapping: Tiny Core → Alpine
+Mapping: legacy extension model → Alpine
 
-Tiny Core	Alpine Linux	uDOS Interpretation
-.tcz extension	.apk package	uDOS plugin package
-tce-load	apk add / del	Plugin enable / disable
-onboot.lst	Plugin manifest file	Desired plugin state
-TC backup/restore	apkovl (lbu)	Persisted system config
-TC extension dir	APK repo + cache	Plugin distribution store
+Legacy model	Alpine Linux	uDOS Interpretation
+legacy package	.apk package	uDOS plugin package
+legacy package load	apk add / del	Plugin enable / disable
+boot extension list	Plugin manifest file	Desired plugin state
+legacy backup/restore	apkovl (lbu)	Persisted system config
+legacy extension store	APK repo + cache	Plugin distribution store
 
 uDOS Plugin Strategy on Alpine
 	•	All uDOS functionality is delivered as APK packages following the naming scheme:

@@ -1,15 +1,8 @@
-"""
-Beacon Portal Routes
+"""Beacon portal routes plus Wizard-managed support surfaces.
 
-Manages beacon node configuration, WiFi setup, VPN tunnel control,
-and device registration for local mesh networks.
-
-Endpoints:
-  - /api/beacon/configure       — Setup beacon WiFi + network mode
-  - /api/beacon/status          — Beacon health + connected devices
-  - /api/beacon/devices         — List recommended router hardware
-  - /api/beacon/tunnel/*        — VPN tunnel management
-  - /api/beacon/plugins/*       — Local plugin caching
+Beacon-facing routes remain about presence, connect, and redirect. Tunnel,
+quota, and cache routes are Wizard-side support lanes exposed behind the same
+namespace so the Beacon access path stays simple.
 """
 
 from pathlib import Path

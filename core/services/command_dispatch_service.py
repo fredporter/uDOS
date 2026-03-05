@@ -3,7 +3,7 @@
 Dispatches user input through:
 1. uCODE command matching (high confidence)
 2. Shell passthrough (syntax safe)
-3. Vibe skill fallback (OK handling)
+3. Dev Mode contributor tool fallback
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ from core.services.logging_manager import get_logger
 logger = get_logger(__name__)
 
 DISPATCH_CONTRACT_VERSION = "m1.1"
-DISPATCH_ROUTE_ORDER = ("ucode", "shell", "vibe")
+DISPATCH_ROUTE_ORDER = ("ucode", "shell", "dev_tool")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -45,7 +45,7 @@ class DispatchConfig:
     shell_timeout_sec: float = 5.0
     shell_blocklist: set[str] = None
     shell_allowlist: set[str] = None
-    vibe_timeout_sec: float = 2.0
+    dev_tool_timeout_sec: float = 2.0
     shell_confirmation_required: bool = True
     shell_read_only_allowlist: set[str] = None
     debug: bool = False
@@ -208,12 +208,12 @@ def validate_shell_command(user_input: str, config: DispatchConfig) -> Tuple[boo
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Stage 3: Vibe Skill Routing
+# Stage 3: Dev Mode Tool Routing
 # ─────────────────────────────────────────────────────────────────────────────
 
-def infer_vibe_skill(user_input: str) -> str:
+def infer_dev_tool_skill(user_input: str) -> str:
     """
-    Stage 3: Infer Vibe skill from user input.
+    Stage 3: Infer Dev Mode contributor tool skill from user input.
 
     Attempts to categorize input into a skill namespace.
 
@@ -458,11 +458,11 @@ class CommandDispatchService:
             )
 
         # ───────────────────────────────────────────────────────────────────
-        # STAGE 3: Vibe Fallback
+        # STAGE 3: Dev Mode contributor tool fallback
         # ───────────────────────────────────────────────────────────────────
 
-        self.logger.debug("[STAGE 3] Routing to Vibe skill")
-        skill = infer_vibe_skill(user_input)
+        self.logger.debug("[STAGE 3] Routing to Dev Mode contributor tool skill")
+        skill = infer_dev_tool_skill(user_input)
 
         if debug:
             result["debug"]["stage_3"] = {
@@ -473,17 +473,16 @@ class CommandDispatchService:
                 {
                     "stage": 3,
                     "decision": "dispatch",
-                    "dispatch_to": "vibe",
+                    "dispatch_to": "dev_tool",
                     "skill": skill,
                 }
             )
 
         result["stage"] = 3
         result["skill"] = skill
-        result["message"] = f"Routing to Vibe skill: {skill}"
-        result["dispatch_to"] = "vibe"
+        result["message"] = f"Routing to Dev Mode tool skill: {skill}"
+        result["dispatch_to"] = "dev_tool"
         return result
-
     def _build_shell_payload(self, user_input: str, *, reason: str) -> Dict[str, Any]:
         """Build deterministic shell payload metadata."""
         tokens = user_input.strip().split(None, 1)
@@ -504,6 +503,11 @@ class CommandDispatchService:
                 else ""
             ),
         }
+
+
+def infer_vibe_skill(user_input: str) -> str:
+    """Compatibility alias for the pre-v1.5.1 Stage 3 helper name."""
+    return infer_dev_tool_skill(user_input)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

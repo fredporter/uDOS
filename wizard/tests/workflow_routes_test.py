@@ -115,3 +115,21 @@ def test_workflow_routes_use_runtime_workflow_contract(monkeypatch):
     assert status_res.json()["summary"]["status"] == "ready"
     assert tasks_res.status_code == 200
     assert tasks_res.json()["workflows"][0]["id"] == "wf-001"
+
+
+def test_workflow_format_route_formats_workflow_plan(monkeypatch):
+    client = TestClient(_build_app(monkeypatch))
+
+    response = client.post(
+        "/api/workflows/format",
+        json={
+            "path": "dev/ops/workflows/contributor-cycle.workflow.json",
+            "content": '{"steps":[{"action":"implement","step_id":"implement"}],"name":"Contributor Cycle","id":"contributor-cycle"}',
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ok"
+    assert payload["format_helper"]["profile"] == "workflow-plan"
+    assert payload["content"].index('"id"') < payload["content"].index('"name"')

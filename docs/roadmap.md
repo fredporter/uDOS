@@ -6,10 +6,10 @@ v1.5 planning, sequencing, devlogs, and contributor milestone notes now live in 
 
 Canonical contributor roadmap:
 
-- [ROADMAP.md](/Users/fredbook/Code/uDOS/dev/docs/roadmap/ROADMAP.md)
+- [ROADMAP.md](../dev/docs/roadmap/ROADMAP.md)
 
 Use these public pages instead:
 
-- [STATUS.md](/Users/fredbook/Code/uDOS/docs/STATUS.md)
-- [README.md](/Users/fredbook/Code/uDOS/docs/README.md)
-- [README.md](/Users/fredbook/Code/uDOS/docs/specs/README.md)
+- [STATUS.md](STATUS.md)
+- [README.md](README.md)
+- [README.md](specs/README.md)

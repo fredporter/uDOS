@@ -15,6 +15,12 @@ Single responsibility
 Beacon = announce + connect + redirect.
 Wizard Server = compute + store + decide.
 
+Portal boundary
+
+Beacon is access-only.
+Wizard hosts the actual portal surfaces behind Beacon, including public portals,
+password-protected portals, and private resource libraries.
+
 Firmware‑agnostic
 Must function on locked ISP routers with stock firmware.
 

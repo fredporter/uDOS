@@ -72,16 +72,20 @@ def ok_auto_fallback_enabled() -> bool:
 
 def get_ok_context_window() -> int:
     try:
-        from wizard.services.vibe_service import VibeConfig
+        from wizard.services.vibe_service import DevModeToolConfig
 
-        return VibeConfig().context_window
+        return DevModeToolConfig().context_window
     except Exception:
         return 8192
 
 
 def get_ok_local_status() -> dict[str, Any]:
     """Return local status from the v1.5 logic-assist runtime."""
-    status = get_logic_assist_service().get_status()["local"]
+    full_status = get_logic_assist_service().get_status()
+    status = full_status["local"]
+    context = full_status.get("context") or {}
+    conversations = full_status.get("conversations") or {}
+    cache = full_status.get("cache") or {}
     model = status.get("model") or get_ok_default_model()
     raw_issue = (status.get("issue") or "").strip().lower()
 
@@ -99,6 +103,10 @@ def get_ok_local_status() -> dict[str, Any]:
         "runtime": status.get("runtime", "gpt4all"),
         "model_path": status.get("model_path"),
         "detail": None,
+        "context_hash": context.get("hash"),
+        "context_files": context.get("count", 0),
+        "conversation_store": conversations.get("stored", 0),
+        "cache_entries": cache.get("entries", 0),
         "models": [model] if model else [],
     }
 

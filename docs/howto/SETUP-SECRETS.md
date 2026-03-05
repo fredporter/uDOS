@@ -23,7 +23,9 @@ python uDOS.py  # Choose SETUP story
 
 # 4. Start Wizard Dashboard
 WIZARD start
-# Visit: http://localhost:8765/dashboard
+export WIZARD_PORT="${WIZARD_PORT:-8765}"
+export WIZARD_BASE_URL="${WIZARD_BASE_URL:-http://localhost:${WIZARD_PORT}}"
+# Visit: ${WIZARD_BASE_URL}/dashboard
 
 # 5. Add your API keys via GUI (Settings > Integrations > Add Secret)
 #    Wizard encrypts them to secrets.tomb
@@ -104,10 +106,12 @@ Everything sensitive is stored encrypted:
 ```bash
 # 1. Start the dashboard
 WIZARD start
+export WIZARD_PORT="${WIZARD_PORT:-8765}"
+export WIZARD_BASE_URL="${WIZARD_BASE_URL:-http://localhost:${WIZARD_PORT}}"
 
 # 2. Open browser
-open http://localhost:8765/dashboard
-# or visit manually: http://localhost:8765/dashboard
+open "${WIZARD_BASE_URL}/dashboard"
+# or visit manually: ${WIZARD_BASE_URL}/dashboard
 
 # 3. Navigate to Settings > Integrations
 
@@ -120,8 +124,9 @@ open http://localhost:8765/dashboard
 
 # 6. Click "Save" — Wizard encrypts and stores it
 
-# 7. Verify it works by running a vibe command
-vibe ask "What is 2+2?"
+# 7. Verify it works from the standard runtime
+ucode
+# Then run a simple operator or logic-assist prompt
 ```
 
 ### Via CLI (For Automation)
@@ -134,7 +139,7 @@ uv run wizard/tools/check_secrets_tomb.py
 cat > /tmp/set_secret.py << 'EOF'
 #!/usr/bin/env python3
 import sys
-sys.path.insert(0, "/path/to/uDOS-vibe")
+sys.path.insert(0, "/path/to/uDOS")
 
 from wizard.services.secret_store import get_secret_store, SecretEntry
 from datetime import datetime, timezone
@@ -205,7 +210,7 @@ WIZARD start
 # Settings > Integrations > Add Secret
 
 # Verify the key works
-vibe ask "test"  # Should work if key is set
+ucode  # Then run a simple operator or provider-backed prompt
 ```
 
 ### "What if I forgot my WIZARD_KEY?"
@@ -256,8 +261,8 @@ uv run wizard/tools/secret_store_cli.py set mistral-api-key <new-key>
 
 ### Current State
 GitHub tokens are referenced in multiple places:
-- `vibe/cli/textual_ui/app.py` — Teleport event for token send
-- `vibe/cli/update_notifier/` — GitHub release fetching
+- Dev Mode contributor-tool UI runtime — token send path
+- Dev Mode contributor-tool update notifier — release fetching
 - `wizard/services/wizard_config.py` — Webhook config
 
 ### Recommended Consolidation
@@ -265,7 +270,8 @@ Use the unified `GitHubIntegration` class:
 
 ```python
 # Instead of scattered code:
-from vibe.integrations.github import GitHubIntegration
+# Legacy Dev Mode compatibility imports may still come from the external
+# contributor-tool runtime when older integrations are in use.
 
 # Get token (from secrets.tomb)
 token = GitHubIntegration.get_token()

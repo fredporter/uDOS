@@ -18,6 +18,14 @@ Sonic now ships with an open-box split:
 
 The distributed seed remains read-only for users. Local device records and current-machine bootstrap state live in the user overlay. Device entries may point to Obsidian-style Markdown templates for settings, installers, containers, and drivers.
 
+Submission review state now lives under:
+
+- `memory/sonic/submissions/pending/`
+- `memory/sonic/submissions/approved/`
+- `memory/sonic/submissions/rejected/`
+
+This is the canonical v1.5 user-submission and contributor-review flow for the Sonic seeded catalog.
+
 ## Release Artifacts
 
 Each release build should publish:
@@ -99,6 +107,28 @@ Release proof for v1.5 should show:
 2. current-machine bootstrap succeeds through `SONIC BOOTSTRAP` or `POST /api/sonic/bootstrap/current`
 3. merged device reads show both seed and user records
 4. device template refs resolve to the seeded Markdown template set
+
+## Submission And Approval Flow
+
+Users prepare device records locally first, then queue them for contributor review.
+
+Core command surface:
+
+```bash
+SONIC SUBMISSION SUBMIT --file memory/submissions/sonic-device.json
+SONIC SUBMISSION LIST pending
+SONIC SUBMISSION APPROVE sonic-device
+SONIC SUBMISSION REJECT sonic-device missing verification evidence
+```
+
+Wizard API surface:
+
+- `GET /api/sonic/submissions`
+- `POST /api/sonic/submissions`
+- `POST /api/sonic/submissions/{submission_id}/approve`
+- `POST /api/sonic/submissions/{submission_id}/reject`
+
+Approval merges the reviewed record into the local Sonic user overlay so it becomes visible in merged device reads while keeping the distributed seed itself read-only.
 
 ## Open-Box Restore Evidence
 

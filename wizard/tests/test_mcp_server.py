@@ -1,4 +1,5 @@
 import importlib
+import asyncio
 import sys
 from pathlib import Path
 
@@ -138,11 +139,9 @@ def test_wizard_tools_list_uses_index(mcp_server_module, monkeypatch):
 def test_wizard_tools_registration_status(mcp_server_module, monkeypatch):
     monkeypatch.setattr(mcp_server_module, "_load_tool_index", lambda: ["a", "b"])
 
-    class DummyToolManager:
-        _tools = {"a": object(), "c": object()}
-
     class DummyMCP:
-        _tool_manager = DummyToolManager()
+        def list_tools(self):
+            return [type("_Tool", (), {"name": "a"})(), type("_Tool", (), {"name": "c"})()]
 
     monkeypatch.setattr(mcp_server_module, "mcp", DummyMCP())
     payload = mcp_server_module.wizard_tools_registration_status()
@@ -169,16 +168,14 @@ def test_wizard_tools_registration_status_applies_aliases_and_filters_non_tool_t
         ],
     )
 
-    class DummyToolManager:
-        _tools = {
-            "wizard_monitoring_log_tail": object(),
-            "wizard_monitoring_log_stats": object(),
-            "wizard_monitoring_alert_ack": object(),
-            "wizard_monitoring_alert_resolve": object(),
-        }
-
     class DummyMCP:
-        _tool_manager = DummyToolManager()
+        def list_tools(self):
+            return [
+                type("_Tool", (), {"name": "wizard_monitoring_log_tail"})(),
+                type("_Tool", (), {"name": "wizard_monitoring_log_stats"})(),
+                type("_Tool", (), {"name": "wizard_monitoring_alert_ack"})(),
+                type("_Tool", (), {"name": "wizard_monitoring_alert_resolve"})(),
+            ]
 
     monkeypatch.setattr(mcp_server_module, "mcp", DummyMCP())
     payload = mcp_server_module.wizard_tools_registration_status()
@@ -257,7 +254,7 @@ def test_wrap_display_includes_all_sections(mcp_server_module, monkeypatch):
 
 def test_mcp_server_has_expected_tools(mcp_server_module):
     """Verify MCP server registers expected core tools."""
-    tools = mcp_server_module.mcp._tool_manager._tools
+    tools = {tool.name for tool in asyncio.run(mcp_server_module.mcp.list_tools())}
     expected_tools = [
         "wizard_health",
         "wizard_config_get",

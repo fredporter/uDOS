@@ -12,12 +12,13 @@ from core.services.background_service_manager import get_wizard_process_manager
 from core.services.error_contract import CommandError
 from core.services.stdlib_http import HTTPError, http_get, http_post
 from core.services.unified_config_loader import get_config
+from core.services.wizard_runtime_config import get_loopback_wizard_base_url
 
 _LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 
 
 def _wizard_base_url() -> str:
-    return (get_config("WIZARD_BASE_URL", "") or "http://localhost:8765").rstrip("/")
+    return get_loopback_wizard_base_url(get_config("WIZARD_BASE_URL", ""))
 
 
 def _admin_headers() -> dict[str, str]:

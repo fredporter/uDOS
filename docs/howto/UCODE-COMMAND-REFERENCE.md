@@ -8,6 +8,9 @@ This guide covers uDOS commands (ucode) which are **backend services**, not UI f
 Offline operations runbook:
 - `docs/howto/UCODE-OFFLINE-OPERATOR-RUNBOOK.md`
 
+Certified v1.5 demo pack:
+- `docs/examples/ucode_v1_5_release_pack/README.md`
+
 ## Multi-Context Command Execution
 
 uDOS commands execute in multiple contexts. Commands are **case-insensitive** —
@@ -15,8 +18,9 @@ outputs appear in CAPS for display clarity only.
 
 ### 1. ucode / Operator Direct Commands (v1.5+ — Primary Interactive Path)
 
-Run ucode commands directly from the standard runtime. `vibe` remains a Dev
-Mode surface only. Three input styles are supported:
+Run ucode commands directly from the standard runtime. The external Dev Mode
+contributor tool remains a contributor-only surface. Three input styles are
+supported:
 
 #### `:command` — Colon prefix (recommended, always ucode)
 ```
@@ -28,11 +32,11 @@ Mode surface only. Three input styles are supported:
 :sonic status
 :file select --workspace @vault
 ```
-The colon prefix **always routes to ucode**, bypassing vibe built-ins. Use this
-for commands that share a name with a vibe slash command (`help`, `config`,
+The colon prefix **always routes to ucode**, bypassing contributor-tool built-ins. Use this
+for commands that share a name with a contributor-tool slash command (`help`, `config`,
 `status`) or whenever you want unambiguous ucode dispatch regardless of casing.
 
-#### `/command` — Slash prefix (complementary, vibe built-ins take priority)
+#### `/command` — Slash prefix (complementary, contributor-tool built-ins take priority)
 ```
 /map
 /health
@@ -40,18 +44,18 @@ for commands that share a name with a vibe slash command (`help`, `config`,
 /sonic status
 /library list
 ```
-The slash prefix follows the existing vibe priority chain: vibe built-in
+The slash prefix follows the existing contributor-tool priority chain: built-in
 commands are checked first (`/help`, `/config`, `/status`), then ucode picks up
 the rest. Works for 57 of the 60 ucode commands without any conflict.
 
 | Slash input | Routes to | Reason |
 |---|---|---|
-| `/map` | ucode MAP | Not a vibe built-in |
-| `/health` | ucode HEALTH | Not a vibe built-in |
-| `/sonic` | ucode SONIC | Not a vibe built-in |
-| `/help` | **vibe /help** | Vibe built-in wins |
-| `/config` | **vibe /config** | Vibe built-in wins |
-| `/status` | **vibe /status** | Vibe built-in wins |
+| `/map` | ucode MAP | Not a contributor-tool built-in |
+| `/health` | ucode HEALTH | Not a contributor-tool built-in |
+| `/sonic` | ucode SONIC | Not a contributor-tool built-in |
+| `/help` | **Dev Mode tool `/help`** | Contributor-tool built-in wins |
+| `/config` | **Dev Mode tool `/config`** | Contributor-tool built-in wins |
+| `/status` | **Dev Mode tool `/status`** | Contributor-tool built-in wins |
 
 Use `:help`, `:config`, `:status` to reach the ucode versions of those three.
 
@@ -85,17 +89,20 @@ ucode
 # → OPERATOR infers intent → routes to ucode MAP guidance
 ```
 
-### 3. Dev Mode `vibe` Tooling
+### 3. Dev Mode Contributor Tooling
 ```bash
 vibe
 # User: "!ucode MAP"
 # → Executes shell command via Dev Mode tooling
 ```
 
-Dev Mode use is valid only when the `dev` profile is enabled and the `@dev` workspace scaffold at `/dev` is installed and activated through Wizard-managed controls. `vibe` is not a peer standard runtime.
+Dev Mode use is valid only when the `dev` profile is enabled and the `@dev` workspace scaffold at `/dev` is installed and activated through Wizard-managed controls. The external contributor tool is not a peer standard runtime.
 
 ### 4. Shell/Script Execution
 ```bash
+# Canonical shared runtime
+UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python -m pytest core/tests/ucode_release_demo_pack_test.py
+
 # Direct execution
 ucode MAP
 
@@ -174,7 +181,7 @@ export UDOS_MESSAGE_THEME=fantasy  # Not TUI-specific
 export UDOS_MAP_LEVEL=dungeon      # Spatial context, not UI
 ```
 
-**Note**: Former `UDOS_TUI_*` variables renamed to clarify they control backend message formatting, not UI rendering. `ucode` is the active interactive interface; `vibe` remains Dev Mode tooling only.
+**Note**: Former `UDOS_TUI_*` variables renamed to clarify they control backend message formatting, not UI rendering. `ucode` is the active interactive interface; the external contributor tool remains Dev Mode-only.
 
 Legacy pre-`vibe-cli` interactive references were composted here:
 - `docs/.compost/tui-legacy-2026-02/TUI-MIGRATION-PLAN.md`
@@ -330,12 +337,22 @@ WIZARD CHECK
 Core command:
 - `SONIC STATUS`
 - `SONIC SYNC [--force]`
+- `SONIC BOOTSTRAP [--no-overwrite]`
+- `SONIC SUBMISSION LIST [pending|approved|rejected]`
+- `SONIC SUBMISSION SUBMIT --file path/to/device.json`
+- `SONIC SUBMISSION APPROVE <submission_id>`
+- `SONIC SUBMISSION REJECT <submission_id> [reason]`
 - `SONIC PLAN ...`
 - `SONIC RUN ... --confirm`
 
 Wizard API equivalents:
 - `GET /api/platform/sonic/status`
 - `POST /api/sonic/db/rebuild` (or `POST /api/sonic/sync`)
+- `POST /api/sonic/bootstrap/current`
+- `GET /api/sonic/submissions`
+- `POST /api/sonic/submissions`
+- `POST /api/sonic/submissions/{submission_id}/approve`
+- `POST /api/sonic/submissions/{submission_id}/reject`
 - `POST /api/platform/sonic/build`
 
 ## Removed Top-Level Commands
@@ -361,16 +378,16 @@ Migration targets:
 | Prefix | Example | Behaviour |
 |---|---|---|
 | `:` | `:map tokyo` | Always ucode — any case, any word count |
-| `/` | `/map tokyo` | Vibe built-ins first, ucode fallthrough |
+| `/` | `/map tokyo` | Contributor-tool built-ins first, ucode fallthrough |
 | `!` | `!ls -la` | Bash shell passthrough |
 | (none, single word) | `health` | ucode if exact match — any case |
 | (none, multi-word ALL-CAPS) | `MAP tokyo` | ucode if first word exact match |
 | (none, multi-word lower) | `help me` | Operator / logic-assist planning — natural language preserved |
 
-**Three commands use vibe's `/` and need `:` for ucode access:**
-- `:help` → ucode HELP (command reference) vs `/help` → vibe help
-- `:config` → ucode CONFIG (wizard config) vs `/config` → vibe config editor
-- `:status` → ucode STATUS (system status) vs `/status` → vibe agent stats
+**Three commands use the contributor tool's `/` and need `:` for ucode access:**
+- `:help` → ucode HELP (command reference) vs `/help` → contributor-tool help
+- `:config` → ucode CONFIG (wizard config) vs `/config` → contributor-tool config editor
+- `:status` → ucode STATUS (system status) vs `/status` → contributor-tool status
 
 ## Quick Checks
 

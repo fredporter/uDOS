@@ -18,7 +18,7 @@ from core.services.command_dispatch_service import (
 
 def _routing_contract() -> Dict[str, Any]:
     return {
-        "interactive_owner": "vibe-cli",
+        "interactive_owner": "dev-mode-tool",
         "tool_gateway": "wizard-mcp",
         "dispatch_contract_version": DISPATCH_CONTRACT_VERSION,
         "dispatch_route_order": list(DISPATCH_ROUTE_ORDER),

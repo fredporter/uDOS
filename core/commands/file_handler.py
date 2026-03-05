@@ -519,7 +519,7 @@ Interactive Mode:
   FILE                       Open workspace picker → file browser
   FILE BROWSE                Same as FILE
   FILE PICK                  Same as FILE
-  FILE SELECT                Selector-enabled file picker (vibe-style)
+  FILE SELECT                Selector-enabled file picker (contributor-tool style)
 
 Quick Commands:
     FILE NEW <name>               Create a new file in /memory

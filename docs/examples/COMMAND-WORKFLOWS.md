@@ -145,6 +145,7 @@ UCODE PROFILE LIST
 UCODE PROFILE SHOW core
 UCODE PROFILE INSTALL creator
 UCODE PROFILE ENABLE home
+UCODE PROFILE DISABLE dev
 UCODE PROFILE VERIFY gaming
 ```
 
@@ -165,6 +166,14 @@ UCODE PACKAGE VERIFY creator-base
 UCODE REPAIR STATUS
 ```
 
+### SONIC SUBMISSION - Seeded catalog review flow
+```bash
+SONIC SUBMISSION LIST pending
+SONIC SUBMISSION SUBMIT --file memory/submissions/sonic-device.json
+SONIC SUBMISSION APPROVE submitted-device
+SONIC SUBMISSION REJECT submitted-device missing verification evidence
+```
+
 ### WORKFLOW - Multi-phase markdown workflow runtime
 ```bash
 WORKFLOW LIST TEMPLATES
@@ -179,6 +188,15 @@ Typical workflow artifacts are written to:
 
 ```text
 memory/vault/workflows/<workflow-id>/
+```
+
+### Certified v1.5 demo pack
+```bash
+UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python docs/examples/ucode_v1_5_release_pack/scripts/run_demo_00_setup_and_status.py
+UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python docs/examples/ucode_v1_5_release_pack/scripts/run_demo_01_local_assist_and_knowledge.py
+UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python docs/examples/ucode_v1_5_release_pack/scripts/run_demo_02_workflow_and_task_planning.py
+UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python docs/examples/ucode_v1_5_release_pack/scripts/run_demo_03_managed_scheduler_and_budget.py
+UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python docs/examples/ucode_v1_5_release_pack/scripts/run_demo_04_self_hosted_dev_mode.py
 ```
 
 ### RULE - Conditional automation

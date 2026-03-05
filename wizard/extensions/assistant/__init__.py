@@ -1,20 +1,34 @@
 """
-Assistant Extension - AI Coding Helpers
-=======================================
+Assistant Extension - Dev Mode Coding Helpers
+=============================================
 
-Provides AI-powered coding assistance via external tools.
+Provides Dev Mode coding assistance via external tools.
 
 Services:
-  - VibeCliService: Mistral Vibe CLI integration (WIZARD ONLY)
+  - DevModeToolCliService: external contributor tool integration for the Dev Mode lane
 
 Usage:
-  from extensions.assistant.vibe_cli_service import VibeCliService
+  from extensions.assistant.vibe_cli_service import DevModeToolCliService
 
-  vibe = VibeCliService()
-  if vibe.is_available:
-      result = vibe.analyze_code("path/to/file.py")
+  contributor_tool = DevModeToolCliService()
+  if contributor_tool.is_available:
+      result = contributor_tool.analyze_code("path/to/file.py")
 """
 
-from .vibe_cli_service import VibeCliService, VibeConfig, VibeResponse
+from .vibe_cli_service import (
+    DevModeToolCliConfig,
+    DevModeToolCliResponse,
+    DevModeToolCliService,
+    VibeCliService,
+    VibeConfig,
+    VibeResponse,
+)
 
-__all__ = ["VibeCliService", "VibeConfig", "VibeResponse"]
+__all__ = [
+    "DevModeToolCliConfig",
+    "DevModeToolCliResponse",
+    "DevModeToolCliService",
+    "VibeCliService",
+    "VibeConfig",
+    "VibeResponse",
+]

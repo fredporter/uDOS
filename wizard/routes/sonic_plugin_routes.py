@@ -11,8 +11,10 @@ from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException, Query, Request
+from pydantic import BaseModel
 
 from core.services.unified_config_loader import get_bool_config
+from core.services.sonic_device_service import get_sonic_device_service
 from extensions.sonic_loader import load_sonic_plugin
 from wizard.services.sonic_adapters import (
     build_device_query,
@@ -24,6 +26,16 @@ from wizard.services.sonic_adapters import (
 from wizard.services.sonic_schema_contract import evaluate_sonic_schema_contract
 
 AuthGuard = Optional[Callable[[Request], Awaitable[str]]]
+
+
+class SonicSubmissionCreateRequest(BaseModel):
+    device: dict[str, Any]
+    submitter: str | None = None
+
+
+class SonicSubmissionReviewRequest(BaseModel):
+    actor: str | None = None
+    reason: str | None = None
 
 
 def _alias_notice(
@@ -77,6 +89,7 @@ def create_sonic_plugin_routes(
         plugin = load_sonic_plugin(repo_root)
         api = plugin["api"].get_sonic_service()
         sync = plugin["sync"].get_sync_service()
+        submissions = get_sonic_device_service(repo_root=repo_root)
     except Exception as exc:
         # Fallback: plugin not available
         @router.get("/health")
@@ -426,6 +439,60 @@ def create_sonic_plugin_routes(
         result = sync.bootstrap_current_machine(overwrite=overwrite)
         if result["status"] == "error":
             raise HTTPException(status_code=500, detail=result["message"])
+        return result
+
+    @router.get("/submissions")
+    async def list_submissions(request: Request, status: str | None = Query(None)):
+        """List Sonic device submissions by review state."""
+        if auth_guard:
+            await auth_guard(request)
+        records = submissions.list_submissions(status=status)
+        return {
+            "count": len(records),
+            "status_filter": status,
+            "submissions": records,
+            "runtime_contract": submissions.submission_runtime_contract(),
+        }
+
+    @router.post("/submissions")
+    async def create_submission(request: Request, payload: SonicSubmissionCreateRequest):
+        """Queue a local Sonic device submission for contributor review."""
+        if auth_guard:
+            await auth_guard(request)
+        try:
+            result = submissions.submit_device_submission(
+                payload.device, submitter=payload.submitter
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return result
+
+    @router.post("/submissions/{submission_id}/approve")
+    async def approve_submission(
+        request: Request, submission_id: str, payload: SonicSubmissionReviewRequest
+    ):
+        """Approve a pending submission into the local Sonic user catalog."""
+        if auth_guard:
+            await auth_guard(request)
+        result = submissions.approve_submission(
+            submission_id, approved_by=payload.actor
+        )
+        if result["status"] != "ok":
+            raise HTTPException(status_code=404, detail=result["message"])
+        return result
+
+    @router.post("/submissions/{submission_id}/reject")
+    async def reject_submission(
+        request: Request, submission_id: str, payload: SonicSubmissionReviewRequest
+    ):
+        """Reject a pending Sonic submission."""
+        if auth_guard:
+            await auth_guard(request)
+        result = submissions.reject_submission(
+            submission_id, rejected_by=payload.actor, reason=payload.reason
+        )
+        if result["status"] != "ok":
+            raise HTTPException(status_code=404, detail=result["message"])
         return result
 
     @router.get("/db/export")

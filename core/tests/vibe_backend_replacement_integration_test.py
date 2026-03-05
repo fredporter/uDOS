@@ -6,13 +6,16 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from core.services.persistence_service import PersistenceService
-from core.services.vibe_device_service import VibeDeviceService
-from core.services.vibe_user_service import VibeUserService
-from core.services.vibe_wizard_service import AutomationTask, VibeWizardService
+from core.services.dev_mode_compat import (
+    AutomationTask,
+    DevModeToolAutomationService,
+    DevModeToolDeviceService,
+    DevModeToolUserService,
+)
 
 
 def test_user_auth_failure_then_recovery(tmp_path: Path) -> None:
-    service = VibeUserService()
+    service = DevModeToolUserService()
     service.persistence_service = PersistenceService(str(tmp_path / "vibe"))
     service.users = {}
 
@@ -28,7 +31,7 @@ def test_user_auth_failure_then_recovery(tmp_path: Path) -> None:
 
 
 def test_wizard_task_metrics_track_runs(tmp_path: Path) -> None:
-    service = VibeWizardService()
+    service = DevModeToolAutomationService()
     service.persistence_service = PersistenceService(str(tmp_path / "vibe"))
     service.tasks = {}
     service.task_stats = {}
@@ -56,7 +59,7 @@ def test_wizard_task_metrics_track_runs(tmp_path: Path) -> None:
 
 
 def test_device_health_improves_after_recovery(tmp_path: Path) -> None:
-    service = VibeDeviceService()
+    service = DevModeToolDeviceService()
     service.persistence_service = PersistenceService(str(tmp_path / "vibe"))
     service.devices = {}
 

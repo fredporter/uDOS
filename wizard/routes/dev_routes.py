@@ -39,6 +39,38 @@ class TestRunRequest(BaseModel):
     timeout: int = 600
 
 
+class BrowserWriteRequest(BaseModel):
+    area: str = "ops"
+    path: str
+    content: str
+    normalize: bool = False
+
+
+class BrowserNormalizeRequest(BaseModel):
+    area: str = "ops"
+    path: str
+    content: str
+
+
+class WorkflowPlanSyncRequest(BaseModel):
+    path: str
+
+
+class SchedulerTemplateRegisterRequest(BaseModel):
+    path: str
+    workflow_path: str
+
+
+class WorkflowPlanRunRequest(BaseModel):
+    path: str
+
+
+class WorkflowPlanTaskStatusRequest(BaseModel):
+    path: str
+    task_id: int
+    status: str
+
+
 def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
     router = APIRouter(prefix="/api/dev", tags=["dev-mode"])
     repo_root = get_repo_root()
@@ -122,6 +154,119 @@ def create_dev_routes(auth_guard: AuthGuard = None) -> APIRouter:
             detail = result.get("message", "Unable to read file")
             if "Unknown area" in detail or "not allowed" in detail:
                 raise HTTPException(status_code=400, detail=detail)
+            if "not found" in detail:
+                raise HTTPException(status_code=404, detail=detail)
+            raise HTTPException(status_code=400, detail=detail)
+        return result
+
+    @router.post("/ops/write")
+    async def write_ops_file(request: Request, body: BrowserWriteRequest):
+        if auth_guard:
+            await auth_guard(request)
+        _ensure_admin_dev_access()
+        _ensure_dev_submodule()
+        result = dev_mode.write_browser_file(
+            area=body.area,
+            rel_path=body.path,
+            content=body.content,
+            normalize=body.normalize,
+        )
+        if result.get("status") == "error":
+            detail = result.get("message", "Unable to write file")
+            if "Unknown area" in detail or "not allowed" in detail:
+                raise HTTPException(status_code=400, detail=detail)
+            if "not found" in detail:
+                raise HTTPException(status_code=404, detail=detail)
+            raise HTTPException(status_code=400, detail=detail)
+        return result
+
+    @router.post("/ops/normalize")
+    async def normalize_ops_file(request: Request, body: BrowserNormalizeRequest):
+        if auth_guard:
+            await auth_guard(request)
+        _ensure_admin_dev_access()
+        _ensure_dev_submodule()
+        result = dev_mode.normalize_browser_file(
+            area=body.area,
+            rel_path=body.path,
+            content=body.content,
+        )
+        if result.get("status") == "error":
+            detail = result.get("message", "Unable to normalize file")
+            if "Unknown area" in detail or "not allowed" in detail:
+                raise HTTPException(status_code=400, detail=detail)
+            if "not found" in detail:
+                raise HTTPException(status_code=404, detail=detail)
+            raise HTTPException(status_code=400, detail=detail)
+        return result
+
+    @router.get("/ops/planning")
+    async def get_ops_planning(request: Request):
+        if auth_guard:
+            await auth_guard(request)
+        _ensure_admin_dev_access()
+        _ensure_dev_submodule()
+        result = dev_mode.get_planning_summary()
+        if result.get("status") == "error":
+            detail = result.get("message", "Unable to load planning summary")
+            raise HTTPException(status_code=400, detail=detail)
+        return result
+
+    @router.post("/ops/workflows/sync")
+    async def sync_ops_workflow(request: Request, body: WorkflowPlanSyncRequest):
+        if auth_guard:
+            await auth_guard(request)
+        _ensure_admin_dev_access()
+        _ensure_dev_submodule()
+        _ensure_dev_active()
+        result = dev_mode.sync_workflow_plan(body.path)
+        if result.get("status") == "error":
+            detail = result.get("message", "Unable to sync workflow plan")
+            if "not found" in detail:
+                raise HTTPException(status_code=404, detail=detail)
+            raise HTTPException(status_code=400, detail=detail)
+        return result
+
+    @router.post("/ops/scheduler/register")
+    async def register_ops_scheduler(request: Request, body: SchedulerTemplateRegisterRequest):
+        if auth_guard:
+            await auth_guard(request)
+        _ensure_admin_dev_access()
+        _ensure_dev_submodule()
+        _ensure_dev_active()
+        result = dev_mode.register_scheduler_template(body.path, body.workflow_path)
+        if result.get("status") == "error":
+            detail = result.get("message", "Unable to register scheduler template")
+            if "not found" in detail:
+                raise HTTPException(status_code=404, detail=detail)
+            raise HTTPException(status_code=400, detail=detail)
+        return result
+
+    @router.post("/ops/workflows/run")
+    async def run_ops_workflow(request: Request, body: WorkflowPlanRunRequest):
+        if auth_guard:
+            await auth_guard(request)
+        _ensure_admin_dev_access()
+        _ensure_dev_submodule()
+        _ensure_dev_active()
+        result = dev_mode.run_workflow_plan(body.path)
+        if result.get("status") == "error":
+            detail = result.get("message", "Unable to run workflow plan")
+            if "not found" in detail:
+                raise HTTPException(status_code=404, detail=detail)
+            raise HTTPException(status_code=400, detail=detail)
+        return result
+
+    @router.post("/ops/workflows/task-status")
+    async def update_ops_workflow_task_status(request: Request, body: WorkflowPlanTaskStatusRequest):
+        if auth_guard:
+            await auth_guard(request)
+        _ensure_admin_dev_access()
+        _ensure_dev_submodule()
+        _ensure_dev_active()
+        result = dev_mode.update_workflow_plan_task_status(body.path, body.task_id, body.status)
+        if result.get("status") == "error":
+            detail = result.get("message", "Unable to update workflow task status")
             if "not found" in detail:
                 raise HTTPException(status_code=404, detail=detail)
             raise HTTPException(status_code=400, detail=detail)

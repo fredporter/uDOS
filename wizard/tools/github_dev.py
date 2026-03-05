@@ -9,7 +9,7 @@ User devices receive packaged plugins via private transports.
 
 Features:
 - Clone public GitHub repositories
-- Build TCZ/distribution packages
+- Build distribution packages
 - Validate licenses (CC0, MIT, Apache, BSD only)
 - Version management and updates
 - Dependency resolution
@@ -19,7 +19,7 @@ Usage:
 
     factory = PluginFactory()
     factory.clone('rossrobino/typo')
-    factory.build('typo', format='tcz')
+    factory.build('typo', format='apk')
     factory.distribute('typo', transport='mesh')
 
 Version: v1.0.0.0
@@ -436,7 +436,7 @@ class PluginFactory:
 
         Args:
             name: Repository name
-            format: Package format (tar.gz, tcz, zip)
+            format: Package format (apk, tar.gz, zip)
 
         Returns:
             BuildResult with package info
@@ -491,29 +491,15 @@ class PluginFactory:
                     name,
                 )
 
-            elif format == "tcz":
-                # TCZ requires mksquashfs (TinyCore tool)
-                result = subprocess.run(
-                    [
-                        "mksquashfs",
-                        str(repo_path),
-                        str(package_path),
-                        "-noappend",
-                        "-comp",
-                        "xz",
-                    ],
-                    capture_output=True,
-                    text=True,
+            elif format == "apk":
+                return BuildResult(
+                    success=False,
+                    package_path=None,
+                    format=format,
+                    size_bytes=0,
+                    checksum="",
+                    errors=["APK packaging is managed by the Alpine plugin build pipeline"],
                 )
-                if result.returncode != 0:
-                    return BuildResult(
-                        success=False,
-                        package_path=None,
-                        format=format,
-                        size_bytes=0,
-                        checksum="",
-                        errors=[f"mksquashfs failed: {result.stderr}"],
-                    )
             else:
                 return BuildResult(
                     success=False,
@@ -622,7 +608,7 @@ def main():
         print("Commands:")
         print("  clone <owner/repo>    Clone GitHub repository")
         print("  update <name>         Update repository")
-        print("  build <name> [format] Build package (tar.gz, tcz, zip)")
+        print("  build <name> [format] Build package (apk, tar.gz, zip)")
         print("  list                  List cloned repos")
         print("  packages              List built packages")
         print("  remove <name>         Remove repository")

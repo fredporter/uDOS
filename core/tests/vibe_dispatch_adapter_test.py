@@ -5,17 +5,24 @@ Tests cover:
 - Three-stage dispatch with confidence scoring
 - Fuzzy command matching
 - Shell validation
-- Vibe skill routing
+- Dev Mode tool routing
 - Confirmation flow for medium-confidence matches
 - Fallback to OK
 """
 
 import pytest
 from core.tui.vibe_dispatch_adapter import (
+    DevModeToolDispatchAdapter,
+    DevModeToolDispatchResult,
     VibeDispatchAdapter,
     VibeDispatchResult,
     get_vibe_adapter,
 )
+
+
+def test_canonical_dispatch_adapter_aliases_are_stable():
+    assert DevModeToolDispatchAdapter is VibeDispatchAdapter
+    assert DevModeToolDispatchResult is VibeDispatchResult
 
 
 class TestVibeDispatchAdapter:
@@ -65,7 +72,7 @@ class TestVibeDispatchAdapter:
         # Should route to "ask" skill as fallback
         result = adapter.dispatch("HAP", ask_confirm_fn=None)
         # Without confirmation function, should proceed to fallback
-        assert result.status in {"fallback_ok", "vibe_routed"}
+        assert result.status in {"fallback_ok", "dev_tool_routed"}
 
     def test_dispatch_medium_confidence_with_confirmation_yes(self):
         """Test medium confidence match with user confirming."""
@@ -78,7 +85,7 @@ class TestVibeDispatchAdapter:
         # "MAB" ~= "MAP", "GRAB" (distance 1-2)
         result = adapter.dispatch("MAB", ask_confirm_fn=mock_confirm)
         # User confirmed, so command should execute
-        assert result.status in {"success", "vibe_routed"}
+        assert result.status in {"success", "dev_tool_routed"}
         if result.status == "success":
             assert result.command is not None
 
@@ -93,7 +100,7 @@ class TestVibeDispatchAdapter:
         # "MAB" ~= "MAP", "GRAB"
         result = adapter.dispatch("MAB", ask_confirm_fn=mock_confirm)
         # User declined, so should fallback
-        assert result.status in {"fallback_ok", "vibe_routed"}
+        assert result.status in {"fallback_ok", "dev_tool_routed"}
 
     def test_dispatch_medium_confidence_with_confirmation_skip(self):
         """Test medium confidence match with user skipping (shell fallback)."""
@@ -106,13 +113,13 @@ class TestVibeDispatchAdapter:
         # "MAB" ~= "MAP", "GRAB"
         result = adapter.dispatch("MAB", ask_confirm_fn=mock_confirm)
         # User skipped, so should try shell/fallback
-        assert result.status in {"fallback_ok", "vibe_routed"}
+        assert result.status in {"fallback_ok", "dev_tool_routed"}
 
     def test_dispatch_vibe_device_skill_inference(self):
         """Test inference of device skill from keywords."""
         adapter = VibeDispatchAdapter()
         result = adapter.dispatch("list devices")
-        assert result.status == "vibe_routed"
+        assert result.status == "dev_tool_routed"
         assert result.skill == "device"
         assert result.action == "list"
 
@@ -120,7 +127,7 @@ class TestVibeDispatchAdapter:
         """Test inference of vault skill from keywords."""
         adapter = VibeDispatchAdapter()
         result = adapter.dispatch("get secret password")
-        assert result.status == "vibe_routed"
+        assert result.status == "dev_tool_routed"
         assert result.skill == "vault"
         assert result.action == "get"
 
@@ -128,7 +135,7 @@ class TestVibeDispatchAdapter:
         """Test inference of workspace skill from keywords."""
         adapter = VibeDispatchAdapter()
         result = adapter.dispatch("switch workspace")
-        assert result.status == "vibe_routed"
+        assert result.status == "dev_tool_routed"
         assert result.skill == "workspace"
         assert result.action == "switch"
 
@@ -136,7 +143,7 @@ class TestVibeDispatchAdapter:
         """Test inference of network skill from keywords."""
         adapter = VibeDispatchAdapter()
         result = adapter.dispatch("scan network")
-        assert result.status == "vibe_routed"
+        assert result.status == "dev_tool_routed"
         assert result.skill == "network"
         assert result.action == "scan"
 
@@ -153,7 +160,7 @@ class TestVibeDispatchAdapter:
         adapter = VibeDispatchAdapter()
         result = adapter.dispatch("some random unmatched text")
         # Should eventually fallback to OK
-        assert result.status in {"fallback_ok", "vibe_routed"}
+        assert result.status in {"fallback_ok", "dev_tool_routed"}
         if result.status == "fallback_ok":
             assert "language model" in result.message.lower()
 
@@ -193,11 +200,11 @@ class TestVibeDispatchResultTypes:
         assert result.status == "success"
         assert result.command == "VERIFY"
 
-    def test_result_vibe_routed(self):
-        """Test vibe_routed result type."""
+    def test_result_dev_tool_routed(self):
+        """Test dev_tool_routed result type."""
         adapter = VibeDispatchAdapter()
         result = adapter.dispatch("show all devices")
-        if result.status == "vibe_routed":
+        if result.status == "dev_tool_routed":
             assert result.skill in {"device", "help", "ask"}
             assert isinstance(result.data, dict)
 
@@ -231,14 +238,14 @@ class TestVibeDispatchIntegrationScenarios:
 
         result = adapter.dispatch("GRAAB", ask_confirm_fn=mock_confirm)
         # Should ask for confirmation due to fuzzy match
-        assert confirmation_asked or (result.status in {"success", "vibe_routed"})
+        assert confirmation_asked or (result.status in {"success", "dev_tool_routed"})
 
     def test_scenario_user_asks_for_help(self):
         """Scenario: User asks 'help me with devices'."""
         adapter = VibeDispatchAdapter()
         result = adapter.dispatch("help me with devices")
         # Could match HELP command or device skill - both are acceptable
-        assert result.status in {"vibe_routed", "fallback_ok", "success"}
+        assert result.status in {"dev_tool_routed", "fallback_ok", "success"}
 
     def test_scenario_user_runs_shell_command(self):
         """Scenario: User runs 'ls ~/Documents'."""
@@ -261,7 +268,7 @@ class TestVibeDispatchIntegrationScenarios:
         adapter = VibeDispatchAdapter()
         result = adapter.dispatch("how do I backup my data?")
         # Should be routed somewhere (skill or OK)
-        assert result.status in {"vibe_routed", "fallback_ok"}
+        assert result.status in {"dev_tool_routed", "fallback_ok"}
 
 
 if __name__ == "__main__":

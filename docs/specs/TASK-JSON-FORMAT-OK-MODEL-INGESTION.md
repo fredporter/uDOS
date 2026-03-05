@@ -481,7 +481,7 @@ See [VibeBinderService](../core/services/vibe_binder_service.py) for:
 
 ```python
 from datetime import datetime
-from core.services.vibe_binder_service import get_binder_service
+from core.services.dev_mode_compat import get_binder_service
 
 def import_calendar_event(calendar_event_dict, mission_id):
     """Import Google Calendar event as task."""

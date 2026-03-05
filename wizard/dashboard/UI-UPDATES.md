@@ -62,7 +62,7 @@ A global bottom status bar with:
 cd ~/uDOS
 UV_PROJECT_ENVIRONMENT=.venv uv run python wizard/server.py
 
-# Then open: http://localhost:8765
+# Then open: ${WIZARD_BASE_URL:-http://127.0.0.1:${WIZARD_PORT:-8765}}
 ```
 
 ## 🎯 Next Steps (Optional)

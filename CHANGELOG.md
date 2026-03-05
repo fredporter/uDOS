@@ -10,8 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Comprehensive installation system with cross-platform installer script
-  - `bin/install-udos-vibe.sh` - Full-featured installer for macOS and Linux
-  - `bin/install-udos-vibe.command` - macOS double-clickable launcher
+  - `bin/install-udos.sh` - Full-featured installer for macOS and Linux
+  - `bin/install-udos.command` - macOS double-clickable installer launcher
+  - `bin/ucode-tui-v1.5.command` - macOS stable TUI launcher
   - Automatic OS detection and hardware profiling
   - Environment configuration (.env) with auto-generated security tokens
   - Vault structure initialization and Obsidian integration checks

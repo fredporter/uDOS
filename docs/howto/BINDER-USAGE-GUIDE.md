@@ -9,7 +9,7 @@ This page is now the short entrypoint for binder workflows.
 
 ## Start Here
 
-- [Binder Quickstart](/Users/fredbook/Code/uDOS/docs/howto/BINDER-QUICKSTART.md)
+- [Binder Quickstart](BINDER-QUICKSTART.md)
 
 ## Core Direction
 
@@ -18,4 +18,3 @@ Binders remain the project grouping unit for:
 - database-backed local project state
 - feed generation
 - repeatable project structure
-

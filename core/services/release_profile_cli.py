@@ -17,7 +17,7 @@ def _parse_profiles(raw: str | None) -> list[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(prog="release-profile-cli")
-    parser.add_argument("action", choices=["list", "summary", "install", "tier", "extensions", "packages", "resolved"])
+    parser.add_argument("action", choices=["list", "summary", "install", "extensions", "packages", "resolved"])
     parser.add_argument("--repo-root", default=str(Path(__file__).resolve().parents[2]))
     parser.add_argument("--profiles", default="")
     args = parser.parse_args()
@@ -33,9 +33,6 @@ def main() -> int:
         return 0
     if args.action == "install":
         print(json.dumps(service.install_profiles(profiles), indent=2))
-        return 0
-    if args.action == "tier":
-        print(service.install_summary(profiles)["tinycore_tier"])
         return 0
     if args.action == "resolved":
         print(",".join(service.resolve_profile_ids(profiles)))

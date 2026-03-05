@@ -7,7 +7,7 @@ Private local configuration for Wizard settings, secret storage, and v1.5 logic-
 
 ### Web Dashboard (Recommended)
 
-Open [http://localhost:8765/config](http://localhost:8765/config) to:
+Open `${WIZARD_BASE_URL:-http://127.0.0.1:${WIZARD_PORT:-8765}}/config` to:
 
 - View all available configs
 - Edit API keys in a secure, user-friendly interface
@@ -19,13 +19,14 @@ Open [http://localhost:8765/config](http://localhost:8765/config) to:
 
 ```bash
 # List all config files
-curl http://localhost:8765/api/config/files
+BASE_URL="${WIZARD_BASE_URL:-http://127.0.0.1:${WIZARD_PORT:-8765}}"
+curl "$BASE_URL/api/config/files"
 
 # Get a config (loads example if missing)
-curl http://localhost:8765/api/config/files
+curl "$BASE_URL/api/config/files"
 
 # Get Wizard settings
-curl http://localhost:8765/api/config/wizard
+curl "$BASE_URL/api/config/wizard"
 ```
 
 ## 📋 Configuration Files
@@ -65,7 +66,7 @@ The `file_locations` section controls where Wizard stores local data:
 
 ## 🚀 Quick Start
 
-1. Open [http://localhost:8765/config](http://localhost:8765/config)
+1. Open `${WIZARD_BASE_URL:-http://127.0.0.1:${WIZARD_PORT:-8765}}/config`
 2. Select a configuration or settings surface
 3. Click "📋 View Example" to see the format
 4. Add required secrets through the Wizard secret store
@@ -113,7 +114,7 @@ The easiest way is using the included setup script:
 
 ### Via Dashboard
 
-1. Open [http://localhost:8765/#config](http://localhost:8765/#config)
+1. Open `${WIZARD_BASE_URL:-http://127.0.0.1:${WIZARD_PORT:-8765}}/#config`
 2. Expand "🔑 GitHub SSH Keys" section
 3. Click "Test Connection" to check status
 4. Click "View Public Key" to see your key
@@ -123,16 +124,17 @@ The easiest way is using the included setup script:
 
 ```bash
 # Check SSH key status
-curl http://localhost:8765/api/config/ssh/status
+BASE_URL="${WIZARD_BASE_URL:-http://127.0.0.1:${WIZARD_PORT:-8765}}"
+curl "$BASE_URL/api/config/ssh/status"
 
 # Get public key
-curl http://localhost:8765/api/config/ssh/public-key
+curl "$BASE_URL/api/config/ssh/public-key"
 
 # Test GitHub connection
-curl -X POST http://localhost:8765/api/config/ssh/test-connection
+curl -X POST "$BASE_URL/api/config/ssh/test-connection"
 
 # View setup instructions
-curl http://localhost:8765/api/config/ssh/setup-instructions
+curl "$BASE_URL/api/config/ssh/setup-instructions"
 ```
 
 ### Key Locations

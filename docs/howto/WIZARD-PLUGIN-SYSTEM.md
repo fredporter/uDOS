@@ -9,9 +9,9 @@ This page is now the short entrypoint for Wizard plugin discovery and installati
 
 ## Start Here
 
-- [Wizard Plugin Quickstart](/Users/fredbook/Code/uDOS/docs/howto/WIZARD-PLUGIN-QUICKSTART.md)
-- [Wizard Plugin Reference](/Users/fredbook/Code/uDOS/docs/howto/WIZARD-PLUGIN-REFERENCE.md)
-- [Managed Wizard Operations](/Users/fredbook/Code/uDOS/docs/howto/MANAGED-WIZARD-OPERATIONS.md)
+- [Wizard Plugin Quickstart](WIZARD-PLUGIN-QUICKSTART.md)
+- [Wizard Plugin Reference](WIZARD-PLUGIN-REFERENCE.md)
+- [Managed Wizard Operations](MANAGED-WIZARD-OPERATIONS.md)
 
 ## Core Direction
 
@@ -20,4 +20,3 @@ Preferred plugin model:
 - clear install pathway metadata
 - operator-facing browse/install/update flows
 - compatibility with managed and local Wizard operation
-

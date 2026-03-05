@@ -1,0 +1,38 @@
+{
+  "version": "v1.5.0",
+  "updated": "2026-03-04",
+  "status": "stable",
+  "demo_pack": {
+    "certified": true,
+    "path": "docs/examples/ucode_v1_5_release_pack",
+    "scripts": [
+      "run_demo_00_setup_and_status.py",
+      "run_demo_01_local_assist_and_knowledge.py",
+      "run_demo_02_workflow_and_task_planning.py",
+      "run_demo_03_managed_scheduler_and_budget.py",
+      "run_demo_04_self_hosted_dev_mode.py"
+    ]
+  },
+  "profiles": {
+    "certified": [
+      "core",
+      "home",
+      "creator",
+      "gaming",
+      "dev"
+    ],
+    "state_path": "memory/ucode/release-profiles.json"
+  },
+  "baselines": {
+    "local_assist": "gpt4all_local_with_wizard_escalation",
+    "managed_operations": "quota_budget_scheduler_contract_certified",
+    "dev_loop": "self_hosted_at_dev_closed"
+  },
+  "backlog_closure": {
+    "offline_runtime_promotion": true,
+    "sonic_submission_approval_flow": true,
+    "home_lane_bridge": true,
+    "docs_examples_drift_cleanup": true
+  },
+  "remaining_action": "none"
+}

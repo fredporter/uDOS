@@ -26,10 +26,11 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 - `docs/specs/FORMATTING-SPEC-v1.4.md` — canonical formatting and `.compost` archival contract
 - `docs/specs/TYPESCRIPT-MARKDOWN-RUNTIME-CONTRACT.md` — active TypeScript markdown runtime contract
 - `docs/specs/PACKAGING-RELEASE-CONTRACT-v1.5.md` — active packaging and release contract
+- `docs/specs/ALPINE-CORE-PLUGIN-FORMAT-v1.5.md` — canonical Alpine core and plugin packaging contract for v1.5
 - `docs/specs/SPATIAL-GRID-CONTRACT.md` — active spatial grid and text-graphics contract
 - `docs/specs/UCODE-DISPATCH-CONTRACT.md` — active input-dispatch and routing contract
 - `docs/specs/INTEGRATION-READINESS.md` — active integration readiness summary
-- `docs/specs/MINIMUM-SPEC-VIBE-CLI-UCODE.md` — active minimum runtime pathway contract
+- `docs/specs/MINIMUM-SPEC-DEV-MODE-UCODE.md` — active minimum runtime pathway contract
 - `docs/specs/UCODE-SELECTOR-INTEGRATION-BRIEF.md` — supporting selector brief for the v1.5 `ucode` TUI
 - `docs/specs/DOCUMENTATION-CANONICAL-MAP.md` — current docs assessment and canonical ownership map
 

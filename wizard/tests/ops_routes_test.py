@@ -76,6 +76,10 @@ def test_ops_jobs_and_config_status_routes(tmp_path, monkeypatch):
     assert jobs_res.status_code == 200
     assert "runtime" in jobs_res.json()
     assert "server_time" in jobs_res.json()["runtime"]
+    assert "managed_operations" in jobs_res.json()["runtime"]
+    assert "cloud_execution" in jobs_res.json()["runtime"]["managed_operations"]
+    assert "quota_status" in jobs_res.json()["runtime"]["managed_operations"]
+    assert "scheduler_budget" in jobs_res.json()["runtime"]["managed_operations"]
     assert "tasks" in jobs_res.json()
     assert "workspace_sources" in jobs_res.json()
     assert "settings" in jobs_res.json()
@@ -111,6 +115,7 @@ def test_ops_jobs_and_config_status_routes(tmp_path, monkeypatch):
     assert "workflow_states" in planning_res.json()
     assert "runtime" in planning_res.json()
     assert "server_time" in planning_res.json()["runtime"]
+    assert "managed_operations" in planning_res.json()["runtime"]
     assert "local_time" in planning_res.json()["runtime"]["server_time"]
     assert "offset" in planning_res.json()["runtime"]["server_time"]
     assert "template_families" in planning_res.json()
@@ -183,6 +188,9 @@ def test_ops_jobs_and_config_status_routes(tmp_path, monkeypatch):
     config_res = client.get("/api/ops/config/status")
     assert config_res.status_code == 200
     assert "managed_contract" in config_res.json()
+    assert "managed_operations" in config_res.json()
+    assert "cloud_execution" in config_res.json()["managed_operations"]
+    assert "quota_status" in config_res.json()["managed_operations"]
 
     templates_res = client.get("/api/ops/planning/templates")
     assert templates_res.status_code == 200
@@ -191,3 +199,61 @@ def test_ops_jobs_and_config_status_routes(tmp_path, monkeypatch):
     workflow_templates_res = client.get("/api/ops/planning/templates/workflows")
     assert workflow_templates_res.status_code == 200
     assert "templates" in workflow_templates_res.json()
+
+
+def test_ops_status_exposes_managed_operations_contract(tmp_path, monkeypatch):
+    class _Quota:
+        def get_all_quotas(self):
+            return {
+                "updated_at": "2026-03-04T00:00:00Z",
+                "providers": {
+                    "openai": {
+                        "provider": "openai",
+                        "configured": True,
+                        "status": "ok",
+                    }
+                },
+                "totals": {
+                    "cost_today": 0.12,
+                    "cost_this_month": 1.45,
+                    "requests_today": 3,
+                    "requests_this_month": 17,
+                },
+            }
+
+    monkeypatch.setattr(
+        ops_routes_module,
+        "get_cloud_execution_plan",
+        lambda: {
+            "ready": True,
+            "issue": None,
+            "available_providers": ["mistral", "openai"],
+            "unavailable_providers": ["anthropic"],
+            "quota_ready_providers": ["openai"],
+            "blocked_by_quota": ["mistral"],
+            "primary": "openai",
+            "estimated_tokens": 24,
+            "providers": [
+                {"provider": "mistral", "configured": True, "quota_allowed": False},
+                {"provider": "openai", "configured": True, "quota_allowed": True},
+            ],
+        },
+    )
+    monkeypatch.setattr(ops_routes_module, "get_quota_tracker", lambda: _Quota())
+
+    client = TestClient(_build_app(tmp_path, monkeypatch))
+
+    jobs_res = client.get("/api/ops/planning/jobs")
+    planning_res = client.get("/api/ops/planning/overview")
+    config_res = client.get("/api/ops/config/status")
+
+    for payload in (
+        jobs_res.json()["runtime"]["managed_operations"],
+        planning_res.json()["runtime"]["managed_operations"],
+        config_res.json()["managed_operations"],
+    ):
+        assert payload["cloud_execution"]["blocked_by_quota"] == ["mistral"]
+        assert payload["cloud_execution"]["quota_ready_providers"] == ["openai"]
+        assert payload["cloud_execution"]["primary"] == "openai"
+        assert payload["cloud_execution"]["providers"][0]["quota_allowed"] is False
+        assert payload["quota_status"]["providers"]["openai"]["status"] == "ok"

@@ -5,7 +5,9 @@ Exposes Wizard APIs and the Dev extension uCODE subset to MCP clients over stdio
 
 from __future__ import annotations
 
+import asyncio
 from collections import deque
+import inspect
 from pathlib import Path
 import re
 import socket
@@ -18,6 +20,7 @@ from core.services.unified_config_loader import (
     get_config,
     get_int_config,
 )
+from core.services.wizard_runtime_config import get_wizard_base_url
 
 # Ensure local gateway module is importable without shadowing MCP SDK package.
 THIS_DIR = Path(__file__).resolve().parent
@@ -91,7 +94,7 @@ def _enforce_mcp_security() -> None:
 def _client() -> WizardGateway:
     _enforce_mcp_security()
     client = WizardGateway(
-        base_url=get_config("WIZARD_BASE_URL", "http://localhost:8765"),
+        base_url=get_wizard_base_url(get_config("WIZARD_BASE_URL", "")),
         admin_token=get_config("WIZARD_ADMIN_TOKEN"),
     )
     client.ensure_available()
@@ -201,7 +204,7 @@ def _tool_registration_protocol() -> dict[str, Any]:
         if not tool or not tool.islower():
             continue
         canonical_tools.append(TOOL_INDEX_ALIASES.get(tool, tool))
-    server_tools = sorted(list(mcp._tool_manager._tools.keys()))
+    server_tools = sorted(_registered_tool_names())
     indexed_set = set(canonical_tools)
     server_set = set(server_tools)
     return {
@@ -214,6 +217,18 @@ def _tool_registration_protocol() -> dict[str, Any]:
         "missing_from_index": sorted(list(server_set - indexed_set)),
         "valid": indexed_set.issubset(server_set),
     }
+
+
+def _registered_tool_names() -> list[str]:
+    """Return registered MCP tool names using the public MCP tool listing API."""
+    tools = mcp.list_tools()
+    if inspect.isawaitable(tools):
+        tools = asyncio.run(tools)
+    return sorted(
+        str(getattr(tool, "name", ""))
+        for tool in tools
+        if getattr(tool, "name", "")
+    )
 
 
 @mcp.tool()

@@ -172,7 +172,7 @@ class GitHubCLIExtension(Extension):
             version="1.0.0",
             description="CLI-focused GitHub integration for sync, monitoring, and webhooks",
             author="uDOS Team",
-            repository="https://github.com/fredporter/uDOS-vibe",
+            repository="https://github.com/fredporter/uDOS",
             required_secrets=["github_token"],
             required_capabilities=["subprocess", "git", "api"],
             release_profiles=["dev"],

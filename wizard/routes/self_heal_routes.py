@@ -136,7 +136,10 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
                 "runtime": local_status.get("runtime"),
                 "package_available": local_status.get("package_available"),
                 "model_present": local_status.get("model_present"),
+                "model_dir": local_status.get("model_dir"),
                 "model_path": local_status.get("model_path"),
+                "guidance_path": local_status.get("guidance_path"),
+                "guidance_present": local_status.get("guidance_present"),
             })
 
         if "check_port_conflicts" in strategy["steps"]:
@@ -191,6 +194,10 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
         if not local_logic.get("model_present"):
             next_steps.append(
                 f"Place the configured GPT4All model at `{local_logic.get('model_path')}`."
+            )
+        if not local_logic.get("guidance_present"):
+            next_steps.append(
+                f"Run logic-assist setup to restore guidance at `{local_logic.get('guidance_path')}`."
             )
         if not noun_configured:
             next_steps.append("Set NOUNPROJECT_API_KEY and NOUNPROJECT_API_SECRET.")
@@ -419,6 +426,7 @@ def create_self_heal_routes(auth_guard=None) -> APIRouter:
                         "message": "✅ Logic-assist setup completed",
                         "steps_count": len(steps),
                         "warnings_count": len(warnings),
+                        "logic_assist": result.get("status", {}),
                     }
                     msg = json.dumps(summary)
                     yield f"data: {msg}\n\n"

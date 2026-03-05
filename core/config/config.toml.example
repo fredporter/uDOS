@@ -1,4 +1,4 @@
-# uDOS-vibe Configuration
+# uDOS Configuration
 # This file holds all application settings that were previously scattered in .env
 # Copy to config.toml and customize as needed
 #
@@ -53,7 +53,7 @@ compost_max_mb = 0         # Leave empty for unlimited
 compost_reserve_mb = 100   # Space to reserve
 
 [app.services]
-stream_delay_ms = 0        # Vibe-cli streaming delay
+stream_delay_ms = 0        # Dev Mode contributor-tool streaming delay
 
 [dev]
 # Development and automation flags (for CI/testing)

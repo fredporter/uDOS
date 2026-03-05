@@ -5,7 +5,7 @@ Plugin Manifest Registry
 Builds a registry that merges:
 - distribution/plugins/index.json (catalog)
 - per-plugin manifest.json files
-- package file metadata (tar.gz / tcz)
+- package file metadata (apk / tar.gz / zip)
 
 Provides validation and a clean API surface for Wizard routes.
 """
@@ -150,8 +150,9 @@ class PluginRegistry:
         found: List[Path] = []
         for root in (plugin_dir, packages_dir):
             if root.exists():
+                found.extend(sorted(root.glob("*.apk")))
                 found.extend(sorted(root.glob("*.tar.gz")))
-                found.extend(sorted(root.glob("*.tcz")))
+                found.extend(sorted(root.glob("*.zip")))
 
         packages = []
         seen = set()

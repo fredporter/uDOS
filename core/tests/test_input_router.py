@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from vibe.core.input_router import InputRouter, RouteType
+from core.services.interactive_runtime import InputRouter, RouteType
 
 
 @pytest.fixture

@@ -163,7 +163,7 @@ class DevModeHandler(BaseCommandHandler):
         syntax = manifest.get("syntax")
         if isinstance(syntax, str) and syntax.strip():
             return syntax.strip()
-        return "DEV [on|off|status|restart|logs|health|clear]"
+        return "DEV [on|off|status|restart|logs|health|clear|plan|sync <workflow_plan>|schedule <template> <workflow_plan>|run <workflow_plan>|task <workflow_plan> <task_id> <status>]"
 
     def _throttle_guard(self, endpoint: str) -> dict | None:
         """Return throttle response when rate limit exceeded."""
@@ -196,6 +196,21 @@ class DevModeHandler(BaseCommandHandler):
             return self._get_dev_health()
         if action in {"clear"}:
             return self._clear_dev_mode()
+        if action in {"plan", "planning"}:
+            return self._get_dev_plan()
+        if action in {"sync"}:
+            return self._sync_workflow_plan(params[1] if len(params) > 1 else "")
+        if action in {"schedule"}:
+            template = params[1] if len(params) > 1 else ""
+            workflow_plan = params[2] if len(params) > 2 else ""
+            return self._register_scheduler_template(template, workflow_plan)
+        if action in {"run"}:
+            return self._run_workflow_plan(params[1] if len(params) > 1 else "")
+        if action in {"task"}:
+            workflow_plan = params[1] if len(params) > 1 else ""
+            task_id = params[2] if len(params) > 2 else ""
+            status = params[3] if len(params) > 3 else ""
+            return self._update_workflow_task(workflow_plan, task_id, status)
 
         output = "\n".join(
             [
@@ -548,6 +563,341 @@ class DevModeHandler(BaseCommandHandler):
                 "status": "error",
                 "message": str(exc),
             }
+
+    def _get_dev_plan(self) -> dict:
+        try:
+            guard = self._admin_guard()
+            if guard:
+                return guard
+            dev_guard = self._dev_templates_guard()
+            if dev_guard:
+                return dev_guard
+            response = http_get(
+                f"http://{self.wizard_host}:{self.wizard_port}/api/dev/ops/planning",
+                headers=self._headers(),
+                timeout=5,
+            )
+            if response["status_code"] in {401, 403}:
+                return self._admin_guard() or {
+                    "status": "error",
+                    "message": "Admin token required for dev planning",
+                }
+            result = response.get("json", {})
+            if response["status_code"] >= 400:
+                return {
+                    "status": "error",
+                    "message": result.get("detail") or result.get("message") or "Dev planning status failed",
+                }
+
+            tasks_ledger = result.get("tasks_ledger") or {}
+            workflow_plans = result.get("workflow_plans") or []
+            scheduler_templates = result.get("scheduler_templates") or []
+            runtime = result.get("runtime") or {}
+            workflow_summary = (runtime.get("workflow_dashboard") or {}).get("summary") or {}
+            scheduler = runtime.get("scheduler") or {}
+            queue = scheduler.get("queue") or []
+            handoff = result.get("ucode_handoff") or []
+
+            plan_rows = []
+            for item in workflow_plans:
+                runtime_project = item.get("runtime_project") or {}
+                plan_rows.append(
+                    [
+                        str(item.get("id") or ""),
+                        str(item.get("step_count") or 0),
+                        str(runtime_project.get("task_count") or 0),
+                    ]
+                )
+
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("DEV PLAN"),
+                    OutputToolkit.table(
+                        ["key", "value"],
+                        [
+                            ["missions", str(tasks_ledger.get("mission_count") or 0)],
+                            ["workflow_plans", str(len(workflow_plans))],
+                            ["scheduler_templates", str(len(scheduler_templates))],
+                            ["runtime_runs", str(workflow_summary.get("runs") or 0)],
+                            ["queued_tasks", str(len(queue))],
+                        ],
+                    ),
+                    "",
+                    "Workflow plans:",
+                    OutputToolkit.table(["id", "steps", "runtime_tasks"], plan_rows)
+                    if plan_rows
+                    else "No tracked workflow plans.",
+                    "",
+                    "Handoff commands:",
+                    "\n".join(f"- {item}" for item in handoff) if handoff else "- DEV STATUS",
+                ]
+            )
+            return {
+                "status": "success",
+                "message": "Dev planning summary",
+                "output": output,
+                "planning": result,
+            }
+        except HTTPError:
+            return {
+                "status": "wizard_offline",
+                "message": "Wizard Server not running",
+            }
+        except Exception as exc:
+            logger.error(f"[DEV] Failed to get dev planning summary: {exc}")
+            return {
+                "status": "error",
+                "message": str(exc),
+            }
+
+    def _sync_workflow_plan(self, rel_path: str) -> dict:
+        normalized = (rel_path or "").strip()
+        if not normalized:
+            return {
+                "status": "error",
+                "message": "Workflow plan path required",
+                "output": "\n".join(
+                    [
+                        OutputToolkit.banner("DEV SYNC"),
+                        "Usage: DEV SYNC <workflow_plan.json>",
+                    ]
+                ),
+            }
+        try:
+            guard = self._admin_guard()
+            if guard:
+                return guard
+            dev_guard = self._dev_templates_guard()
+            if dev_guard:
+                return dev_guard
+            response = http_post(
+                f"http://{self.wizard_host}:{self.wizard_port}/api/dev/ops/workflows/sync",
+                json_data={"path": normalized},
+                headers=self._headers(),
+                timeout=10,
+            )
+            if response["status_code"] in {401, 403}:
+                return self._admin_guard() or {
+                    "status": "error",
+                    "message": "Admin token required for dev sync",
+                }
+            result = response.get("json", {})
+            if response["status_code"] >= 400:
+                return {
+                    "status": "error",
+                    "message": result.get("detail") or result.get("message") or "Dev workflow sync failed",
+                }
+            runtime_project = result.get("runtime_project") or {}
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("DEV SYNC"),
+                    OutputToolkit.table(
+                        ["key", "value"],
+                        [
+                            ["plan", str((result.get("plan") or {}).get("path") or normalized)],
+                            ["runtime_project", str(runtime_project.get("name") or "")],
+                            ["created_tasks", str(result.get("created_tasks") or 0)],
+                        ],
+                    ),
+                ]
+            )
+            return {
+                "status": "success",
+                "message": "Workflow plan synced",
+                "output": output,
+                "result": result,
+            }
+        except HTTPError:
+            return {
+                "status": "wizard_offline",
+                "message": "Wizard Server not running",
+            }
+        except Exception as exc:
+            logger.error(f"[DEV] Failed to sync dev workflow plan: {exc}")
+            return {
+                "status": "error",
+                "message": str(exc),
+            }
+
+    def _register_scheduler_template(self, template_path: str, workflow_plan: str) -> dict:
+        template = (template_path or "").strip()
+        workflow = (workflow_plan or "").strip()
+        if not template or not workflow:
+            return {
+                "status": "error",
+                "message": "Scheduler template and workflow plan path required",
+                "output": "\n".join(
+                    [
+                        OutputToolkit.banner("DEV SCHEDULE"),
+                        "Usage: DEV SCHEDULE <scheduler_template.json> <workflow_plan.json>",
+                    ]
+                ),
+            }
+        try:
+            guard = self._admin_guard()
+            if guard:
+                return guard
+            dev_guard = self._dev_templates_guard()
+            if dev_guard:
+                return dev_guard
+            response = http_post(
+                f"http://{self.wizard_host}:{self.wizard_port}/api/dev/ops/scheduler/register",
+                json_data={"path": template, "workflow_path": workflow},
+                headers=self._headers(),
+                timeout=10,
+            )
+            result = response.get("json", {})
+            if response["status_code"] >= 400:
+                return {
+                    "status": "error",
+                    "message": result.get("detail") or result.get("message") or "Dev scheduler registration failed",
+                }
+            task = result.get("task") or {}
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("DEV SCHEDULE"),
+                    OutputToolkit.table(
+                        ["key", "value"],
+                        [
+                            ["template", str((result.get("scheduler_template") or {}).get("path") or template)],
+                            ["workflow_plan", str(workflow)],
+                            ["task_id", str(task.get("id") or task.get("task_id") or "")],
+                            ["created", str(result.get("created"))],
+                        ],
+                    ),
+                ]
+            )
+            return {
+                "status": "success",
+                "message": "Scheduler template registered",
+                "output": output,
+                "result": result,
+            }
+        except HTTPError:
+            return {"status": "wizard_offline", "message": "Wizard Server not running"}
+        except Exception as exc:
+            logger.error(f"[DEV] Failed to register scheduler template: {exc}")
+            return {"status": "error", "message": str(exc)}
+
+    def _run_workflow_plan(self, rel_path: str) -> dict:
+        normalized = (rel_path or "").strip()
+        if not normalized:
+            return {
+                "status": "error",
+                "message": "Workflow plan path required",
+                "output": "\n".join(
+                    [
+                        OutputToolkit.banner("DEV RUN"),
+                        "Usage: DEV RUN <workflow_plan.json>",
+                    ]
+                ),
+            }
+        try:
+            guard = self._admin_guard()
+            if guard:
+                return guard
+            dev_guard = self._dev_templates_guard()
+            if dev_guard:
+                return dev_guard
+            response = http_post(
+                f"http://{self.wizard_host}:{self.wizard_port}/api/dev/ops/workflows/run",
+                json_data={"path": normalized},
+                headers=self._headers(),
+                timeout=10,
+            )
+            result = response.get("json", {})
+            if response["status_code"] >= 400:
+                return {
+                    "status": "error",
+                    "message": result.get("detail") or result.get("message") or "Dev workflow run failed",
+                }
+            run = result.get("run") or {}
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("DEV RUN"),
+                    OutputToolkit.table(
+                        ["key", "value"],
+                        [
+                            ["plan", str((result.get("plan") or {}).get("path") or normalized)],
+                            ["task_id", str(run.get("task_id") or "")],
+                            ["task_title", str(run.get("task_title") or "")],
+                            ["task_status", str(run.get("task_status") or "")],
+                        ],
+                    ),
+                ]
+            )
+            return {
+                "status": "success",
+                "message": "Workflow plan run requested",
+                "output": output,
+                "result": result,
+            }
+        except HTTPError:
+            return {"status": "wizard_offline", "message": "Wizard Server not running"}
+        except Exception as exc:
+            logger.error(f"[DEV] Failed to run workflow plan: {exc}")
+            return {"status": "error", "message": str(exc)}
+
+    def _update_workflow_task(self, rel_path: str, task_id: str, status: str) -> dict:
+        normalized = (rel_path or "").strip()
+        task_value = (task_id or "").strip()
+        status_value = (status or "").strip()
+        if not normalized or not task_value or not status_value:
+            return {
+                "status": "error",
+                "message": "Workflow plan path, task id, and status required",
+                "output": "\n".join(
+                    [
+                        OutputToolkit.banner("DEV TASK"),
+                        "Usage: DEV TASK <workflow_plan.json> <task_id> <status>",
+                    ]
+                ),
+            }
+        try:
+            guard = self._admin_guard()
+            if guard:
+                return guard
+            dev_guard = self._dev_templates_guard()
+            if dev_guard:
+                return dev_guard
+            response = http_post(
+                f"http://{self.wizard_host}:{self.wizard_port}/api/dev/ops/workflows/task-status",
+                json_data={"path": normalized, "task_id": int(task_value), "status": status_value},
+                headers=self._headers(),
+                timeout=10,
+            )
+            result = response.get("json", {})
+            if response["status_code"] >= 400:
+                return {
+                    "status": "error",
+                    "message": result.get("detail") or result.get("message") or "Dev workflow task update failed",
+                }
+            task = result.get("task") or {}
+            output = "\n".join(
+                [
+                    OutputToolkit.banner("DEV TASK"),
+                    OutputToolkit.table(
+                        ["key", "value"],
+                        [
+                            ["plan", str((result.get("plan") or {}).get("path") or normalized)],
+                            ["task_id", str(task.get("id") or task_value)],
+                            ["task_title", str(task.get("title") or "")],
+                            ["task_status", str(task.get("status") or status_value)],
+                        ],
+                    ),
+                ]
+            )
+            return {
+                "status": "success",
+                "message": "Workflow task updated",
+                "output": output,
+                "result": result,
+            }
+        except HTTPError:
+            return {"status": "wizard_offline", "message": "Wizard Server not running"}
+        except Exception as exc:
+            logger.error(f"[DEV] Failed to update workflow task: {exc}")
+            return {"status": "error", "message": str(exc)}
 
     def _get_dev_health(self) -> dict:
         """Get dev mode health from Wizard."""

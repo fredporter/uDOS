@@ -1,8 +1,8 @@
 """
-Vibe TUI Service
+Dev Mode tool TUI service.
 
-Handles interactive TUI operations for ucode terminal interface.
-Provides vibe skill actions for:
+Handles interactive TUI operations for the ucode terminal interface.
+Provides contributor-tool skill actions for:
 - Launching TUI views and interactions
 - Binder/mission exploration
 - Task/move browsing and management
@@ -19,11 +19,11 @@ _logger = get_logger(__name__)
 _tui_service_instance = None
 
 
-class VibeUCodeTUIService:
+class DevModeToolUCodeTUIService:
     """
     Manage ucode terminal UI interactions.
 
-    Exposes TUI views for Vibe skill system through ucode:
+    Exposes TUI views for the Dev Mode contributor-tool skill system through ucode:
     - UCODE BINDER: Interactive binder explorer
     - UCODE TASKS: Task/move browser with filtering
     - UCODE MISSIONS: Mission selector and detail view
@@ -32,7 +32,7 @@ class VibeUCodeTUIService:
 
     def __init__(self):
         """Initialize TUI service."""
-        self.logger = get_logger("vibe-tui-service")
+        self.logger = get_logger("dev-mode-tool-tui-service")
 
     def launch_binder_ui(self, mission_id: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -291,9 +291,12 @@ class VibeUCodeTUIService:
             }
 
 
-def get_tui_service() -> VibeUCodeTUIService:
+VibeUCodeTUIService = DevModeToolUCodeTUIService
+
+
+def get_tui_service() -> DevModeToolUCodeTUIService:
     """Get or create TUI service instance."""
     global _tui_service_instance
     if _tui_service_instance is None:
-        _tui_service_instance = VibeUCodeTUIService()
+        _tui_service_instance = DevModeToolUCodeTUIService()
     return _tui_service_instance

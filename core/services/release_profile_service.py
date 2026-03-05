@@ -70,11 +70,11 @@ DEFAULT_PROFILES: tuple[ReleaseProfile, ...] = (
     ReleaseProfile(
         profile_id="dev",
         label="Dev",
-        summary="Dev Mode only: vibe bridge, repo tooling, workflow authoring, and contributor utilities.",
-        components=["dev-mode", "vibe", "repo-tooling"],
+        summary="Dev Mode only: dev-tool bridge, repo tooling, workflow authoring, and contributor utilities.",
+        components=["dev-mode", "dev-tool", "repo-tooling"],
         extensions=["dev-mode"],
         package_groups=["dev", "utilities"],
-        blockers=["dev-mode-gate", "vibe-dev-only"],
+        blockers=["dev-mode-gate", "dev-tool-dev-only"],
     ),
 )
 
@@ -103,7 +103,7 @@ DEFAULT_PACKAGE_GROUPS: dict[str, dict[str, Any]] = {
     "dev": {
         "label": "Dev",
         "summary": "Contributor utilities and development runtime dependencies.",
-        "repos": ["vibe-dev", "repo-tooling"],
+        "repos": ["dev-tooling", "repo-tooling"],
     },
 }
 
@@ -251,7 +251,6 @@ class ReleaseProfileService:
             "requires_dev": "dev" in resolved,
             "requires_creator": "creator" in resolved,
             "requires_gaming": "gaming" in resolved,
-            "tinycore_tier": "wizard" if "home" in resolved else "core",
             "template_workspace": get_template_workspace_service(
                 self.repo_root
             ).workspace_contract(),
@@ -450,6 +449,7 @@ class ReleaseProfileService:
             "missions": self.repo_root / "core" / "services" / "mission_templates.py",
             "gaming-repos": self.repo_root / "distribution" / "windows10-entertainment",
             "dev-mode": self.repo_root / "dev",
+            "dev-tool": self.repo_root / "vibe",
             "vibe": self.repo_root / "vibe",
             "repo-tooling": self.repo_root / "bin",
         }

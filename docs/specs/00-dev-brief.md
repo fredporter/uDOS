@@ -20,7 +20,7 @@ Default:
 
 ## Runtime split
 - **core/**: deterministic transforms (md/json/sqlite/diff/render)
-- **wizard/**: portal + sharing + permissions + scheduler + ai-router
-- **vibe**: operator console (interactive agent runner), calls core tools
+- **wizard/**: portal + sharing + permissions + scheduler + OK-provider routing
+- **Dev Mode contributor tool**: contributor console, calls core tools inside the Dev Mode lane
 
 **Prompt contract:** uCODE prompt routing follows [docs/specs/UCODE-PROMPT-SPEC.md](../../docs/specs/UCODE-PROMPT-SPEC.md).

@@ -420,7 +420,7 @@ PLAY LENS nethack       # Switch back, verify artifacts gone
 
 ## References
 
-- [docs/STATUS.md](/Users/fredbook/Code/uDOS/docs/STATUS.md)
+- [docs/STATUS.md](../STATUS.md)
 - [core/commands/play_handler.py](../../core/commands/play_handler.py)
 - [core/services/gameplay_service.py](../../core/services/gameplay_service.py)
 - TOYBOX container specifications (see `docs/specs/TOYBOX-CONTAINER-*-v1.3.md`)

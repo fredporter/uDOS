@@ -3,7 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from core.commands.binder_handler import BinderHandler
-from core.services.vibe_binder_service import VibeBinderService
+from core.services.vibe_binder_service import DevModeToolBinderService, VibeBinderService
+
+
+def test_canonical_binder_service_alias_is_stable() -> None:
+    assert DevModeToolBinderService is VibeBinderService
 
 
 def test_binder_import_research_creates_imported_move(monkeypatch, tmp_path: Path) -> None:
@@ -15,7 +19,7 @@ def test_binder_import_research_creates_imported_move(monkeypatch, tmp_path: Pat
         "core.services.vibe_binder_service.get_udos_root",
         lambda: tmp_path,
     )
-    service = VibeBinderService()
+    service = DevModeToolBinderService()
     service.initialize_project("binder-research", "Binder Research", template="research_project")
 
     note_root = tmp_path / "memory" / "bank" / "knowledge" / "user" / "research"

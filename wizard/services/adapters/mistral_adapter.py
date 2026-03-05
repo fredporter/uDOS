@@ -2,7 +2,7 @@
 
 Standard adapter for Mistral API implementing ProviderEngine interface.
 
-Architecture Rules (from vibe/AGENTS.md):
+Architecture Rules (from Dev Mode compatibility governance):
 - Standard call interface matching ProviderEngine
 - Timeout guards on all operations
 - Response normalisation before return
@@ -36,7 +36,7 @@ import aiohttp
 
 from core.services.unified_config_loader import get_config
 
-logger = logging.getLogger("vibe.mistral-adapter")
+logger = logging.getLogger("dev-mode-tool.mistral-adapter")
 
 
 @dataclass

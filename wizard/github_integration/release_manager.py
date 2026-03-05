@@ -1,7 +1,7 @@
 """
 GitHub Release Manager
 
-Publish releases and manage distribution artifacts (TCZ, ISO, etc).
+Publish releases and manage distribution artifacts (APK, ISO, etc).
 Supports semantic versioning, changelog generation, and multi-file uploads.
 """
 
@@ -33,13 +33,13 @@ class ReleaseManager:
             client: GitHubClient instance
             owner: Default GitHub owner
             artifact_types: Map of artifact name → MIME type
-                Defaults: {"tcz": "application/x-tcz", "iso": "application/x-iso"}
+                Defaults: {"apk": "application/vnd.android.package-archive", "iso": "application/x-iso"}
         """
         self.client = client
         self.owner = owner or client.owner
 
         self.artifact_types = artifact_types or {
-            "tcz": "application/x-tcz",
+            "apk": "application/vnd.android.package-archive",
             "iso": "application/x-iso",
             "tar.gz": "application/gzip",
             "zip": "application/zip",

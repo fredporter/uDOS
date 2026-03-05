@@ -67,25 +67,29 @@ Registry    Discovery  Controller
 # From uDOS root
 python -m wizard.services.home_assistant
 
-# Service starts on http://localhost:8765
+# Service starts on ${WIZARD_BASE_URL:-http://127.0.0.1:${WIZARD_PORT:-8765}}
 ```
 
 ### Check Status
 
 ```bash
-curl http://localhost:8765/api/ha/status
+BASE_URL="${WIZARD_BASE_URL:-http://127.0.0.1:${WIZARD_PORT:-8765}}"
+curl "$BASE_URL/api/ha/status"
 ```
 
 ### Discover Devices
 
 ```bash
-curl http://localhost:8765/api/ha/discover
+BASE_URL="${WIZARD_BASE_URL:-http://127.0.0.1:${WIZARD_PORT:-8765}}"
+curl "$BASE_URL/api/ha/discover"
 ```
 
 ### WebSocket Connection
 
 ```javascript
-const ws = new WebSocket('ws://localhost:8765/ws/ha');
+const ws = new WebSocket(
+  `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws/ha`
+);
 
 ws.onopen = () => {
   ws.send(JSON.stringify({
@@ -104,12 +108,13 @@ ws.onmessage = (event) => {
 
 ```bash
 # Turn on
-curl -X POST http://localhost:8765/api/ha/turn-on \
+BASE_URL="${WIZARD_BASE_URL:-http://127.0.0.1:${WIZARD_PORT:-8765}}"
+curl -X POST "$BASE_URL/api/ha/turn-on" \
   -H "Content-Type: application/json" \
   -d '{"entity_ids": ["light.living_room"]}'
 
 # Turn off
-curl -X POST http://localhost:8765/api/ha/turn-off \
+curl -X POST "$BASE_URL/api/ha/turn-off" \
   -H "Content-Type: application/json" \
   -d '{"entity_ids": ["light.living_room"]}'
 ```
@@ -235,10 +240,11 @@ manager.on_event("device_discovered", on_device_discovered)
 
 ```bash
 # Run health check
-curl http://localhost:8765/api/ha/health
+BASE_URL="${WIZARD_BASE_URL:-http://127.0.0.1:${WIZARD_PORT:-8765}}"
+curl "$BASE_URL/api/ha/health"
 
 # Check active connections
-curl http://localhost:8765/api/ha/status | jq '.data.active_connections'
+curl "$BASE_URL/api/ha/status" | jq '.data.active_connections'
 ```
 
 ## Notes

@@ -180,4 +180,4 @@ Dev extension boundary:
 ## Notes
 
 - Admin-guarded endpoints require `WIZARD_ADMIN_TOKEN`.
-- `WIZARD_BASE_URL` defaults to `http://localhost:8765`.
+- `WIZARD_BASE_URL` should point to the active Wizard host, for example `http://localhost:${WIZARD_PORT:-8765}`.

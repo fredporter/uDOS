@@ -1,0 +1,126 @@
+{
+  "updated": "2026-03-04",
+  "status": "completed",
+  "release_version": "v1.5.0",
+  "release_channel": "stable",
+  "profiles": {
+    "core": {
+      "installed": true,
+      "enabled": true,
+      "verify_healthy": true,
+      "repair_evidence": [
+        "UCODE REPAIR STATUS",
+        "core/tests/ucode_min_spec_command_test.py::test_ucode_repair_status"
+      ],
+      "rollback_or_recovery": {
+        "mode": "recovery-only",
+        "evidence": [
+          "UCODE PROFILE INSTALL core",
+          "core/tests/release_profile_service_test.py::test_set_enabled_rejects_disabling_mandatory_profile"
+        ]
+      },
+      "demo_coverage": [
+        "00-setup-and-status",
+        "01-local-assist-and-knowledge",
+        "02-workflow-and-task-planning"
+      ]
+    },
+    "home": {
+      "installed": true,
+      "enabled": true,
+      "verify_healthy": true,
+      "repair_evidence": [
+        "UCODE REPAIR STATUS",
+        "core/tests/ucode_min_spec_command_test.py::test_ucode_repair_status"
+      ],
+      "rollback_or_recovery": {
+        "mode": "rollback-token",
+        "evidence": [
+          "core/tests/sonic_uhome_bundle_test.py::test_plan_includes_rollback_commit_step",
+          "docs/specs/UHOME-v1.5.md"
+        ]
+      },
+      "demo_coverage": [
+        "00-setup-and-status",
+        "01-local-assist-and-knowledge",
+        "03-managed-scheduler-and-budget"
+      ]
+    },
+    "creator": {
+      "installed": true,
+      "enabled": true,
+      "verify_healthy": true,
+      "repair_evidence": [
+        "UCODE REPAIR STATUS",
+        "core/tests/ucode_min_spec_command_test.py::test_ucode_repair_status"
+      ],
+      "rollback_or_recovery": {
+        "mode": "disable-enable-recovery",
+        "evidence": [
+          "UCODE PROFILE DISABLE creator",
+          "UCODE PROFILE ENABLE creator",
+          "core/tests/release_profile_service_test.py::test_set_enabled_can_disable_and_reenable_optional_profile"
+        ]
+      },
+      "demo_coverage": [
+        "00-setup-and-status",
+        "02-workflow-and-task-planning",
+        "03-managed-scheduler-and-budget"
+      ]
+    },
+    "gaming": {
+      "installed": true,
+      "enabled": true,
+      "verify_healthy": true,
+      "repair_evidence": [
+        "UCODE REPAIR STATUS",
+        "core/tests/ucode_min_spec_command_test.py::test_ucode_repair_status"
+      ],
+      "rollback_or_recovery": {
+        "mode": "disable-enable-recovery",
+        "evidence": [
+          "UCODE PROFILE DISABLE gaming",
+          "UCODE PROFILE ENABLE gaming",
+          "core/tests/release_profile_service_test.py::test_set_enabled_can_disable_and_reenable_optional_profile"
+        ]
+      },
+      "demo_coverage": [
+        "00-setup-and-status"
+      ]
+    },
+    "dev": {
+      "installed": true,
+      "enabled": true,
+      "verify_healthy": true,
+      "repair_evidence": [
+        "UCODE REPAIR STATUS",
+        "core/tests/ucode_min_spec_command_test.py::test_ucode_repair_status"
+      ],
+      "rollback_or_recovery": {
+        "mode": "disable-enable-recovery",
+        "evidence": [
+          "UCODE PROFILE DISABLE dev",
+          "UCODE PROFILE ENABLE dev",
+          "core/tests/ucode_min_spec_command_test.py::test_ucode_profile_enable_disable_surface"
+        ]
+      },
+      "demo_coverage": [
+        "00-setup-and-status",
+        "01-local-assist-and-knowledge",
+        "02-workflow-and-task-planning",
+        "03-managed-scheduler-and-budget",
+        "04-self-hosted-dev-mode"
+      ]
+    }
+  },
+  "release_inputs_closed": [
+    "demo-pack-certification",
+    "profile-install-state-persistence",
+    "profile-verify-pass",
+    "shared-repair-contract-evidence",
+    "optional-profile-recovery-evidence",
+    "home-rollback-token-evidence",
+    "version-truth-alignment"
+  ],
+  "remaining_freeze_work": []
+}

@@ -30,6 +30,7 @@ from core.commands.setup_handler_helpers import (
     setup_help_text,
 )
 from core.services.error_contract import CommandError
+from core.services.wizard_runtime_config import get_wizard_dashboard_url
 
 logger = get_logger('setup-handler')
 
@@ -88,7 +89,7 @@ class SetupHandler(BaseCommandHandler, InteractiveMenuMixin):
                     ("Edit setup", "edit", "Update local .env values"),
                     ("Clear setup", "clear", "Reset local setup data"),
                     ("Webhook setup", "webhook", "Configure GitHub webhooks"),
-                    ("Dev extension setup", "dev", "Prepare GPT4All + vibe contributor tooling"),
+                    ("Dev extension setup", "dev", "Prepare GPT4All + Dev Mode contributor tooling"),
                     ("Provider setup", "provider", "Configure provider (github/gpt4all/mistral/openrouter/openai/anthropic/gemini)"),
                     ("Help", "help", "Show SETUP help"),
                 ],
@@ -237,7 +238,7 @@ When Wizard Server is installed, it imports this data.
             lines.append("Extended data stored in: Wizard keystore (when installed)")
             lines.append("\nTo manage extended settings:")
             lines.append("  • Install Wizard Server (see wizard/README.md)")
-            lines.append("  • Access: http://localhost:8765/dashboard")
+            lines.append(f"  • Access: {get_wizard_dashboard_url()}")
 
             return {
                 "status": "success",
@@ -434,7 +435,7 @@ Key fields to edit:
         }
 
     def _setup_dev_mode_helper(self, legacy_alias: bool = False) -> Dict:
-        """Prepare local Dev extension tooling (GPT4All + vibe)."""
+        """Prepare local Dev extension tooling (GPT4All + external Dev Mode contributor tool)."""
         output: List[str] = []
         output.append("\n⚙️  SETUP: Preparing Dev extension contributor tooling\n")
         output.append("=" * 60)

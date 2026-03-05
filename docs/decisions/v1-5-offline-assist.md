@@ -1,3 +1,9 @@
+# v1.5 Offline Assist (Supporting Scaffold)
+
+Status: active supporting scaffold  
+Updated: 2026-03-05
+Scope: design scaffold and reference material for offline logic; canonical release behavior is governed by active v1.5 decisions/specs and implemented runtime tests.
+
 Below is a framework + scaffolding plan for an offline logic engine that is:
 	•	uCode-first
 	•	Can write + execute scripts

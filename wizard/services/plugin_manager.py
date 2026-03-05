@@ -69,7 +69,7 @@ class PluginRepository:
         if not plugin_dir.exists():
             return []
         packages = []
-        for ext in ("*.tar.gz", "*.tcz"):
+        for ext in ("*.apk", "*.tar.gz", "*.zip"):
             packages.extend(sorted(plugin_dir.glob(ext)))
         return packages
 

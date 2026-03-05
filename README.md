@@ -11,13 +11,20 @@ uDOS is a Python-first runtime built around `ucode`, with Wizard as the networke
 
 ## Start Here
 
-- Install and bootstrap: [docs/INSTALLATION.md](/Users/fredbook/Code/uDOS/docs/INSTALLATION.md)
-- Quick operator path: [QUICK-START.md](/Users/fredbook/Code/uDOS/QUICK-START.md)
-- Public docs front door: [docs/README.md](/Users/fredbook/Code/uDOS/docs/README.md)
-- Public status: [docs/STATUS.md](/Users/fredbook/Code/uDOS/docs/STATUS.md)
-- Contributor workspace docs: [dev/docs/README.md](/Users/fredbook/Code/uDOS/dev/docs/README.md)
-- Contributor operations state: [dev/ops/README.md](/Users/fredbook/Code/uDOS/dev/ops/README.md)
-- Short wiki map: [wiki/Home.md](/Users/fredbook/Code/uDOS/wiki/Home.md)
+- Install and bootstrap: [docs/INSTALLATION.md](docs/INSTALLATION.md)
+- Quick operator path: [QUICK-START.md](QUICK-START.md)
+- Public docs front door: [docs/README.md](docs/README.md)
+- Public status: [docs/STATUS.md](docs/STATUS.md)
+- Contributor workspace docs: [dev/docs/README.md](dev/docs/README.md)
+- Contributor operations state: [dev/ops/README.md](dev/ops/README.md)
+- Short wiki map: [wiki/Home.md](wiki/Home.md)
+
+## Stable Release Front Door
+
+- Install with `./bin/install-udos.sh`
+- Launch the macOS stable TUI with `bin/ucode-tui-v1.5.command`
+- Use the active Alpine packaging path for Linux and Sonic release work
+- Treat [ALPINE-CORE-PLUGIN-FORMAT-v1.5.md](docs/specs/ALPINE-CORE-PLUGIN-FORMAT-v1.5.md) as the public Linux packaging contract
 
 ## First Commands
 

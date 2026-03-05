@@ -5,7 +5,16 @@ def test_publish_service_persists_jobs_and_manifests(tmp_path):
     repo_root = tmp_path
     service = PublishService(repo_root=repo_root)
 
-    job = service.create_job(source_workspace="memory/vault", provider="wizard")
+    job = service.create_job(
+        source_workspace="memory/vault",
+        provider="wizard",
+        options={
+            "portal_class": "private_resource_library",
+            "auth_required": True,
+            "library_kind": "markdown_vault",
+            "site_root": "memory/vault/_site/prose",
+        },
+    )
     manifest_id = job["manifest_id"]
 
     service_reloaded = PublishService(repo_root=repo_root)
@@ -14,8 +23,14 @@ def test_publish_service_persists_jobs_and_manifests(tmp_path):
 
     assert loaded_job is not None
     assert loaded_job["publish_job_id"] == job["publish_job_id"]
+    assert loaded_job["portal_class"] == "private_resource_library"
+    assert loaded_job["auth_required"] is True
+    assert loaded_job["library_kind"] == "markdown_vault"
+    assert loaded_job["site_root"] == "memory/vault/_site/prose"
     assert loaded_manifest is not None
     assert loaded_manifest["manifest_id"] == manifest_id
+    assert loaded_manifest["artifact_manifest"]["site_root"] == "memory/vault/_site/prose"
+    assert loaded_manifest["portal"]["portal_class"] == "private_resource_library"
 
 
 def test_publish_service_provider_availability(tmp_path):

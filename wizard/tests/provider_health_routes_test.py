@@ -41,8 +41,11 @@ def _client(monkeypatch):
                     "local": {
                         "ready": True,
                         "model": "devstral-small-2.gguf",
+                        "model_dir": "/tmp/models",
                         "model_path": "/tmp/models/devstral-small-2.gguf",
                         "runtime": "gpt4all",
+                        "guidance_path": "/tmp/models/README.md",
+                        "guidance_present": True,
                     }
                 }
             },
@@ -81,3 +84,4 @@ def test_provider_routes_expose_gpt4all_status(monkeypatch):
     assert payload["success"] is True
     assert payload["logic"]["runtime"] == "gpt4all"
     assert payload["logic"]["model"] == "devstral-small-2.gguf"
+    assert payload["logic"]["guidance_present"] is True

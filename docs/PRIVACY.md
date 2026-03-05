@@ -19,7 +19,7 @@ uDOS is an offline-first open-source system. The default runtime keeps user data
 
 ## References
 
-- Installation and setup: [INSTALLATION.md](/Users/fredbook/Code/uDOS/docs/INSTALLATION.md)
-- Public docs front door: [README.md](/Users/fredbook/Code/uDOS/docs/README.md)
-- Credits and attribution: [credits.md](/Users/fredbook/Code/uDOS/wiki/credits.md)
-- License: [LICENSE](/Users/fredbook/Code/uDOS/LICENSE)
+- Installation and setup: [INSTALLATION.md](INSTALLATION.md)
+- Public docs front door: [README.md](README.md)
+- Credits and attribution: [credits.md](../wiki/credits.md)
+- License: [LICENSE](../LICENSE)

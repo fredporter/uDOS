@@ -2,6 +2,6 @@
 
 This contributor-facing blocker matrix now lives in:
 
-- [v1-5-creator-blocker-matrix.md](/Users/fredbook/Code/uDOS/dev/docs/decisions/v1-5-creator-blocker-matrix.md)
+- [v1-5-creator-blocker-matrix.md](../../dev/docs/decisions/v1-5-creator-blocker-matrix.md)
 
 Root `docs/decisions/` keeps runtime and operator-facing decisions.

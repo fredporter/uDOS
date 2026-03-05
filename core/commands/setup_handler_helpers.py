@@ -226,7 +226,7 @@ PROVIDERS:
   SETUP gpt4all      Prepare local GPT4All model runtime
   SETUP mistral      Configure Mistral provider
   SETUP openrouter   Configure OpenRouter gateway
-  SETUP dev          Prepare GPT4All + vibe contributor tooling
+  SETUP dev          Prepare GPT4All + Dev Mode contributor tooling
 
 LOCAL SETTINGS (.env):
     USER_NAME          Username

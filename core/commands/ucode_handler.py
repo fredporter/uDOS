@@ -36,7 +36,9 @@ from core.services.python_runtime_contract import (
 from core.services.path_service import get_repo_root
 from core.ulogic import (
     ResearchRequest,
+    describe_json_format_profile,
     enrich_document,
+    format_json_text,
     generate_artifact,
     normalize_research_input,
     validate_project_record,
@@ -125,6 +127,8 @@ class UcodeHandler(BaseCommandHandler):
                 result = self._handle_template(params[1:])
             elif action == "deliverable":
                 result = self._handle_deliverable(params[1:])
+            elif action == "format":
+                result = self._handle_format(params[1:])
             elif action == "profile":
                 result = self._handle_profile(params[1:])
             elif action == "operator":
@@ -144,7 +148,7 @@ class UcodeHandler(BaseCommandHandler):
             else:
                 raise CommandError(
                     code="ERR_COMMAND_INVALID_ARG",
-                    message="Syntax: UCODE <DEMO|SYSTEM|DOCS|CAPABILITIES|PLUGIN|METRICS|UPDATE|ENV|TEMPLATE|DELIVERABLE|PROFILE|OPERATOR|EXTENSION|PACKAGE|RESEARCH|ENRICH|GENERATE|REPAIR> ...",
+                    message="Syntax: UCODE <DEMO|SYSTEM|DOCS|CAPABILITIES|PLUGIN|METRICS|UPDATE|ENV|TEMPLATE|DELIVERABLE|FORMAT|PROFILE|OPERATOR|EXTENSION|PACKAGE|RESEARCH|ENRICH|GENERATE|REPAIR> ...",
                     recovery_hint="Run UCODE for command help",
                     level="INFO",
                 )
@@ -184,6 +188,7 @@ class UcodeHandler(BaseCommandHandler):
             "  UCODE ENV [key=value ...]",
             "  UCODE TEMPLATE <LIST|READ|DUPLICATE> ...",
             "  UCODE DELIVERABLE VALIDATE <PROJECT|TASK|WORKFLOW|BUDGET> <json|@path>",
+            "  UCODE FORMAT [AUTO|TASKS|COMPLETED|WORKFLOW|JSON] <json|@path> [--write]",
             "  UCODE PROFILE <LIST|SHOW|INSTALL|ENABLE|DISABLE|VERIFY> [profile]",
             "  UCODE OPERATOR <STATUS|PLAN <prompt>|QUEUE>",
             "  UCODE EXTENSION <LIST|VERIFY> [extension]",
@@ -952,6 +957,120 @@ class UcodeHandler(BaseCommandHandler):
             "output": "\n".join(lines),
         }
 
+    def _handle_format(self, params: list[str]) -> dict[str, Any]:
+        if not params:
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Syntax: UCODE FORMAT [AUTO|TASKS|COMPLETED|WORKFLOW|JSON] <json|@path> [--write]",
+                recovery_hint="Use inline JSON or @/absolute/or/relative/path.json",
+                level="INFO",
+            )
+
+        write_requested = False
+        filtered_params: list[str] = []
+        for item in params:
+            if item.lower() == "--write":
+                write_requested = True
+            else:
+                filtered_params.append(item)
+        params = filtered_params
+
+        if not params:
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="UCODE FORMAT requires inline JSON or @path",
+                recovery_hint="Run `UCODE FORMAT AUTO @path/to/file.json`",
+                level="INFO",
+            )
+
+        target = "auto"
+        payload_ref = params[0]
+        if not payload_ref.startswith("@") and not payload_ref.startswith("{") and not payload_ref.startswith("["):
+            if len(params) < 2:
+                raise CommandError(
+                    code="ERR_COMMAND_INVALID_ARG",
+                    message="UCODE FORMAT target requires inline JSON or @path",
+                    recovery_hint="Run `UCODE FORMAT WORKFLOW @memory/vault/workflows/demo/workflow.json`",
+                    level="INFO",
+                )
+            target = payload_ref
+            payload_ref = params[1]
+
+        source_path: Path | None = None
+        content = payload_ref
+        if payload_ref.startswith("@"):
+            source_path = self._resolve_json_arg_path(payload_ref[1:])
+            if not source_path.exists():
+                raise CommandError(
+                    code="ERR_RESOURCE_NOT_FOUND",
+                    message=f"Format source not found: {source_path}",
+                    recovery_hint="Pass a valid existing JSON file path",
+                    level="INFO",
+                )
+            content = source_path.read_text(encoding="utf-8")
+
+        try:
+            formatted = format_json_text(
+                content,
+                target=target,
+                source_path=source_path,
+            )
+        except ValueError as exc:
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message=str(exc),
+                recovery_hint="Pass valid JSON content before formatting",
+                level="INFO",
+            ) from exc
+
+        if write_requested and source_path is None:
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="UCODE FORMAT --write requires an @path source",
+                recovery_hint="Use `UCODE FORMAT AUTO @path/to/file.json --write`",
+                level="INFO",
+            )
+        if write_requested and not formatted.ok:
+            raise CommandError(
+                code="ERR_COMMAND_INVALID_ARG",
+                message="Cannot write formatted content with helper validation errors",
+                recovery_hint="Fix the reported shape errors first",
+                level="INFO",
+            )
+        if write_requested and source_path is not None:
+            source_path.write_text(formatted.content, encoding="utf-8")
+
+        helper = describe_json_format_profile(
+            target=target,
+            source_path=source_path,
+        )
+        summary_lines = [
+            f"Profile: {helper['profile_label']}",
+            f"Target: {source_path if source_path else 'inline-json'}",
+            f"Changed: {'yes' if formatted.changed else 'no'}",
+            f"Valid: {'yes' if formatted.ok else 'no'}",
+            f"Written: {'yes' if write_requested and source_path is not None else 'no'}",
+        ]
+        if formatted.errors:
+            summary_lines.append("Errors:")
+            summary_lines.extend(f"- {error}" for error in formatted.errors)
+
+        return {
+            "status": "success" if formatted.ok else "warning",
+            "message": "UCODE format helper",
+            "output": formatted.content,
+            "formatted_content": formatted.content,
+            "format_summary": "\n".join(summary_lines),
+            "source_path": str(source_path) if source_path else None,
+            "written": bool(write_requested and source_path is not None),
+            "format_helper": {
+                **helper,
+                "changed": formatted.changed,
+                "valid": formatted.ok,
+                "errors": list(formatted.errors),
+            },
+        }
+
     def _handle_research_pipeline(
         self, action: str, params: list[str]
     ) -> dict[str, Any]:
@@ -1017,7 +1136,7 @@ class UcodeHandler(BaseCommandHandler):
                     note_name=note_id,
                 )
             elif target_kind == "binder":
-                from core.services.vibe_binder_service import get_binder_service
+                from core.services.dev_mode_compat import get_binder_service
 
                 binder_result = get_binder_service().import_research_artifact(
                     target_id,
@@ -1149,9 +1268,7 @@ class UcodeHandler(BaseCommandHandler):
     def _load_json_payload_arg(self, raw_arg: str) -> dict[str, Any]:
         payload_ref = raw_arg.strip()
         if payload_ref.startswith("@"):
-            path = Path(payload_ref[1:])
-            if not path.is_absolute():
-                path = self.repo_root / path
+            path = self._resolve_json_arg_path(payload_ref[1:])
             if not path.exists():
                 raise CommandError(
                     code="ERR_RESOURCE_NOT_FOUND",
@@ -1181,6 +1298,12 @@ class UcodeHandler(BaseCommandHandler):
                 level="INFO",
             )
         return payload
+
+    def _resolve_json_arg_path(self, raw_path: str) -> Path:
+        path = Path(raw_path)
+        if not path.is_absolute():
+            path = self.repo_root / path
+        return path
 
     def _write_knowledge_output(self, *, action: str, name: str, content: str) -> Path:
         return self.knowledge_service.save(action=action, note_id=name, content=content)
@@ -1563,8 +1686,8 @@ class UcodeHandler(BaseCommandHandler):
                 "UCODE-COMMAND-REFERENCE.md",
             ),
             (
-                self.repo_root / "docs" / "specs" / "MINIMUM-SPEC-VIBE-CLI-UCODE.md",
-                "MINIMUM-SPEC-VIBE-CLI-UCODE.md",
+                self.repo_root / "docs" / "specs" / "MINIMUM-SPEC-DEV-MODE-UCODE.md",
+                "MINIMUM-SPEC-DEV-MODE-UCODE.md",
             ),
             (
                 self.repo_root / "docs" / "troubleshooting" / "README.md",

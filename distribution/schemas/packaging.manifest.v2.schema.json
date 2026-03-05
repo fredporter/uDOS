@@ -113,33 +113,6 @@
       "title": "LinuxKioskWrapper",
       "type": "object"
     },
-    "LinuxOfflineInstaller": {
-      "additionalProperties": false,
-      "properties": {
-        "script": {
-          "default": "distribution/installer.sh",
-          "title": "Script",
-          "type": "string"
-        },
-        "default_tier": {
-          "default": "core",
-          "title": "Default Tier",
-          "type": "string"
-        },
-        "tiers": {
-          "additionalProperties": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "title": "Tiers",
-          "type": "object"
-        }
-      },
-      "title": "LinuxOfflineInstaller",
-      "type": "object"
-    },
     "LinuxPlatformConfig": {
       "additionalProperties": false,
       "properties": {
@@ -154,9 +127,6 @@
           },
           "title": "Dependency Profiles",
           "type": "object"
-        },
-        "offline_installer": {
-          "$ref": "#/$defs/LinuxOfflineInstaller"
         },
         "app_bundle": {
           "$ref": "#/$defs/LinuxAppBundle"

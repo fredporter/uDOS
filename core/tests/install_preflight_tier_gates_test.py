@@ -7,7 +7,7 @@ import subprocess
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-INSTALLER = REPO_ROOT / "bin" / "install-udos-vibe.sh"
+INSTALLER = REPO_ROOT / "bin" / "install-udos.sh"
 
 
 def _run_preflight(*, tier: str, probes: dict[str, str]) -> dict[str, object]:

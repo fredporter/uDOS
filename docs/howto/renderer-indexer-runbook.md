@@ -57,13 +57,15 @@ npm run test:tasks
 
 ## 5. Wizard Renderer Endpoints
 
-Assumes Wizard running at `http://localhost:8765`.
+Set the target Wizard URL before calling the renderer routes:
 
 ```bash
-curl http://localhost:8765/api/renderer/themes
-curl http://localhost:8765/api/renderer/site
-curl http://localhost:8765/api/renderer/missions
-curl -X POST http://localhost:8765/api/renderer/render \
+export WIZARD_PORT="${WIZARD_PORT:-8765}"
+export WIZARD_BASE_URL="${WIZARD_BASE_URL:-http://localhost:${WIZARD_PORT}}"
+curl "${WIZARD_BASE_URL}/api/renderer/themes"
+curl "${WIZARD_BASE_URL}/api/renderer/site"
+curl "${WIZARD_BASE_URL}/api/renderer/missions"
+curl -X POST "${WIZARD_BASE_URL}/api/renderer/render" \
   -H "Content-Type: application/json" \
   -d '{"theme":"prose","mission_id":"manual-prose"}'
 ```

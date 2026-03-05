@@ -72,7 +72,7 @@ Or rebuild via API:
 
 ```bash
 curl -X POST -H "Authorization: Bearer $DEVICE_TOKEN" \
-  http://localhost:8765/api/sonic/db/rebuild
+  "${WIZARD_BASE_URL}/api/sonic/db/rebuild"
 ```
 
 ## References

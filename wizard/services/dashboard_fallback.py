@@ -89,7 +89,7 @@ def get_fallback_dashboard_html() -> str:
         </div>
 
         <footer>
-            <p>uDOS Wizard Server • v1.1.0 • <a href="https://github.com/fredporter/uDOS-vibe" style="color: #60a5fa; text-decoration: none;">GitHub</a></p>
+            <p>uDOS Wizard Server • v1.1.0 • <a href="https://github.com/fredporter/uDOS" style="color: #60a5fa; text-decoration: none;">GitHub</a></p>
         </footer>
     </div>
 </body>

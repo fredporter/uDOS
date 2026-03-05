@@ -20,6 +20,12 @@ See `tasks-ui.md` for the dashboard/UI data model.
 - `GET /api/tasks/indexer/summary`
 - `GET /api/tasks/indexer/search`
 - `GET /api/tasks/dashboard`
+- `POST /api/tasks/format`
+
+Format helper note:
+- `POST /api/tasks/format` reuses the core v1.5 JSON formatter surface.
+- `dev/ops/tasks.json` resolves to the contributor task-ledger profile.
+- generic binder-style `tasks` payloads still format through the same backend-owned contract.
 
 ## Response (example)
 

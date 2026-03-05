@@ -97,7 +97,7 @@ label: Prepare Dev Extension Contributor Tooling?
 type: select
 required: true
 options:
-  - yes: Yes (prepare GPT4All local logic-assist, vibe contributor tooling, and recommended contributor models)
+  - yes: Yes (prepare GPT4All local logic-assist, Dev Mode contributor tooling, and recommended contributor models)
   - no: No (skip for now)
   - skip: Skip (ask me later)
 help: "Runs SETUP dev to prepare the local logic-assist contributor lane and recommended tooling. Operator mode remains the standard runtime."

@@ -242,23 +242,23 @@ class CoreProviderRegistry:
 
     @classmethod
     def auto_register_vibe(cls):
-        """Auto-register VibeService when the local logic-assist runtime is ready."""
+        """Auto-register the Dev Mode contributor helper when the local logic-assist runtime is ready."""
         try:
-            from wizard.services.vibe_service import VibeConfig, VibeService
+            from wizard.services.vibe_service import DevModeToolConfig, DevModeToolService
 
-            config = VibeConfig()
-            vibe = VibeService(config)
-            if vibe._verify_connection():
+            config = DevModeToolConfig()
+            contributor_tool = DevModeToolService(config)
+            if contributor_tool._verify_connection():
                 cls.register(
                     ProviderType.VIBE_SERVICE,
-                    vibe,
-                    name="VibeService",
-                    description="Local Vibe provider (logic-assist)",
+                    contributor_tool,
+                    name="DevModeToolService",
+                    description="Local Dev Mode contributor helper (logic-assist)",
                     version="1.0.0",
                 )
-                logger.info("Auto-registered VibeService provider.")
+                logger.info("Auto-registered DevModeToolService provider.")
         except Exception as exc:
-            logger.warning(f"Auto-register VibeService failed: {exc}")
+            logger.warning(f"Auto-register DevModeToolService failed: {exc}")
 
 
 # Convenience functions

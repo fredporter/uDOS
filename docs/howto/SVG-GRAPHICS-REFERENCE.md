@@ -45,4 +45,4 @@ Check for:
 
 ## Start Here
 
-- [SVG Graphics Quickstart](/Users/fredbook/Code/uDOS/docs/howto/SVG-GRAPHICS-QUICKSTART.md)
+- [SVG Graphics Quickstart](SVG-GRAPHICS-QUICKSTART.md)

@@ -8,11 +8,18 @@
 
 ## API Endpoints
 
+Set the target Wizard URL once for the session:
+
+```bash
+export WIZARD_PORT="${WIZARD_PORT:-8765}"
+export WIZARD_BASE_URL="${WIZARD_BASE_URL:-http://localhost:${WIZARD_PORT}}"
+```
+
 ### Launch Container
 ```bash
 POST /api/containers/{container_id}/launch
 
-curl -X POST http://localhost:8765/api/containers/home-assistant/launch
+curl -X POST "${WIZARD_BASE_URL}/api/containers/home-assistant/launch"
 ```
 
 Response:
@@ -32,7 +39,7 @@ Response:
 ```bash
 GET /api/containers/{container_id}/status
 
-curl http://localhost:8765/api/containers/home-assistant/status
+curl "${WIZARD_BASE_URL}/api/containers/home-assistant/status"
 ```
 
 Response:
@@ -51,14 +58,14 @@ Response:
 ```bash
 POST /api/containers/{container_id}/stop
 
-curl -X POST http://localhost:8765/api/containers/home-assistant/stop
+curl -X POST "${WIZARD_BASE_URL}/api/containers/home-assistant/stop"
 ```
 
 ### List Available Containers
 ```bash
 GET /api/containers/list/available
 
-curl http://localhost:8765/api/containers/list/available
+curl "${WIZARD_BASE_URL}/api/containers/list/available"
 ```
 
 Response:
@@ -92,16 +99,16 @@ Once container is running, access via:
 
 ### Home Assistant
 ```
-http://wizard:8765/ui/home-assistant
-http://wizard:8765/ui/home-assistant/dashboard
-http://wizard:8765/ui/home-assistant/api/config
+${WIZARD_BASE_URL}/ui/home-assistant
+${WIZARD_BASE_URL}/ui/home-assistant/dashboard
+${WIZARD_BASE_URL}/ui/home-assistant/api/config
 ```
 
 ### Songscribe
 ```
-http://wizard:8765/ui/songscribe
-http://wizard:8765/ui/songscribe/api/transcribe
-http://wizard:8765/ui/songscribe/results
+${WIZARD_BASE_URL}/ui/songscribe
+${WIZARD_BASE_URL}/ui/songscribe/api/transcribe
+${WIZARD_BASE_URL}/ui/songscribe/results
 ```
 
 ---

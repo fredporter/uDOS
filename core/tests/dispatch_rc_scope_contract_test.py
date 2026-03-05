@@ -10,7 +10,7 @@ from core.services.command_dispatch_service import (
 
 
 def test_rc_route_order_is_locked() -> None:
-    assert DISPATCH_ROUTE_ORDER == ("ucode", "shell", "vibe")
+    assert DISPATCH_ROUTE_ORDER == ("ucode", "shell", "dev_tool")
 
 
 def test_rc_legacy_command_aliases_are_locked() -> None:
@@ -43,4 +43,4 @@ def test_rc_fallback_order_contract() -> None:
 
     stage_3 = service.dispatch("explain this architecture")
     assert stage_3["stage"] == 3
-    assert stage_3["dispatch_to"] == "vibe"
+    assert stage_3["dispatch_to"] == "dev_tool"

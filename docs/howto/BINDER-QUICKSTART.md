@@ -49,5 +49,4 @@ items = feed.scan_files()
 
 ## Companion Guide
 
-- [Binder Usage Guide](/Users/fredbook/Code/uDOS/docs/howto/BINDER-USAGE-GUIDE.md)
-
+- [Binder Usage Guide](BINDER-USAGE-GUIDE.md)

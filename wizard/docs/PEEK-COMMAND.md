@@ -33,7 +33,7 @@ wizard> peek <url> [optional-filename]
 #### Simple conversion
 
 ```
-wizard> peek https://github.com/fredporter/uDOS-vibe
+wizard> peek https://github.com/fredporter/uDOS
 ```
 
 Saves to: `memory/sandbox/outbox/uDOS.md`
@@ -78,7 +78,7 @@ Each converted file includes:
 ```markdown
 ---
 title: github
-source_url: https://github.com/fredporter/uDOS-vibe
+source_url: https://github.com/fredporter/uDOS
 converted_at: 2026-01-26T14:32:15.123456
 format: url-to-markdown
 ---
@@ -172,7 +172,7 @@ bash bin/test_peek.sh https://example.com test-page
 bash bin/test_peek.sh
 
 # Run with actual conversion
-bash bin/test_peek.sh https://github.com/fredporter/uDOS-vibe my-repo
+bash bin/test_peek.sh https://github.com/fredporter/uDOS my-repo
 ```
 
 ### Expected Output
@@ -471,7 +471,7 @@ success, path, msg = await service.convert("https://example.com")
 bash bin/test_peek.sh https://example.com
 
 # GitHub
-bash bin/test_peek.sh https://github.com/fredporter/uDOS-vibe
+bash bin/test_peek.sh https://github.com/fredporter/uDOS
 
 # Wikipedia (large)
 bash bin/test_peek.sh "https://en.wikipedia.org/wiki/Python" python-wiki
@@ -496,7 +496,7 @@ A: Not yet (v1.1 feature). Use a shell loop for now:
 
 ```bash
 for url in "https://example.com" "https://example.org"; do
-  curl -X POST http://localhost:8765/api/web/peek -d "{\"url\": \"$url\"}"
+  curl -X POST "${WIZARD_BASE_URL}/api/web/peek" -d "{\"url\": \"$url\"}"
 done
 ```
 

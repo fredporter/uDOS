@@ -116,6 +116,7 @@ class SonicDeviceStorageService:
         self.sonic_root = self.repo_root / "sonic"
         self.dataset_root = self.sonic_root / "datasets"
         self.memory_root = self.repo_root / "memory" / "sonic"
+        self.submissions_root = self.memory_root / "submissions"
         self.paths = SonicRuntimePaths(
             seed_db_path=self.memory_root / "seed" / "sonic-devices.seed.db",
             user_db_path=self.memory_root / "user" / "sonic-devices.user.db",
@@ -143,6 +144,18 @@ class SonicDeviceStorageService:
                 "current_machine_id": current_machine_id,
                 "current_machine_registered": self.has_user_device(current_machine_id),
             },
+            "submissions": self.submission_runtime_contract(),
+        }
+
+    def submission_runtime_contract(self) -> dict[str, Any]:
+        pending = self.list_submissions(status="pending")
+        approved = self.list_submissions(status="approved")
+        rejected = self.list_submissions(status="rejected")
+        return {
+            "root": str(self.submissions_root),
+            "pending_count": len(pending),
+            "approved_count": len(approved),
+            "rejected_count": len(rejected),
         }
 
     def ensure_user_runtime(self) -> None:
@@ -373,6 +386,103 @@ class SonicDeviceStorageService:
             "updated": updated,
         }
 
+    def list_submissions(self, *, status: str | None = None) -> list[dict[str, Any]]:
+        statuses = [status] if status else ["pending", "approved", "rejected"]
+        records: list[dict[str, Any]] = []
+        for item_status in statuses:
+            for path in sorted(self._submission_dir(item_status).glob("*.json")):
+                payload = json.loads(path.read_text(encoding="utf-8"))
+                payload["status"] = item_status
+                payload["path"] = str(path)
+                records.append(payload)
+        return sorted(
+            records,
+            key=lambda item: (
+                str(item.get("updated_at") or item.get("submitted_at") or ""),
+                str(item.get("submission_id") or ""),
+            ),
+            reverse=True,
+        )
+
+    def submit_device_submission(
+        self, payload: dict[str, Any], *, submitter: str | None = None
+    ) -> dict[str, Any]:
+        normalized = self._normalize_submission_payload(payload)
+        submission_id = str(normalized["id"])
+        now = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+        record = {
+            "submission_id": submission_id,
+            "status": "pending",
+            "submitted_at": now,
+            "updated_at": now,
+            "submitter": submitter or "local-user",
+            "device": normalized,
+        }
+        path = self._submission_path("pending", submission_id)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(record, indent=2), encoding="utf-8")
+        return {
+            "status": "ok",
+            "message": "Device submission queued for contributor review",
+            "submission": record,
+        }
+
+    def approve_submission(
+        self, submission_id: str, *, approved_by: str | None = None
+    ) -> dict[str, Any]:
+        record = self._load_submission("pending", submission_id)
+        if record is None:
+            return {"status": "error", "message": f"Pending submission not found: {submission_id}"}
+
+        now = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+        device_payload = self._submission_device_to_user_record(record["device"], updated_at=now)
+        self._upsert_user_device(device_payload, overwrite=True)
+        self._refresh_legacy_bridge()
+
+        approved = {
+            **record,
+            "status": "approved",
+            "updated_at": now,
+            "approved_at": now,
+            "approved_by": approved_by or "contributor",
+        }
+        self._write_submission("approved", submission_id, approved)
+        self._delete_submission("pending", submission_id)
+        return {
+            "status": "ok",
+            "message": "Submission approved and merged into the local user catalog",
+            "submission": approved,
+            "device": self.get_device(submission_id),
+        }
+
+    def reject_submission(
+        self,
+        submission_id: str,
+        *,
+        rejected_by: str | None = None,
+        reason: str | None = None,
+    ) -> dict[str, Any]:
+        record = self._load_submission("pending", submission_id)
+        if record is None:
+            return {"status": "error", "message": f"Pending submission not found: {submission_id}"}
+
+        now = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+        rejected = {
+            **record,
+            "status": "rejected",
+            "updated_at": now,
+            "rejected_at": now,
+            "rejected_by": rejected_by or "contributor",
+            "reason": reason or "",
+        }
+        self._write_submission("rejected", submission_id, rejected)
+        self._delete_submission("pending", submission_id)
+        return {
+            "status": "ok",
+            "message": "Submission rejected",
+            "submission": rejected,
+        }
+
     def _refresh_legacy_bridge(self) -> None:
         self.paths.legacy_db_path.parent.mkdir(parents=True, exist_ok=True)
         if self.paths.seed_db_path.exists():
@@ -419,10 +529,18 @@ class SonicDeviceStorageService:
         if not user_rows:
             return
         with sqlite3.connect(str(self.paths.legacy_db_path)) as conn:
+            existing_columns = {
+                row[1]
+                for row in conn.execute("PRAGMA table_info(devices)").fetchall()
+            }
             for row in user_rows:
                 if int(row.get("local_enabled") or 0) != 1:
                     continue
-                payload = {column: row.get(column) for column in DEVICE_COLUMNS}
+                payload = {
+                    column: row.get(column)
+                    for column in DEVICE_COLUMNS
+                    if column in existing_columns
+                }
                 columns = list(payload.keys())
                 placeholders = ", ".join("?" for _ in columns)
                 assignments = ", ".join(f"{column}=excluded.{column}" for column in columns if column != "id")
@@ -435,6 +553,28 @@ class SonicDeviceStorageService:
                     tuple(payload[column] for column in columns),
                 )
             conn.commit()
+
+    def _submission_dir(self, status: str) -> Path:
+        return self.submissions_root / status
+
+    def _submission_path(self, status: str, submission_id: str) -> Path:
+        return self._submission_dir(status) / f"{submission_id}.json"
+
+    def _load_submission(self, status: str, submission_id: str) -> dict[str, Any] | None:
+        path = self._submission_path(status, submission_id)
+        if not path.exists():
+            return None
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    def _write_submission(self, status: str, submission_id: str, payload: dict[str, Any]) -> None:
+        path = self._submission_path(status, submission_id)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+    def _delete_submission(self, status: str, submission_id: str) -> None:
+        path = self._submission_path(status, submission_id)
+        if path.exists():
+            path.unlink()
 
     def _count_rows(self, db_path: Path, table: str) -> int:
         with sqlite3.connect(str(db_path)) as conn:
@@ -520,6 +660,62 @@ class SonicDeviceStorageService:
                 tuple(values[column] for column in columns),
             )
             conn.commit()
+
+    def _normalize_submission_payload(self, payload: dict[str, Any]) -> dict[str, Any]:
+        device_id = str(payload.get("id") or "").strip()
+        vendor = str(payload.get("vendor") or "").strip()
+        model = str(payload.get("model") or "").strip()
+        if not device_id or not vendor or not model:
+            raise ValueError("Submission requires non-empty id, vendor, and model")
+        normalized = {column: payload.get(column) for column in DEVICE_COLUMNS}
+        normalized["id"] = device_id
+        normalized["vendor"] = vendor
+        normalized["model"] = model
+        normalized["settings_template_md"] = (
+            normalized.get("settings_template_md")
+            or SONIC_TEMPLATE_DEFAULTS["settings_template_md"]
+        )
+        normalized["installers_template_md"] = (
+            normalized.get("installers_template_md")
+            or SONIC_TEMPLATE_DEFAULTS["installers_template_md"]
+        )
+        normalized["containers_template_md"] = (
+            normalized.get("containers_template_md")
+            or SONIC_TEMPLATE_DEFAULTS["containers_template_md"]
+        )
+        normalized["drivers_template_md"] = (
+            normalized.get("drivers_template_md")
+            or SONIC_TEMPLATE_DEFAULTS["drivers_template_md"]
+        )
+        normalized["bios"] = normalized.get("bios") or "unknown"
+        normalized["year"] = normalized.get("year") or datetime.now(UTC).year
+        normalized["secure_boot"] = normalized.get("secure_boot") or "unknown"
+        normalized["tpm"] = normalized.get("tpm") or "unknown"
+        normalized["usb_boot"] = normalized.get("usb_boot") or "unknown"
+        normalized["uefi_native"] = normalized.get("uefi_native") or "unknown"
+        normalized["reflash_potential"] = normalized.get("reflash_potential") or "unknown"
+        normalized["methods"] = normalized.get("methods") or []
+        normalized["last_seen"] = normalized.get("last_seen") or datetime.now(UTC).date().isoformat()
+        normalized["windows10_boot"] = normalized.get("windows10_boot") or "unknown"
+        normalized["media_mode"] = normalized.get("media_mode") or "unknown"
+        normalized["udos_launcher"] = normalized.get("udos_launcher") or "unknown"
+        return normalized
+
+    def _submission_device_to_user_record(
+        self, payload: dict[str, Any], *, updated_at: str
+    ) -> dict[str, Any]:
+        existing = self._read_user_device(str(payload["id"])) or {}
+        methods = payload.get("methods")
+        sources = payload.get("sources")
+        return {
+            **{column: payload.get(column) for column in DEVICE_COLUMNS},
+            "methods": json.dumps(methods) if isinstance(methods, list) else methods,
+            "sources": json.dumps(sources) if isinstance(sources, list) else sources,
+            "local_origin": "approved-submission",
+            "local_enabled": 1,
+            "created_at": existing.get("created_at") or updated_at,
+            "updated_at": updated_at,
+        }
 
     def _apply_filters(
         self,

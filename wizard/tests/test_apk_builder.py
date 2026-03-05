@@ -2,7 +2,7 @@
 Tests for APK package builder.
 
 Alpine APK packages are the standard package format for uDOS,
-replacing legacy TinyCore TCZ packages.
+using the current Alpine core plugin contract.
 """
 
 import pytest
@@ -14,7 +14,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from wizard.services.plugin_factory import APKBuilder, TCZBuilder, BuildResult
+from wizard.services.plugin_factory import APKBuilder, BuildResult
 
 
 class TestAPKBuilder:
@@ -94,40 +94,6 @@ class TestAPKBuilder:
         assert not success
 
 
-class TestTCZBuilderDeprecation:
-    """Test TCZ builder deprecation warnings."""
-
-    def test_tcz_builder_deprecation_warning(self):
-        """TCZBuilder should emit deprecation warning."""
-        with pytest.warns(DeprecationWarning, match="legacy"):
-            builder = TCZBuilder()
-
-    def test_tcz_builder_contains_apk_builder(self):
-        """TCZBuilder should delegate to APKBuilder."""
-        with pytest.warns(DeprecationWarning):
-            builder = TCZBuilder()
-            assert builder.apk_builder is not None
-            assert isinstance(builder.apk_builder, APKBuilder)
-
-    def test_tcz_builder_build_raises(self):
-        """build_tcz should raise NotImplementedError."""
-        with pytest.warns(DeprecationWarning):
-            builder = TCZBuilder()
-
-        with pytest.raises(NotImplementedError, match="Alpine"):
-            builder.build_tcz()
-
-    def test_tcz_builder_references_adr(self):
-        """build_tcz error should reference migration ADR."""
-        with pytest.warns(DeprecationWarning):
-            builder = TCZBuilder()
-
-        try:
-            builder.build_tcz()
-        except NotImplementedError as e:
-            assert "ADR-0003" in str(e)
-
-
 class TestBuildResult:
     """Test BuildResult data class."""
 
@@ -171,14 +137,6 @@ class TestAPKBuilderIntegration:
 
         builder = FactoryAPKBuilder()
         assert builder is not None
-
-    def test_tcz_builder_available_in_factory(self):
-        """TCZBuilder should be importable from plugin_factory."""
-        from wizard.services.plugin_factory import TCZBuilder as FactoryTCZBuilder
-
-        with pytest.warns(DeprecationWarning):
-            builder = FactoryTCZBuilder()
-            assert builder is not None
 
 
 if __name__ == "__main__":

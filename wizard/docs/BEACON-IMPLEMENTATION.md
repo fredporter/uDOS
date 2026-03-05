@@ -10,6 +10,12 @@ The Beacon Portal system enables **uDOS devices** to connect to the internet via
 
 This document guides implementation of the Beacon Portal in Wizard Server.
 
+## Concept boundary
+
+- Beacon remains the access layer: announce, connect, redirect.
+- Wizard remains the host/control-plane behind Beacon.
+- Tunnel, quota, and cache features are Wizard-managed support surfaces behind the Beacon lane, not Beacon-owned runtime responsibilities.
+
 ## Components Implemented
 
 ### 1. Specification Documents
@@ -283,7 +289,7 @@ pytest wizard/tests/test_beacon_routes.py -v
 pytest wizard/tests/test_hardware_guides.py -v
 
 # Load Testing (Multiple Beacons)
-ab -n 1000 -c 10 http://localhost:8765/api/beacon/status?beacon_id=beacon-1
+ab -n 1000 -c 10 "${WIZARD_BASE_URL}/api/beacon/status?beacon_id=beacon-1"
 ```
 
 ## Security Considerations

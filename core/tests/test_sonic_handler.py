@@ -1,6 +1,6 @@
 import hashlib
-from pathlib import Path
 import json
+from pathlib import Path
 
 from core.commands.sonic_handler import SonicHandler
 from core.services.mode_policy import RuntimeMode
@@ -256,6 +256,35 @@ def test_sonic_bootstrap_registers_current_machine(tmp_path):
 
     assert result["status"] == "ok"
     assert result["result"]["device_id"].startswith("local-")
+
+
+def test_sonic_submission_commands_queue_and_approve(tmp_path):
+    repo_root = tmp_path / "repo"
+    sonic_root = repo_root / "sonic"
+    _seed_full_sonic_dataset(sonic_root)
+    handler = _FakeSonicHandler(repo_root=repo_root, sonic_root=sonic_root)
+    handler.handle("SONIC", ["SYNC", "--force"])
+
+    submission_path = repo_root / "submission.json"
+    submission_path.write_text(
+        json.dumps(
+            {"id": "cmd-device", "vendor": "CmdVendor", "model": "CmdModel"},
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    queued = handler.handle(
+        "SONIC", ["SUBMISSION", "SUBMIT", "--file", str(submission_path)]
+    )
+    assert queued["status"] == "ok"
+
+    listed = handler.handle("SONIC", ["SUBMISSION", "LIST", "pending"])
+    assert listed["submission_count"] == 1
+
+    approved = handler.handle("SONIC", ["SUBMISSION", "APPROVE", "cmd-device"])
+    assert approved["status"] == "ok"
+    assert approved["device"]["vendor"] == "CmdVendor"
 
 
 def test_sonic_plan_requires_wizard_mode_when_boundaries_enforced(tmp_path, monkeypatch):

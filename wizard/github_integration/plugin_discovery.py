@@ -67,8 +67,7 @@ class PluginDiscovery:
     WIZARD_PATHS = {
         "library/wizard": {
             "gpt4all": ("gpt4all", "Local logic runtime"),
-            "mistral-vibe": ("mistral-vibe", "Offline AI interface"),
-            "gemini-cli": ("gemini-cli", "Google AI CLI"),
+            "gemini-cli": ("gemini-cli", "Google CLI helper"),
             "nethack": ("nethack", "Roguelike game"),
             "home-assistant": ("home-assistant", "Home automation"),
         }
@@ -79,7 +78,7 @@ class PluginDiscovery:
             "groovebox": ("groovebox", "Music production"),
             "vscode": ("vscode", "VS Code extension"),
             "tauri": ("tauri", "Desktop app framework"),
-            "assistant": ("assistant", "AI assistant"),
+            "assistant": ("assistant", "legacy assistant"),
         }
     }
 

@@ -20,7 +20,7 @@ Requirements (for APK):
   - Alpine Linux environment (for testing)
 
 Migration Note:
-    This replaces the old TinyCore TCZ packaging system (legacy).
+    This follows the Alpine core plugin packaging contract.
   See ADR-0003-alpine-linux-migration.md for details.
 """
 
@@ -109,7 +109,7 @@ class PluginFactory:
 
     Supports:
     - Building from code containers
-    - TCZ packaging (TinyCore, legacy)
+    - APK packaging
     - TAR.GZ fallback
     - Manifest generation
     - Checksum calculation
@@ -170,7 +170,6 @@ class PluginFactory:
             # Run build script if present
             self._run_build_script(build_dir)
 
-            # Try TCZ first, fall back to tar.gz
             package_path, package_type = self._create_package(
                 build_dir, container_id, version
             )
@@ -292,29 +291,8 @@ class PluginFactory:
     def _create_package(
         self, build_dir: Path, plugin_id: str, version: str
     ) -> Tuple[Path, str]:
-        """Create package file (TCZ or tar.gz)."""
+        """Create a fallback tarball package."""
         package_name = f"{plugin_id}-{version}"
-
-        # Try TCZ (squashfs) first
-        if self._can_create_tcz():
-            tcz_path = self.build_path / f"{package_name}.tcz"
-            try:
-                subprocess.run(
-                    [
-                        "mksquashfs",
-                        str(build_dir),
-                        str(tcz_path),
-                        "-comp",
-                        "gzip",
-                        "-noappend",
-                    ],
-                    check=True,
-                    capture_output=True,
-                    timeout=120,
-                )
-                return tcz_path, "tcz"
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                pass  # Fall back to tar.gz
 
         # Create tar.gz
         tar_path = self.build_path / f"{package_name}.tar.gz"
@@ -324,16 +302,6 @@ class PluginFactory:
             timeout=60,
         )
         return tar_path, "tar.gz"
-
-    def _can_create_tcz(self) -> bool:
-        """Check if mksquashfs is available."""
-        try:
-            result = subprocess.run(
-                ["which", "mksquashfs"], capture_output=True, timeout=5
-            )
-            return result.returncode == 0
-        except Exception:
-            return False
 
     def _calculate_checksum(self, path: Path) -> str:
         """Calculate SHA256 checksum of file."""
@@ -397,8 +365,8 @@ class PluginFactory:
         if not plugin_dir.exists():
             return None
 
-        # Find package file (now prioritizes .apk)
-        for ext in [".apk", ".tcz", ".tar.gz"]:
+        # Find package file using active package formats only.
+        for ext in [".apk", ".tar.gz", ".zip"]:
             packages = list(plugin_dir.glob(f"*{ext}"))
             if packages:
                 return packages[0]
@@ -662,35 +630,3 @@ class APKBuilder:
             return True, f"APKINDEX generated and signed: {index_path}"
 
         return True, f"APKINDEX generated (unsigned): {index_path}"
-
-
-class TCZBuilder:
-    """
-    LEGACY: Old TinyCore TCZ package builder. Use Alpine-style plugin packaging and distribution managed by Wizard.
-
-    This class is kept for backwards compatibility only.
-    Use APKBuilder instead for Alpine Linux packages.
-
-    References:
-    - Migration Guide: docs/decisions/ADR-0003-alpine-linux-migration.md
-    - Alpine APK Format: docs/howto/alpine-install.md
-    """
-
-    def __init__(self, logger=None):
-        """Initialize (legacy)."""
-        import warnings
-
-        warnings.warn(
-            "TCZBuilder is legacy. Use APKBuilder for Alpine packages.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self.logger = logger
-        self.apk_builder = APKBuilder(logger=logger)
-
-    def build_tcz(self, *args, **kwargs):
-        """LEGACY: Use APKBuilder.build_apk() instead."""
-        raise NotImplementedError(
-            "TCZ packaging is legacy. Use Alpine APK packages instead.\n"
-            "See: docs/decisions/ADR-0003-alpine-linux-migration.md"
-        )

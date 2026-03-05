@@ -1,6 +1,6 @@
 # Wizard GitHub Pages Web Publishing Architecture v1.4.5
 
-**Status:** Specification (v1.4.5 dev round)
+**Status:** Historical development reference (non-v1.5 release gate)
 **Owner:** Wizard Server + uDOS Core
 **Target Release:** 2026-04-30
 

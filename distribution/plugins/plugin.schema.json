@@ -86,19 +86,11 @@
       "properties": {
         "os": {
           "type": "array",
-          "items": { "type": "string", "enum": ["linux", "macos", "windows", "tinycore"] }
+          "items": { "type": "string", "enum": ["linux", "macos", "windows"] }
         },
         "arch": {
           "type": "array",
           "items": { "type": "string", "enum": ["amd64", "arm64", "arm", "x86"] }
-        },
-        "tinycore": {
-          "type": "object",
-          "properties": {
-            "compatible": { "type": "boolean" },
-            "tcz_name": { "type": "string" },
-            "extensions": { "type": "array", "items": { "type": "string" } }
-          }
         }
       },
       "description": "Supported platforms"
@@ -108,7 +100,7 @@
       "properties": {
         "method": {
           "type": "string",
-          "enum": ["binary", "npm", "pip", "tcz", "source"],
+          "enum": ["binary", "npm", "pip", "source"],
           "description": "Installation method"
         },
         "sources": {

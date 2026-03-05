@@ -12,9 +12,9 @@ def _build_app(**overrides):
         return {
             "result": {"output": "ok"},
             "routing_contract": {
-                "interactive_owner": "vibe-cli",
+                "interactive_owner": "dev-mode-tool",
                 "tool_gateway": "wizard-mcp",
-                "dispatch_route_order": ["ucode", "shell", "vibe"],
+                "dispatch_route_order": ["ucode", "shell", "dev_tool"],
             },
         }
 
@@ -69,7 +69,7 @@ def test_dispatch_calls_core():
     res = client.post("/api/ucode/dispatch", json={"command": " HELP "})
     assert res.status_code == 200
     payload = res.json()
-    assert payload["routing_contract"]["interactive_owner"] == "vibe-cli"
+    assert payload["routing_contract"]["interactive_owner"] == "dev-mode-tool"
     assert payload["routing_contract"]["tool_gateway"] == "wizard-mcp"
     assert calls["dispatch_core"]["command"] == "HELP"
     assert len(calls["reset_tokens"]) == 1

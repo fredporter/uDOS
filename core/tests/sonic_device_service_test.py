@@ -112,3 +112,56 @@ def test_sonic_device_service_user_overlay_overrides_seed(tmp_path):
     assert device["vendor"] == "LocalVendor"
     assert device["catalog_source"] == "user"
     assert device["drivers_template_md"] == "drivers.md"
+
+
+def test_sonic_device_service_submission_approval_merges_into_user_catalog(tmp_path):
+    repo_root = tmp_path / "repo"
+    _seed_sql(repo_root)
+    service = get_sonic_device_service(repo_root)
+    service.ensure_seed_runtime(force=True)
+
+    queued = service.submit_device_submission(
+        {
+            "id": "submitted-device",
+            "vendor": "SubmitVendor",
+            "model": "SubmitModel",
+            "methods": ["usb"],
+            "sources": ["local-note"],
+            "year": 2026,
+        },
+        submitter="tester",
+    )
+    assert queued["status"] == "ok"
+    assert service.submission_runtime_contract()["pending_count"] == 1
+
+    approved = service.approve_submission("submitted-device", approved_by="maintainer")
+    assert approved["status"] == "ok"
+    assert approved["submission"]["approved_by"] == "maintainer"
+    assert service.submission_runtime_contract()["pending_count"] == 0
+    assert service.submission_runtime_contract()["approved_count"] == 1
+
+    device = service.get_device("submitted-device")
+    assert device is not None
+    assert device["catalog_source"] == "user"
+    assert device["vendor"] == "SubmitVendor"
+    assert device["methods"] == ["usb"]
+
+
+def test_sonic_device_service_submission_rejects_pending_record(tmp_path):
+    repo_root = tmp_path / "repo"
+    _seed_sql(repo_root)
+    service = get_sonic_device_service(repo_root)
+    service.ensure_seed_runtime(force=True)
+
+    service.submit_device_submission(
+        {"id": "reject-me", "vendor": "RejectVendor", "model": "RejectModel"},
+        submitter="tester",
+    )
+    rejected = service.reject_submission(
+        "reject-me", rejected_by="maintainer", reason="missing verification"
+    )
+
+    assert rejected["status"] == "ok"
+    assert rejected["submission"]["reason"] == "missing verification"
+    assert service.submission_runtime_contract()["pending_count"] == 0
+    assert service.submission_runtime_contract()["rejected_count"] == 1

@@ -534,7 +534,7 @@ class GitHubClient:
         Returns:
             {
                 "id": asset_id,
-                "name": "file.tcz",
+                "name": "file.apk",
                 "size": 1234567,
                 "browser_download_url": "https://..."
             }

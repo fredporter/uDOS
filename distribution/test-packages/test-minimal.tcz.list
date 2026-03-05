@@ -1,8 +1,0 @@
-squashfs-root/usr
-squashfs-root/usr/local
-squashfs-root/usr/local/bin
-squashfs-root/usr/local/lib
-squashfs-root/usr/local/lib/udos
-squashfs-root/usr/local/share
-squashfs-root/usr/local/share/doc
-squashfs-root/usr/local/share/doc/udos

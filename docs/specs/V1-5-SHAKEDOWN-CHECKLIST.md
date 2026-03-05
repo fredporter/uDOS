@@ -23,7 +23,7 @@ Status values:
 | `docs/specs/PORT-REGISTRY.md` | `partial` | `wizard/routes/`, `wizard/mcp/`, `distribution/plugins/api/` | Active networked surfaces exist; Round 1 should verify port ownership and runtime docs stay aligned. |
 | `docs/specs/GHOST-MODE-POLICY.md` | `implemented` | `core/commands/ghost_handler.py`, `core/commands/ghost_mode_guard.py` | Real command and guard surfaces exist. |
 | `docs/specs/UCODE-DISPATCH-CONTRACT.md` | `implemented` | `core/tui/dispatcher.py`, `core/commands/ucode_handler.py`, `wizard/routes/ucode_dispatch_routes.py` | Dispatch contract is backed by both core and Wizard tests. |
-| `docs/specs/MINIMUM-SPEC-VIBE-CLI-UCODE.md` | `implemented` | `core/commands/ucode_handler.py`, `core/tests/ucode_min_spec_command_test.py` | Active minimum runtime pathway is implemented in the `UCODE` help and system/info flow. |
+| `docs/specs/MINIMUM-SPEC-DEV-MODE-UCODE.md` | `implemented` | `core/commands/ucode_handler.py`, `core/tests/ucode_min_spec_command_test.py` | Active minimum runtime pathway is implemented in the `UCODE` help and system/info flow. |
 | `docs/specs/UCODE-SELECTOR-INTEGRATION-BRIEF.md` | `partial` | `core/ui/command_selector.py`, `core/ui/selector_framework.py`, `core/ui/workspace_selector.py` | Selector primitives exist; Round 5 TUI hardening still needs end-to-end proof. |
 
 ## Workflow and Offline Assist
@@ -31,10 +31,10 @@ Status values:
 | Spec | Status | Current anchor | Notes |
 |---|---|---|---|
 | `docs/specs/WORKFLOW-SCHEDULER-v1.5.md` | `implemented` | `core/workflows/`, `core/commands/workflow_handler.py`, `core/tests/workflow_handler_test.py` | Core workflow runtime is live and tested. |
-| `docs/specs/OFFLINE-ASSIST-STANDARD-v1.5.md` | `partial` | `core/ulogic/`, `docs/examples/udos_ulogic_pack/` | Canonical contract exists and now has a first promoted core slice, but most runtime behavior is still scaffold/reference rather than integrated core execution. |
-| `docs/specs/LOGIC-INPUT-HANDLER-v1.5.md` | `partial` | `core/ulogic/parser.py`, `core/tui/ucode.py`, `core/tui/dispatcher.py` | Canonical contract now exists and has a promoted deterministic parser anchor, but the v1.5 runtime still needs one standardized handler and routing event model. |
-| `docs/specs/WORKFLOW-MANAGER-CONTRACT-v1.5.md` | `partial` | `core/workflows/`, `core/commands/workflow_handler.py`, `wizard/routes/workflow_routes.py` | Core workflow execution exists; Round 4 still needs one standardized cross-surface orchestration contract in active runtime behavior. |
-| `docs/specs/KNOWLEDGE-BANK-RUNBOOK-STANDARD-v1.5.md` | `partial` | `docs/examples/udos_ulogic_pack/`, `docs/examples/udos_creative_pack/`, `core/workflows/` | Canonical librarian/template contract now exists, but the seed/local split and cross-component template structure still need runtime and evidence closure. |
+| `docs/specs/OFFLINE-ASSIST-STANDARD-v1.5.md` | `implemented` | `core/ulogic/`, `docs/examples/udos_ulogic_pack/` | Core now owns the promoted deterministic parser, deliverable validation, research/enrich/generate pipeline, action-graph/runtime/state/artifact primitives, and bounded script sandbox. The example pack remains the supplemental reference surface for optional gameplay/provider scaffolds. |
+| `docs/specs/LOGIC-INPUT-HANDLER-v1.5.md` | `implemented` | `core/ulogic/parser.py`, `core/tui/ucode.py`, `core/tui/dispatcher.py` | Standard parser-to-command/workflow/knowledge handoff is active in the canonical `ucode` shell. |
+| `docs/specs/WORKFLOW-MANAGER-CONTRACT-v1.5.md` | `implemented` | `core/workflows/`, `core/commands/workflow_handler.py`, `wizard/routes/workflow_routes.py` | Cross-surface workflow orchestration now runs through the shared runtime contract in core and Wizard. |
+| `docs/specs/KNOWLEDGE-BANK-RUNBOOK-STANDARD-v1.5.md` | `implemented` | `core/services/seed_template_service.py`, `core/services/knowledge_artifact_service.py`, `core/framework/seed/bank/templates/` | Seed/default/user template layers, local knowledge-tree persistence, Markdown template structure, and duplicate flows are now active and tested. |
 | `docs/specs/wiki_spec_obsidian.md` | `partial` | `docs/decisions/OBSIDIAN-INTEGRATION.md`, `wizard/services/markdown_job_service.py` | Markdown-first and import surfaces exist, but Round 1 still needs tighter mapping from Obsidian-facing spec to shipped paths. |
 | `docs/specs/FORMATTING-SPEC-v1.4.md` | `implemented` | `docs/specs/FORMATTING-SPEC-v1.4.md`, `.compost` policy docs | Canonical formatting and archival rules are already in place; use as governance during doc cleanup. |
 
@@ -43,8 +43,8 @@ Status values:
 | Spec | Status | Current anchor | Notes |
 |---|---|---|---|
 | `docs/specs/PLUGIN-MANIFEST-SPEC.md` | `implemented` | `distribution/plugins/`, `distribution/plugins/plugin.schema.json`, `wizard/services/plugin_manager.py` | Plugin manifests and registry surfaces are present. |
-| `docs/specs/PACKAGING-RELEASE-CONTRACT-v1.5.md` | `partial` | `core/services/packaging_manifest_service.py`, `core/services/packaging_dependency_service.py`, `distribution/` | Packaging services and manifests exist; Round 4 still needs install, verify, repair, and rollback evidence. |
-| `docs/specs/INTEGRATION-READINESS.md` | `partial` | `wizard/routes/`, `wizard/tests/`, `docs/howto/MANAGED-WIZARD-OPERATIONS.md` | Good implementation coverage exists, but release evidence is still incomplete. |
+| `docs/specs/PACKAGING-RELEASE-CONTRACT-v1.5.md` | `implemented` | `distribution/`, `distribution/profiles/certified-profiles.json`, `docs/specs/V1-5-STABLE-SIGNOFF.md` | Certified profile install, verify, repair, rollback-or-recovery, and demo evidence are now checked in for the v1.5 release lane. |
+| `docs/specs/INTEGRATION-READINESS.md` | `implemented` | `wizard/routes/`, `wizard/tests/`, `docs/examples/ucode_v1_5_release_pack/CERTIFICATION.md` | Managed operations, local assist, self-hosted `@dev`, and demo certification now provide integrated release evidence. |
 | `dev/docs/specs/DEV-WORKSPACE-SPEC.md` | `implemented` | `dev/docs/specs/DEV-WORKSPACE-SPEC.md`, `wizard/services/dev_mode_service.py`, `wizard/services/dev_extension_service.py`, `wizard/routes/dev_routes.py` | Dev Mode is now explicitly defined as a Wizard-gated `@dev` workspace rooted at `/dev`, with a tracked sync boundary. |
 | `docs/specs/3DWORLD-EXTENSION-SPEC-v1.5.0.md` | `deferred` | `wizard/services/toybox/crawler3d_adapter.py`, `core/lenses/crawler3d_lens.py` | Keep tracked as an extension lane, but do not block v1.5 mainline release. |
 | `docs/specs/GAMEPLAY-LENS-SKIN-PROGRESSION-v1.4.8.md` | `partial` | `core/commands/gameplay_handler.py`, `core/services/gameplay_service.py`, `core/services/gameplay_replay_service.py` | Gameplay surfaces exist; Round 4 still needs certified gaming profile acceptance proof. |
@@ -62,23 +62,23 @@ Status values:
   - `UCODE-COMMAND-CONTRACT-v1.3`
   - `GHOST-MODE-POLICY`
   - `UCODE-DISPATCH-CONTRACT`
-  - `MINIMUM-SPEC-VIBE-CLI-UCODE`
+  - `MINIMUM-SPEC-DEV-MODE-UCODE`
   - `WORKFLOW-SCHEDULER-v1.5`
+  - `OFFLINE-ASSIST-STANDARD-v1.5`
+  - `LOGIC-INPUT-HANDLER-v1.5`
+  - `WORKFLOW-MANAGER-CONTRACT-v1.5`
+  - `KNOWLEDGE-BANK-RUNBOOK-STANDARD-v1.5`
   - `FORMATTING-SPEC-v1.4`
   - `PLUGIN-MANIFEST-SPEC`
+  - `PACKAGING-RELEASE-CONTRACT-v1.5`
+  - `INTEGRATION-READINESS`
   - `SPATIAL-GRID-CONTRACT`
   - `TYPESCRIPT-MARKDOWN-RUNTIME-CONTRACT`
 - `partial`
   - `RUNTIME-INTERFACE-SPEC`
   - `PORT-REGISTRY`
   - `UCODE-SELECTOR-INTEGRATION-BRIEF`
-  - `OFFLINE-ASSIST-STANDARD-v1.5`
-  - `LOGIC-INPUT-HANDLER-v1.5`
-  - `WORKFLOW-MANAGER-CONTRACT-v1.5`
-  - `KNOWLEDGE-BANK-RUNBOOK-STANDARD-v1.5`
   - `wiki_spec_obsidian`
-  - `PACKAGING-RELEASE-CONTRACT-v1.5`
-  - `INTEGRATION-READINESS`
   - `GAMEPLAY-LENS-SKIN-PROGRESSION-v1.4.8`
 - `deferred`
   - `3DWORLD-EXTENSION-SPEC-v1.5.0`

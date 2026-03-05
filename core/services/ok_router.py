@@ -123,9 +123,9 @@ def plan_route(prompt: str) -> RoutePlan:
     elif "config" in lowered or ".env" in lowered:
         intent = "config"
         commands = ["CONFIG"]
-    elif "install" in lowered and "vibe" in lowered:
+    elif "install" in lowered and ("vibe" in lowered or "dev mode tool" in lowered):
         intent = "setup"
-        commands = ["SETUP vibe"]
+        commands = ["SETUP dev"]
     elif "setup" in lowered or "profile" in lowered:
         intent = "setup"
         commands = ["SETUP"]

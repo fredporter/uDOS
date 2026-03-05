@@ -37,7 +37,10 @@ class _LogicAssist:
             "runtime": "gpt4all",
             "package_available": False,
             "model_present": False,
+            "model_dir": "/tmp/models",
             "model_path": "/tmp/models/devstral-small-2.gguf",
+            "guidance_path": "/tmp/models/README.md",
+            "guidance_present": False,
         }
         self._network = network or {
             "ready": False,
@@ -91,7 +94,10 @@ def test_self_heal_recover_with_execution(monkeypatch):
             "runtime": "gpt4all",
             "package_available": True,
             "model_present": False,
+            "model_dir": "/tmp/models",
             "model_path": "/tmp/models/devstral-small-2.gguf",
+            "guidance_path": "/tmp/models/README.md",
+            "guidance_present": True,
         }
     )
     client = _client(monkeypatch, logic=logic)
@@ -106,6 +112,7 @@ def test_self_heal_recover_with_execution(monkeypatch):
     assert model_step["runtime"] == "gpt4all"
     assert model_step["package_available"] is True
     assert model_step["model_present"] is False
+    assert model_step["guidance_present"] is True
 
 
 def test_self_heal_status_reports_next_steps(monkeypatch):
@@ -116,7 +123,10 @@ def test_self_heal_status_reports_next_steps(monkeypatch):
             "runtime": "gpt4all",
             "package_available": False,
             "model_present": False,
+            "model_dir": "/tmp/models",
             "model_path": "/tmp/models/devstral-small-2.gguf",
+            "guidance_path": "/tmp/models/README.md",
+            "guidance_present": False,
         }
     )
     client = _client(monkeypatch, logic=logic)
@@ -126,3 +136,4 @@ def test_self_heal_status_reports_next_steps(monkeypatch):
     assert payload["logic_assist"]["runtime"] == "gpt4all"
     assert payload["logic_assist"]["model_present"] is False
     assert any("GPT4All" in step for step in payload["next_steps"])
+    assert any("README.md" in step for step in payload["next_steps"])

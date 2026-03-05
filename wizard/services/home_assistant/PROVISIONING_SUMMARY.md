@@ -103,26 +103,29 @@ python -m wizard.services.home_assistant
 ### Test Gateway
 ```bash
 # Health check
-curl http://localhost:8765/api/ha/health
+BASE_URL="${WIZARD_BASE_URL:-http://127.0.0.1:${WIZARD_PORT:-8765}}"
+curl "$BASE_URL/api/ha/health"
 
 # Get status
-curl http://localhost:8765/api/ha/status
+curl "$BASE_URL/api/ha/status"
 
 # Trigger discovery
-curl http://localhost:8765/api/ha/discover
+curl "$BASE_URL/api/ha/discover"
 
 # List devices
-curl http://localhost:8765/api/ha/devices
+curl "$BASE_URL/api/ha/devices"
 
 # Turn on light
-curl -X POST http://localhost:8765/api/ha/turn-on \
+curl -X POST "$BASE_URL/api/ha/turn-on" \
   -H "Content-Type: application/json" \
   -d '{"entity_ids":["light.livingroom"]}'
 ```
 
 ### WebSocket Connection
 ```javascript
-const ws = new WebSocket('ws://localhost:8765/ws/ha');
+const ws = new WebSocket(
+  `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws/ha`
+);
 ws.onopen = () => {
   ws.send(JSON.stringify({
     type: 'subscribe',

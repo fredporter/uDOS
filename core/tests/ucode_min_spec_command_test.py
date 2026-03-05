@@ -224,6 +224,28 @@ def test_ucode_profile_lifecycle(monkeypatch, tmp_path):
     assert "Profile verify: core" in verified["output"]
 
 
+def test_ucode_profile_enable_disable_surface(monkeypatch, tmp_path):
+    handler = _handler_with_home(monkeypatch, tmp_path)
+
+    handler.handle("UCODE", ["PROFILE", "INSTALL", "dev"])
+    disabled = handler.handle("UCODE", ["PROFILE", "DISABLE", "dev"])
+    assert disabled["status"] == "success"
+    assert "Disabled profile: dev" in disabled["output"]
+
+    enabled = handler.handle("UCODE", ["PROFILE", "ENABLE", "dev"])
+    assert enabled["status"] == "success"
+    assert "Enabled profile: dev" in enabled["output"]
+
+
+def test_ucode_profile_disable_rejects_mandatory_core(monkeypatch, tmp_path):
+    handler = _handler_with_home(monkeypatch, tmp_path)
+
+    with pytest.raises(CommandError) as exc:
+        handler.handle("UCODE", ["PROFILE", "DISABLE", "core"])
+
+    assert exc.value.message == "Mandatory profile cannot be disabled"
+
+
 def test_ucode_template_list_read_and_duplicate(monkeypatch, tmp_path):
     handler = _handler_with_home(monkeypatch, tmp_path)
     handler.seed_template_service.workspace_root = (
@@ -378,3 +400,22 @@ def test_ucode_repair_status(monkeypatch, tmp_path):
     assert "python runtime: uv + .venv" in result["output"]
     assert "core stdlib contract: ok" in result["output"]
     assert "wizard runtime dependencies unavailable" in result["output"]
+
+
+def test_ucode_format_formats_tasks_file_and_writes(monkeypatch, tmp_path):
+    handler = _handler_with_home(monkeypatch, tmp_path)
+    target = tmp_path / "dev" / "ops" / "tasks.json"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(
+        '{"updated":"2026-03-04","active_missions":[{"title":"Tracked editor","status":"done","id":"tracked-editor"}],"version":"1.0"}',
+        encoding="utf-8",
+    )
+
+    result = handler.handle("UCODE", ["FORMAT", "TASKS", f"@{target}", "--write"])
+
+    assert result["status"] == "success"
+    assert result["written"] is True
+    assert result["format_helper"]["profile"] == "tasks-ledger"
+    saved = target.read_text(encoding="utf-8")
+    assert saved.index('"version"') < saved.index('"updated"')
+    assert saved.index('"id"') < saved.index('"title"')

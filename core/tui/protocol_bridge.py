@@ -560,6 +560,30 @@ class UdosProtocolBridge:
                 }
             )
 
+        format_helper = result.get("format_helper")
+        if isinstance(format_helper, dict):
+            lines = [
+                f"profile: {format_helper.get('profile_label', format_helper.get('profile', 'JSON'))}",
+                f"valid: {'yes' if format_helper.get('valid', False) else 'no'}",
+                f"changed: {'yes' if format_helper.get('changed', False) else 'no'}",
+            ]
+            if result.get("source_path"):
+                lines.append(f"target: {result['source_path']}")
+            if result.get("written") is not None:
+                lines.append(f"written: {'yes' if result.get('written') else 'no'}")
+            errors = format_helper.get("errors") or []
+            if errors:
+                lines.append("errors:")
+                lines.extend(f"- {error}" for error in errors)
+            events.append(
+                {
+                    "kind": "block",
+                    "title": "FORMAT HELPER",
+                    "style": "accent" if format_helper.get("valid") else "warn",
+                    "lines": lines,
+                }
+            )
+
         output_text = str(result.get("output") or "").strip()
         if output_text:
             events.append(

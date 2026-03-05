@@ -1,10 +1,4 @@
-"""Renderer Routes
-===============
-
-Expose metadata about theme packs, static exports, missions, and contributions so the portal
-and SvelteKit admin lanes consume the same contracts described in `docs/Theme-Pack-Contract.md`
-and `docs/Mission-Job-Schema.md`.
-"""
+"""Renderer routes for Wizard-hosted portals and resource libraries."""
 
 from __future__ import annotations
 
@@ -252,7 +246,7 @@ def _find_mission(mission_id: str) -> dict[str, Any] | None:
 
 
 def _renderer_cli_path() -> Path:
-    return get_repo_root() / "v1-3" / "core" / "dist" / "renderer" / "cli.js"
+    return get_repo_root() / "core" / "dist" / "renderer" / "cli.js"
 
 
 def _renderer_env() -> dict[str, str]:
@@ -270,7 +264,7 @@ def _invoke_renderer(theme: str, mission_id: str | None = None) -> dict[str, Any
     if not cli_path.exists():
         raise HTTPException(
             status_code=500,
-            detail="Renderer binary missing; run npm run build under v1-3/core.",
+            detail="Renderer binary missing; run npm run build under core.",
         )
     env = _renderer_env()
     env["THEME"] = theme
@@ -349,6 +343,9 @@ class ContributionStatusUpdate(BaseModel):
 class RenderRequest(BaseModel):
     theme: str | None = None
     mission_id: str | None = None
+    portal_class: str = "private_resource_library"
+    auth_required: bool = True
+    library_kind: str = "markdown_vault"
 
 
 def create_renderer_routes(auth_guard=None) -> APIRouter:
@@ -525,11 +522,19 @@ def create_renderer_routes(auth_guard=None) -> APIRouter:
         real_mission_id = (
             result.get("mission_id") or mission_id or f"renderer-{resolved_theme}"
         )
+        portal_class = payload.portal_class if payload else "private_resource_library"
+        auth_required = payload.auth_required if payload else True
+        library_kind = payload.library_kind if payload else "markdown_vault"
+        site_root = f"{_site_root().as_posix()}/{resolved_theme}"
         return {
             "status": result.get("status", "completed"),
             "job_id": job_id,
             "mission_id": real_mission_id,
             "theme": resolved_theme,
+            "portal_class": portal_class,
+            "auth_required": auth_required,
+            "library_kind": library_kind,
+            "site_root": site_root,
             "rendered": result.get("renderedFiles", result.get("files", [])),
             "nav": result.get("nav", []),
             "started_at": result.get("started_at"),

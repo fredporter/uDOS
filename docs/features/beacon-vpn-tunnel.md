@@ -1,4 +1,4 @@
-uDOS: Beacons introduce; Wizards decide; Wizards relay. That matches your Beacon spec perfectly (“Beacon = announce + connect + redirect; Wizard = compute + store + decide”).  
+uDOS: Beacons introduce; Wizards decide; Wizards relay. This keeps Beacon as the access path while Wizard owns tunnel and relay control-plane behavior.
 
 Below is a concrete way to implement without accidentally drifting into “mesh Wi-Fi” or “auto-peering”.
 

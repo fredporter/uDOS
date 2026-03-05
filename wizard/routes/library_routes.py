@@ -987,7 +987,7 @@ async def build_repo(name: str, request: Request, format: str = "tar.gz"):
     """Build a distribution package from a cloned repo."""
     try:
         await _run_guard(request)
-        if format not in ("tar.gz", "zip", "tcz"):
+        if format not in ("apk", "tar.gz", "zip"):
             raise HTTPException(status_code=400, detail="Unsupported format")
         factory = PluginFactory()
         result = factory.build(name, format=format)

@@ -34,11 +34,7 @@
   
   "platform": {
     "os": ["linux", "macos", "windows"],
-    "arch": ["amd64", "arm64"],
-    "tinycore": {
-      "compatible": false,
-      "notes": "Wizard Server only - requires internet access for API calls"
-    }
+    "arch": ["amd64", "arm64"]
   },
   
   "requirements": {

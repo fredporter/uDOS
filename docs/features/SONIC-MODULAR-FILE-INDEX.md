@@ -269,8 +269,10 @@ python3 -c "from core.commands.sonic_handler import SonicHandler; \
 ### Test Wizard Routes
 ```bash
 # Start wizard server, then:
-curl http://localhost:8765/api/sonic/health
-curl http://localhost:8765/api/sonic/sync/status
+export WIZARD_PORT="${WIZARD_PORT:-8765}"
+export WIZARD_BASE_URL="${WIZARD_BASE_URL:-http://localhost:${WIZARD_PORT}}"
+curl "${WIZARD_BASE_URL}/api/sonic/health"
+curl "${WIZARD_BASE_URL}/api/sonic/sync/status"
 ```
 
 ---

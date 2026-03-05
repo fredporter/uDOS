@@ -8,24 +8,31 @@ Contributor-only Dev Mode guidance now lives under `dev/docs/`. Root `docs/` kee
 
 ## Quick Install
 
+Stable release entrypoints:
+- installer: `./bin/install-udos.sh`
+- macOS launcher: `bin/ucode-tui-v1.5.command`
+- Alpine packaging contract: `docs/specs/ALPINE-CORE-PLUGIN-FORMAT-v1.5.md`
+
 ### macOS
 
-**Option 1: Double-click installer (easiest)**
-1. Navigate to `bin/install-udos-vibe.command` in Finder
-2. Double-click the file
-3. Follow the prompts
-
-**Option 2: Terminal**
+**Option 1: Terminal install**
 ```bash
 cd /path/to/uDOS
-./bin/install-udos-vibe.sh
+./bin/install-udos.sh
 ```
+
+For Alpine-targeted runtime and plugin packaging, use [ALPINE-CORE-PLUGIN-FORMAT-v1.5.md](specs/ALPINE-CORE-PLUGIN-FORMAT-v1.5.md) together with [BARE-METAL-Alpine-Install.md](howto/BARE-METAL-Alpine-Install.md).
+
+**Option 2: Finder launch after install**
+1. Navigate to `bin/ucode-tui-v1.5.command` in Finder
+2. Double-click the file
+3. The stable `ucode` TUI will open through the canonical `bin/udos tui` path
 
 ### Linux (Ubuntu/Alpine)
 
 ```bash
 cd /path/to/uDOS
-./bin/install-udos-vibe.sh
+./bin/install-udos.sh
 ```
 
 ## Installation Modes
@@ -33,36 +40,36 @@ cd /path/to/uDOS
 ### Full Installation (Default)
 Installs both core uDOS and wizard components:
 ```bash
-./bin/install-udos-vibe.sh
+./bin/install-udos.sh
 ```
 
 ### Core Only
 Install only the standard `ucode` runtime path without wizard services:
 ```bash
-./bin/install-udos-vibe.sh --core
+./bin/install-udos.sh --core
 ```
 
 ### Wizard Only
 Add wizard components to an existing core installation:
 ```bash
-./bin/install-udos-vibe.sh --wizard
+./bin/install-udos.sh --wizard
 ```
 
 ### Update Existing Installation
 Update the installed runtime and dependencies:
 ```bash
-./bin/install-udos-vibe.sh --update
+./bin/install-udos.sh --update
 ```
 
 ## v1.4 to v1.5 Migration
 
-Use the active migration framework in [docs/examples/udos_v1_5_deliverables/docs/migration-v1.4-to-v1.5.md](/Users/fredbook/Code/uDOS/docs/examples/udos_v1_5_deliverables/docs/migration-v1.4-to-v1.5.md) as the canonical upgrade checklist.
+Use the active migration framework in [migration-v1.4-to-v1.5.md](examples/udos_v1_5_deliverables/docs/migration-v1.4-to-v1.5.md) as the canonical upgrade checklist.
 
 Current v1.5 migration requirements:
 - remove retired local-model default runtime assumptions
 - standardize on GPT4All as the local assist layer
 - treat Wizard as the exclusive online routing and budget-control layer
-- update project/task/workflow artifacts to the v1.5 deliverables schema family under [docs/examples/udos_v1_5_deliverables/schemas](/Users/fredbook/Code/uDOS/docs/examples/udos_v1_5_deliverables/schemas)
+- update project/task/workflow artifacts to the v1.5 deliverables schema family under [docs/examples/udos_v1_5_deliverables/schemas](examples/udos_v1_5_deliverables/schemas)
 
 Recommended upgrade sequence:
 ```bash
@@ -74,7 +81,7 @@ UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard --dev
 ### Preflight Capability Check (No Install)
 Run capability detection and tier gating without installing:
 ```bash
-./bin/install-udos-vibe.sh --preflight-json --tier auto
+./bin/install-udos.sh --preflight-json --tier auto
 ```
 Use `--tier 1|2|3` to test hardline gating for a requested tier.
 
@@ -110,11 +117,11 @@ Use `--tier 1|2|3` to test hardline gating for a requested tier.
 - **Directory structure**: Sets up logs, cache, and runtime directories
 
 ### 5. Dev Mode Tooling Installation
-- **Install global vibe runtime**: Only when the `dev` profile is selected
+- **Install the Dev Mode contributor tool (`vibe`)**: Only when the `dev` profile is selected
 - **Wizard-managed extension lane**: Dev Mode is installed and removed through Wizard GUI lifecycle controls
 - **Framework gate**: Requires the `@dev` workspace at `/dev`, including `/dev/extension.json`
 - **Workspace contract**: tracked contributor docs and Goblin fixtures now live under `dev/docs/` and `dev/goblin/`
-- **uDOS integration**: Creates `.vibe/` symlinks for contributor tools/skills
+- **uDOS integration**: Creates `.vibe/` compatibility links for contributor tools/skills
 - **Standard runtime**: `bin/udos` is the primary operator entry point
 - **Core dependencies**: Installs Python packages from `pyproject.toml`
 - **Logic assist prep**: runs the v1.5 GPT4All contributor setup helper when the selected tier permits local assist
@@ -194,8 +201,9 @@ uDOS/
 ├── wizard/
 │   └── config/.env          # Wizard secrets (DO NOT COMMIT)
 └── bin/
-    ├── install-udos-vibe.command  # macOS clickable installer
-    └── install-udos-vibe.sh       # Cross-platform installer
+    ├── install-udos.sh            # Cross-platform installer
+    ├── install-udos.command       # macOS clickable installer
+    └── ucode-tui-v1.5.command     # macOS clickable ucode TUI launcher
 ```
 
 ## Core vs Wizard Components
@@ -246,9 +254,9 @@ Contributor setup details:
 
 ### Lazy Loading
 The wizard is **not required** for core functionality:
-1. Install core: `./bin/install-udos-vibe.sh --core`
+1. Install core: `./bin/install-udos.sh --core`
 2. Use `ucode` normally
-3. When you need wizard features: `./bin/install-udos-vibe.sh --wizard`
+3. When you need wizard features: `./bin/install-udos.sh --wizard`
 
 This approach saves disk space and keeps installations minimal.
 
@@ -279,7 +287,12 @@ This completes the user configuration:
 ./bin/udos wizard start
 ```
 
-Access the web interface at: http://localhost:8765
+Access the web interface at `WIZARD_BASE_URL` after exporting your local Wizard URL:
+
+```bash
+export WIZARD_PORT="${WIZARD_PORT:-8765}"
+export WIZARD_BASE_URL="${WIZARD_BASE_URL:-http://localhost:${WIZARD_PORT}}"
+```
 
 ### 4. Configure Additional Settings
 Edit your `.env` file:
@@ -307,7 +320,7 @@ export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 Make permanent by adding to `~/.zshrc` or `~/.bashrc`.
 
 ### "vibe: command not found"
-After running the official vibe installer, ensure your PATH includes the installer location:
+After running the Dev Mode contributor-tool installer, ensure your PATH includes the installer location:
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
 ```
@@ -315,7 +328,7 @@ export PATH="$HOME/.local/bin:$PATH"
 ### Permission denied on .command file
 Make it executable:
 ```bash
-chmod +x bin/install-udos-vibe.command
+chmod +x bin/ucode-tui-v1.5.command
 ```
 
 ### Obsidian not detected
@@ -328,7 +341,7 @@ chmod +x bin/install-udos-vibe.command
 3. Place the configured `.gguf` model file in the expected local model directory
 
 ### Wizard won't start
-1. Check wizard dependencies: `./bin/install-udos-vibe.sh --wizard`
+1. Check wizard dependencies: `./bin/install-udos.sh --wizard`
 2. Check `.env` has `WIZARD_ADMIN_TOKEN` and `WIZARD_KEY`
 3. Check logs: `tail -f memory/logs/udos.log`
 
@@ -345,7 +358,7 @@ UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard   # Wizard web/API prof
 
 ### Update runtime install
 ```bash
-./bin/install-udos-vibe.sh --update
+./bin/install-udos.sh --update
 ```
 
 ### Update dependencies only
@@ -377,22 +390,22 @@ Set environment variables before running:
 export UDOS_SKIP_PROMPTS=1
 export USER_NAME="myname"
 export MISTRAL_API_KEY="your-key-here"
-./bin/install-udos-vibe.sh
+./bin/install-udos.sh
 ```
 
 ### CI/Automation Mode
 ```bash
 export UDOS_AUTOMATION=1
-./bin/install-udos-vibe.sh --core
+./bin/install-udos.sh --core
 ```
 
 ## Uninstallation
 
 ### Remove Dev Mode tooling
-Use Wizard GUI to uninstall or deactivate the Dev Mode extension first. Remove global `vibe` tooling only after the `dev-mode` extension lane has been disabled.
+Use Wizard GUI to uninstall or deactivate the Dev Mode extension first. Remove the external `vibe` tooling only after the `dev-mode` extension lane has been disabled.
 
 ```bash
-uv tool uninstall mistral-vibe
+./bin/setup-dev-mode.sh
 ```
 
 ### Clean up repo artifacts
@@ -413,7 +426,7 @@ rm -rf ~/.cargo/bin/uv ~/.local/bin/uv
 
 - **Documentation**: See `docs/` directory
 - **Quick Start**: See `QUICK-START.md`
-- **Issues**: https://github.com/mistralai/mistral-vibe/issues
+- **Dev Mode tooling**: `./bin/setup-dev-mode.sh`
 - **Community**: Join the discussion
 
 ## Next Steps

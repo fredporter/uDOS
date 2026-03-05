@@ -4,16 +4,20 @@ Updated: 2026-03-04
 
 This is the canonical front door for repository documentation.
 
-Contributor-only Dev Mode documentation does not live here. Use `dev/docs/` for `@dev` workspace policy, Goblin, `vibe`, and contributor GitHub integration.
+Contributor-only Dev Mode documentation does not live here. Use `dev/docs/` for `@dev` workspace policy, Goblin, the Dev Mode contributor tool, and contributor GitHub integration.
 
 ## Start Here
 
 - Installation: `docs/INSTALLATION.md`
+- Stable launcher: `bin/ucode-tui-v1.5.command`
 - Public status: `docs/STATUS.md`
 - Architecture: `docs/ARCHITECTURE.md`
 - Public specs catalog: `docs/specs/README.md`
 - Public decisions catalog: `docs/decisions/README.md`
 - Workflow quickstart: `docs/howto/WORKFLOW-SCHEDULER-QUICKSTART.md`
+- Alpine packaging contract: `docs/specs/ALPINE-CORE-PLUGIN-FORMAT-v1.5.md`
+- Alpine bare-metal guide: `docs/howto/BARE-METAL-Alpine-Install.md`
+- Certified demo pack: `docs/examples/ucode_v1_5_release_pack/README.md`
 - Documentation map: `docs/specs/DOCUMENTATION-CANONICAL-MAP.md`
 
 ## By Need
@@ -37,7 +41,8 @@ Contributor-only Dev Mode documentation does not live here. Use `dev/docs/` for 
 - New to the repo:
   `README.md`,
   `docs/ARCHITECTURE.md`,
-  `docs/INSTALLATION.md`
+  `docs/INSTALLATION.md`,
+  `docs/specs/ALPINE-CORE-PLUGIN-FORMAT-v1.5.md`
 - Working on workflows:
   `docs/decisions/v1-5-workflow.md`,
   `docs/specs/WORKFLOW-SCHEDULER-v1.5.md`,
@@ -45,10 +50,16 @@ Contributor-only Dev Mode documentation does not live here. Use `dev/docs/` for 
 - Working on offline assist:
   `docs/decisions/v1-5-offline-assist.md`,
   `docs/specs/OFFLINE-ASSIST-STANDARD-v1.5.md`,
-  `docs/examples/udos_ulogic_pack/README.md`
+  `docs/examples/udos_ulogic_pack/README.md`,
+  `docs/examples/ucode_v1_5_release_pack/01-local-assist-and-knowledge.md`
 - Working on operations:
   `docs/howto/MANAGED-WIZARD-OPERATIONS.md`,
   `docs/howto/UCODE-OFFLINE-OPERATOR-RUNBOOK.md`
+- Working on Sonic or `uHOME`:
+  `docs/specs/ALPINE-CORE-PLUGIN-FORMAT-v1.5.md`,
+  `docs/howto/BARE-METAL-Alpine-Install.md`,
+  `docs/howto/SONIC-STANDALONE-RELEASE-AND-INSTALL.md`,
+  `docs/examples/ucode_v1_5_release_pack/04-self-hosted-dev-mode.md`
 - Working on binders/templates:
   `docs/howto/BINDER-QUICKSTART.md`,
   `docs/examples/`

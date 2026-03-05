@@ -11,7 +11,9 @@ This runbook covers safe drift detection and repair for the Wizard admin auth co
 From the Wizard host (local requests only):
 
 ```bash
-curl -s http://127.0.0.1:8765/api/admin-token/contract/status | jq
+export WIZARD_PORT="${WIZARD_PORT:-8765}"
+export WIZARD_BASE_URL="${WIZARD_BASE_URL:-http://localhost:${WIZARD_PORT}}"
+curl -s "${WIZARD_BASE_URL}/api/admin-token/contract/status" | jq
 ```
 
 Expected healthy output:
@@ -26,7 +28,7 @@ If drift exists, `repair_actions` will list explicit remediation steps.
 Use the local rotate endpoint:
 
 ```bash
-curl -s -X POST http://127.0.0.1:8765/api/admin-token/generate | jq
+curl -s -X POST "${WIZARD_BASE_URL}/api/admin-token/generate" | jq
 ```
 
 This updates:
@@ -38,7 +40,7 @@ This updates:
 Re-check drift:
 
 ```bash
-curl -s http://127.0.0.1:8765/api/admin-token/contract/status | jq
+curl -s "${WIZARD_BASE_URL}/api/admin-token/contract/status" | jq
 ```
 
 ## 3. Recover From Tomb/Key Mismatch
@@ -46,7 +48,7 @@ curl -s http://127.0.0.1:8765/api/admin-token/contract/status | jq
 If status includes `"secret_store_locked"` or auth fails due tomb/key mismatch:
 
 ```bash
-curl -s -X POST http://127.0.0.1:8765/api/admin-token/contract/repair | jq
+curl -s -X POST "${WIZARD_BASE_URL}/api/admin-token/contract/repair" | jq
 ```
 
 Repair behavior:
@@ -58,7 +60,7 @@ Repair behavior:
 Confirm post-repair:
 
 ```bash
-curl -s http://127.0.0.1:8765/api/admin-token/contract/status | jq
+curl -s "${WIZARD_BASE_URL}/api/admin-token/contract/status" | jq
 ```
 
 ## 4. Restart/Boot Verification
@@ -66,8 +68,8 @@ curl -s http://127.0.0.1:8765/api/admin-token/contract/status | jq
 After restart, verify contract and auth:
 
 ```bash
-curl -s http://127.0.0.1:8765/api/admin-token/contract/status | jq
-curl -s http://127.0.0.1:8765/health
+curl -s "${WIZARD_BASE_URL}/api/admin-token/contract/status" | jq
+curl -s "${WIZARD_BASE_URL}/health"
 ```
 
 Wizard startup now evaluates the admin secret contract and logs drift + repair actions when detected.

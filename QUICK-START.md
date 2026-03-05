@@ -7,7 +7,7 @@ Use this page as the thin root entry only. The detailed operator guides live und
 ```bash
 git clone https://github.com/fredporter/uDOS.git
 cd uDOS
-./bin/install-udos-vibe.sh
+./bin/install-udos.sh
 ```
 
 Manual and profile-specific setup lives in [docs/INSTALLATION.md](docs/INSTALLATION.md).

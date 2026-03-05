@@ -153,23 +153,6 @@ class MacOSPlatformConfig(BaseModel):
     dmg_packaging: MacOSDmgPackaging = Field(default_factory=MacOSDmgPackaging)
 
 
-class LinuxOfflineInstaller(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    script: str = "distribution/installer.sh"
-    default_tier: str = "core"
-    tiers: dict[str, list[str]] = Field(
-        default_factory=lambda: {
-            "ultra": ["udos-core.tcz"],
-            "micro": ["udos-core.tcz"],
-            "mini": ["udos-core.tcz", "udos-api.tcz"],
-            "core": ["udos-core.tcz", "udos-api.tcz"],
-            "standard": ["udos-core.tcz", "udos-api.tcz"],
-            "wizard": ["udos-core.tcz", "udos-api.tcz", "udos-wizard.tcz"],
-        }
-    )
-
-
 class LinuxAppBundle(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -216,7 +199,6 @@ class LinuxPlatformConfig(BaseModel):
             ),
         }
     )
-    offline_installer: LinuxOfflineInstaller = Field(default_factory=LinuxOfflineInstaller)
     app_bundle: LinuxAppBundle = Field(default_factory=LinuxAppBundle)
     kiosk_wrapper: LinuxKioskWrapper = Field(default_factory=LinuxKioskWrapper)
 

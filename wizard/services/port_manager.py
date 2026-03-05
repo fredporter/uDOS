@@ -38,6 +38,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime, timedelta
 
+from core.services.wizard_runtime_config import get_wizard_base_url
+
 from core.services.time_utils import parse_utc_datetime, utc_now, utc_now_iso_z
 from wizard.services.logging_api import get_logger as _get_logger
 
@@ -307,7 +309,7 @@ class PortManager:
                 environment=ServiceEnvironment.PRODUCTION,
                 process_name="python",
                 description="Wizard Server - Production always-on service",
-                health_endpoint="http://localhost:8765/health",
+                health_endpoint=f"{get_wizard_base_url(get_config('WIZARD_BASE_URL', '')).rstrip('/')}/health",
                 startup_cmd="uv run wizard/server.py --no-interactive",
                 shutdown_cmd=None,
             ),
@@ -316,10 +318,11 @@ class PortManager:
                 port=5001,
                 environment=ServiceEnvironment.DEVELOPMENT,
                 process_name="python",
-                description="API Server - REST/WebSocket API",
-                health_endpoint="http://localhost:5001/health",
-                startup_cmd="python -m extensions.api.server",
+                description="Reserved API compatibility lane",
+                health_endpoint=None,
+                startup_cmd=None,
                 shutdown_cmd=None,
+                enabled=False,
             ),
             "vite": Service(
                 name="vite",

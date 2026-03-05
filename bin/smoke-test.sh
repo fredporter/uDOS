@@ -124,8 +124,8 @@ function test_file_structure() {
     test_header "File Structure"
 
     local required_files=(
-        "bin/install-udos-vibe.sh"
-        "bin/install-udos-vibe.command"
+        "bin/install-udos.sh"
+        "bin/ucode-tui-v1.5.command"
         ".env.example"
         "pyproject.toml"
         "vault"
@@ -140,7 +140,7 @@ function test_file_structure() {
     done
 
     # Check installer is executable
-    if [[ -x "$REPO_ROOT/bin/install-udos-vibe.sh" ]]; then
+    if [[ -x "$REPO_ROOT/bin/install-udos.sh" ]]; then
         test_pass "Installer is executable"
     else
         test_fail "Installer is not executable"
@@ -454,7 +454,7 @@ function test_destroy_repair_markers() {
 function test_installer_options() {
     test_header "Installer Options"
 
-    local installer="$REPO_ROOT/bin/install-udos-vibe.sh"
+    local installer="$REPO_ROOT/bin/install-udos.sh"
 
     # Test help
     if $installer --help >/dev/null 2>&1; then

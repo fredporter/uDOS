@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from vibe.core.response_normaliser import NormalisedResponse, ResponseNormaliser
+from core.services.interactive_runtime import NormalisedResponse, ResponseNormaliser
 
 
 @pytest.fixture

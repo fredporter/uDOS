@@ -22,26 +22,6 @@ def _manifest_linux(repo_root: Path) -> dict[str, Any]:
     return read_platform(repo_root, "linux")
 
 
-def installer_default_tier(repo_root: Path) -> str:
-    linux = _manifest_linux(repo_root)
-    installer = linux.get("offline_installer")
-    if not isinstance(installer, dict) or not isinstance(installer.get("default_tier"), str):
-        raise ValueError("linux.offline_installer.default_tier is required")
-    return installer["default_tier"]
-
-
-def installer_tier_packages(repo_root: Path, tier: str) -> list[str]:
-    linux = _manifest_linux(repo_root)
-    installer = linux.get("offline_installer")
-    if not isinstance(installer, dict):
-        raise ValueError("linux.offline_installer is required")
-    tiers = installer.get("tiers")
-    if not isinstance(tiers, dict):
-        raise ValueError("linux.offline_installer.tiers is required")
-    values = tiers.get(tier) or []
-    return [str(item) for item in values if isinstance(item, str) and item.strip()]
-
-
 def sonic_default_profile(repo_root: Path) -> str:
     linux = _manifest_linux(repo_root)
     app_bundle = linux.get("app_bundle")

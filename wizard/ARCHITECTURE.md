@@ -39,7 +39,7 @@ wizard/
 ├── services/
 │   ├── ai_gateway.py          # Assistant routing (local-first)
 │   ├── dev_mode_service.py    # Dev extension lane activation/status/runtime checks
-│   ├── dev_extension_service.py # @dev framework policy + GitHub contributor sync
+│   ├── dev_extension_service.py # @dev framework policy + Dev Mode tool gating
 │   ├── github_integration.py  # GitHub CLI ops, issue/PR management
 │   ├── github_monitor.py      # Actions self-healing
 │   ├── github_sync.py         # Safe repo sync (pull/push flag)
@@ -50,7 +50,6 @@ wizard/
 │   ├── cost_tracker.py        # Budget tracking
 │   ├── notification_history_service.py
 │   ├── vscode_bridge.py       # VS Code extension bridge
-│   ├── mistral_vibe.py        # Vibe CLI context/log analysis
 │   ├── block_mapper.py        # Markdown mapping helpers
 │   ├── sync_executor.py       # Sync queue processing to local mirrors
 │   ├── task_scheduler.py      # Organic cron scheduling
@@ -204,7 +203,8 @@ To use the Dev extension lane:
 ```bash
 # Enable the dev profile and install/activate the @dev workspace through Wizard GUI,
 # then use the /api/dev/* routes or the Dev Mode screen for contributor controls.
-curl -X POST http://localhost:8765/api/dev/activate
+BASE_URL="${WIZARD_BASE_URL:-http://127.0.0.1:${WIZARD_PORT:-8765}}"
+curl -X POST "$BASE_URL/api/dev/activate"
 ```
 
 ---

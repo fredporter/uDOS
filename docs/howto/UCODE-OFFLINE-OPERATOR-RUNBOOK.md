@@ -110,5 +110,5 @@ If `UDOS_UCODE_ROOT` is set, the handler uses that override instead.
 ## Related Docs
 
 - `docs/howto/UCODE-COMMAND-REFERENCE.md`
-- `docs/specs/MINIMUM-SPEC-VIBE-CLI-UCODE.md`
+- `docs/specs/MINIMUM-SPEC-DEV-MODE-UCODE.md`
 - `docs/troubleshooting/README.md`

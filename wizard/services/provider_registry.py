@@ -1,22 +1,15 @@
-"""Provider Registry - Multi-Provider Routing and Management
+"""Provider registry for contributor tool routing.
 
 Manages provider capabilities, routing, fallback chains, and performance telemetry
-for Vibe-CLI OK Agent interactions.
+for Dev Mode contributor tool interactions.
 
-This extends core/services/provider_registry.py with Vibe-specific multi-provider
+This extends core/services/provider_registry.py with contributor-tool-specific multi-provider
 routing logic (Mistral, OpenAI, Anthropic, Gemini).
 
-Architecture Rules (from vibe/AGENTS.md):
-- Capability-based routing across supported providers
-- Capability-based selection (match task to provider strengths)
-- Graceful fallback on provider failure
-- Performance telemetry for routing decisions
-- Provider preference respect (user overrides)
-
 Usage:
-    from wizard.services.provider_registry import VibeProviderRegistry
+    from wizard.services.provider_registry import ContributorProviderRegistry
 
-    registry = VibeProviderRegistry()
+    registry = ContributorProviderRegistry()
     # Get provider for task
     provider, model = registry.select_provider_for_task("code")
 
@@ -35,9 +28,25 @@ import logging
 import time
 from typing import Any
 
-from vibe.core.provider_engine import ProviderStatus, ProviderType
+logger = logging.getLogger("wizard.provider-registry")
 
-logger = logging.getLogger("vibe.provider-registry")
+
+class ProviderType(str, Enum):
+    """Supported provider types."""
+
+    MISTRAL = "mistral"
+    OPENAI = "openai"
+    ANTHROPIC = "anthropic"
+    GEMINI = "gemini"
+
+
+class ProviderStatus(str, Enum):
+    """Provider availability status."""
+
+    AVAILABLE = "available"
+    UNAVAILABLE = "unavailable"
+    TIMEOUT = "timeout"
+    ERROR = "error"
 
 
 class TaskMode(str, Enum):
@@ -105,7 +114,7 @@ class ProviderTelemetry:
         return self.total_latency / self.successful_calls
 
 
-class VibeProviderRegistry:
+class ContributorProviderRegistry:
     """Multi-provider registry with capability-based routing."""
 
     def __init__(self):
@@ -413,12 +422,14 @@ class VibeProviderRegistry:
 
 
 # Global registry instance
-_registry: VibeProviderRegistry | None = None
+VibeProviderRegistry = ContributorProviderRegistry
+
+_registry: ContributorProviderRegistry | None = None
 
 
-def get_provider_registry() -> VibeProviderRegistry:
+def get_provider_registry() -> ContributorProviderRegistry:
     """Get or create global provider registry."""
     global _registry
     if _registry is None:
-        _registry = VibeProviderRegistry()
+        _registry = ContributorProviderRegistry()
     return _registry

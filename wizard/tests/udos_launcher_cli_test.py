@@ -135,5 +135,5 @@ def test_install_execv_uses_repo_installer(monkeypatch) -> None:
 
     assert exc.value.program == "/bin/bash"
     assert exc.value.argv[0] == "/bin/bash"
-    assert Path(exc.value.argv[1]).name == "install-udos-vibe.sh"
+    assert Path(exc.value.argv[1]).name == "install-udos.sh"
     assert exc.value.argv[-2:] == ["--", "--wizard"]

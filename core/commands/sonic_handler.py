@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
@@ -37,6 +38,8 @@ class SonicHandler(BaseCommandHandler):
             return self._sync(params[1:])
         if action == "bootstrap":
             return self._bootstrap(params[1:])
+        if action == "submission":
+            return self._submission(params[1:])
         if action == "verify":
             return self._verify(params[1:])
         if action == "plan":
@@ -107,6 +110,7 @@ class SonicHandler(BaseCommandHandler):
                 "user_record_count": runtime["user_catalog"]["record_count"],
                 "current_machine_registered": runtime["user_catalog"]["current_machine_registered"],
             },
+            "submissions": runtime["submissions"],
             "manifest": {
                 "example": str(sonic_root / "config" / "sonic-manifest.json.example"),
                 "default": str(sonic_root / "config" / "sonic-manifest.json"),
@@ -170,6 +174,7 @@ class SonicHandler(BaseCommandHandler):
         sonic_root = self._sonic_root()
         sql_source = sonic_root / "datasets" / "sonic-devices.sql"
         force = bool(flags.get("force"))
+        db_path = Path(get_sonic_device_service(self._repo_root()).paths.legacy_db_path)
 
         if not sql_source.exists():
             return {
@@ -314,6 +319,78 @@ class SonicHandler(BaseCommandHandler):
             **({"policy_note": policy_note} if policy_note else {}),
         }
 
+    def _submission(self, params: List[str]) -> Dict:
+        if not params:
+            return {
+                "status": "error",
+                "message": "Syntax: SONIC SUBMISSION <LIST|SUBMIT|APPROVE|REJECT> ...",
+            }
+        action = params[0].lower()
+        flags, args = self._parse_flags(params[1:])
+        service = get_sonic_device_service(self._repo_root())
+
+        if action == "list":
+            submission_status = args[0] if args else flags.get("status")
+            records = service.list_submissions(status=submission_status)
+            return {
+                "status": "ok",
+                "message": "Sonic submissions listed",
+                "submission_count": len(records),
+                "submissions": records,
+            }
+
+        if action == "submit":
+            file_arg = flags.get("file") or (args[0] if args else None)
+            if not file_arg:
+                return {
+                    "status": "error",
+                    "message": "SONIC SUBMISSION SUBMIT requires --file <path>",
+                }
+            submission_path = Path(str(file_arg))
+            if not submission_path.is_absolute():
+                submission_path = self._repo_root() / submission_path
+            if not submission_path.exists():
+                return {
+                    "status": "error",
+                    "message": f"Submission file not found: {submission_path}",
+                }
+            try:
+                payload = json.loads(submission_path.read_text(encoding="utf-8"))
+                result = service.submit_device_submission(
+                    payload, submitter=str(flags.get("submitter") or "local-user")
+                )
+            except ValueError as exc:
+                return {"status": "error", "message": str(exc)}
+            return result
+
+        if action == "approve":
+            if not args:
+                return {
+                    "status": "error",
+                    "message": "SONIC SUBMISSION APPROVE requires <submission_id>",
+                }
+            return service.approve_submission(
+                args[0], approved_by=str(flags.get("by") or "contributor")
+            )
+
+        if action == "reject":
+            if not args:
+                return {
+                    "status": "error",
+                    "message": "SONIC SUBMISSION REJECT requires <submission_id>",
+                }
+            reason = " ".join(args[1:]) if len(args) > 1 else str(flags.get("reason") or "")
+            return service.reject_submission(
+                args[0],
+                rejected_by=str(flags.get("by") or "contributor"),
+                reason=reason,
+            )
+
+        return {
+            "status": "error",
+            "message": f"Unknown SONIC SUBMISSION action '{params[0]}'.",
+        }
+
     def _run(self, params: List[str]) -> Dict:
         mode = resolve_runtime_mode()
         if mode not in {RuntimeMode.WIZARD, RuntimeMode.DEV} and boundaries_enforced():
@@ -415,11 +492,15 @@ class SonicHandler(BaseCommandHandler):
                 "SONIC STATUS",
                 "SONIC SYNC [--force]",
                 "SONIC BOOTSTRAP [--no-overwrite]",
+                "SONIC SUBMISSION LIST [pending|approved|rejected]",
+                "SONIC SUBMISSION SUBMIT --file path/to/device.json",
+                "SONIC SUBMISSION APPROVE <submission_id>",
+                "SONIC SUBMISSION REJECT <submission_id> [reason]",
                 "SONIC VERIFY [--manifest config/sonic-manifest.json] [--build-id <id>] [--flash-pack <pack>]",
                 "SONIC PLAN [--usb-device /dev/sdb] [--layout-file config/sonic-layout.json]",
                 "SONIC PLAN [--payloads-dir /path/to/payloads] [--format-mode full|skip]",
                 "SONIC RUN [--manifest config/sonic-manifest.json] [--dry-run]",
                 "SONIC RUN [--payloads-dir /path/to/payloads] [--no-validate-payloads] --confirm",
             ],
-            "note": "SONIC VERIFY checks manifest structure, media-source policy, device DB readiness, and optional signed release bundles. SONIC RUN requires --confirm and Linux for destructive operations. SONIC SYNC mirrors Wizard /api/sonic/db/rebuild. SONIC BOOTSTRAP registers the current machine in the local user Sonic catalog.",
+            "note": "SONIC VERIFY checks manifest structure, media-source policy, device DB readiness, and optional signed release bundles. SONIC RUN requires --confirm and Linux for destructive operations. SONIC SYNC mirrors Wizard /api/sonic/db/rebuild. SONIC BOOTSTRAP registers the current machine in the local user Sonic catalog. SONIC SUBMISSION manages the local submission queue and contributor approval flow.",
         }

@@ -6,8 +6,11 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from wizard.services.quota_tracker import APIProvider
 from wizard.services.cloud_provider_executor import (
+    get_cloud_execution_plan,
     get_cloud_availability,
+    run_cloud_with_fallback_detail,
     run_cloud_with_fallback,
 )
 
@@ -57,6 +60,23 @@ class TestGetCloudAvailability:
 
         assert result["ready"] is True
         assert len(result["available_providers"]) >= 2
+
+    def test_availability_reports_quota_blocked_providers(self):
+        class _Quota:
+            def can_request(self, provider, estimated_tokens=0):
+                return provider != APIProvider.MISTRAL
+
+        def env_getter(key: str) -> str:
+            keys = {"MISTRAL_API_KEY": "sk-m", "OPENAI_API_KEY": "sk-o"}
+            return keys.get(key, "")
+
+        with patch("wizard.services.cloud_provider_executor._env_getter", side_effect=env_getter):
+            with patch("wizard.services.cloud_provider_executor.get_quota_tracker", return_value=_Quota()):
+                result = get_cloud_availability()
+
+        assert result["ready"] is True
+        assert "mistral" in result["blocked_by_quota"]
+        assert "openai" in result["quota_ready_providers"]
 
 
 # ============================================================
@@ -138,6 +158,36 @@ class TestRunCloudWithFallback:
                 with patch("requests.post", side_effect=mock_post):
                     with pytest.raises(RuntimeError, match="All cloud providers failed"):
                         run_cloud_with_fallback("test prompt")
+
+    def test_detail_report_skips_quota_blocked_provider_and_fails_over(self):
+        class _Quota:
+            def can_request(self, provider, estimated_tokens=0):
+                return provider != APIProvider.MISTRAL
+
+        def env_getter(key: str) -> str:
+            keys = {"MISTRAL_API_KEY": "sk-m", "OPENAI_API_KEY": "sk-o"}
+            return keys.get(key, "")
+
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = {
+            "choices": [{"message": {"content": "openai response"}}]
+        }
+
+        with patch("wizard.services.cloud_provider_executor._env_getter", side_effect=env_getter):
+            with patch("wizard.services.cloud_provider_executor._load_context", return_value=""):
+                with patch("wizard.services.cloud_provider_executor.get_quota_tracker", return_value=_Quota()):
+                    with patch("requests.post", return_value=mock_resp):
+                        result = run_cloud_with_fallback_detail("test prompt", estimated_tokens=1200)
+
+        assert result["response"] == "openai response"
+        assert result["provider"] == "openai"
+        assert result["attempts"][0]["provider"] == "mistral"
+        assert result["attempts"][0]["reason"] == "quota_exceeded"
+        assert result["attempts"][1]["provider"] == "openrouter"
+        assert result["attempts"][1]["reason"] == "quota_exceeded"
+        assert result["attempts"][2]["provider"] == "openai"
+        assert result["attempts"][2]["result"] == "success"
 
 
 # ============================================================

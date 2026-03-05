@@ -306,7 +306,9 @@ class MonitoringManager:
 
     def check_wizard_core(self) -> HealthCheck:
         """Check Wizard core health endpoint."""
-        base_url = (os.environ.get("WIZARD_BASE_URL") or "http://localhost:8765").rstrip("/")
+        from core.services.wizard_runtime_config import get_wizard_base_url
+
+        base_url = get_wizard_base_url(os.environ.get("WIZARD_BASE_URL"))
 
         def check():
             # Avoid self-deadlock when this check runs inside the Wizard server process.
