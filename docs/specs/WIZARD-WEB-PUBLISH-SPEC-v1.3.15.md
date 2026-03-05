@@ -69,7 +69,7 @@ Proposed canonical API surface:
 
 Implemented module-aware gating:
 - `wizard` provider accepts vault/memory sources.
-- `dev` provider accepts `@dev` workspace sources from `/dev` plus sandbox sources.
+- `dev` provider accepts `@dev` workspace sources from `/dev` plus `@user/sandbox` and binder-local `@binders/<binder>/sandbox` sources.
 - `sonic` provider accepts Sonic/distribution artifact sources.
 - `groovebox` provider accepts Groovebox/media sources.
 - `oc_app` remains external and unavailable until adapter activation.

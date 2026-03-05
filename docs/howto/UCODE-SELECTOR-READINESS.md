@@ -61,7 +61,7 @@ A command-set is considered selector-ready when:
 Current reference command path:
 
 ```bash
-FILE SELECT --workspace @sandbox
+FILE SELECT --workspace @user/sandbox
 FILE SELECT --files readme.md,docs/STATUS.md
 ```
 

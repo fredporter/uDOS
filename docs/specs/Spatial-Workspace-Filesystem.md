@@ -32,7 +32,8 @@ Vault-first workspaces, accessed via `@workspace` syntax:
 
 | Workspace      | Path                   | Access Level | Purpose                    |
 | -------------- | ---------------------- | ------------ | -------------------------- |
-| `@sandbox`     | `memory/sandbox`        | User / Admin | Drafts & experimentation   |
+| `@user/sandbox`     | `memory/vault/@user/sandbox`        | User / Admin | Drafts & experimentation   |
+| `@binders`     | `memory/vault/@binders` | User / Admin | Binder roots + local sandboxes |
 | `@vault`       | `memory/vault`          | User / Admin | Primary knowledge store    |
 | `@inbox`       | `memory/inbox`          | User / Admin | Intake/imports             |
 | `@public`      | `memory/contributions`  | User / Admin | Public/open/published      |
@@ -43,6 +44,11 @@ Vault-first workspaces, accessed via `@workspace` syntax:
 | `@knowledge`   | `/knowledge`            | Admin only   | Knowledge base (curated)   |
 | `@dev`         | `/dev`                  | Admin only   | Development workspace      |
 
+v1.5 note:
+- `@sandbox` is deprecated as a dedicated workspace.
+- Use `@user/sandbox/` for personal drafts.
+- Use binder-local sandbox paths under `@binders/<binder_id>/sandbox/` for mission work-in-progress.
+
 **Role Hierarchy:**
 - **Guest**: Read-only access to @public/@shared
 - **User**: Read/write vault workspaces; read /knowledge
@@ -52,9 +58,9 @@ Vault-first workspaces, accessed via `@workspace` syntax:
 
 **TUI Commands (canonical):**
 ```
-PLACE LIST @sandbox                      # List all files
-PLACE READ @sandbox/story.md             # Show file content
-PLACE DELETE @sandbox/old.md             # Delete file
+PLACE LIST @user/sandbox                      # List all files
+PLACE READ @user/sandbox/story.md             # Show file content
+PLACE DELETE @user/sandbox/old.md             # Delete file
 PLACE INFO                               # Show workspace config
 ```
 
@@ -66,20 +72,20 @@ Connect files to spatial grid coordinates (`L###-Cell[-Zz]` format):
 
 ```python
 # Tag file with location (implied z=0)
-fs.tag_location('@sandbox/story.md', 'L300-AB15')
+fs.tag_location('@user/sandbox/story.md', 'L300-AB15')
 
 # Find files at location
 files = fs.find_by_location('L300-AB15')
 
 # Multiple locations per file (explicit z plane)
-fs.tag_location('@sandbox/story.md', 'L300-AC20-Z2')
+fs.tag_location('@user/sandbox/story.md', 'L300-AC20-Z2')
 ```
 
 **TUI Commands (canonical):**
 ```
-PLACE TAG @sandbox/story.md L300-AB15        # Tag file with location
+PLACE TAG @user/sandbox/story.md L300-AB15        # Tag file with location
 PLACE FIND L300-AB15                          # Find files at location
-PLACE TAG @sandbox/story.md L300-AC20-Z2      # Tag file with z-axis
+PLACE TAG @user/sandbox/story.md L300-AC20-Z2      # Tag file with z-axis
 ```
 
 **Front-matter Example:**
@@ -105,7 +111,7 @@ Extract and search by tags:
 
 ```python
 # Extract tags from file
-tags = fs.extract_tags('@sandbox/story.md')
+tags = fs.extract_tags('@user/sandbox/story.md')
 # → ['forest', 'adventure', 'npc']
 
 # Find files by tags
@@ -115,7 +121,7 @@ files = fs.find_by_tags(['forest', 'adventure'])
 
 **TUI Commands (canonical):**
 ```
-PLACE TAGS @sandbox                  # Show all tags in workspace
+PLACE TAGS @user/sandbox                  # Show all tags in workspace
 PLACE SEARCH forest adventure quest  # Find files with any tag
 ```
 
@@ -182,8 +188,8 @@ metadata = fs._extract_metadata(file_path)
 Organize multi-chapter projects in folders:
 
 ```python
-# Open binder
-binder = fs.open_binder('@sandbox/my-novel')
+# Open binder-local sandbox
+binder = fs.open_binder('@binders/my-novel/sandbox')
 
 # Add chapters
 binder.add_chapter('intro.md', '# Introduction', chapter_num=1, title='Intro')
@@ -199,14 +205,14 @@ chapters = binder.list_chapters()
 
 **TUI Commands:**
 ```
-BINDER open @sandbox/my-novel           # Open binder
-BINDER list @sandbox/my-novel           # List chapters (same as open)
-BINDER add @sandbox/my-novel ch2.md     # Add chapter
+BINDER open @binders/my-novel/sandbox           # Open binder
+BINDER list @binders/my-novel/sandbox           # List chapters (same as open)
+BINDER add @binders/my-novel/sandbox ch2.md     # Add chapter
 ```
 
 **Directory Structure:**
 ```
-memory/sandbox/my-novel/
+memory/vault/@binders/my-novel/sandbox/
 ├── intro.md              # Chapter 1
 ├── ch1.md                # Chapter 2
 ├── ch2.md                # Chapter 3
@@ -308,8 +314,8 @@ Integrate file operations with parsers:
 
 ```python
 # Write parsed CSV as spatial file
-fs.write_file('@sandbox/data.table.md', csv_to_markdown(data))
-fs.tag_location('@sandbox/data.table.md', 'L300-DB50')
+fs.write_file('@user/sandbox/data.table.md', csv_to_markdown(data))
+fs.tag_location('@user/sandbox/data.table.md', 'L300-DB50')
 
 # Find all data files in knowledge base
 data_files = fs.find_by_tags(['data', 'reference'])
@@ -325,7 +331,7 @@ data_files = fs.find_by_tags(['data', 'reference'])
 fs = SpatialFilesystem(user_role=UserRole.USER)
 
 # Create multi-chapter story
-binder = fs.open_binder('@sandbox/the-quest')
+binder = fs.open_binder('@binders/the-quest/sandbox')
 
 # Chapter 1: Tavern
 content1 = '''---
@@ -363,8 +369,8 @@ fs = SpatialFilesystem(user_role=UserRole.ADMIN)
 # Add skill guides at locations
 fs.write_file('@knowledge/fire-making.md', '# Fire Making\n...')
 fs.tag_location('@knowledge/fire-making.md', 'L300-DB20')
-fs.write_file('@sandbox/my-fire-notes.md', 'My notes...')
-fs.tag_location('@sandbox/my-fire-notes.md', 'L300-DB20')
+fs.write_file('@user/sandbox/my-fire-notes.md', 'My notes...')
+fs.tag_location('@user/sandbox/my-fire-notes.md', 'L300-DB20')
 
 # Users can query by skill or location
 users_fs = SpatialFilesystem(user_role=UserRole.USER)
@@ -375,28 +381,28 @@ location_guides = users_fs.find_by_location('L300-DB20')
 ### Example 3: TUI Workflow
 
 ```
-[uCODE] > PLACE LIST @sandbox
-📁 Files in @sandbox:
+[uCODE] > PLACE LIST @user/sandbox
+📁 Files in @user/sandbox:
   📄 story.md [forest, adventure] @ L300-AB15
   📄 notes.md [personal]
   📄 quest-log.md [quest, tracking]
 
 [uCODE] > PLACE SEARCH quest
 🔍 Files tagged with: quest
-  📄 @sandbox/quest-log.md
+  📄 @user/sandbox/quest-log.md
      My Quest Log
      Tags: quest, tracking
 
-[uCODE] > PLACE TAG @sandbox/story.md L300-AC20
-✅ Tagged @sandbox/story.md → L300-AC20
+[uCODE] > PLACE TAG @user/sandbox/story.md L300-AC20
+✅ Tagged @user/sandbox/story.md → L300-AC20
 
 [uCODE] > PLACE FIND L300-AB15
 📍 Files at L300-AB15:
-  📄 @sandbox/story.md
+  📄 @user/sandbox/story.md
      My Adventure Story
 
-[uCODE] > BINDER open @sandbox/the-novel
-📚 Binder: @sandbox/the-novel
+[uCODE] > BINDER open @binders/the-novel/sandbox
+📚 Binder: @binders/the-novel/sandbox
    Chapters: 3
   Ch 1: Prologue
   Ch 2: Act One
@@ -412,7 +418,7 @@ location_guides = users_fs.find_by_location('L300-DB20')
 ```
 ┌─────────────────────────────────────────────────┐
 │ Admin                                           │
-│  ├─ memory/sandbox (own)                        │
+│  ├─ memory/vault/@user/sandbox (own)                        │
 │  ├─ memory/vault (own)                          │
 │  ├─ memory/inbox (read/write)                   │
 │  ├─ memory/contributions (read/write)           │
@@ -423,7 +429,7 @@ location_guides = users_fs.find_by_location('L300-DB20')
 │  └─ /dev (development)                          │
 ├─────────────────────────────────────────────────┤
 │ User                                            │
-│  ├─ memory/sandbox (read/write own)             │
+│  ├─ memory/vault/@user/sandbox (read/write own)             │
 │  ├─ memory/vault (read/write own)               │
 │  ├─ memory/inbox (read/write)                   │
 │  ├─ memory/contributions (read/write)           │
@@ -434,7 +440,7 @@ location_guides = users_fs.find_by_location('L300-DB20')
 │  └─ /dev (denied)                               │
 ├─────────────────────────────────────────────────┤
 │ Guest                                           │
-│  ├─ memory/sandbox (denied)                     │
+│  ├─ memory/vault/@user/sandbox (denied)                     │
 │  ├─ memory/vault (denied)                       │
 │  ├─ memory/inbox (denied)                       │
 │  ├─ memory/contributions (read only)            │

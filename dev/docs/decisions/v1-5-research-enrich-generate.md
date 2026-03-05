@@ -408,7 +408,7 @@ Example:
 
 All research content must be searchable across:
 	•	@vault
-	•	@sandbox
+	•	@user/sandbox
 	•	@shared
 	•	@public
 

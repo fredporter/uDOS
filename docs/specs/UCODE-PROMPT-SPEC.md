@@ -61,7 +61,7 @@ Autocomplete is **dynamic** and context‑aware. It pulls from:
 
 1. **Command registry** (all uCODE commands)
 2. **Subcommands/options** for the active command
-3. **Workspace paths** (`@sandbox`, `@bank`, `@public`, `@private`, etc.)
+3. **Workspace paths** (`@user/sandbox`, `@bank`, `@public`, `@private`, etc.)
 4. **Vault file paths** (recent + indexed)
 5. **Tags** (frontmatter `tags` + inline `#tags`)
 6. **Containers** (from `/library/*` manifests)
@@ -131,9 +131,9 @@ Shell mode is powerful and must be explicit.
 ## 9. Examples
 
 ```text
-OK MAKE svg sandbox:tree.svg
+OK MAKE svg @user/sandbox/tree.svg
 ```
-Creates an SVG file at `memory/vault/sandbox/tree.svg`.
+Creates an SVG file at `memory/vault/@user/sandbox/tree.svg`.
 
 ```text
 ?SETUP

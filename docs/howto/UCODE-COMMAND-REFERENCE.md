@@ -422,7 +422,7 @@ FILE SELECT --file readme.md
 FILE SELECT --files readme.md,docs/STATUS.md
 
 # Interactive selector in a workspace
-FILE SELECT --workspace @sandbox
+FILE SELECT --workspace @user/sandbox
 
 # Interactive single-select
 FILE SELECT --workspace @vault --single

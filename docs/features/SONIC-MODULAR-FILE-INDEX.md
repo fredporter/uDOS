@@ -289,7 +289,7 @@ curl "${WIZARD_BASE_URL}/api/sonic/sync/status"
 ### To Archive
 - `wizard/routes/sonic_routes.py` → `.archive/screwdriver-legacy/`
 - `wizard/services/sonic_service.py` → `.archive/screwdriver-legacy/`
-- `memory/sandbox/screwdriver/` → `.archive/screwdriver-legacy/`
+- `memory/vault/@user/sandbox/screwdriver/` → `.archive/screwdriver-legacy/`
 
 ---
 
