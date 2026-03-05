@@ -29,3 +29,16 @@ Supporting subtrees:
 - `scheduler/`: reusable dev schedule templates
 - `workflows/`: contributor workflow templates
 - `utils/`: small operational guides for the contributor toolchain
+- `reports/`: generated release-readiness and preflight outputs
+- `release/`: future-version release planning artifacts generated from audit output
+
+Pre-release automation command surface:
+
+- `./bin/udos doctor`
+- `./bin/udos audit --target-version v1.6`
+- `./bin/udos release-check`
+
+By default these commands write Dev Mode artifacts to:
+
+- `dev/ops/reports/udos_pre_release_audit.json`
+- `dev/ops/release/<target_version>/future_release_plan.json`

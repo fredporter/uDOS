@@ -18,7 +18,6 @@ func main() {
 	program := tea.NewProgram(
 		model,
 		tea.WithAltScreen(),
-		tea.WithBracketedPaste(),
 	)
 	if _, err := program.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "udos-tui run failed: %v\n", err)

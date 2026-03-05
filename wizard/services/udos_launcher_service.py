@@ -248,7 +248,7 @@ class UdosLauncherService:
 
         raise RuntimeError(
             "uDOS v1.5 Bubble Tea TUI is unavailable. "
-            "Install Go 1.22+ and run ./scripts/build_udos_tui.sh."
+            "Run ./bin/udos install --update, or install Go 1.22+ and run ./scripts/build_udos_tui.sh."
         )
 
     def launch_ops(self, extra_args: list[str]) -> int:

@@ -7,15 +7,19 @@
 # Handles: OS detection, dependencies, .env setup, Dev Mode tooling,
 #          v1.5 logic-assist preparation, optional TUI build, wizard lazy-loading, and more.
 #
-# Usage:
-#   ./bin/install-udos.sh           # Full install
-#   ./bin/install-udos.sh --core    # Core only (no wizard)
-#   ./bin/install-udos.sh --wizard  # Add wizard to existing
-#   ./bin/install-udos.sh --update  # Update existing install
+# Canonical entrypoint:
+#   ./bin/udos install
+#
+# Legacy direct usage (supported for compatibility):
+#   ./bin/install-udos.sh
 # ============================================================
 
 set -euo pipefail
 export UV_PROJECT_ENVIRONMENT=.venv
+
+if [[ "${UDOS_INSTALL_ENTRYPOINT:-}" != "udos" ]]; then
+    echo "[WARN] Direct installer call is legacy. Use: ./bin/udos install $*" >&2
+fi
 
 # ── Colors & Output ──────────────────────────────────────────
 RED='\033[0;31m'
@@ -139,15 +143,15 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         --packages|--from|--yes|--dry-run|-t|-p|-f|-y)
-            error "Legacy Linux package installer flags are retired. Use ./bin/install-udos.sh core/wizard/update flows only."
+            error "Legacy Linux package installer flags are retired. Use ./bin/udos install [--core|--wizard|--update]."
             exit 1
             ;;
         --packages=*|--from=*|--dry-run|--yes)
-            error "Legacy Linux package installer flags are retired. Use ./bin/install-udos.sh core/wizard/update flows only."
+            error "Legacy Linux package installer flags are retired. Use ./bin/udos install [--core|--wizard|--update]."
             exit 1
             ;;
         --help|-h)
-            echo "Usage: $0 [OPTIONS]"
+            echo "Usage: ./bin/udos install [OPTIONS]"
             echo ""
             echo "Options:"
             echo "  --core         Install core components only (no wizard)"
@@ -1210,42 +1214,45 @@ function reconcile_provider_mode() {
 
 function build_required_tui() {
     if [[ ! -f "$REPO_ROOT/scripts/build_udos_tui.sh" ]]; then
-        error "Missing build script: $REPO_ROOT/scripts/build_udos_tui.sh"
-        return 1
+        warning "TUI build helper missing: $REPO_ROOT/scripts/build_udos_tui.sh"
+        warning "Continuing without Bubble Tea frontend; install still succeeds."
+        return 0
     fi
 
     if ! command -v go >/dev/null 2>&1; then
-        warning "Go toolchain not found (required for uDOS v1.5 Bubble Tea TUI)"
+        warning "Go toolchain not found (Bubble Tea frontend optional)"
         if [[ "$OS_TYPE" == "mac" ]] && command -v brew >/dev/null 2>&1; then
-            step "Installing Go via Homebrew (required)..."
+            step "Installing Go via Homebrew (optional frontend build)..."
             if brew install go; then
                 success "Go installed"
             else
-                error "Failed to install Go via Homebrew."
-                return 1
+                warning "Failed to install Go via Homebrew; continuing without Bubble Tea frontend."
+                return 0
             fi
         else
-            error "Install Go 1.22+ and rerun installer."
-            return 1
+            warning "Install Go 1.22+ later and run ./scripts/build_udos_tui.sh to enable Bubble Tea frontend."
+            return 0
         fi
     fi
 
     if ! command -v go >/dev/null 2>&1; then
-        error "Go 1.22+ is required but still unavailable on PATH."
-        return 1
+        warning "Go still unavailable on PATH; continuing without Bubble Tea frontend."
+        return 0
     fi
 
-    step "Building required v1.5 uDOS TUI frontend..."
+    step "Building optional v1.5 uDOS TUI frontend..."
     if "$REPO_ROOT/scripts/build_udos_tui.sh"; then
         success "udos-tui built"
     else
-        error "udos-tui build failed. Installer cannot continue without v1.5 TUI."
-        return 1
+        warning "udos-tui build failed; installer will continue."
+        warning "Retry later with: ./scripts/build_udos_tui.sh"
+        return 0
     fi
 
     if [[ ! -x "$REPO_ROOT/tui/bin/udos-tui" ]]; then
-        error "Built binary missing: $REPO_ROOT/tui/bin/udos-tui"
-        return 1
+        warning "Built binary missing: $REPO_ROOT/tui/bin/udos-tui"
+        warning "Retry later with: ./scripts/build_udos_tui.sh"
+        return 0
     fi
 }
 
@@ -1348,7 +1355,7 @@ function main() {
         info "Skipping Dev Mode tooling installation (dev profile not selected)"
     fi
     install_core_requirements
-    build_required_tui || exit 1
+    build_required_tui
     ensure_launcher_wiring
 
     # Wizard installation (home profile)

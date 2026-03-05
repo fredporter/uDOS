@@ -76,6 +76,17 @@ def test_start_no_tui_emits_result(monkeypatch, capsys) -> None:
     assert service.calls == [("start_runtime", True)]
 
 
+def test_no_subcommand_defaults_to_start_without_attribute_error(monkeypatch, capsys) -> None:
+    service = _FakeService()
+    monkeypatch.setattr(cli_mod, "get_udos_launcher_service", lambda: service)
+
+    exit_code = cli_mod.main([])
+
+    assert exit_code == 0
+    assert "runtime ready" in capsys.readouterr().out
+    assert service.calls == [("start_runtime", True)]
+
+
 def test_start_launches_tui_when_runtime_ready_and_tty(monkeypatch) -> None:
     service = _FakeService()
     monkeypatch.setattr(cli_mod, "get_udos_launcher_service", lambda: service)
@@ -148,3 +159,33 @@ def test_install_execv_uses_repo_installer(monkeypatch) -> None:
     assert exc.value.argv[0] == "/bin/bash"
     assert Path(exc.value.argv[1]).name == "install-udos.sh"
     assert exc.value.argv[-2:] == ["--", "--wizard"]
+
+
+def test_doctor_runs_release_audit_non_strict(monkeypatch) -> None:
+    calls: list[tuple[bool, str, bool, bool]] = []
+
+    def _fake_run_release_audit(*, strict: bool, target_version: str, dev_mode: bool, json_output: bool) -> int:
+        calls.append((strict, target_version, dev_mode, json_output))
+        return 0
+
+    monkeypatch.setattr(cli_mod, "_run_release_audit", _fake_run_release_audit)
+
+    exit_code = cli_mod.main(["doctor", "--target-version", "v1.6"])
+
+    assert exit_code == 0
+    assert calls == [(False, "v1.6", True, False)]
+
+
+def test_release_check_runs_release_audit_strict(monkeypatch) -> None:
+    calls: list[tuple[bool, str, bool, bool]] = []
+
+    def _fake_run_release_audit(*, strict: bool, target_version: str, dev_mode: bool, json_output: bool) -> int:
+        calls.append((strict, target_version, dev_mode, json_output))
+        return 0
+
+    monkeypatch.setattr(cli_mod, "_run_release_audit", _fake_run_release_audit)
+
+    exit_code = cli_mod.main(["--json", "release-check", "--no-dev-mode"])
+
+    assert exit_code == 0
+    assert calls == [(True, "v1.5", False, True)]

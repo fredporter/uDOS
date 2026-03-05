@@ -4,28 +4,40 @@ This directory contains the active install and launcher scripts for the v1.5 run
 
 ## Files
 
-### `install-udos.sh` (Cross-platform)
-- Comprehensive installation script
-- Works on macOS, Ubuntu, Alpine, and generic Linux
-- Handles all dependencies and configuration
+### `udos` (canonical entrypoint)
+- Single front door for install, launch, ops, and audit commands
+- Installer entrypoint: `./bin/udos install`
+- Runtime entrypoint: `./bin/udos`
 
 **Usage:**
 ```bash
-./install-udos.sh              # Full install
-./install-udos.sh --core       # Core only
-./install-udos.sh --wizard     # Add wizard
-./install-udos.sh --update     # Update
-./install-udos.sh --help       #Show help
+./bin/udos install
+./bin/udos install --core
+./bin/udos install --wizard
+./bin/udos install --update
+./bin/udos
 ```
 
 ### `ucode-tui-v1.5.command` (macOS)
 - Double-clickable macOS launcher for the stable `ucode` TUI path
-- Opens Terminal and runs `bin/udos tui`
+- Opens Terminal and runs `bin/udos`
 - **Usage**: Double-click in Finder after installation
+
+### `udos` release audit commands
+- Automated pre-release audit with readiness scoring
+- Runs the v1.5 checklist automation and writes reports
+- **Usage**:
+```bash
+./bin/udos doctor
+./bin/udos audit --target-version v1.6
+./bin/udos release-check --json
+```
+
+`doctor` and `audit` run report mode. `release-check` runs strict gate mode.
 
 ### `udos-tui` (Linux/macOS shell)
 - Executable launcher for the stable `uDOS` TUI path
-- Runs `bin/udos tui`
+- Runs `bin/udos`
 - **Usage**: `./bin/udos-tui`
 
 ### `dev/tooling/bin/smoke-test.sh`
@@ -92,35 +104,35 @@ This directory contains the active install and launcher scripts for the v1.5 run
    - Displays installation summary
    - Provides next steps
 
-9. **v1.5 TUI Build (required)**
+9. **v1.5 TUI Build (optional enhancement)**
    - Builds `tui/bin/udos-tui` from the Bubble Tea source
    - Requires Go 1.22+
-   - Installer exits with error if build is unavailable or fails
+   - Installer continues even if Go/Bubble Tea build is unavailable
 
 ## Installation Modes
 
 ### Full Install (Default)
 Installs everything: core + wizard + optional components
 ```bash
-./install-udos.sh
+./bin/udos install
 ```
 
 ### Core Only
 Minimal install: `ucode` + uDOS tools (no wizard server)
 ```bash
-./install-udos.sh --core
+./bin/udos install --core
 ```
 
 ### Wizard Only
 Adds wizard to existing core installation
 ```bash
-./install-udos.sh --wizard
+./bin/udos install --wizard
 ```
 
 ### Update Mode
 Updates existing installation
 ```bash
-./install-udos.sh --update
+./bin/udos install --update
 ```
 
 ## After Installation
@@ -152,8 +164,7 @@ export PATH="$HOME/.local/bin:$PATH"
 ### Permission denied
 Make executable:
 ```bash
-chmod +x install-udos.sh
-chmod +x install-udos.command
+chmod +x udos
 chmod +x ucode-tui-v1.5.command
 ```
 

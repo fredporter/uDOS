@@ -22,7 +22,7 @@ uDOS is a Python-first runtime built around `ucode`, with Wizard as the networke
 
 ## Stable Release Front Door
 
-- Install with `./bin/install-udos.sh`
+- Install with `./bin/udos install`
 - Launch the macOS stable TUI with `bin/ucode-tui-v1.5.command`
 - Use the active Alpine packaging path for Linux and Sonic release work
 - Treat [ALPINE-CORE-PLUGIN-FORMAT-v1.5.md](docs/specs/ALPINE-CORE-PLUGIN-FORMAT-v1.5.md) as the public Linux packaging contract

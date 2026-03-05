@@ -15,7 +15,7 @@ uDOS v1.5.0 is stable.
 ## Current Public Contract
 
 - `ucode` is the standard operator entry point.
-- `./bin/install-udos.sh` is the stable installer entrypoint.
+- `./bin/udos install` is the stable installer entrypoint.
 - `bin/ucode-tui-v1.5.command` is the stable macOS launcher.
 - Wizard is the networked service layer.
 - Alpine core plus plugin artifacts is the active Linux packaging story.

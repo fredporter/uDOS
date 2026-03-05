@@ -9,7 +9,7 @@ Contributor-only Dev Mode guidance now lives under `dev/docs/`. Root `docs/` kee
 ## Quick Install
 
 Stable release entrypoints:
-- installer: `./bin/install-udos.sh`
+- installer: `./bin/udos install`
 - macOS launcher: `bin/ucode-tui-v1.5.command`
 - Alpine packaging contract: `docs/specs/ALPINE-CORE-PLUGIN-FORMAT-v1.5.md`
 
@@ -18,7 +18,7 @@ Stable release entrypoints:
 **Option 1: Terminal install**
 ```bash
 cd /path/to/uDOS
-./bin/install-udos.sh
+./bin/udos install
 ```
 
 For Alpine-targeted runtime and plugin packaging, use [ALPINE-CORE-PLUGIN-FORMAT-v1.5.md](specs/ALPINE-CORE-PLUGIN-FORMAT-v1.5.md) together with [BARE-METAL-Alpine-Install.md](howto/BARE-METAL-Alpine-Install.md).
@@ -26,13 +26,13 @@ For Alpine-targeted runtime and plugin packaging, use [ALPINE-CORE-PLUGIN-FORMAT
 **Option 2: Finder launch after install**
 1. Navigate to `bin/ucode-tui-v1.5.command` in Finder
 2. Double-click the file
-3. The stable `ucode` TUI will open through the canonical `bin/udos tui` path
+3. The stable `ucode` TUI will open through the canonical `bin/udos` path
 
 ### Linux (Ubuntu/Alpine)
 
 ```bash
 cd /path/to/uDOS
-./bin/install-udos.sh
+./bin/udos install
 ```
 
 ## Installation Modes
@@ -40,25 +40,25 @@ cd /path/to/uDOS
 ### Full Installation (Default)
 Installs both core uDOS and wizard components:
 ```bash
-./bin/install-udos.sh
+./bin/udos install
 ```
 
 ### Core Only
 Install only the standard `ucode` runtime path without wizard services:
 ```bash
-./bin/install-udos.sh --core
+./bin/udos install --core
 ```
 
 ### Wizard Only
 Add wizard components to an existing core installation:
 ```bash
-./bin/install-udos.sh --wizard
+./bin/udos install --wizard
 ```
 
 ### Update Existing Installation
 Update the installed runtime and dependencies:
 ```bash
-./bin/install-udos.sh --update
+./bin/udos install --update
 ```
 
 ## v1.4 to v1.5 Migration
@@ -81,7 +81,7 @@ UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard --dev
 ### Preflight Capability Check (No Install)
 Run capability detection and tier gating without installing:
 ```bash
-./bin/install-udos.sh --preflight-json --tier auto
+./bin/udos install --preflight-json --tier auto
 ```
 Use `--tier 1|2|3` to test hardline gating for a requested tier.
 
@@ -201,8 +201,8 @@ uDOS/
 ├── wizard/
 │   └── config/.env          # Wizard secrets (DO NOT COMMIT)
 └── bin/
-    ├── install-udos.sh            # Cross-platform installer
-    ├── install-udos.command       # macOS clickable installer
+    ├── udos                       # Canonical install + runtime entrypoint
+    ├── install-udos.sh            # Installer backend (invoked by `bin/udos install`)
     └── ucode-tui-v1.5.command     # macOS clickable ucode TUI launcher
 ```
 
@@ -254,9 +254,9 @@ Contributor setup details:
 
 ### Lazy Loading
 The wizard is **not required** for core functionality:
-1. Install core: `./bin/install-udos.sh --core`
+1. Install core: `./bin/udos install --core`
 2. Use `ucode` normally
-3. When you need wizard features: `./bin/install-udos.sh --wizard`
+3. When you need wizard features: `./bin/udos install --wizard`
 
 This approach saves disk space and keeps installations minimal.
 
@@ -341,7 +341,7 @@ chmod +x bin/ucode-tui-v1.5.command
 3. Place the configured `.gguf` model file in the expected local model directory
 
 ### Wizard won't start
-1. Check wizard dependencies: `./bin/install-udos.sh --wizard`
+1. Check wizard dependencies: `./bin/udos install --wizard`
 2. Check `.env` has `WIZARD_ADMIN_TOKEN` and `WIZARD_KEY`
 3. Check logs: `tail -f memory/logs/udos.log`
 
@@ -358,7 +358,7 @@ UV_PROJECT_ENVIRONMENT=.venv uv sync --extra udos-wizard   # Wizard web/API prof
 
 ### Update runtime install
 ```bash
-./bin/install-udos.sh --update
+./bin/udos install --update
 ```
 
 ### Update dependencies only
@@ -390,13 +390,13 @@ Set environment variables before running:
 export UDOS_SKIP_PROMPTS=1
 export USER_NAME="myname"
 export MISTRAL_API_KEY="your-key-here"
-./bin/install-udos.sh
+./bin/udos install
 ```
 
 ### CI/Automation Mode
 ```bash
 export UDOS_AUTOMATION=1
-./bin/install-udos.sh --core
+./bin/udos install --core
 ```
 
 ## Uninstallation
