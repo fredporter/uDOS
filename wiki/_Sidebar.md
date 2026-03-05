@@ -1,22 +1,34 @@
 ### uDOS Wiki
 
 - [Home](Home.md)
+
+### Start
+
 - [Installation](Installation.md)
 - [Onboarding Flow](Onboarding-Flow.md)
-- [Seed Data and Templates](Seed-Data-and-Templates.md)
-- [Architecture](ARCHITECTURE.md)
+
+### Runtime Surfaces
+
 - [Core](Core.md)
 - [Wizard](Wizard.md)
+- [Architecture](ARCHITECTURE.md)
 - [Modes and Policy](Modes-and-Policy.md)
-- [TypeScript Runtime](TypeScript-Runtime.md)
 - [TUI Z-Layer and TOYBOX](TUI-Z-Layer-and-TOYBOX.md)
-- [Dev Tools](Dev-Tools.md)
+- [TypeScript Runtime](TypeScript-Runtime.md)
 - [Self-Healing](Self-Healing.md)
+- [Seed Data and Templates](Seed-Data-and-Templates.md)
+
+### Optional Builder Lane
+
+- [Dev Tools](Dev-Tools.md)
+
+### Project Context
+
 - [Beacon](BEACON.md)
 - [Vision](VISION.md)
 - [Credits](credits.md)
 
-### Docs
+### Docs (Deep Dive)
 
 - [Docs Index](../docs/README.md)
 - [Quick Index](../docs/INDEX.md)
@@ -26,8 +38,3 @@
 - [Decisions](../docs/decisions/)
 - [Troubleshooting](../docs/troubleshooting/README.md)
 - [Compost Policy](../docs/COMPOST-POLICY.md)
-
-### Contributing
-
-- [Contributing Guide](../CONTRIBUTING.md)
-- [@dev Workspace Docs](../dev/docs/README.md)

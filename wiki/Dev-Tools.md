@@ -1,18 +1,18 @@
 # Dev Tools
 
 Updated: 2026-03-04
-Status: contributor lane summary
+Status: one-page overview
 
-In v1.5, contributor tooling is organized under the `@dev` workspace.
+Dev Mode is the optional builder lane for extending and maintaining uDOS.
+Most users can run uDOS fully without enabling this lane.
 
-## What `@dev` Means
+## What Dev Mode Is
 
-- mount path: `/dev`
-- tracked payload: `dev/ops/`, `dev/docs/`, and `dev/goblin/`
-- local-only sprawl: `dev/files/`, `dev/relecs/`, `dev/dev-work/`, `dev/testing/`
-- activation path: Wizard Dev Mode controls and `/api/dev/*`
+- A contributor-focused workspace for tooling, automation, and extension work.
+- Isolated from everyday runtime usage.
+- Designed for safe iteration on integrations and operational workflows.
 
-## Canonical Contributor Docs
+## Where To Go Next (Deep Docs)
 
 - [../dev/docs/README.md](../dev/docs/README.md)
 - [../dev/docs/DEV-MODE-POLICY.md](../dev/docs/DEV-MODE-POLICY.md)
@@ -20,18 +20,11 @@ In v1.5, contributor tooling is organized under the `@dev` workspace.
 - [../dev/docs/features/GITHUB-INTEGRATION.md](../dev/docs/features/GITHUB-INTEGRATION.md)
 - [../dev/docs/howto/GETTING-STARTED.md](../dev/docs/howto/GETTING-STARTED.md)
 
-## Repo Split
+## Public Boundary
 
 - Root `docs/`:
-  operator/runtime docs only
+  canonical runtime and operator docs
 - `dev/docs/`:
-  contributor policy, workflow, Goblin, and GitHub lane docs
+  contributor policy and implementation detail
 - `wiki/`:
-  short orientation pages only
-
-## Related Files
-
-- Workspace file:
-  [../dev/ops/templates/uDOS-dev.code-workspace](../dev/ops/templates/uDOS-dev.code-workspace)
-- Contributing guide:
-  [../CONTRIBUTING.md](../CONTRIBUTING.md)
+  first-step overview pages
