@@ -28,7 +28,7 @@ jobs:
       - name: Run Wizard tests
         env:
           PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
-        run: uv run pytest wizard/tests
+        run: ./scripts/run_pytest_profile.sh wizard
 
       - name: Run managed migrations
         env:
