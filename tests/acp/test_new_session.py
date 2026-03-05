@@ -10,13 +10,14 @@ from tests.conftest import build_test_vibe_config
 from vibe.acp.acp_agent_loop import VibeAcpAgentLoop
 from vibe.core.agent_loop import AgentLoop
 from vibe.core.agents.models import BuiltinAgentName
-from vibe.core.config import ModelConfig
+from vibe.core.config import ModelConfig, SessionLoggingConfig, VibeConfig
 
 
 @pytest.fixture
 def acp_agent_loop(backend) -> VibeAcpAgentLoop:
     config = build_test_vibe_config(
         active_model="devstral-latest",
+        session_logging=SessionLoggingConfig(enabled=True),
         models=[
             ModelConfig(
                 name="devstral-latest", provider="mistral", alias="devstral-latest"
@@ -26,12 +27,11 @@ def acp_agent_loop(backend) -> VibeAcpAgentLoop:
             ),
         ],
     )
+    VibeConfig.dump_config(config.model_dump())
 
     class PatchedAgentLoop(AgentLoop):
         def __init__(self, *args, **kwargs) -> None:
             super().__init__(*args, **{**kwargs, "backend": backend})
-            self._base_config = config
-            self.agent_manager.invalidate_config()
 
     patch("vibe.acp.acp_agent_loop.AgentLoop", side_effect=PatchedAgentLoop).start()
 
@@ -96,7 +96,6 @@ class TestACPNewSession:
             BuiltinAgentName.ACCEPT_EDITS,
         }
 
-    @pytest.mark.skip(reason="TODO: Fix this test")
     @pytest.mark.asyncio
     async def test_new_session_preserves_model_after_set_model(
         self, acp_agent_loop: VibeAcpAgentLoop

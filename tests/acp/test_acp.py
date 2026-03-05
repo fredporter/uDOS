@@ -341,7 +341,13 @@ def parse_conversation(message_texts: list[str]) -> list[JsonRpcMessage]:
             if matching_request is None:
                 # No matching request found in the conversation, it most probably was
                 # not included in the conversation. We use a generic response class.
-                cls = JsonRpcResponse
+                if isinstance(message_json.get("result"), dict) and (
+                    "stopReason" in message_json["result"]
+                    or "stop_reason" in message_json["result"]
+                ):
+                    cls = PromptJsonRpcResponse
+                else:
+                    cls = JsonRpcResponse
             else:
                 match matching_request.method:
                     case "session/prompt":
@@ -759,7 +765,6 @@ class TestToolCallStructure:
             )
             assert rejected_tool_call is not None
 
-    @pytest.mark.skip(reason="Long running tool call updates are not implemented yet")
     @pytest.mark.asyncio
     async def test_tool_call_in_progress_update_structure(
         self, vibe_home_grep_ask: Path
@@ -882,11 +887,6 @@ class TestToolCallStructure:
 
 
 class TestCancellationStructure:
-    @pytest.mark.skip(
-        reason="Proper cancellation is not implemented yet, we still need to return "
-        "the right end_turn and be able to cancel at any point in time "
-        "(and not only at tool call time)"
-    )
     @pytest.mark.asyncio
     async def test_tool_call_update_cancelled_structure(
         self, vibe_home_dir: Path

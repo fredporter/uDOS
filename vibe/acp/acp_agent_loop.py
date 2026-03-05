@@ -107,6 +107,7 @@ from vibe.core.types import (
     UserMessageEvent,
 )
 from vibe.core.utils import CancellationReason, get_user_cancellation_message
+from vibe.core.utils import CANCELLATION_TAG, is_user_cancellation_event
 
 
 class AcpSessionLoop(BaseModel):
@@ -114,6 +115,9 @@ class AcpSessionLoop(BaseModel):
     id: str
     agent_loop: AgentLoop
     task: asyncio.Task[None] | None = None
+    cancellation_requested: bool = False
+    cancelled_by_user: bool = False
+    last_prompt_text: str | None = None
 
 
 class VibeAcpAgentLoop(AcpAgent):
@@ -323,6 +327,7 @@ class VibeAcpAgentLoop(AcpAgent):
                 outcome = cast(AllowedOutcome, response.outcome)
                 return _handle_permission_selection(outcome.option_id, tool_name)
             else:
+                session.cancelled_by_user = True
                 return (
                     ApprovalResponse.NO,
                     str(
@@ -544,6 +549,9 @@ class VibeAcpAgentLoop(AcpAgent):
             )
 
         text_prompt = self._build_text_prompt(prompt)
+        session.last_prompt_text = text_prompt
+        session.cancelled_by_user = False
+        session.cancellation_requested = False
 
         if text_prompt.strip().lower().startswith("/proxy-setup"):
             return await self._handle_proxy_setup_command(session_id, text_prompt)
@@ -561,6 +569,7 @@ class VibeAcpAgentLoop(AcpAgent):
             await session.task
 
         except asyncio.CancelledError:
+            session.cancelled_by_user = True
             return PromptResponse(stop_reason="cancelled")
 
         except Exception as e:
@@ -576,6 +585,17 @@ class VibeAcpAgentLoop(AcpAgent):
 
         finally:
             session.task = None
+
+        if any(
+            message.role == Role.tool
+            and isinstance(message.content, str)
+            and f"<{CANCELLATION_TAG}>" in message.content
+            for message in reversed(session.agent_loop.messages[-3:])
+        ):
+            session.cancelled_by_user = True
+
+        if session.cancelled_by_user or session.cancellation_requested:
+            return PromptResponse(stop_reason="cancelled")
 
         return PromptResponse(stop_reason="end_turn")
 
@@ -667,11 +687,21 @@ class VibeAcpAgentLoop(AcpAgent):
                         tool_call_id=event.tool_call_id,
                     )
 
+                # Emit an in-progress update for every tool call, including
+                # permission-gated calls that may be interrupted before execution.
+                yield ToolCallProgress(
+                    session_update="tool_call_update",
+                    tool_call_id=event.tool_call_id,
+                    status="in_progress",
+                )
+
                 session_update = tool_call_session_update(event)
                 if session_update:
                     yield session_update
 
             elif isinstance(event, ToolResultEvent):
+                if is_user_cancellation_event(event):
+                    session.cancelled_by_user = True
                 session_update = tool_result_session_update(event)
                 if session_update:
                     yield session_update
@@ -698,8 +728,8 @@ class VibeAcpAgentLoop(AcpAgent):
     async def cancel(self, session_id: str, **kwargs: Any) -> None:
         session = self._get_session(session_id)
         if session.task and not session.task.done():
+            session.cancellation_requested = True
             session.task.cancel()
-            session.task = None
 
     @override
     async def fork_session(
@@ -709,7 +739,27 @@ class VibeAcpAgentLoop(AcpAgent):
         mcp_servers: list[HttpMcpServer | SseMcpServer | McpServerStdio] | None = None,
         **kwargs: Any,
     ) -> ForkSessionResponse:
-        raise NotImplementedError()
+        _ = cwd
+        _ = mcp_servers
+        source = self._get_session(session_id)
+
+        cloned_config = source.agent_loop.config.model_copy(deep=True)
+        cloned_loop = AgentLoop(
+            config=cloned_config,
+            agent_name=source.agent_loop.agent_profile.name,
+            enable_streaming=True,
+        )
+        cloned_loop.messages.extend(
+            [msg for msg in source.agent_loop.messages if msg.role != Role.system]
+        )
+
+        session = await self._create_acp_session(cloned_loop.session_id, cloned_loop)
+
+        return ForkSessionResponse(
+            session_id=session.id,
+            models=self._build_session_model_state(cloned_loop),
+            modes=self._build_session_mode_state(session),
+        )
 
     @override
     async def resume_session(
@@ -719,11 +769,91 @@ class VibeAcpAgentLoop(AcpAgent):
         mcp_servers: list[HttpMcpServer | SseMcpServer | McpServerStdio] | None = None,
         **kwargs: Any,
     ) -> ResumeSessionResponse:
-        raise NotImplementedError()
+        if session_id in self.sessions:
+            session = self.sessions[session_id]
+            return ResumeSessionResponse(
+                models=self._build_session_model_state(session.agent_loop),
+                modes=self._build_session_mode_state(session),
+            )
+
+        loaded = await self.load_session(
+            cwd=cwd, session_id=session_id, mcp_servers=mcp_servers
+        )
+        if loaded is None:
+            return ResumeSessionResponse()
+
+        return ResumeSessionResponse(models=loaded.models, modes=loaded.modes)
 
     @override
     async def ext_method(self, method: str, params: dict) -> dict:
-        raise NotImplementedError()
+        if method == "vibe.session.status":
+            session_id = params.get("session_id")
+            if not isinstance(session_id, str):
+                raise RequestError.invalid_params({"session_id": "required"})
+            session = self._get_session(session_id)
+            running = session.task is not None and not session.task.done()
+            return {
+                "session_id": session_id,
+                "running": running,
+                "cancellation_requested": session.cancellation_requested,
+                "last_prompt_text": session.last_prompt_text,
+            }
+
+        if method == "vibe.session.interrupt":
+            session_id = params.get("session_id")
+            if not isinstance(session_id, str):
+                raise RequestError.invalid_params({"session_id": "required"})
+            await self.cancel(session_id=session_id)
+            return {"session_id": session_id, "status": "interrupted"}
+
+        if method == "vibe.session.restart":
+            session_id = params.get("session_id")
+            if not isinstance(session_id, str):
+                raise RequestError.invalid_params({"session_id": "required"})
+            session = self._get_session(session_id)
+            await self.cancel(session_id=session_id)
+            await session.agent_loop.clear_history()
+            session.last_prompt_text = None
+            session.cancelled_by_user = False
+            session.cancellation_requested = False
+            return {"session_id": session_id, "status": "restarted"}
+
+        if method == "vibe.session.resume_last":
+            session_id = params.get("session_id")
+            if not isinstance(session_id, str):
+                raise RequestError.invalid_params({"session_id": "required"})
+            session = self._get_session(session_id)
+            if not session.last_prompt_text:
+                raise RequestError.invalid_params({"prompt": "no prompt to resume"})
+            response = await self.prompt(
+                prompt=[TextContentBlock(type="text", text=session.last_prompt_text)],
+                session_id=session_id,
+            )
+            return {
+                "session_id": session_id,
+                "status": "resumed",
+                "stop_reason": response.stop_reason,
+            }
+
+        if method == "vibe.session.steer":
+            session_id = params.get("session_id")
+            text = params.get("text")
+            if not isinstance(session_id, str):
+                raise RequestError.invalid_params({"session_id": "required"})
+            if not isinstance(text, str) or not text.strip():
+                raise RequestError.invalid_params({"text": "required"})
+            await self.cancel(session_id=session_id)
+            response = await self.prompt(
+                prompt=[TextContentBlock(type="text", text=text)],
+                session_id=session_id,
+            )
+            return {
+                "session_id": session_id,
+                "status": "steered",
+                "stop_reason": response.stop_reason,
+            }
+
+        raise RequestError.invalid_params({"method": f"unsupported ext method: {method}"})
 
     @override
     async def ext_notification(self, method: str, params: dict) -> None:
