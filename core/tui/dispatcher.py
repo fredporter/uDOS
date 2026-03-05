@@ -61,6 +61,7 @@ from core.commands import (
     ThemeHandler,
     ModeHandler,
     SkinHandler,
+    ThinGuiHandler,
     ViewportHandler,
     DrawHandler,
     WorkspaceHandler,
@@ -128,6 +129,7 @@ class CommandDispatcher:
             "THEME": ThemeHandler(),  # TUI message theme manager
             "MODE": ModeHandler(),  # Runtime mode + theme bridge
             "SKIN": SkinHandler(),  # Wizard GUI skin manager
+            "THINGUI": ThinGuiHandler(),  # Thin GUI extension manager
             "VIEWPORT": ViewportHandler(),  # Measure viewport size
             "DRAW": DrawHandler(),  # Viewport-aware ASCII demo panels
             # User Management (2)

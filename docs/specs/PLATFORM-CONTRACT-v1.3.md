@@ -4,7 +4,8 @@
 
 - `uCODE` is the only terminal interface.
 - `uCODE` is the command surface (used by uCODE and Wizard-backed dispatch).
-- `Wizard GUI` is the only GUI host for uDOS features.
+- `Wizard GUI` is the canonical bundled web GUI host for v1.3-era features.
+- `Thin GUI` is a dedicated extension lane in v1.5+ for fullscreen/single-window output (`docs/specs/THIN-GUI-EXTENSION-CONTRACT-v1.5.md`).
 - `uDOS` is the underlying TS/Python runtime.
 
 ## `@dev` Workspace Contract

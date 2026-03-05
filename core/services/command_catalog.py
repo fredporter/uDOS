@@ -46,6 +46,7 @@ CANONICAL_UCODE_COMMANDS: Final[frozenset[str]] = frozenset(
         "THEME",
         "MODE",
         "SKIN",
+        "THINGUI",
         "VIEWPORT",
         "DRAW",
         # User/gameplay

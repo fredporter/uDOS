@@ -1,7 +1,7 @@
 # uCODE Command Reference
 
 Version: Core v1.5+
-Updated: 2026-03-04
+Updated: 2026-03-05
 
 This guide covers uDOS commands (ucode) which are **backend services**, not UI features.
 
@@ -154,6 +154,11 @@ This guide is organized by:
 - Python ucode command surface (core dispatcher, /core stdlib-only)
 - Wizard commands (networking, GUI, packaging, /wizard)
 - Extension commands (/extensions, /sonic)
+- Thin GUI extension bridge (`THINGUI`) for install/build/open handoff from core
+
+GUI lane summary:
+- `THINGUI` = extension-owned fullscreen/single-window/kiosk bridge.
+- `SKIN` + `WIZARD` = bundled browser shelf path and web publishing workflows.
 
 Seed template families exposed through the Python `UCODE` surface:
 - `workflows`

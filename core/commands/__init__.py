@@ -110,6 +110,10 @@ def __getattr__(name):
         from .skin_handler import SkinHandler
 
         return SkinHandler
+    elif name == "ThinGuiHandler":
+        from .thin_gui_handler import ThinGuiHandler
+
+        return ThinGuiHandler
     elif name == "DevModeHandler":
         from .dev_mode_handler import DevModeHandler
 
@@ -320,6 +324,7 @@ __all__ = [
     "RepairHandler",
     "ThemeHandler",
     "ModeHandler",
+    "ThinGuiHandler",
     "SonicHandler",
     "MusicHandler",
     "DevModeHandler",

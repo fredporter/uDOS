@@ -1,6 +1,6 @@
 # uDOS Specs Catalog
 
-Updated: 2026-03-03
+Updated: 2026-03-05
 Release baseline: v1.5 rebaseline
 
 This index organizes main specs and detailed specs under `docs/specs/`.
@@ -27,6 +27,7 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 - `docs/specs/TYPESCRIPT-MARKDOWN-RUNTIME-CONTRACT.md` — active TypeScript markdown runtime contract
 - `docs/specs/PACKAGING-RELEASE-CONTRACT-v1.5.md` — active packaging and release contract
 - `docs/specs/ALPINE-CORE-PLUGIN-FORMAT-v1.5.md` — canonical Alpine core and plugin packaging contract for v1.5
+- `docs/specs/THIN-GUI-EXTENSION-CONTRACT-v1.5.md` — canonical Thin GUI extension boundary and core bridge command contract
 - `docs/specs/SPATIAL-GRID-CONTRACT.md` — active spatial grid and text-graphics contract
 - `docs/specs/UCODE-DISPATCH-CONTRACT.md` — active input-dispatch and routing contract
 - `docs/specs/INTEGRATION-READINESS.md` — active integration readiness summary

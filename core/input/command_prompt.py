@@ -546,6 +546,15 @@ def create_default_registry() -> CommandRegistry:
     )
 
     registry.register(
+        name="THINGUI",
+        help_text="Thin GUI extension manager (install/build/open)",
+        syntax="THINGUI [STATUS|INSTALL|BUILD|LINT|OPEN|INTENT] [args]",
+        examples=["THINGUI STATUS", "THINGUI BUILD", "THINGUI OPEN http://127.0.0.1:7424"],
+        icon="•",
+        category="System",
+    )
+
+    registry.register(
         name="EXIT",
         help_text="Exit uCODE",
         syntax="EXIT",

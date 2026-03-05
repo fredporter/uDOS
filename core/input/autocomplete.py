@@ -105,6 +105,10 @@ class AutocompleteService:
                 "description": "Wizard GUI skin manager",
                 "options": ["STATUS", "CHECK", "--compact", "LIST", "SHOW", "SET", "CLEAR"],
             },
+            "THINGUI": {
+                "description": "Thin GUI extension manager",
+                "options": ["STATUS", "INSTALL", "BUILD", "LINT", "OPEN", "INTENT"],
+            },
             "REPAIR": {
                 "description": "Fix system issues",
                 "options": ["--pull", "--upgrade-all"],

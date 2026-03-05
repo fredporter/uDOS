@@ -55,6 +55,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "THEME",
             "MODE",
             "SKIN",
+            "THINGUI",
             "LIBRARY",
         ],
         "Automation": [
@@ -260,6 +261,14 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "notes": "Selects Wizard GUI skin packs under /themes and can scaffold/insert ucode-managed CSS/slot content.",
             "category": "System & Maintenance",
             "syntax": "SKIN STATUS [--compact] | SKIN CHECK [--compact] | SKIN LIST | SKIN SHOW <name> | SKIN SET <name> | SKIN CLEAR | SKIN SCAFFOLD <name> | SKIN INSERT <name> CSS <css...> | SKIN INSERT <name> SLOT <slot> <content...>",
+        },
+        "THINGUI": {
+            "description": "Thin GUI extension manager (install/build/open)",
+            "usage": "THINGUI [STATUS|INSTALL|BUILD|LINT|OPEN|INTENT] [args]",
+            "example": "THINGUI BUILD",
+            "notes": "Extension-first path for fullscreen/single-window output; callable from core without making GUI ownership part of core runtime.",
+            "category": "System & Maintenance",
+            "syntax": "THINGUI STATUS | THINGUI INSTALL | THINGUI BUILD | THINGUI LINT | THINGUI OPEN [target_url] | THINGUI INTENT <target_url> [title] [label]",
         },
         "DRAW": {
             "description": "Render viewport-aware ASCII panels",

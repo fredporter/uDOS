@@ -17,7 +17,8 @@ This spec defines how publish logic is split across:
 ## Product Boundaries (Normative)
 
 - `uCODE` remains the only terminal entry point.
-- `Wizard GUI` remains the only GUI host for uDOS features.
+- `Wizard GUI` remains the canonical web publishing GUI host for uDOS features.
+- `Thin GUI` is a separate extension lane for fullscreen/single-window runtime output in v1.5+.
 - Publish orchestration happens in Wizard (`wizard/`) only.
 - Optional module publish capabilities are loaded by capability discovery, not by hard dependency.
 - No backward-compatibility shims are required for pre-v1.3 legacy publish paths.

@@ -142,6 +142,10 @@ The thin-GUI mode follows the active Alpine thin-GUI runtime direction:
 - Chromium
 - a local static bundle or locally served UI path
 
+Thin GUI is extension-owned and callable from core via `THINGUI` command
+bridges (`STATUS`, `INSTALL`, `BUILD`, `OPEN`, `INTENT`). This keeps core
+deterministic while still allowing GUI lifecycle control from the core TUI.
+
 This is the baseline kiosk-style GUI direction for direct-display `uHOME`
 deployments.
 
