@@ -9,6 +9,7 @@ CRITICAL: This is the enforcement layer - all operations MUST pass through here.
 """
 
 import yaml
+import json
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from enum import Enum
@@ -271,12 +272,14 @@ class PolicyValidator:
         }
 
         logger.error(f"[AUDIT] Policy violation: {audit_entry}")
-
-        # TODO: Store in audit log file
-        # audit_log = Path("memory/logs/security-audit.log")
-        # with open(audit_log, "a") as f:
-        #     json.dump(audit_entry, f)
-        #     f.write("\n")
+        audit_log = Path("memory/logs/security-audit.log")
+        try:
+            audit_log.parent.mkdir(parents=True, exist_ok=True)
+            with open(audit_log, "a", encoding="utf-8") as f:
+                json.dump(audit_entry, f, ensure_ascii=True)
+                f.write("\n")
+        except Exception as exc:
+            logger.error(f"[AUDIT] Failed to persist audit entry: {exc}")
 
 
 # Singleton instance

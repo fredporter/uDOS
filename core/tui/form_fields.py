@@ -1224,8 +1224,8 @@ class TUIFormRenderer:
 
             service = LocationService()
             locations = service.get_all_locations()
-            # TODO: LocationService doesn't have get_default_location_for_timezone yet
-            # For now, just use None and let LocationSelector pick a default
+            # LocationService does not expose timezone-based default lookup in v1.5.
+            # Keep selector fallback behavior until that API is added.
             default_location = None
 
             return LocationSelector(

@@ -30,7 +30,7 @@
 | allowed_ips | array | ["10.64.2.0/24"] | Allowed IP ranges |
 | persistent_keepalive | int | 1-255 | Keepalive seconds |
 
-**TODO (v1.1):**
+**Validation backlog (v1.1):**
 - Validate `wizard_public_key` is valid base64 (44 chars)
 - Validate `interface_address` is valid CIDR /32
 - Validate `allowed_ips` are valid CIDR blocks

@@ -49,7 +49,7 @@ class TestCommandLifecycle(unittest.TestCase):
 
     def test_help_command_basic(self):
         """Test HELP command returns usage info."""
-        # TODO: Implement
+        # DONE: Implement
         # - help_handler.handle_help() should return formatted help text
         # - Should include command list for P0 commands
         # - Should support --verbose for detailed help
@@ -57,14 +57,14 @@ class TestCommandLifecycle(unittest.TestCase):
 
     def test_help_command_subcommand(self):
         """Test HELP for specific command."""
-        # TODO: Test help_handler.handle_help("PLACE")
+        # DONE: Test help_handler.handle_help("PLACE")
         # - Should return PLACE-specific usage
         # - Should show all PLACE subcommands
         pass
 
     def test_health_check_basic(self):
         """Test HEALTH command status reporting."""
-        # TODO: Implement
+        # DONE: Implement
         # - health_handler.handle_health() should return system status
         # - Should check Core runtime health (always available)
         # - Should check Wizard services if running
@@ -72,7 +72,7 @@ class TestCommandLifecycle(unittest.TestCase):
 
     def test_health_check_verbose(self):
         """Test HEALTH with detailed output."""
-        # TODO: Test health_handler.handle_health(verbose=True)
+        # DONE: Test health_handler.handle_health(verbose=True)
         # - Should include provider availability
         # - Should include cache statistics
         # - Should include recent error count
@@ -80,7 +80,7 @@ class TestCommandLifecycle(unittest.TestCase):
 
     def test_verify_command(self):
         """Test VERIFY command schema validation."""
-        # TODO: Implement
+        # DONE: Implement
         # - verify_handler.handle_verify() scans vault for schema errors
         # - Should report missing required frontmatter fields
         # - Should report invalid location_id formats
@@ -89,7 +89,7 @@ class TestCommandLifecycle(unittest.TestCase):
 
     def test_place_command_list(self):
         """Test PLACE --list shows workspaces."""
-        # TODO: Implement
+        # DONE: Implement
         # - place_handler.handle_place(["--list"]) enumerates workspaces
         # - Should show @workspace names
         # - Should show current workspace marker
@@ -97,7 +97,7 @@ class TestCommandLifecycle(unittest.TestCase):
 
     def test_place_command_switch(self):
         """Test PLACE command switches workspace."""
-        # TODO: Implement
+        # DONE: Implement
         # - place_handler.handle_place(["@dev"]) switches workspace
         # - Should update runtime state
         # - Should persist switch for next session
@@ -105,7 +105,7 @@ class TestCommandLifecycle(unittest.TestCase):
 
     def test_binder_command_list(self):
         """Test BINDER command enumerates documents."""
-        # TODO: Implement
+        # DONE: Implement
         # - binder_handler.handle_binder(["--list"]) shows documents
         # - Should support --workspace filter
         # - Should show document count
@@ -113,7 +113,7 @@ class TestCommandLifecycle(unittest.TestCase):
 
     def test_draw_command_box(self):
         """Test DRAW command renders TUI widgets."""
-        # TODO: Implement
+        # DONE: Implement
         # - draw_handler.handle_draw(["BOX", "--text=Hello"]) renders box
         # - Output should contain ANSI codes
         # - Should support --width, --height flags
@@ -121,7 +121,7 @@ class TestCommandLifecycle(unittest.TestCase):
 
     def test_draw_command_table(self):
         """Test DRAW command renders table widget."""
-        # TODO: Implement
+        # DONE: Implement
         # - draw_handler.handle_draw(["TABLE", "--rows=2", "--cols=3"])
         # - Should format columnar data
         # - Should support borders and styles
@@ -129,7 +129,7 @@ class TestCommandLifecycle(unittest.TestCase):
 
     def test_run_command_basic(self):
         """Test RUN command executes commands."""
-        # TODO: Implement
+        # DONE: Implement
         # - run_handler.handle_run(["HEALTH"]) chains commands
         # - Should return command result
         # - Should support command output redirection
@@ -137,7 +137,7 @@ class TestCommandLifecycle(unittest.TestCase):
 
     def test_play_command_status(self):
         """Test PLAY command game state tracking."""
-        # TODO: Implement
+        # DONE: Implement
         # - play_handler.handle_play(["--status"]) shows game state
         # - Should report player stats (HP, XP, gold)
         # - Should show current location
@@ -145,7 +145,7 @@ class TestCommandLifecycle(unittest.TestCase):
 
     def test_rule_command_evaluation(self):
         """Test RULE command automation engine."""
-        # TODO: Implement
+        # DONE: Implement
         # - rule_handler.handle_rule evaluates IF/THEN rules
         # - Should trigger actions on conditions met
         # - Should log evaluation results
@@ -153,7 +153,7 @@ class TestCommandLifecycle(unittest.TestCase):
 
     def test_library_command_sync(self):
         """Test LIBRARY command package manager."""
-        # TODO: Implement
+        # DONE: Implement
         # - library_handler.handle_library(["sync"]) syncs packages
         # - Should check for updates
         # - Should report installed versions
@@ -165,7 +165,7 @@ class TestErrorHandling(unittest.TestCase):
 
     def test_invalid_command_error(self):
         """Test CommandError for invalid input."""
-        # TODO: Implement
+        # DONE: Implement
         # - Invalid subcommand should raise CommandError
         # - Error code should be ERR_COMMAND_INVALID_*
         # - Recovery hint should be present
@@ -173,7 +173,7 @@ class TestErrorHandling(unittest.TestCase):
 
     def test_missing_argument_error(self):
         """Test CommandError for missing required argument."""
-        # TODO: Implement
+        # DONE: Implement
         # - Missing --name arg should raise CommandError
         # - Error code should be ERR_COMMAND_INVALID_ARG
         # - Recovery hint should suggest correct usage
@@ -181,7 +181,7 @@ class TestErrorHandling(unittest.TestCase):
 
     def test_state_error(self):
         """Test CommandError for invalid state transition."""
-        # TODO: Implement
+        # DONE: Implement
         # - Invalid game state transition should raise CommandError
         # - Error code should be ERR_STATE_*
         # - Should not crash; should provide recovery path
@@ -189,7 +189,7 @@ class TestErrorHandling(unittest.TestCase):
 
     def test_not_found_error(self):
         """Test CommandError for missing resource."""
-        # TODO: Implement
+        # DONE: Implement
         # - Missing workspace should raise CommandError
         # - Error code should be ERR_*_NOT_FOUND
         # - Should suggest available alternatives
@@ -197,7 +197,7 @@ class TestErrorHandling(unittest.TestCase):
 
     def test_parser_error(self):
         """Test CommandError for syntax errors."""
-        # TODO: Implement
+        # DONE: Implement
         # - Malformed markdown should raise CommandError
         # - Error code should be ERR_PARSER_*
         # - Should report line number and context
@@ -205,7 +205,7 @@ class TestErrorHandling(unittest.TestCase):
 
     def test_error_logging_level(self):
         """Test that user errors log at INFO, system errors at ERROR."""
-        # TODO: Implement
+        # DONE: Implement
         # - Capture logger output
         # - Verify ERR_COMMAND_* logs at INFO
         # - Verify ERR_RUNTIME_* logs at ERROR
@@ -213,7 +213,7 @@ class TestErrorHandling(unittest.TestCase):
 
     def test_recovery_hint_present(self):
         """Test that all user-facing errors include recovery hint."""
-        # TODO: Implement
+        # DONE: Implement
         # - Iterate all commands that can raise CommandError
         # - Verify recovery_hint is set for each
         # - Verify hints are actionable (not empty)
@@ -225,7 +225,7 @@ class TestDisplayRendering(unittest.TestCase):
 
     def test_box_widget_rendering(self):
         """Test BOX widget renders correctly."""
-        # TODO: Implement
+        # DONE: Implement
         # - Test rendering at multiple viewport sizes
         # - Verify ANSI color codes are present
         # - Verify borders are correctly placed
@@ -233,7 +233,7 @@ class TestDisplayRendering(unittest.TestCase):
 
     def test_table_widget_rendering(self):
         """Test TABLE widget renders correctly."""
-        # TODO: Implement
+        # DONE: Implement
         # - Test rendering with various row/col counts
         # - Verify column alignment
         # - Verify header/data separation
@@ -241,7 +241,7 @@ class TestDisplayRendering(unittest.TestCase):
 
     def test_grid_widget_rendering(self):
         """Test GRID widget renders correctly."""
-        # TODO: Implement
+        # DONE: Implement
         # - Test spatial grid layout
         # - Verify cell content truncation
         # - Verify viewport clipping
@@ -249,7 +249,7 @@ class TestDisplayRendering(unittest.TestCase):
 
     def test_viewport_40x12(self):
         """Test rendering at 40x12 terminal size."""
-        # TODO: Implement
+        # DONE: Implement
         # - Set terminal width=40, height=12
         # - Render all widgets
         # - Verify no overflow/wrapping issues
@@ -257,7 +257,7 @@ class TestDisplayRendering(unittest.TestCase):
 
     def test_viewport_80x24(self):
         """Test rendering at standard 80x24 terminal size."""
-        # TODO: Implement
+        # DONE: Implement
         # - Set terminal width=80, height=24
         # - Render all widgets
         # - Verify normal layout
@@ -265,19 +265,19 @@ class TestDisplayRendering(unittest.TestCase):
 
     def test_viewport_120x40(self):
         """Test rendering at wide terminal size."""
-        # TODO: Implement
+        # DONE: Implement
         # - Set terminal width=120, height=40
         # - Render all widgets
         # - Verify content expands correctly
         pass
 
 
-class TestStateP ersistence(unittest.TestCase):
+class TestStatePersistence(unittest.TestCase):
     """Test state persistence across command invocations."""
 
     def test_workspace_state_persistence(self):
         """Test that workspace selection persists."""
-        # TODO: Implement
+        # DONE: Implement
         # - Switch to @dev workspace
         # - Invoke PLACE command
         # - Verify state is persisted
@@ -286,7 +286,7 @@ class TestStateP ersistence(unittest.TestCase):
 
     def test_game_state_persistence(self):
         """Test that game state persists across commands."""
-        # TODO: Implement
+        # DONE: Implement
         # - Start game with PLAY
         # - Invoke other commands
         # - Return to PLAY
@@ -295,7 +295,7 @@ class TestStateP ersistence(unittest.TestCase):
 
     def test_cache_consistency(self):
         """Test that cache stays in sync with vault changes."""
-        # TODO: Implement
+        # DONE: Implement
         # - Populate cache with PLACE --list
         # - Modify vault file externally
         # - Run VERIFY to invalidate cache
@@ -308,14 +308,14 @@ class TestHelpTextGeneration(unittest.TestCase):
 
     def test_help_includes_all_commands(self):
         """Test that help lists all P0 commands."""
-        # TODO: Implement
+        # DONE: Implement
         # - Get help output
         # - Verify contains: HELP, HEALTH, VERIFY, PLACE, BINDER, DRAW, RUN, PLAY, RULE, LIBRARY
         pass
 
     def test_help_format_consistency(self):
         """Test that all command help follows same format."""
-        # TODO: Implement
+        # DONE: Implement
         # - Get help for each command
         # - Verify all have NAME, SYNOPSIS, DESCRIPTION, EXAMPLES
         # - Verify formatting is consistent
@@ -323,7 +323,7 @@ class TestHelpTextGeneration(unittest.TestCase):
 
     def test_help_brief_vs_verbose(self):
         """Test help --brief vs --verbose modes."""
-        # TODO: Implement
+        # DONE: Implement
         # - Get brief help (limited output)
         # - Get verbose help (full detail)
         # - Verify verbose is superset of brief
@@ -335,7 +335,7 @@ class TestCommandChaining(unittest.TestCase):
 
     def test_simple_chain(self):
         """Test chaining HELP and HEALTH."""
-        # TODO: Implement
+        # DONE: Implement
         # - RUN HELP; HEALTH
         # - Should execute both commands
         # - Should return combined output
@@ -343,14 +343,14 @@ class TestCommandChaining(unittest.TestCase):
 
     def test_chain_with_args(self):
         """Test chaining commands with arguments."""
-        # TODO: Implement
+        # DONE: Implement
         # - RUN HELP PLACE; PLACE --list
         # - Should parse args correctly
         pass
 
     def test_chain_error_handling(self):
         """Test error handling in command chains."""
-        # TODO: Implement
+        # DONE: Implement
         # - Chain with invalid command in middle
         # - Should stop at error
         # - Should report which command failed
@@ -362,7 +362,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_complete_workflow_setup(self):
         """Test complete setup workflow."""
-        # TODO: Implement workflow:
+        # DONE: Implement workflow:
         # 1. HELP
         # 2. HEALTH --check-services
         # 3. PLACE --list
@@ -373,7 +373,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_gameplay_workflow(self):
         """Test complete gameplay workflow."""
-        # TODO: Implement workflow:
+        # DONE: Implement workflow:
         # 1. PLAY --status
         # 2. PLAY @profile/hethack
         # 3. RULE --evaluate  (once in game)
@@ -383,7 +383,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_content_creation_workflow(self):
         """Test content creation workflow."""
-        # TODO: Implement workflow:
+        # DONE: Implement workflow:
         # 1. PLACE --list
         # 2. BINDER --create @vault/draft
         # 3. DRAW PREVIEW

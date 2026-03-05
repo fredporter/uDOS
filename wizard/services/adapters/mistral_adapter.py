@@ -188,7 +188,7 @@ class MistralAdapter:
         return {
             "provider": "mistral",
             "local": False,
-            "streaming": False,  # TODO: Implement streaming
+            "streaming": False,
             "timeout_supported": True,
             "context_window": 32000,
             "cost": "medium",

@@ -2,7 +2,9 @@
 
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
+import os
 from core.services.logging_manager import get_logger
+from core.services.dev_mode_compat.binder_service import get_binder_service
 from core.sync.event_queue import EventQueue
 from core.sync.oauth_manager import get_oauth_manager
 from core.sync.calendar_provider_factory import CalendarProviderFactory
@@ -38,8 +40,40 @@ class DevModeToolSyncService:
         # Sync history
         self.sync_history = {}
         self.sync_status = "idle"
+        self.binder_service = get_binder_service()
 
         logger.info("Dev Mode tool sync service initialized")
+
+    def _ensure_mission_exists(self, mission_id: str) -> None:
+        if mission_id in self.binder_service.binders:
+            return
+        self.binder_service.initialize_project(mission_id=mission_id, name=mission_id)
+
+    def _persist_transformed_task(
+        self,
+        mission_id: str,
+        task_item: Dict[str, Any],
+        item_type: str = "imported",
+        source: str = "sync",
+    ) -> str:
+        """Persist transformed provider item into binder moves."""
+        self._ensure_mission_exists(mission_id)
+        result = self.binder_service.add_move(
+            mission_id=mission_id,
+            title=str(task_item.get("title", "Imported item")),
+            description=str(task_item.get("description", "")),
+            item_type=item_type,
+            priority=str(task_item.get("priority", "medium")),
+            tags=task_item.get("tags", []),
+            due_date=task_item.get("due_date"),
+            assigned_to=task_item.get("assigned_to"),
+            source=source,
+            source_id=(task_item.get("metadata", {}) or {}).get("external_id"),
+            metadata=task_item.get("metadata", {}),
+        )
+        if result.get("status") != "success":
+            raise RuntimeError(result.get("message", "Failed to persist sync task"))
+        return str(result.get("move_id") or "")
 
     # ==================== Calendar Operations ====================
 
@@ -97,6 +131,13 @@ class DevModeToolSyncService:
                     task_item = CalendarEventTransformer.event_to_task_item(
                         event, mission_id
                     )
+                    move_id = self._persist_transformed_task(
+                        mission_id,
+                        task_item,
+                        item_type="calendar_event",
+                        source=f"calendar:{provider_type}",
+                    )
+                    task_item["move_id"] = move_id
                     created_tasks.append(task_item)
                 except Exception as e:
                     logger.error(f"Error transforming event {event.id}: {e}")
@@ -215,10 +256,12 @@ class DevModeToolSyncService:
             )
 
             task_item = CalendarEventTransformer.event_to_task_item(cal_event, mission_id)
-
-            # TODO: Persist to Binder using DevModeToolBinderService
-            # For now, return the task ID
-            return task_item['id']
+            return self._persist_transformed_task(
+                mission_id,
+                task_item,
+                item_type="calendar_event",
+                source=f"calendar:{event.get('provider', 'unknown')}",
+            )
 
         except Exception as e:
             logger.error(f"Error creating task from event: {e}")
@@ -329,6 +372,13 @@ class DevModeToolSyncService:
             for email in emails:
                 try:
                     task_item = EmailMessageTransformer.email_to_task_item(email, mission_id)
+                    move_id = self._persist_transformed_task(
+                        mission_id,
+                        task_item,
+                        item_type="imported",
+                        source=f"email:{provider_type}",
+                    )
+                    task_item["move_id"] = move_id
                     created_tasks.append(task_item)
                 except Exception as e:
                     logger.error(f"Error transforming email {email.message_id}: {e}")
@@ -448,10 +498,12 @@ class DevModeToolSyncService:
             )
 
             task_item = EmailMessageTransformer.email_to_task_item(email_msg, mission_id)
-
-            # TODO: Persist to Binder using DevModeToolBinderService
-            # For now, return the task ID
-            return task_item['id']
+            return self._persist_transformed_task(
+                mission_id,
+                task_item,
+                item_type="imported",
+                source=f"email:{email.get('provider', 'unknown')}",
+            )
 
         except Exception as e:
             logger.error(f"Error creating task from email: {e}")
@@ -510,8 +562,13 @@ class DevModeToolSyncService:
             created_tasks = []
             for issue in issues:
                 task_item = IssueTransformer.issue_to_task_item(issue, mission_id)
-                # TODO: Persist to Binder using DevModeToolBinderService
-                created_tasks.append({"id": task_item["id"], "title": task_item["title"]})
+                move_id = self._persist_transformed_task(
+                    mission_id,
+                    task_item,
+                    item_type="imported",
+                    source="jira",
+                )
+                created_tasks.append({"id": move_id, "title": task_item["title"]})
 
             # Update sync history
             self.sync_history["jira"] = {
@@ -590,8 +647,13 @@ class DevModeToolSyncService:
             created_tasks = []
             for issue in issues:
                 task_item = IssueTransformer.issue_to_task_item(issue, mission_id)
-                # TODO: Persist to Binder using DevModeToolBinderService
-                created_tasks.append({"id": task_item["id"], "title": task_item["title"]})
+                move_id = self._persist_transformed_task(
+                    mission_id,
+                    task_item,
+                    item_type="imported",
+                    source="linear",
+                )
+                created_tasks.append({"id": move_id, "title": task_item["title"]})
 
             # Update sync history
             self.sync_history["linear"] = {
@@ -706,8 +768,13 @@ class DevModeToolSyncService:
                 # Transform and create tasks
                 for message in messages:
                     task_item = SlackMessageTransformer.slack_to_task_item(message, mission_id)
-                    # TODO: Persist to Binder using DevModeToolBinderService
-                    created_tasks.append({"id": task_item["id"], "title": task_item["title"]})
+                    move_id = self._persist_transformed_task(
+                        mission_id,
+                        task_item,
+                        item_type="imported",
+                        source="slack",
+                    )
+                    created_tasks.append({"id": move_id, "title": task_item["title"]})
 
             # Update sync history
             self.sync_history["slack"] = {
@@ -770,10 +837,12 @@ class DevModeToolSyncService:
             )
 
             task_item = IssueTransformer.issue_to_task_item(issue_obj, mission_id)
-
-            # TODO: Persist to Binder using DevModeToolBinderService
-            # For now, return the task ID
-            return task_item['id']
+            return self._persist_transformed_task(
+                mission_id,
+                task_item,
+                item_type="imported",
+                source=f"issue:{issue.get('provider', 'unknown')}",
+            )
 
         except Exception as e:
             logger.error(f"Error creating task from issue: {e}")
@@ -864,19 +933,92 @@ class DevModeToolSyncService:
         self.sync_status = "syncing"
 
         try:
-            results = {}
-
             if not systems:
                 systems = ["calendar", "email", "jira", "linear", "slack"]
 
-            # TODO: Implement actual full sync
-            # For now return placeholder
-            results = {
-                "status": "pending",
+            mission_id = os.getenv("UDOS_DEV_SYNC_DEFAULT_MISSION", "sync-inbox")
+            default_jira_workspace = os.getenv("UDOS_DEV_SYNC_JIRA_WORKSPACE", "default")
+            default_linear_team = os.getenv("UDOS_DEV_SYNC_LINEAR_TEAM", "default")
+            default_slack_workspace = os.getenv("UDOS_DEV_SYNC_SLACK_WORKSPACE", "default")
+
+            results: Dict[str, Any] = {
+                "status": "success",
                 "systems": systems,
                 "timestamp": datetime.now().isoformat(),
-                "message": "Full sync not yet implemented for Phase 8.1",
+                "mission_id": mission_id,
+                "results": {},
             }
+            errors = 0
+
+            for system in systems:
+                normalized = str(system).strip().lower()
+                if normalized == "calendar":
+                    providers = ("google_calendar", "outlook_calendar", "apple_calendar")
+                    selected = None
+                    for provider in providers:
+                        creds = await self.oauth_manager.get_credentials(provider)
+                        if creds:
+                            selected = provider
+                            break
+                    if not selected:
+                        results["results"]["calendar"] = {"status": "skipped", "reason": "no_credentials"}
+                        continue
+                    payload = await self.sync_calendar(selected, mission_id)
+                    results["results"]["calendar"] = payload
+                    if payload.get("status") != "success":
+                        errors += 1
+
+                elif normalized == "email":
+                    providers = ("gmail", "outlook_email", "imap")
+                    selected = None
+                    for provider in providers:
+                        creds = await self.oauth_manager.get_credentials(provider)
+                        if creds:
+                            selected = provider
+                            break
+                    if not selected:
+                        results["results"]["email"] = {"status": "skipped", "reason": "no_credentials"}
+                        continue
+                    payload = await self.sync_emails(selected, mission_id)
+                    results["results"]["email"] = payload
+                    if payload.get("status") != "success":
+                        errors += 1
+
+                elif normalized == "jira":
+                    creds = await self.oauth_manager.get_credentials("jira")
+                    if not creds:
+                        results["results"]["jira"] = {"status": "skipped", "reason": "no_credentials"}
+                        continue
+                    payload = await self.sync_jira(default_jira_workspace, mission_id, credentials=creds)
+                    results["results"]["jira"] = payload
+                    if payload.get("status") != "success":
+                        errors += 1
+
+                elif normalized == "linear":
+                    creds = await self.oauth_manager.get_credentials("linear")
+                    if not creds:
+                        results["results"]["linear"] = {"status": "skipped", "reason": "no_credentials"}
+                        continue
+                    payload = await self.sync_linear(default_linear_team, mission_id, credentials=creds)
+                    results["results"]["linear"] = payload
+                    if payload.get("status") != "success":
+                        errors += 1
+
+                elif normalized == "slack":
+                    creds = await self.oauth_manager.get_credentials("slack")
+                    if not creds:
+                        results["results"]["slack"] = {"status": "skipped", "reason": "no_credentials"}
+                        continue
+                    payload = await self.sync_slack(default_slack_workspace, mission_id, credentials=creds)
+                    results["results"]["slack"] = payload
+                    if payload.get("status") != "success":
+                        errors += 1
+
+                else:
+                    results["results"][normalized] = {"status": "skipped", "reason": "unsupported_system"}
+
+            if errors:
+                results["status"] = "partial"
 
             self.sync_status = "idle"
             return results

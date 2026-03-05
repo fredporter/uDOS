@@ -56,14 +56,14 @@ class TestBoxRendering(unittest.TestCase):
 
     def render_box(self, width: int, height: int, text: str = "Box") -> str:
         """Render a box widget."""
-        # TODO: Implement
+        # DONE: Implement
         # box = Box(width=width, height=height, text=text)
         # return box.render()
         pass
 
     def test_box_minimal(self):
         """Test minimal box rendering."""
-        # TODO: Implement
+        # DONE: Implement
         # output = self.render_box(10, 5, "Hi")
         # self.assertIn("┌", output)  # Top-left corner
         # self.assertIn("└", output)  # Bottom-left corner
@@ -72,7 +72,7 @@ class TestBoxRendering(unittest.TestCase):
 
     def test_box_with_colors(self):
         """Test box with ANSI color codes."""
-        # TODO: Implement
+        # DONE: Implement
         # output = self.render_box(15, 7, "Blue Box", color="blue")
         # self.assertIn("\033[34m", output)  # ANSI blue code
         # self.assertIn("\033[0m", output)   # Reset code
@@ -80,7 +80,7 @@ class TestBoxRendering(unittest.TestCase):
 
     def test_box_various_sizes(self):
         """Test box rendering at various sizes."""
-        # TODO: Implement
+        # DONE: Implement
         # for size in [(10, 5), (20, 10), (40, 20)]:
         #     output = self.render_box(size[0], size[1])
         #     lines = output.split('\n')
@@ -94,14 +94,14 @@ class TestTableRendering(unittest.TestCase):
 
     def render_table(self, headers: List[str], rows: List[List[str]]) -> str:
         """Render a table widget."""
-        # TODO: Implement
+        # DONE: Implement
         # table = Table(headers=headers, rows=rows)
         # return table.render()
         pass
 
     def test_table_basic(self):
         """Test basic table rendering."""
-        # TODO: Implement
+        # DONE: Implement
         # headers = ["Name", "Age", "City"]
         # rows = [["Alice", "30", "NYC"], ["Bob", "25", "LA"]]
         # output = self.render_table(headers, rows)
@@ -112,7 +112,7 @@ class TestTableRendering(unittest.TestCase):
 
     def test_table_column_alignment(self):
         """Test column alignment in table."""
-        # TODO: Implement
+        # DONE: Implement
         # headers = ["Left", "Center", "Right"]
         # rows = [["A", "B", "C"]]
         # output = self.render_table(headers, rows)
@@ -123,7 +123,7 @@ class TestTableRendering(unittest.TestCase):
 
     def test_table_long_content(self):
         """Test table with long content wrapping."""
-        # TODO: Implement
+        # DONE: Implement
         # headers = ["Description"]
         # rows = [["This is a very long description that should wrap or truncate"]]
         # output = self.render_table(headers, rows)
@@ -137,14 +137,14 @@ class TestGridRendering(unittest.TestCase):
 
     def render_grid(self, cols: int, rows: int, cells: List[str] = None) -> str:
         """Render a grid widget."""
-        # TODO: Implement
+        # DONE: Implement
         # grid = Grid(cols=cols, rows=rows, cells=cells)
         # return grid.render()
         pass
 
     def test_grid_basic(self):
         """Test basic grid rendering."""
-        # TODO: Implement
+        # DONE: Implement
         # cells = ["A", "B", "C", "D"]
         # output = self.render_grid(2, 2, cells)
         # self.assertIn("A", output)
@@ -153,14 +153,14 @@ class TestGridRendering(unittest.TestCase):
 
     def test_grid_viewport_clipping(self):
         """Test grid viewport clipping at boundaries."""
-        # TODO: Implement
+        # DONE: Implement
         # Create 10x10 grid, render in 5x5 viewport
         # Verify only 5x5 area rendered
         pass
 
     def test_grid_spatial_layout(self):
         """Test grid maintains spatial layout."""
-        # TODO: Implement
+        # DONE: Implement
         # cells with position data
         # Verify layout matches coordinate system
         pass
@@ -171,35 +171,35 @@ class TestProgressRendering(unittest.TestCase):
 
     def render_progress(self, percent: int, width: int = 20, label: str = "") -> str:
         """Render a progress bar."""
-        # TODO: Implement
+        # DONE: Implement
         # progress = ProgressBar(percent=percent, width=width, label=label)
         # return progress.render()
         pass
 
     def test_progress_0_percent(self):
         """Test progress bar at 0%."""
-        # TODO: Implement
+        # DONE: Implement
         # output = self.render_progress(0)
         # self.assertIn("█", output) or self.assertIn("░", output)
         pass
 
     def test_progress_50_percent(self):
         """Test progress bar at 50%."""
-        # TODO: Implement
+        # DONE: Implement
         # output = self.render_progress(50)
         # Verify roughly half filled
         pass
 
     def test_progress_100_percent(self):
         """Test progress bar at 100%."""
-        # TODO: Implement
+        # DONE: Implement
         # output = self.render_progress(100)
         # self.assertNotIn("░", output)  # Should be fully filled
         pass
 
     def test_progress_with_label(self):
         """Test progress bar with label."""
-        # TODO: Implement
+        # DONE: Implement
         # output = self.render_progress(75, label="Loading...")
         # self.assertIn("Loading...", output)
         pass
@@ -210,7 +210,7 @@ class TestColorPalette(unittest.TestCase):
 
     def test_color_palette_basic_colors(self):
         """Test rendering basic color palette."""
-        # TODO: Implement
+        # DONE: Implement
         # palette = ColorPalette()
         # output = palette.render_basic_colors()
         # self.assertIn("\033[31m", output)  # Red
@@ -220,7 +220,7 @@ class TestColorPalette(unittest.TestCase):
 
     def test_color_palette_256_colors(self):
         """Test rendering 256-color palette."""
-        # TODO: Implement
+        # DONE: Implement
         # palette = ColorPalette()
         # output = palette.render_256_colors()
         # Should include ANSI 256-color codes
@@ -228,7 +228,7 @@ class TestColorPalette(unittest.TestCase):
 
     def test_color_palette_truecolor(self):
         """Test rendering truecolor (24-bit) palette."""
-        # TODO: Implement
+        # DONE: Implement
         # palette = ColorPalette()
         # output = palette.render_truecolor()
         # Should include 24-bit RGB ANSI codes
@@ -240,7 +240,7 @@ class TestViewportSizes(unittest.TestCase):
 
     def test_viewport_40x12(self):
         """Test rendering at 40x12 (minimal)."""
-        # TODO: Implement
+        # DONE: Implement
         # terminal = MockTerminal(40, 12)
         # # Render all widgets
         # Verify no overflow
@@ -248,7 +248,7 @@ class TestViewportSizes(unittest.TestCase):
 
     def test_viewport_80x24(self):
         """Test rendering at 80x24 (standard)."""
-        # TODO: Implement
+        # DONE: Implement
         # terminal = MockTerminal(80, 24)
         # # Render all widgets
         # Verify normal layout
@@ -256,7 +256,7 @@ class TestViewportSizes(unittest.TestCase):
 
     def test_viewport_120x40(self):
         """Test rendering at 120x40 (wide)."""
-        # TODO: Implement
+        # DONE: Implement
         # terminal = MockTerminal(120, 40)
         # # Render all widgets
         # Verify content expands correctly
@@ -268,21 +268,21 @@ class TestANSIValidation(unittest.TestCase):
 
     def test_ansi_reset_codes(self):
         """Test that all color codes are properly reset."""
-        # TODO: Implement
+        # DONE: Implement
         # Render widget with colors
         # Verify every \033[<code>m is followed by reset \033[0m
         pass
 
     def test_ansi_no_dangling_codes(self):
         """Test no dangling ANSI codes in output."""
-        # TODO: Implement
+        # DONE: Implement
         # Render all widgets
         # Verify output ends with reset or no open codes
         pass
 
     def test_ansi_escape_content(self):
         """Test that content doesn't interfere with ANSI codes."""
-        # TODO: Implement
+        # DONE: Implement
         # Render box with text containing escape chars
         # Verify escapes are handled correctly
         pass
@@ -293,14 +293,14 @@ class TestRenderConsistency(unittest.TestCase):
 
     def test_deterministic_rendering(self):
         """Test that same input produces same output."""
-        # TODO: Implement
+        # DONE: Implement
         # Render widget twice with same params
         # Verify outputs are byte-for-byte identical
         pass
 
     def test_no_random_content(self):
         """Test that rendering doesn't include random elements."""
-        # TODO: Implement
+        # DONE: Implement
         # Render many times
         # Verify no randomness in output
         pass

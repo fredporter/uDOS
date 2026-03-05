@@ -240,7 +240,7 @@
       isDark = false;
     }
     applyTheme();
-    // initTypography(); // TODO: restore when src/lib is complete
+    // initTypography(); // Keep disabled until typography helpers are reintroduced.
     window.addEventListener("error", handleGlobalError);
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
     pollLogs();
