@@ -78,6 +78,8 @@ These show how v1.5 can:
 
 - New users:
   [Installation](Installation.md) -> this page -> [Core](Core.md)
+- Template customization:
+  [Seed Data and Templates](Seed-Data-and-Templates.md)
 - Operator deep dive:
   [../docs/howto/UCODE-COMMAND-REFERENCE.md](../docs/howto/UCODE-COMMAND-REFERENCE.md)
 - Runtime standard:

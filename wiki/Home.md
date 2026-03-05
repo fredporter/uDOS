@@ -13,6 +13,7 @@ Contributor-only `@dev` workspace policy lives in `dev/docs/`.
 
 - [Installation](Installation.md)
 - [Onboarding Flow](Onboarding-Flow.md)
+- [Seed Data and Templates](Seed-Data-and-Templates.md)
 - [Architecture](ARCHITECTURE.md)
 - [Core](Core.md)
 - [Wizard](Wizard.md)
@@ -35,6 +36,8 @@ Contributor-only `@dev` workspace policy lives in `dev/docs/`.
   [Architecture](ARCHITECTURE.md) -> [Modes and Policy](Modes-and-Policy.md)
 - Gameplay and spatial context:
   [TUI Z-Layer and TOYBOX](TUI-Z-Layer-and-TOYBOX.md)
+- Seed customization and template usage:
+  [Seed Data and Templates](Seed-Data-and-Templates.md)
 - Contributor tools and `@dev`:
   [Dev Tools](Dev-Tools.md)
 

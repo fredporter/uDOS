@@ -3,6 +3,7 @@
 - [Home](Home.md)
 - [Installation](Installation.md)
 - [Onboarding Flow](Onboarding-Flow.md)
+- [Seed Data and Templates](Seed-Data-and-Templates.md)
 - [Architecture](ARCHITECTURE.md)
 - [Core](Core.md)
 - [Wizard](Wizard.md)
