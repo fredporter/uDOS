@@ -5,6 +5,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 export UV_PROJECT_ENVIRONMENT="${UV_PROJECT_ENVIRONMENT:-.venv}"
+export UDOS_ROOT="${UDOS_ROOT:-$REPO_ROOT}"
+export UDOS_ROOT_REQUIRED="${UDOS_ROOT_REQUIRED:-1}"
 cd "${REPO_ROOT}"
 
 if [[ -x "${REPO_ROOT}/.venv/bin/python" ]]; then

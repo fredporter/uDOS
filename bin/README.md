@@ -28,11 +28,11 @@ This directory contains the active install and launcher scripts for the v1.5 run
 - Runs `bin/udos tui`
 - **Usage**: `./bin/udos-tui`
 
-### `smoke-test.sh`
+### `dev/tooling/bin/smoke-test.sh`
 - Comprehensive test suite for the installer
 - Tests all failure scenarios and recovery paths
 - Validates vault separation and security
-- **Run before deployment**: `./smoke-test.sh`
+- **Run before deployment**: `./dev/tooling/bin/smoke-test.sh`
 
 **Test coverage:**
 - OS detection and hardware profiling
@@ -47,11 +47,11 @@ This directory contains the active install and launcher scripts for the v1.5 run
 - DESTROY & REPAIR system validation
 - Installer options and help text
 
-### `setup-dev-mode.sh`
+### `dev/tooling/bin/setup-dev-mode.sh`
 - Dev Mode tooling bridge setup script
 - Creates symlinks for tools and skills
 - Called automatically by the main installer
-- **Usage**: `./setup-dev-mode.sh`
+- **Usage**: `./dev/tooling/bin/setup-dev-mode.sh`
 
 ## What the Installer Does
 
@@ -91,6 +91,11 @@ This directory contains the active install and launcher scripts for the v1.5 run
    - Verifies all components
    - Displays installation summary
    - Provides next steps
+
+9. **v1.5 TUI Build (required)**
+   - Builds `tui/bin/udos-tui` from the Bubble Tea source
+   - Requires Go 1.22+
+   - Installer exits with error if build is unavailable or fails
 
 ## Installation Modes
 

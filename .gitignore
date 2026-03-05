@@ -238,6 +238,21 @@ dev/dev-work/
 dev/testing/
 dev/**/.env
 dev/**/.env.*
+
+# Migration lock: clean bistro mode
+runtime/
+logs/
+artifacts/
+deferred_queue/
+node_modules/
+core/node_modules/
+core/grid-runtime/node_modules/
+wizard/dashboard/node_modules/
+extensions/thin-gui/node_modules/
+web-admin/node_modules/
+dev/playground/
+dev/experiments/
+dev/build-artifacts/
 dev/**/node_modules/
 dev/**/dist/
 dev/**/build/

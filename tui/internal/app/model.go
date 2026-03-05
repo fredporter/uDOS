@@ -10,10 +10,10 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
-	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
 
 	"udos/tui/internal/backend"
+	"udos/tui/internal/primitives"
 	"udos/tui/internal/protocol"
 	"udos/tui/internal/render"
 )
@@ -23,19 +23,9 @@ type screenMode string
 const (
 	modeHome   screenMode = "home"
 	modeInput  screenMode = "input"
+	modePath   screenMode = "path"
 	modeRunner screenMode = "runner"
 )
-
-type actionItem struct {
-	key   string
-	title string
-	desc  string
-	job   string
-}
-
-func (i actionItem) Title() string       { return i.title }
-func (i actionItem) Description() string { return i.desc }
-func (i actionItem) FilterValue() string { return i.title + " " + i.desc }
 
 type backendMessage struct {
 	msg protocol.Message
@@ -47,8 +37,10 @@ type Model struct {
 	mode         screenMode
 	width        int
 	height       int
-	list         list.Model
-	input        textinput.Model
+	selectOne    primitives.SelectOne
+	input        primitives.Input
+	pathPicker   primitives.PickerPath
+	pathInput    primitives.Input
 	viewport     viewport.Model
 	help         help.Model
 	spinner      spinner.Model
@@ -58,19 +50,22 @@ type Model struct {
 	statusLine   string
 	lastError    string
 	currentJobID string
+	lastJob      string
+	lastCommand  string
 }
 
-func actionItems() []list.Item {
-	return []list.Item{
-		actionItem{key: "1", title: "1. Status", desc: "System status and route health", job: "status"},
-		actionItem{key: "2", title: "2. Workflow Templates", desc: "List workflow templates", job: "workflow.templates"},
-		actionItem{key: "3", title: "3. Workflow Runs", desc: "List workflow runs", job: "workflow.runs"},
-		actionItem{key: "4", title: "4. Knowledge Templates", desc: "List template families", job: "knowledge.templates"},
-		actionItem{key: "5", title: "5. Research Notes", desc: "List persisted research notes", job: "knowledge.research.list"},
-		actionItem{key: "6", title: "6. Health", desc: "Run runtime health checks", job: "health.status"},
-		actionItem{key: "7", title: "7. Repair Status", desc: "Show Python and runtime status", job: "repair.status"},
-		actionItem{key: "8", title: "8. Sonic Status", desc: "Show Sonic runtime status", job: "sonic.status"},
-		actionItem{key: "9", title: "9. Custom Command", desc: "Enter a full ucode command", job: "custom.command"},
+func actionItems() []primitives.MenuItem {
+	return []primitives.MenuItem{
+		{Key: "0", Label: "Pick Path", Desc: "Pick an existing path and inspect it", Value: "picker.path"},
+		{Key: "1", Label: "Status", Desc: "System status and route health", Value: "status"},
+		{Key: "2", Label: "Workflow Templates", Desc: "List workflow templates", Value: "workflow.templates"},
+		{Key: "3", Label: "Workflow Runs", Desc: "List workflow runs", Value: "workflow.runs"},
+		{Key: "4", Label: "Knowledge Templates", Desc: "List template families", Value: "knowledge.templates"},
+		{Key: "5", Label: "Research Notes", Desc: "List persisted research notes", Value: "knowledge.research.list"},
+		{Key: "6", Label: "Health", Desc: "Run runtime health checks", Value: "health.status"},
+		{Key: "7", Label: "Repair Status", Desc: "Show Python and runtime status", Value: "repair.status"},
+		{Key: "8", Label: "Sonic Status", Desc: "Show Sonic runtime status", Value: "sonic.status"},
+		{Key: "9", Label: "Custom Command", Desc: "Enter a full ucode command", Value: "custom.command"},
 	}
 }
 
@@ -87,15 +82,29 @@ func NewModel() (Model, error) {
 	if err != nil {
 		return Model{}, err
 	}
-	l := list.New(actionItems(), list.NewDefaultDelegate(), 78, 12)
-	l.Title = "uDOS v1.5"
-	l.SetShowStatusBar(false)
-	l.SetFilteringEnabled(false)
-
-	ti := textinput.New()
-	ti.Placeholder = "Enter ucode command"
-	ti.CharLimit = 512
-	ti.Width = 72
+	selectOne := primitives.NewSelectOne("uDOS v1.5", actionItems(), 78, 12, true)
+	input := primitives.NewInput("CUSTOM COMMAND", "Enter ucode command", 72, nil)
+	pathPicker := primitives.PickerPath{
+		Title:     "Pick Path",
+		StartDir:  ".",
+		MustExist: true,
+	}
+	pathInput := primitives.NewInput(
+		"PICK PATH",
+		"Enter file or folder path",
+		72,
+		func(value string) error {
+			if strings.TrimSpace(value) == "" {
+				return fmt.Errorf("path is required")
+			}
+			if pathPicker.MustExist {
+				if _, err := os.Stat(value); err != nil {
+					return fmt.Errorf("path does not exist")
+				}
+			}
+			return nil
+		},
+	)
 
 	vp := viewport.New(78, 18)
 	vp.SetContent("")
@@ -106,8 +115,10 @@ func NewModel() (Model, error) {
 	return Model{
 		theme:    render.NewTheme(),
 		mode:     modeHome,
-		list:     l,
-		input:    ti,
+		selectOne: selectOne,
+		input:    input,
+		pathPicker: pathPicker,
+		pathInput:  pathInput,
 		viewport: vp,
 		help:     help.New(),
 		spinner:  spin,
@@ -127,6 +138,14 @@ func waitForBackend(client *backend.Client) tea.Cmd {
 }
 
 func (m Model) Init() tea.Cmd {
+	return tea.Batch(
+		m.spinner.Tick,
+		sendHello(m.backend, m.theme.CanvasWidth),
+		waitForBackend(m.backend),
+	)
+}
+
+func sendHello(client *backend.Client, width int) tea.Cmd {
 	hello := protocol.Message{
 		V:      1,
 		Type:   "hello",
@@ -134,17 +153,64 @@ func (m Model) Init() tea.Cmd {
 		Client: &protocol.ClientInfo{Name: "udos-tui", Version: "0.2.0"},
 		Caps: &protocol.ClientCaps{
 			TTY:   true,
-			Width: m.theme.CanvasWidth,
+			Width: width,
 			Color: "256",
 			Paste: "bracketed",
 		},
 	}
-	return tea.Batch(
-		m.spinner.Tick,
-		func() tea.Msg {
-			_ = m.backend.Send(hello)
-			return nil
-		},
+	return func() tea.Msg {
+		_ = client.Send(hello)
+		return nil
+	}
+}
+
+func sanitizeSingleLineInput(raw string) string {
+	if raw == "" {
+		return ""
+	}
+	s := strings.ReplaceAll(raw, "\x00", "")
+	s = strings.ReplaceAll(s, "\r\n", " ")
+	s = strings.ReplaceAll(s, "\n", " ")
+	s = strings.ReplaceAll(s, "\r", " ")
+	return strings.TrimSpace(s)
+}
+
+func (m Model) cycleMode(forward bool) Model {
+	seq := []screenMode{modeHome, modeInput, modePath, modeRunner}
+	idx := 0
+	for i, mode := range seq {
+		if mode == m.mode {
+			idx = i
+			break
+		}
+	}
+	if forward {
+		idx = (idx + 1) % len(seq)
+	} else {
+		idx = (idx + len(seq) - 1) % len(seq)
+	}
+	next := seq[idx]
+	m.mode = next
+	if next == modeInput {
+		m.input.Focus()
+		m.pathInput.Blur()
+	} else if next == modePath {
+		m.pathInput.Focus()
+		m.input.Blur()
+	} else {
+		m.input.Blur()
+		m.pathInput.Blur()
+	}
+	return m
+}
+
+func (m Model) reloadCurrent() (tea.Model, tea.Cmd) {
+	if m.lastJob != "" {
+		return m.startJob(m.lastJob, m.lastCommand)
+	}
+	m.statusLine = "refreshing backend metadata"
+	return m, tea.Batch(
+		sendHello(m.backend, m.theme.CanvasWidth),
 		waitForBackend(m.backend),
 	)
 }
@@ -154,8 +220,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
-		m.list.SetWidth(msg.Width - 2)
-		m.viewport.Width = min(msg.Width-2, m.theme.CanvasWidth)
+		m.selectOne.List.SetWidth(max(20, msg.Width-2))
+		m.viewport.Width = max(20, min(msg.Width-2, m.theme.CanvasWidth))
 		m.viewport.Height = max(8, msg.Height-8)
 		return m, nil
 	case spinner.TickMsg:
@@ -173,7 +239,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if status, ok := value["status"].(string); ok && status == "ready" {
 					m.statusLine = "backend ready"
 					if actions, ok := value["actions"].([]interface{}); ok {
-						m.list.SetItems(actionsToListItems(actions))
+						m.selectOne.List.SetItems(actionsToListItems(actions))
 					}
 				}
 				if jobID, ok := value["job_id"].(string); ok {
@@ -200,13 +266,30 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c":
 			return m, tea.Quit
+		case "ctrl+r":
+			return m.reloadCurrent()
 		case "?":
 			m.showHelp = !m.showHelp
 			return m, nil
+		case "m":
+			m.theme.TeletextUnicode = !m.theme.TeletextUnicode
+			if m.theme.TeletextUnicode {
+				m.statusLine = "teletext mode: unicode blocks"
+			} else {
+				m.statusLine = "teletext mode: ascii"
+			}
+			m.viewport.SetContent(m.renderEvents())
+			return m, nil
 		case "ctrl+l":
 			return m, tea.ClearScreen
+		case "tab":
+			m = m.cycleMode(true)
+			return m, nil
+		case "shift+tab":
+			m = m.cycleMode(false)
+			return m, nil
 		case "esc":
-			if m.mode == modeRunner || m.mode == modeInput {
+			if m.mode == modeRunner || m.mode == modeInput || m.mode == modePath {
 				m.mode = modeHome
 				return m, nil
 			}
@@ -214,24 +297,37 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch m.mode {
 		case modeHome:
+			if msg.String() == "n" {
+				msg = tea.KeyMsg{Type: tea.KeyDown}
+			} else if msg.String() == "N" {
+				msg = tea.KeyMsg{Type: tea.KeyUp}
+			}
 			if msg.String() == "enter" {
-				selected, ok := m.list.SelectedItem().(actionItem)
+				selected, ok := m.selectOne.Selected()
 				if !ok {
 					return m, nil
 				}
-				if selected.job == "custom.command" {
+				if selected.Value == "picker.path" {
+					m.mode = modePath
+					m.pathInput.Focus()
+					if m.pathInput.Value() == "" {
+						m.pathInput.Model.SetValue(m.pathPicker.StartDir)
+					}
+					return m, nil
+				}
+				if selected.Value == "custom.command" {
 					m.mode = modeInput
 					m.input.Focus()
 					return m, nil
 				}
-				return m.startJob(selected.job, "")
+				return m.startJob(selected.Value, "")
 			}
 			var cmd tea.Cmd
-			m.list, cmd = m.list.Update(msg)
+			m.selectOne, cmd = m.selectOne.Update(msg)
 			return m, cmd
 		case modeInput:
 			if msg.String() == "enter" {
-				command := strings.TrimSpace(m.input.Value())
+				command := sanitizeSingleLineInput(m.input.Value())
 				if command == "" {
 					return m, nil
 				}
@@ -240,6 +336,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			var cmd tea.Cmd
 			m.input, cmd = m.input.Update(msg)
+			return m, cmd
+		case modePath:
+			if msg.String() == "enter" {
+				if !m.pathInput.Validate() {
+					return m, nil
+				}
+				command := fmt.Sprintf("READ %s", strings.TrimSpace(m.pathInput.Value()))
+				m.pathInput.Blur()
+				return m.startJob("ucode.command", command)
+			}
+			var cmd tea.Cmd
+			m.pathInput, cmd = m.pathInput.Update(msg)
 			return m, cmd
 		case modeRunner:
 			var cmd tea.Cmd
@@ -255,6 +363,8 @@ func (m Model) startJob(job, command string) (tea.Model, tea.Cmd) {
 	m.events = nil
 	m.lastError = ""
 	m.statusLine = "running"
+	m.lastJob = job
+	m.lastCommand = command
 	m.viewport.SetContent("")
 	req := protocol.Message{
 		V:    1,
@@ -283,7 +393,7 @@ func (m Model) View() string {
 	body := ""
 	switch m.mode {
 	case modeHome:
-		body = m.list.View()
+		body = m.selectOne.View()
 	case modeInput:
 		body = render.RenderEvent(
 			m.theme,
@@ -294,10 +404,23 @@ func (m Model) View() string {
 				Lines: []string{m.input.View()},
 			},
 		)
+	case modePath:
+		body = render.RenderEvent(
+			m.theme,
+			protocol.Event{
+				Kind:  "block",
+				Title: "PICK PATH",
+				Style: "accent",
+				Lines: []string{
+					"Provide a path, then press Enter to run READ <path>",
+					m.pathInput.View(),
+				},
+			},
+		)
 	case modeRunner:
 		body = m.viewport.View()
 	}
-	footer := "Enter select  Esc back  ? help  Ctrl+L redraw  Ctrl+C quit"
+	footer := "Enter select  / filter  n next  N prev  m teletext  Tab next  Shift+Tab prev  Esc back  Ctrl+R refresh  ? help  Ctrl+L redraw  Ctrl+C quit"
 	if m.statusLine != "" {
 		footer = footer + " | " + m.statusLine
 	}
@@ -321,7 +444,7 @@ func (m Model) renderEvents() string {
 
 func actionsToListItems(raw []interface{}) []list.Item {
 	items := make([]list.Item, 0, len(raw))
-	for idx, entry := range raw {
+	for _, entry := range raw {
 		action, ok := entry.(map[string]interface{})
 		if !ok {
 			continue
@@ -329,21 +452,20 @@ func actionsToListItems(raw []interface{}) []list.Item {
 		key, _ := action["key"].(string)
 		label, _ := action["label"].(string)
 		job, _ := action["job"].(string)
-		title := label
-		if key != "" {
-			title = fmt.Sprintf("%s. %s", key, label)
-		} else if label != "" {
-			title = fmt.Sprintf("%d. %s", idx+1, label)
-		}
-		items = append(items, actionItem{
-			key:   key,
-			title: title,
-			desc:  fmt.Sprintf("Run %s", job),
-			job:   job,
+		items = append(items, primitives.MenuItem{
+			Key:   key,
+			Label: label,
+			Desc:  fmt.Sprintf("Run %s", job),
+			Value: job,
 		})
 	}
 	if len(items) == 0 {
-		return actionItems()
+		defaults := actionItems()
+		fallback := make([]list.Item, 0, len(defaults))
+		for _, item := range defaults {
+			fallback = append(fallback, item)
+		}
+		return fallback
 	}
 	return items
 }

@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 import os
 from pathlib import Path
+import shutil
 import subprocess
-import sys
 from typing import Any
 
 from core.services.background_service_manager import get_wizard_process_manager
@@ -210,12 +210,46 @@ class UdosLauncherService:
         os.execv("/bin/bash", ["/bin/bash", str(script), *extra_args])
         raise AssertionError("unreachable")
 
-    def launch_tui(self, extra_args: list[str]) -> int:
-        os.execv(
-            sys.executable,
-            [sys.executable, "-m", "core.tui.ucode_entry", *extra_args],
+    def _bubbletea_binary(self) -> Path:
+        return self.repo_root / "tui" / "bin" / "udos-tui"
+
+    def _build_bubbletea_tui(self) -> bool:
+        build_script = self.repo_root / "scripts" / "build_udos_tui.sh"
+        if not build_script.exists():
+            return False
+        if not shutil.which("go"):
+            return False
+        result = subprocess.run(
+            ["/bin/bash", str(build_script)],
+            cwd=self.repo_root,
+            text=True,
+            capture_output=True,
+            check=False,
         )
-        raise AssertionError("unreachable")
+        if result.returncode != 0:
+            _log.warning(
+                "Bubble Tea TUI build failed; falling back to core TUI",
+                extra={
+                    "returncode": result.returncode,
+                    "stderr": (result.stderr or "").strip()[-500:],
+                },
+            )
+            return False
+        return True
+
+    def launch_tui(self, extra_args: list[str]) -> int:
+        bubbletea = self._bubbletea_binary()
+        if not (bubbletea.exists() and os.access(bubbletea, os.X_OK)):
+            self._build_bubbletea_tui()
+
+        if bubbletea.exists() and os.access(bubbletea, os.X_OK):
+            os.execv(str(bubbletea), [str(bubbletea), *extra_args])
+            raise AssertionError("unreachable")
+
+        raise RuntimeError(
+            "uDOS v1.5 Bubble Tea TUI is unavailable. "
+            "Install Go 1.22+ and run ./scripts/build_udos_tui.sh."
+        )
 
     def launch_ops(self, extra_args: list[str]) -> int:
         result = self.start_runtime(auto_repair=True, wait_seconds=25)

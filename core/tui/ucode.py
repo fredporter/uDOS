@@ -4355,9 +4355,10 @@ class UCODE:
 
 
 def main():
-    """Main entry point for uCODE."""
-    tui = UCODE()
-    tui.run()
+    """Compatibility shim for direct module execution."""
+    from core.tui.ucode_entry import main as entry_main
+
+    entry_main()
 
 
 if __name__ == "__main__":

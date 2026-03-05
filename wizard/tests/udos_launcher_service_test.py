@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from core.services.background_service_manager import WizardServiceStatus
 from wizard.services import udos_launcher_service as launcher_mod
 
@@ -186,3 +188,57 @@ def test_wizard_command_logs_returns_tail(monkeypatch, tmp_path: Path) -> None:
     assert result.action == "wizard-logs"
     assert result.details["path"] == str(log_file)
     assert result.details["tail"] == "line-1\nline-2"
+
+
+class _ExecvCalled(Exception):
+    def __init__(self, program: str, argv: list[str]) -> None:
+        self.program = program
+        self.argv = argv
+
+
+def test_launch_tui_prefers_bubbletea_binary(monkeypatch, tmp_path: Path) -> None:
+    fake_sessions = _FakeSessions()
+    fake_ports = _FakePortManager()
+    fake_process_manager = SimpleNamespace(status=lambda: _wizard_status(connected=True))
+
+    monkeypatch.setattr(launcher_mod, "get_launch_session_service", lambda repo_root=None: fake_sessions)
+    monkeypatch.setattr(launcher_mod, "get_wizard_process_manager", lambda: fake_process_manager)
+    monkeypatch.setattr(launcher_mod, "get_port_manager", lambda: fake_ports)
+
+    bubbletea = tmp_path / "tui" / "bin" / "udos-tui"
+    bubbletea.parent.mkdir(parents=True, exist_ok=True)
+    bubbletea.write_text("#!/usr/bin/env bash\n", encoding="utf-8")
+    bubbletea.chmod(0o755)
+
+    service = launcher_mod.UdosLauncherService(repo_root=tmp_path)
+
+    monkeypatch.setattr(service, "_build_bubbletea_tui", lambda: False)
+
+    def _fake_execv(program: str, argv: list[str]) -> None:
+        raise _ExecvCalled(program, argv)
+
+    monkeypatch.setattr(launcher_mod.os, "execv", _fake_execv)
+
+    with pytest.raises(_ExecvCalled) as exc:
+        service.launch_tui(["--", "STATUS"])
+
+    assert exc.value.program == str(bubbletea)
+    assert exc.value.argv == [str(bubbletea), "--", "STATUS"]
+
+
+def test_launch_tui_errors_when_bubbletea_unavailable(monkeypatch, tmp_path: Path) -> None:
+    fake_sessions = _FakeSessions()
+    fake_ports = _FakePortManager()
+    fake_process_manager = SimpleNamespace(status=lambda: _wizard_status(connected=True))
+
+    monkeypatch.setattr(launcher_mod, "get_launch_session_service", lambda repo_root=None: fake_sessions)
+    monkeypatch.setattr(launcher_mod, "get_wizard_process_manager", lambda: fake_process_manager)
+    monkeypatch.setattr(launcher_mod, "get_port_manager", lambda: fake_ports)
+
+    service = launcher_mod.UdosLauncherService(repo_root=tmp_path)
+    monkeypatch.setattr(service, "_build_bubbletea_tui", lambda: False)
+
+    with pytest.raises(RuntimeError) as exc:
+        service.launch_tui(["--", "STATUS"])
+
+    assert "Bubble Tea TUI is unavailable" in str(exc.value)

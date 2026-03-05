@@ -221,6 +221,7 @@ class ContainerCatalogService:
             path = str(raw_meta.get("path") or "").strip()
             target = self.repo_root / path if path else self.repo_root / str(entry_id)
             local_meta = self._read_json(target / "extension.json")
+            isolation = self._validate_extension_isolation(target)
             entry_meta = (
                 {**local_meta, **raw_meta}
                 if isinstance(local_meta, dict)
@@ -295,6 +296,8 @@ class ContainerCatalogService:
                         "library_refs": self._normalize_string_list(
                             entry_meta.get("library_refs") or []
                         ),
+                        "isolation_valid": isolation["valid"],
+                        "isolation_errors": isolation["errors"],
                         "template_workspace": self._template_workspace_entry(
                             str(entry_id).strip().lower()
                         ),
@@ -302,6 +305,33 @@ class ContainerCatalogService:
                 )
             )
         return entries
+
+    def _validate_extension_isolation(self, extension_root: Path) -> dict[str, Any]:
+        """Validate extension layout contract for self-contained install roots."""
+        errors: list[str] = []
+        if not extension_root.exists():
+            errors.append("extension root missing")
+            return {"valid": False, "errors": errors}
+
+        manifest = extension_root / "extension.json"
+        if not manifest.exists():
+            errors.append("extension.json missing")
+
+        allowed_runtime_dirs = ("library", "commands", "providers")
+        present_runtime_dirs = [
+            item
+            for item in allowed_runtime_dirs
+            if (extension_root / item).exists()
+        ]
+        if not present_runtime_dirs:
+            errors.append("no runtime directories present (expected one of library/commands/providers)")
+
+        forbidden = [extension_root / "core", extension_root / "wizard"]
+        for candidate in forbidden:
+            if candidate.exists():
+                errors.append(f"forbidden nested path present: {candidate.name}")
+
+        return {"valid": len(errors) == 0, "errors": errors}
 
     def _resolve_extension_version(self, target: Path) -> str | None:
         for rel in ("version.json", "manifest.json", "extension.json", "package.json"):

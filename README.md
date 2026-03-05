@@ -13,6 +13,7 @@ uDOS is a Python-first runtime built around `ucode`, with Wizard as the networke
 
 - Install and bootstrap: [docs/INSTALLATION.md](docs/INSTALLATION.md)
 - Quick operator path: [QUICK-START.md](QUICK-START.md)
+- Governance and contributor docs: [dev/docs/root-governance](dev/docs/root-governance)
 - Public docs front door: [docs/README.md](docs/README.md)
 - Public status: [docs/STATUS.md](docs/STATUS.md)
 - Contributor workspace docs: [dev/docs/README.md](dev/docs/README.md)

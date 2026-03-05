@@ -193,7 +193,7 @@ Obsidian plugins that work well with uDOS:
 
 - **Obsidian Help:** [help.obsidian.md](https://help.obsidian.md)
 - **uDOS Docs:** `wiki/` and `docs/`
-- **Community:** See `CONTRIBUTORS.md`
+- **Community:** See `dev/docs/root-governance/CONTRIBUTORS.md`
 
 ---
 

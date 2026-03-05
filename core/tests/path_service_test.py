@@ -54,5 +54,6 @@ def test_get_repo_root_ignores_invalid_udos_root_and_falls_back(tmp_path: Path, 
     bad_root = tmp_path / "bad"
     bad_root.mkdir(parents=True)
     monkeypatch.setenv("UDOS_ROOT", str(bad_root))
+    monkeypatch.setenv("UDOS_ROOT_REQUIRED", "0")
     resolved = get_repo_root(marker="uDOS.py")
     assert (resolved / "uDOS.py").exists()

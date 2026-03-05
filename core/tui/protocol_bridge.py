@@ -449,6 +449,18 @@ class UdosProtocolBridge:
 
     def _result_to_events(self, result: dict[str, Any]) -> list[dict[str, Any]]:
         events: list[dict[str, Any]] = []
+        status_value = str(result.get("status") or "unknown")
+        message_value = str(result.get("message") or "").strip()
+        events.append(
+            {
+                "kind": "log",
+                "level": "warn" if status_value == "error" else "info",
+                "message": message_value or f"command finished with status={status_value}",
+                "fields": {"status": status_value},
+            }
+        )
+        events.append({"kind": "rule"})
+
         routing = result.get("routing") or {}
         if routing:
             events.append(
@@ -473,6 +485,32 @@ class UdosProtocolBridge:
             phases = state.get("phases") or []
             current_index = int(state.get("current_phase_index", 0) or 0)
             current = phases[current_index] if current_index < len(phases) else {}
+            events.append(
+                {
+                    "kind": "columns",
+                    "title": "WORKFLOW OVERVIEW",
+                    "cols": [
+                        {
+                            "title": "Identity",
+                            "style": "accent",
+                            "lines": [
+                                f"workflow: {result.get('workflow_id') or workflow.get('workflow_id') or 'n/a'}",
+                                f"status: {state.get('status', result.get('state', 'unknown'))}",
+                            ],
+                        },
+                        {
+                            "title": "Execution",
+                            "style": "default",
+                            "lines": [
+                                f"current phase: {current.get('name', 'n/a')}",
+                                f"next window: {state.get('next_run_at', 'n/a')}",
+                                f"tokens: {state.get('total_tokens', 0)}",
+                                f"budget usd: {float(state.get('total_cost_usd', 0.0)):.2f}",
+                            ],
+                        },
+                    ],
+                }
+            )
             events.append(
                 {
                     "kind": "block",

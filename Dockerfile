@@ -40,6 +40,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
+ENV UDOS_ROOT=/app
+ENV UDOS_ROOT_REQUIRED=1
 
 # Copy application source
 COPY core/ ./core/
@@ -49,10 +51,10 @@ COPY knowledge/ ./knowledge/
 COPY version.json ./
 
 # Create mount points
-RUN mkdir -p /memory /library && chown udos:udos /memory /library
+RUN mkdir -p /app/memory /app/library && chown -R udos:udos /app/memory /app/library
 
 # Set default environment
-ENV VAULT_ROOT=/memory/vault
+ENV VAULT_ROOT=/app/memory/vault
 ENV WIZARD_HOST=0.0.0.0
 ENV WIZARD_PORT=8765
 

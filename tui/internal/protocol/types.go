@@ -22,13 +22,23 @@ type Event struct {
 	Title   string   `json:"title,omitempty"`
 	Style   string   `json:"style,omitempty"`
 	Lines   []string `json:"lines,omitempty"`
+	Message string   `json:"message,omitempty"`
+	Level   string   `json:"level,omitempty"`
+	Fields  map[string]string `json:"fields,omitempty"`
 	Mode    string   `json:"mode,omitempty"`
 	Rows    []string `json:"rows,omitempty"`
+	Cols    []Column `json:"cols,omitempty"`
 	PID     string   `json:"pid,omitempty"`
 	Label   string   `json:"label,omitempty"`
 	Current int      `json:"current,omitempty"`
 	Total   int      `json:"total,omitempty"`
 	Status  string   `json:"status,omitempty"`
+}
+
+type Column struct {
+	Title string   `json:"title,omitempty"`
+	Style string   `json:"style,omitempty"`
+	Lines []string `json:"lines,omitempty"`
 }
 
 type RunArgs struct {

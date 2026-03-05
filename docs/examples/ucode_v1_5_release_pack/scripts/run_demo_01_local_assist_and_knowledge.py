@@ -94,7 +94,7 @@ def build_report(output_path: Path = DEFAULT_OUTPUT, runtime_root: Path = DEFAUL
             lambda workspace="core": {
                 "workspace": workspace,
                 "hash": "demo-knowledge-hash",
-                "files": ["AGENTS.md", "core/AGENTS.md"],
+                "files": ["dev/docs/root-governance/AGENTS.md", "core/AGENTS.md"],
                 "count": 2,
                 "bundle": {
                     "AGENTS.md": "Prefer OK Assistant terminology and canonical ucode command routing.",

@@ -2,7 +2,7 @@
 
 Use the v1.5 contributor workflow:
 
-- Read root `AGENTS.md` for architecture boundaries.
+- Read root `dev/docs/root-governance/AGENTS.md` for architecture boundaries.
 - Read `dev/AGENTS.md` for `@dev` workspace rules.
 - Read `dev/ops/AGENTS.md` for contributor operations rules.
 - Keep contributor planning and mission state in `dev/ops/`.

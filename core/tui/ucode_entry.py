@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Mapping, MutableMapping
 
-from core.tui.ucode import UCODE
 from core.utils.tty import detect_terminal_os, interactive_tty_status
 
 
@@ -87,11 +87,18 @@ def bootstrap_ucode_keymap_env(
     }
 
 
-def main():
-    """Main entry point for uCODE."""
+def main(argv: list[str] | None = None):
+    """Main entry point for uCODE compatibility shim."""
     bootstrap_ucode_keymap_env()
-    tui = UCODE()
-    tui.run()
+    extra_args = list(argv or [])
+    repo_root_env = os.environ.get("UDOS_ROOT", "").strip()
+    if not repo_root_env:
+        raise RuntimeError("UDOS_ROOT is required but not set.")
+    repo_root = Path(repo_root_env).expanduser().resolve()
+    launcher = repo_root / "bin" / "udos"
+    if not launcher.exists():
+        raise RuntimeError(f"uDOS launcher not found: {launcher}")
+    os.execv(str(launcher), [str(launcher), "tui", *extra_args])
 
 
 if __name__ == "__main__":

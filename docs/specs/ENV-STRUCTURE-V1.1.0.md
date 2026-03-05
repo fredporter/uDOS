@@ -238,7 +238,7 @@ Backups, restores, and undo migrations all serialize to `.tar.gz` (tar + gzip) a
 - [setup_handler.py](/core/commands/setup_handler.py) - Setup command
 - [config_handler.py](/core/commands/config_handler.py) - Config management
 - [wizard/README.md](/wizard/README.md) - Wizard Server docs
-- [AGENTS.md](/AGENTS.md) - System boundaries
+-  [dev/docs/root-governance/AGENTS.md](../dev/docs/root-governance/AGENTS.md) - System boundaries
 
 ---
 

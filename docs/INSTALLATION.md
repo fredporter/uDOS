@@ -405,7 +405,7 @@ export UDOS_AUTOMATION=1
 Use Wizard GUI to uninstall or deactivate the Dev Mode extension first. Remove the external `vibe` tooling only after the `dev-mode` extension lane has been disabled.
 
 ```bash
-./bin/setup-dev-mode.sh
+./dev/tooling/bin/setup-dev-mode.sh
 ```
 
 ### Clean up repo artifacts
@@ -426,7 +426,7 @@ rm -rf ~/.cargo/bin/uv ~/.local/bin/uv
 
 - **Documentation**: See `docs/` directory
 - **Quick Start**: See `QUICK-START.md`
-- **Dev Mode tooling**: `./bin/setup-dev-mode.sh`
+- **Dev Mode tooling**: `./dev/tooling/bin/setup-dev-mode.sh`
 - **Community**: Join the discussion
 
 ## Next Steps

@@ -1062,8 +1062,8 @@ function setup_vibe_integration() {
     step "Setting up Dev Mode tooling bridge..."
 
     # Run the Dev Mode bridge setup script
-    if [[ -f "$REPO_ROOT/bin/setup-dev-mode.sh" ]]; then
-        bash "$REPO_ROOT/bin/setup-dev-mode.sh"
+    if [[ -f "$REPO_ROOT/dev/tooling/bin/setup-dev-mode.sh" ]]; then
+        bash "$REPO_ROOT/dev/tooling/bin/setup-dev-mode.sh"
     else
         # Manual setup if script missing
         mkdir -p "$REPO_ROOT/.vibe"
@@ -1208,20 +1208,52 @@ function reconcile_provider_mode() {
     warning "Remediation: run SETUP dev, place the configured GPT4All model file in memory/models/gpt4all, or set MISTRAL_API_KEY in .env and rerun --update."
 }
 
-function build_optional_tui() {
+function build_required_tui() {
     if [[ ! -f "$REPO_ROOT/scripts/build_udos_tui.sh" ]]; then
-        return
-    fi
-    if ! command -v go >/dev/null 2>&1; then
-        info "Skipping Bubble Tea/Lip Gloss TUI build (go not installed)"
-        return
+        error "Missing build script: $REPO_ROOT/scripts/build_udos_tui.sh"
+        return 1
     fi
 
-    step "Building optional v1.5 uDOS TUI frontend..."
+    if ! command -v go >/dev/null 2>&1; then
+        warning "Go toolchain not found (required for uDOS v1.5 Bubble Tea TUI)"
+        if [[ "$OS_TYPE" == "mac" ]] && command -v brew >/dev/null 2>&1; then
+            step "Installing Go via Homebrew (required)..."
+            if brew install go; then
+                success "Go installed"
+            else
+                error "Failed to install Go via Homebrew."
+                return 1
+            fi
+        else
+            error "Install Go 1.22+ and rerun installer."
+            return 1
+        fi
+    fi
+
+    if ! command -v go >/dev/null 2>&1; then
+        error "Go 1.22+ is required but still unavailable on PATH."
+        return 1
+    fi
+
+    step "Building required v1.5 uDOS TUI frontend..."
     if "$REPO_ROOT/scripts/build_udos_tui.sh"; then
         success "udos-tui built"
     else
-        warning "udos-tui build failed (non-critical). Core shell remains available through ./bin/udos"
+        error "udos-tui build failed. Installer cannot continue without v1.5 TUI."
+        return 1
+    fi
+
+    if [[ ! -x "$REPO_ROOT/tui/bin/udos-tui" ]]; then
+        error "Built binary missing: $REPO_ROOT/tui/bin/udos-tui"
+        return 1
+    fi
+}
+
+function ensure_launcher_wiring() {
+    if [[ ! -x "$REPO_ROOT/bin/udos-tui" ]]; then
+        warning "Expected launcher missing: $REPO_ROOT/bin/udos-tui"
+    else
+        success "launcher present: $REPO_ROOT/bin/udos-tui"
     fi
 }
 
@@ -1254,7 +1286,8 @@ function run_health_check() {
     echo "  micro: $(if command -v micro &> /dev/null; then echo "✓"; else echo "✗"; fi)"
     echo "  Obsidian: $(if [[ "$OBSIDIAN_INSTALLED" == true ]]; then echo "✓"; else echo "✗"; fi)"
     echo "  GPT4All package: $(UV_PROJECT_ENVIRONMENT=.venv uv run python -c "import importlib.util; print('✓' if importlib.util.find_spec('gpt4all') else '✗')" 2>/dev/null || echo "✗")"
-    echo "  udos-tui: $(if [[ -x "$REPO_ROOT/bin/udos-tui" ]]; then echo "✓ $REPO_ROOT/bin/udos-tui"; else echo "✗"; fi)"
+    echo "  udos-tui launcher: $(if [[ -x "$REPO_ROOT/bin/udos-tui" ]]; then echo "✓ $REPO_ROOT/bin/udos-tui"; else echo "✗"; fi)"
+    echo "  udos-tui binary: $(if [[ -x "$REPO_ROOT/tui/bin/udos-tui" ]]; then echo "✓ $REPO_ROOT/tui/bin/udos-tui"; else echo "✗"; fi)"
     echo ""
     echo "Configuration:"
     echo "  Repo Root: $REPO_ROOT"
@@ -1315,7 +1348,8 @@ function main() {
         info "Skipping Dev Mode tooling installation (dev profile not selected)"
     fi
     install_core_requirements
-    build_optional_tui
+    build_required_tui || exit 1
+    ensure_launcher_wiring
 
     # Wizard installation (home profile)
     if [[ "$CORE_ONLY" == false ]] && _profile_selected "home"; then

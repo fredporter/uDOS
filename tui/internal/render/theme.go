@@ -4,6 +4,7 @@ import "github.com/charmbracelet/lipgloss"
 
 type Theme struct {
 	CanvasWidth int
+	TeletextUnicode bool
 	Header      lipgloss.Style
 	Block       lipgloss.Style
 	AccentBlock lipgloss.Style
@@ -19,6 +20,7 @@ func NewTheme() Theme {
 	border := lipgloss.NormalBorder()
 	return Theme{
 		CanvasWidth: 78,
+		TeletextUnicode: false,
 		Header: lipgloss.NewStyle().
 			Border(border, true).
 			BorderForeground(lipgloss.Color("7")).

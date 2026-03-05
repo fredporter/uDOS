@@ -1,0 +1,4 @@
+FROM python:3.11-slim
+ENV UDOS_ROOT=/app
+ENV UDOS_ROOT_REQUIRED=1
+WORKDIR /app

@@ -14,11 +14,11 @@ services:
     ports:
       - "8765:8765"
     volumes:
-      - ./memory:/memory
-      - ./library:/library
-      - ./knowledge:/knowledge
+      - ./:/app
     environment:
-      - VAULT_ROOT=/memory/vault
+      - UDOS_ROOT=/app
+      - UDOS_ROOT_REQUIRED=1
+      - VAULT_ROOT=/app/memory/vault
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8765/health"]
       interval: 30s
@@ -35,10 +35,12 @@ services:
     environment:
       - WIZARD_RENDER_URL=http://wizard:8765/api/renderer/render
       - WIZARD_API_BASE=http://wizard:8765
-      - VAULT_ROOT=/memory/vault
+      - UDOS_ROOT=/app
+      - UDOS_ROOT_REQUIRED=1
+      - VAULT_ROOT=/app/memory/vault
       - INTERVAL_SECONDS=30
     volumes:
-      - ./memory:/memory
+      - ./:/app
     depends_on:
       wizard:
         condition: service_healthy
@@ -66,7 +68,7 @@ services:
       - groovebox
       - all
     volumes:
-      - ./memory:/memory
+      - ./:/app
     depends_on:
       wizard:
         condition: service_healthy

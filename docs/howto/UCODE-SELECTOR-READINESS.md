@@ -18,7 +18,7 @@ Execution model:
 Run from repo root:
 
 ```bash
-./bin/check-ucode-selectors.sh
+./dev/tooling/bin/check-ucode-selectors.sh
 ```
 
 The checker validates:
@@ -51,7 +51,7 @@ For each selector-enabled command:
 
 A command-set is considered selector-ready when:
 
-- `./bin/check-ucode-selectors.sh` reports no `FAIL`
+- `./dev/tooling/bin/check-ucode-selectors.sh` reports no `FAIL`
 - At least one command path demonstrates:
   - file picker flow
   - menu selector flow

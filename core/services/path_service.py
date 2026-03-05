@@ -42,6 +42,13 @@ def _normalize_start_path(start_path: Path | None) -> Path:
     return candidate.parent
 
 
+def _strict_root_required() -> bool:
+    from core.services.unified_config_loader import get_config
+
+    value = str(get_config("UDOS_ROOT_REQUIRED", "1")).strip().lower()
+    return value not in {"0", "false", "no", "off"}
+
+
 def find_repo_root(start_path: Path | None = None, marker: str = DEFAULT_REPO_MARKER) -> Path:
     """Find repository root.
 
@@ -59,12 +66,22 @@ def find_repo_root(start_path: Path | None = None, marker: str = DEFAULT_REPO_MA
     from core.services.unified_config_loader import get_config
 
     env_root = get_config("UDOS_ROOT", "")
+    strict_required = _strict_root_required()
     if env_root:
         env_path = Path(env_root).expanduser()
         if not env_path.is_absolute():
             env_path = (Path.cwd() / env_path).resolve()
         if (env_path / marker).exists():
             return _enforce_home_root(env_path)
+        if strict_required:
+            raise RuntimeError(
+                f"UDOS_ROOT is set to {env_path} but marker {marker} was not found."
+            )
+    elif strict_required:
+        raise RuntimeError(
+            "UDOS_ROOT is required but not set. "
+            "Export UDOS_ROOT to the repository root before running uDOS."
+        )
 
     current = _normalize_start_path(start_path)
     for parent in [current] + list(current.parents):

@@ -48,7 +48,7 @@ class DemoLogicAssist:
             "context": {
                 "workspace": "core",
                 "hash": "demo-context-hash",
-                "files": ["AGENTS.md", "core/AGENTS.md"],
+                "files": ["dev/docs/root-governance/AGENTS.md", "core/AGENTS.md"],
                 "count": 2,
             },
             "conversations": {"stored": 1},

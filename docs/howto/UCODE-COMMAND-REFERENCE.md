@@ -205,7 +205,7 @@ Selector behavior for `/ucode` addon commands is standardized by:
 Readiness and validation workflow:
 
 - `docs/howto/UCODE-SELECTOR-READINESS.md`
-- `./bin/check-ucode-selectors.sh`
+- `./dev/tooling/bin/check-ucode-selectors.sh`
 
 Required behavior for selector-enabled commands:
 

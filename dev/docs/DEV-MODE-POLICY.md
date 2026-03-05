@@ -28,7 +28,7 @@ Dev Mode is available only when all of the following are true:
 The `@dev` workspace must ship with:
 
 - `README.md`
-- `AGENTS.md`
+- `dev/docs/root-governance/AGENTS.md`
 - `extension.json`
 - `ops/README.md`
 - `ops/AGENTS.md`

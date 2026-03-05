@@ -111,17 +111,28 @@ def test_ops_delegates_to_service(monkeypatch) -> None:
     assert service.calls == [("launch_ops", ["--", "STATUS"])]
 
 
-def test_tui_execv_uses_core_entry(monkeypatch) -> None:
-    def _fake_execv(program: str, argv: list[str]) -> None:
-        raise _ExecvCalled(program, argv)
+def test_tui_delegates_to_service_launcher(monkeypatch) -> None:
+    service = _FakeService()
+    monkeypatch.setattr(cli_mod, "get_udos_launcher_service", lambda: service)
 
-    monkeypatch.setattr(cli_mod.os, "execv", _fake_execv)
+    exit_code = cli_mod.main(["tui", "--", "STATUS"])
 
-    with pytest.raises(_ExecvCalled) as exc:
-        cli_mod.main(["tui", "--", "STATUS"])
+    assert exit_code == 91
+    assert service.calls == [("launch_tui", ["--", "STATUS"])]
 
-    assert exc.value.program == cli_mod.sys.executable
-    assert exc.value.argv == [cli_mod.sys.executable, "-m", "core.tui.ucode_entry", "--", "STATUS"]
+
+def test_tui_emits_error_when_launcher_unavailable(monkeypatch, capsys) -> None:
+    service = _FakeService()
+    monkeypatch.setattr(cli_mod, "get_udos_launcher_service", lambda: service)
+    def _raise_runtime_error(_args: list[str]) -> int:
+        raise RuntimeError("no bubbletea")
+
+    monkeypatch.setattr(service, "launch_tui", _raise_runtime_error)
+
+    exit_code = cli_mod.main(["tui"])
+
+    assert exit_code == 1
+    assert "no bubbletea" in capsys.readouterr().out
 
 
 def test_install_execv_uses_repo_installer(monkeypatch) -> None:

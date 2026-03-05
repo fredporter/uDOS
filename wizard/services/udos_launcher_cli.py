@@ -66,20 +66,27 @@ def _emit(payload: dict[str, object], *, json_output: bool) -> int:
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     command = args.command or "start"
+    service = get_udos_launcher_service()
 
     if command == "tui":
-        os.execv(
-            sys.executable,
-            [sys.executable, "-m", "core.tui.ucode_entry", *list(args.args)],
-        )
-        raise AssertionError("unreachable")
+        try:
+            return service.launch_tui(list(args.args))
+        except RuntimeError as exc:
+            return _emit(
+                {
+                    "success": False,
+                    "action": "tui",
+                    "message": str(exc),
+                    "details": {},
+                    "exit_code": 1,
+                },
+                json_output=args.json_output,
+            )
     if command == "install":
         repo_root = Path(__file__).resolve().parents[2]
         script = repo_root / "bin" / "install-udos.sh"
         os.execv("/bin/bash", ["/bin/bash", str(script), *list(args.args)])
         raise AssertionError("unreachable")
-
-    service = get_udos_launcher_service()
 
     if command == "status":
         return _emit(service.status().to_dict(), json_output=args.json_output)
@@ -87,7 +94,19 @@ def main(argv: list[str] | None = None) -> int:
         result = service.start_runtime(auto_repair=not args.no_repair)
         if not result.success or args.no_tui or not sys.stdin.isatty() or not sys.stdout.isatty():
             return _emit(result.to_dict(), json_output=args.json_output)
-        return service.launch_tui([])
+        try:
+            return service.launch_tui([])
+        except RuntimeError as exc:
+            return _emit(
+                {
+                    "success": False,
+                    "action": "start",
+                    "message": str(exc),
+                    "details": {"runtime": result.to_dict()},
+                    "exit_code": 1,
+                },
+                json_output=args.json_output,
+            )
     if command == "repair":
         return _emit(service.repair_runtime().to_dict(), json_output=args.json_output)
     if command == "rebuild":

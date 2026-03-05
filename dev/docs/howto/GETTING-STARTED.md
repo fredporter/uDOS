@@ -28,7 +28,7 @@ Use the workspace folders as follows:
 
 ## Read In Order
 
-- `AGENTS.md`
+- `dev/docs/root-governance/AGENTS.md`
 - `dev/AGENTS.md`
 - `dev/ops/AGENTS.md`
 - `dev/docs/DEV-MODE-POLICY.md`
