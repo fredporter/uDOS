@@ -45,6 +45,7 @@ Planning note:
 |------|-------|
 | [TUI-Vibe-Integration.md](TUI-Vibe-Integration.md) | TUI ↔ Vibe LLM integration design |
 | [v1-5-ucode-tui-spec.md](v1-5-ucode-tui-spec.md) | Active v1.5 `ucode` TUI decision |
+| [v1-5-gameplay-3d-thin-gui-assessment.md](v1-5-gameplay-3d-thin-gui-assessment.md) | Pre-release assessment of gameplay/lens scope, 3D extension boundary, and Thin GUI readiness |
 | [udos-protocol-v1.md](udos-protocol-v1.md) | Supporting TUI protocol reference |
 | [udos-reference-implementation.md](udos-reference-implementation.md) | Supporting TUI reference implementation skeleton |
 | [udos-teletext-theme.md](udos-teletext-theme.md) | Supporting teletext theme reference |
