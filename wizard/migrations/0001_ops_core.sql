@@ -44,7 +44,11 @@ CREATE TABLE IF NOT EXISTS task_queue (
     priority INTEGER NOT NULL DEFAULT 5,
     need INTEGER NOT NULL DEFAULT 5,
     resource_cost INTEGER NOT NULL DEFAULT 1,
-    requires_network BOOLEAN NOT NULL DEFAULT FALSE
+    requires_network BOOLEAN NOT NULL DEFAULT FALSE,
+    defer_reason TEXT,
+    defer_count INTEGER NOT NULL DEFAULT 0,
+    backoff_seconds INTEGER NOT NULL DEFAULT 0,
+    last_deferred_at TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS notifications (
@@ -57,6 +61,24 @@ CREATE TABLE IF NOT EXISTS notifications (
     sticky BOOLEAN NOT NULL DEFAULT FALSE,
     action_count INTEGER NOT NULL DEFAULT 0,
     dismissed_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS notification_actions (
+    id TEXT PRIMARY KEY,
+    notification_id TEXT NOT NULL REFERENCES notifications(id) ON DELETE CASCADE,
+    label TEXT NOT NULL,
+    action_type TEXT,
+    callback_data TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS notification_exports (
+    id TEXT PRIMARY KEY,
+    export_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    format TEXT NOT NULL,
+    file_path TEXT,
+    record_count INTEGER,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS operator_accounts (

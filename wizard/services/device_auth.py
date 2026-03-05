@@ -181,7 +181,7 @@ class DeviceAuthService:
                 "type": "udos-pair",
                 "request_id": request_id,
                 "code": code,
-                "wizard": wizard_address or "localhost:8080",
+                "wizard": wizard_address or "127.0.0.1:8080",
                 "expires": (
                     utc_now() + timedelta(minutes=ttl_minutes)
                 ).isoformat(),

@@ -27,6 +27,7 @@ from enum import Enum
 
 from core.services.logging_api import get_repo_root
 from core.services.background_service_manager import get_wizard_process_manager
+from core.services.loopback_host_utils import is_loopback_host, normalize_loopback_host
 from core.tui.ui_elements import ProgressBar
 from core.input.keymap import decode_key_input
 from core.utils.tty import normalize_terminal_input
@@ -47,7 +48,6 @@ class FunctionKeyCode(Enum):
 
 class FKeyHandler:
     """Handler for function key shortcuts in uCODE."""
-    _LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 
     def __init__(self, dispatcher=None, prompt=None, game_state=None):
         """
@@ -180,8 +180,8 @@ class FKeyHandler:
         if not filename:
             return {"status": "cancelled", "message": "Cancelled"}
 
-        # Create in memory/sandbox by default
-        target_dir = self.repo_root / "memory" / "sandbox"
+        # Create in memory/vault/@inbox by default
+        target_dir = self.repo_root / "memory" / "vault" / "@inbox"
         target_dir.mkdir(parents=True, exist_ok=True)
         filepath = target_dir / f"{filename}.md"
 
@@ -196,7 +196,7 @@ class FKeyHandler:
         template = f"""---
 title: {filename}
 created: {datetime.now().isoformat()}
-tags: [sandbox, draft]
+tags: [inbox, draft]
 ---
 
 # {filename}
@@ -234,7 +234,7 @@ Write your content here...
 
         # List available workspaces
         workspaces = [
-            ("@sandbox", "memory/sandbox", "User test area"),
+            ("@binders", "memory/vault/@binders", "Binder roots"),
             ("@vault", "memory/vault", "Primary knowledge store"),
             ("@shared", "memory/sharing", "Shared with others"),
             ("@knowledge", "knowledge", "Knowledge bank"),
@@ -294,7 +294,7 @@ Write your content here...
 ║                    Function Key Reference                      ║
 ╚════════════════════════════════════════════════════════════════╝
 
-F1  New File          Create a new Markdown file in @sandbox
+F1  New File          Create a new Markdown file in @vault/@inbox
 F2  File Picker       Open the TUI file picker/browser
 F3  Workspace         Select and switch workspace folder
 F4  Binder            Open/manage multi-chapter documents
@@ -490,10 +490,8 @@ Tips:
         return host, port
 
     def _wizard_connect_host(self, host: str) -> str:
-        normalized = (host or "").strip().lower()
-        if normalized in {"0.0.0.0", "::"}:
-            return "127.0.0.1"
-        if normalized in self._LOOPBACK_HOSTS:
+        normalized = normalize_loopback_host(host, fallback="127.0.0.1")
+        if is_loopback_host(normalized):
             return normalized
         return "127.0.0.1"
 

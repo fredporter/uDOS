@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from urllib.parse import urlparse
-
+from core.services.loopback_host_utils import extract_host_from_url, is_loopback_host
 from core.services.unified_config_loader import get_config, get_int_config
 
-DEFAULT_WIZARD_HOST = "localhost"
+DEFAULT_WIZARD_HOST = "127.0.0.1"
 DEFAULT_WIZARD_PORT = 8765
-_LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 
 
 def get_wizard_port(default: int = DEFAULT_WIZARD_PORT) -> int:
@@ -34,9 +32,7 @@ def get_loopback_wizard_base_url(
 ) -> str:
     """Return a loopback Wizard URL, falling back to the canonical default."""
     candidate = get_wizard_base_url(raw_base_url)
-    parsed = urlparse(candidate)
-    host = (parsed.hostname or "").strip().lower()
-    if host in _LOOPBACK_HOSTS:
+    if is_loopback_host(extract_host_from_url(candidate)):
         return candidate
     return get_default_wizard_base_url(host=fallback_host)
 

@@ -37,6 +37,9 @@ jobs:
       - name: Packaging dependency parity
         run: uv run python tools/ci/check_packaging_dependency_artifacts_sync.py
 
+      - name: v1.5 restructure guard
+        run: uv run python tools/ci/check_v15_restructure_guard.py
+
       - name: Run tests (${{ matrix.profile }})
         env:
           PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"

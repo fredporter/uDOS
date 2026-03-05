@@ -37,7 +37,7 @@
       "description": "Vite Dev Server - Frontend development",
       "startup_cmd": "npm run dev",
       "shutdown_cmd": null,
-      "health_endpoint": "http://localhost:5173/",
+      "health_endpoint": "http://127.0.0.1:5173/",
       "enabled": true,
       "status": "unknown",
       "pid": null,
@@ -56,6 +56,6 @@
       "status": "unknown",
       "pid": null,
       "last_check": null
-    },
+    }
   ]
 }

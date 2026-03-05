@@ -4,7 +4,16 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _resolve_repo_root() -> Path:
+    cwd = Path.cwd()
+    if (cwd / "vibe" / "core" / "skills" / "ucode").exists():
+        return cwd
+    return Path(__file__).resolve().parents[2]
+
+
+REPO_ROOT = _resolve_repo_root()
 
 
 def test_tool_discovery():
@@ -88,9 +97,7 @@ def test_skill_discovery():
         "ucode",
         "ucode-dev",
         "ucode-help",
-        "ucode-logs",
         "ucode-setup",
-        "ucode-story",
     }
     found_skills = {f.parent.name for f in skill_files}
     missing = expected_skills - found_skills

@@ -18,7 +18,7 @@ _NETWORK_ALLOWLIST = frozenset(
         Path("core/services/ok_setup.py"),
         Path("core/services/self_healer.py"),
         Path("core/services/stdlib_http.py"),
-        Path("core/services/vibe_network_service.py"),
+        Path("core/services/dev_mode_compat/network_service.py"),
         Path("core/services/wizard_proxy_service.py"),
         Path("core/tui/fkey_handler.py"),
         Path("core/tui/status_bar.py"),

@@ -69,20 +69,15 @@ def _client(monkeypatch):
     return TestClient(app), manager
 
 
-def test_sonic_library_alias_is_retired_by_default(monkeypatch):
+def test_sonic_library_alias_routes_are_removed(monkeypatch):
     monkeypatch.delenv("UDOS_SONIC_ENABLE_LIBRARY_ALIAS", raising=False)
     client, manager = _client(monkeypatch)
 
     alias_status = client.get("/api/library/aliases/status")
-    assert alias_status.status_code == 200
-    assert alias_status.json()["sonic_library_alias_enabled"] is False
-    assert alias_status.json()["status"] == "retired"
+    assert alias_status.status_code == 404
 
     status_res = client.get("/api/library/integration/sonic")
-    assert status_res.status_code == 410
-    detail = status_res.json()["detail"]
-    assert detail["alias"] == "/api/library/integration/sonic"
-    assert detail["canonical"] == "/api/library/integration/sonic-screwdriver"
+    assert status_res.status_code == 404
 
     canonical = client.get("/api/library/integration/sonic-screwdriver")
     assert canonical.status_code == 200
@@ -90,15 +85,12 @@ def test_sonic_library_alias_is_retired_by_default(monkeypatch):
     assert manager.last_action_name is None
 
 
-def test_sonic_library_alias_can_be_reenabled(monkeypatch):
+def test_sonic_library_alias_ignores_compatibility_override(monkeypatch):
     monkeypatch.setenv("UDOS_SONIC_ENABLE_LIBRARY_ALIAS", "1")
     client, _manager = _client(monkeypatch)
 
     alias_status = client.get("/api/library/aliases/status")
-    assert alias_status.status_code == 200
-    assert alias_status.json()["sonic_library_alias_enabled"] is True
-    assert alias_status.json()["status"] == "compatibility_override"
+    assert alias_status.status_code == 404
 
     status_res = client.get("/api/library/integration/sonic")
-    assert status_res.status_code == 200
-    assert status_res.json()["integration"]["name"] == "sonic-screwdriver"
+    assert status_res.status_code == 404

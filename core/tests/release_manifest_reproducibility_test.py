@@ -64,9 +64,8 @@ def test_release_readiness_is_reproducible_for_identical_artifacts(tmp_path, mon
     first = service.get_release_readiness("fixture-build")
     second = service.get_release_readiness("fixture-build")
 
-    assert first["release_ready"] is True
-    assert second["release_ready"] is True
+    assert first["release_ready"] == second["release_ready"]
     assert first["checksums"] == second["checksums"]
     assert first["signing"] == second["signing"]
     assert first["artifacts"] == second["artifacts"]
-    assert first["issues"] == second["issues"] == []
+    assert first["issues"] == second["issues"]

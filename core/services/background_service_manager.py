@@ -12,10 +12,10 @@ import subprocess
 import sys
 import time
 
+from core.services.loopback_host_utils import is_loopback_host, normalize_loopback_host
 from core.services.logging_api import get_logger, get_repo_root
 from core.services.stdlib_http import HTTPError, http_get
 
-_LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 _WIZARD_DEFAULT_BASE_URL = "http://127.0.0.1:8765"
 _WIZARD_START_CMD = ("uv", "run", "wizard/server.py", "--no-interactive")
 
@@ -47,7 +47,7 @@ def _extract_host(url: str) -> str:
 
 
 def _assert_loopback_base_url(base_url: str) -> None:
-    if _extract_host(base_url) in _LOOPBACK_HOSTS:
+    if is_loopback_host(_extract_host(base_url)):
         return
     raise ValueError(f"non-loopback target blocked: {base_url}")
 
@@ -78,9 +78,10 @@ class WizardProcessManager:
             base_url = configured.rstrip("/")
         else:
             config = self._load_wizard_runtime_config()
-            host = str(config.get("host") or "127.0.0.1").strip() or "127.0.0.1"
-            if host == "0.0.0.0":
-                host = "127.0.0.1"
+            host = normalize_loopback_host(
+                str(config.get("host") or "127.0.0.1"),
+                fallback="127.0.0.1",
+            )
             port = int(config.get("port") or 8765)
             base_url = f"http://{host}:{port}"
         _assert_loopback_base_url(base_url)

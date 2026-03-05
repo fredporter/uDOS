@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, Sequence
 from fastapi import HTTPException, Request
 
 from core.locations import LocationService
+from core.services.loopback_host_utils import is_loopback_host
 from core.services.time_utils import render_utc_as_local
 from wizard.services.path_utils import get_repo_root
 
@@ -124,7 +125,7 @@ def is_ghost_mode(username: Optional[str], role: Optional[str]) -> bool:
 
 def is_local_request(request: Request) -> bool:
     client_host = request.client.host if request.client else ""
-    return client_host in {"127.0.0.1", "::1", "localhost"}
+    return is_loopback_host(client_host)
 
 
 def load_env_identity(logger=None) -> Dict[str, str]:

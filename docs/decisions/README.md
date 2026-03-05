@@ -37,6 +37,7 @@ Each file captures a discrete architectural, design, or technology choice.
 Planning note:
 - historical milestone plans were removed from the active decisions tree; current sequencing lives in the local `@dev` roadmap/devlog lane
 - contributor-facing decisions now live under `dev/docs/decisions/`
+- contributor draft decision submissions now live under `dev/docs/contributors/decisions/`
 
 ## OK Provider & Model Runtime
 
@@ -47,9 +48,6 @@ Planning note:
 | [udos-protocol-v1.md](udos-protocol-v1.md) | Supporting TUI protocol reference |
 | [udos-reference-implementation.md](udos-reference-implementation.md) | Supporting TUI reference implementation skeleton |
 | [udos-teletext-theme.md](udos-teletext-theme.md) | Supporting teletext theme reference |
-| [vibe-cli-architecture-fix-v1-4-6.md](vibe-cli-architecture-fix-v1-4-6.md) | Vibe CLI architecture fixes for v1.4.6 |
-| [vibe-cli-implementation-status-v1-4-6.md](vibe-cli-implementation-status-v1-4-6.md) | Vibe CLI implementation status at v1.4.6 |
-| [vibe-cli-integration-plan-v1-4-6.md](vibe-cli-integration-plan-v1-4-6.md) | Vibe CLI integration plan for v1.4.6 |
 
 ## uHOME & Home Automation
 

@@ -24,6 +24,7 @@ from io import StringIO
 import uuid
 
 from wizard.services.deploy_mode import is_managed_mode
+from wizard.services.path_utils import get_repo_root
 from wizard.services.store import get_wizard_store
 
 
@@ -54,63 +55,74 @@ class ExportRequest:
 class NotificationHistoryService:
     """SQLite-based notification history."""
 
-    def __init__(self, db_path: str = "memory/notifications.db"):
-        self.db_path = Path(db_path)
+    def __init__(self, db_path: str | None = None):
+        self.repo_root = get_repo_root()
+        if db_path:
+            self.db_path = Path(db_path)
+            self._using_default_db = False
+        else:
+            self.db_path = self.repo_root / "memory" / "wizard" / "ops.db"
+            self._using_default_db = True
         self._managed = is_managed_mode()
         self.store = get_wizard_store()
         if not self._managed:
             self.db_path.parent.mkdir(parents=True, exist_ok=True)
             self._init_schema()
+            if self._using_default_db:
+                self._migrate_legacy_notifications()
 
     def _init_schema(self):
-        """Initialize database schema on first run."""
+        """Initialize database schema on first run from shared SQL."""
+        schema_path = Path(__file__).parent / "schemas" / "notifications_schema.sql"
+        if not schema_path.exists():
+            raise FileNotFoundError(f"Notification schema file missing: {schema_path}")
         with sqlite3.connect(self.db_path) as conn:
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS notifications (
-                    id TEXT PRIMARY KEY,
-                    type TEXT NOT NULL,
-                    title TEXT,
-                    message TEXT NOT NULL,
-                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    duration_ms INTEGER,
-                    sticky BOOLEAN DEFAULT 0,
-                    action_count INTEGER DEFAULT 0,
-                    dismissed_at DATETIME,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS notification_actions (
-                    id TEXT PRIMARY KEY,
-                    notification_id TEXT NOT NULL,
-                    label TEXT NOT NULL,
-                    action_type TEXT,
-                    callback_data TEXT,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY(notification_id) REFERENCES notifications(id)
-                )
-            """)
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS notification_exports (
-                    id TEXT PRIMARY KEY,
-                    export_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    format TEXT NOT NULL,
-                    file_path TEXT,
-                    record_count INTEGER,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
-            # Create indexes
-            conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_notifications_timestamp ON notifications(timestamp)"
-            )
-            conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_notifications_type ON notifications(type)"
-            )
-            conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_actions_notification_id ON notification_actions(notification_id)"
-            )
+            conn.executescript(schema_path.read_text(encoding="utf-8"))
             conn.commit()
+
+    def _migrate_legacy_notifications(self) -> None:
+        legacy_db = self.repo_root / "memory" / "notifications.db"
+        if not legacy_db.exists() or legacy_db.resolve() == self.db_path.resolve():
+            return
+        with sqlite3.connect(legacy_db) as source:
+            table = source.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='notifications'"
+            ).fetchone()
+            if not table:
+                return
+            source.row_factory = sqlite3.Row
+            rows = source.execute(
+                """
+                SELECT id, type, title, message, timestamp, duration_ms, sticky, action_count, dismissed_at
+                FROM notifications
+                """
+            ).fetchall()
+        if not rows:
+            return
+        with sqlite3.connect(self.db_path) as target:
+            target.executemany(
+                """
+                INSERT INTO notifications (
+                    id, type, title, message, timestamp, duration_ms, sticky, action_count, dismissed_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO NOTHING
+                """,
+                [
+                    (
+                        row["id"],
+                        row["type"],
+                        row["title"],
+                        row["message"],
+                        row["timestamp"],
+                        int(row["duration_ms"] or 0),
+                        int(row["sticky"] or 0),
+                        int(row["action_count"] or 0),
+                        row["dismissed_at"],
+                    )
+                    for row in rows
+                ],
+            )
+            target.commit()
 
     async def save_notification(
         self,

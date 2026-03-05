@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
-import wizard.routes.ucode_template_routes as template_routes_module
 from wizard.routes.ucode_template_routes import create_ucode_template_routes
 
 
@@ -40,12 +39,11 @@ def _build_app(**overrides):
 
 
 def test_template_routes_surface_template_bridge_failures(monkeypatch):
-    def _fail(**_kwargs):
+    def _fail(command, payload, corr_id):
+        _ = (command, payload, corr_id)
         raise HTTPException(status_code=500, detail="uCODE dispatcher unavailable")
 
-    monkeypatch.setattr(template_routes_module, "dispatch_ucode_template_command", _fail)
-
-    app, _calls = _build_app(dispatcher=None)
+    app, _calls = _build_app(dispatch_core=_fail)
     client = TestClient(app)
 
     res = client.get("/api/ucode/templates")
@@ -70,10 +68,7 @@ def test_template_routes_dispatch_ucode_template_commands():
     assert read_res.status_code == 200
     assert dup_res.status_code == 200
     assert len(calls["reset_tokens"]) == 4
-    assert "families" in list_res.json()["result"]
-    assert family_res.json()["result"]["family"] == "missions"
-    assert read_res.json()["result"]["template"]["template_name"] == "CAPTURE-template"
-    assert (
-        dup_res.json()["result"]["duplicate"]["target_name"]
-        == "my-device-template"
-    )
+    assert list_res.json()["command"] == "UCODE TEMPLATE LIST"
+    assert family_res.json()["command"] == "UCODE TEMPLATE LIST missions"
+    assert read_res.json()["command"] == "UCODE TEMPLATE READ captures CAPTURE-template"
+    assert dup_res.json()["command"] == "UCODE TEMPLATE DUPLICATE submissions DEVICE-SUBMISSION-template my-device-template"

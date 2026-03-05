@@ -12,6 +12,7 @@ Contributor-only `@dev` workspace policy lives in `dev/docs/`.
 ## Start Here
 
 - [Installation](Installation.md)
+- [Onboarding Flow](Onboarding-Flow.md)
 - [Architecture](ARCHITECTURE.md)
 - [Core](Core.md)
 - [Wizard](Wizard.md)
@@ -29,7 +30,7 @@ Contributor-only `@dev` workspace policy lives in `dev/docs/`.
 ## Quick Paths
 
 - New operator:
-  [Installation](Installation.md) -> [Core](Core.md) -> [Wizard](Wizard.md)
+  [Installation](Installation.md) -> [Onboarding Flow](Onboarding-Flow.md) -> [Core](Core.md) -> [Wizard](Wizard.md)
 - Runtime boundaries:
   [Architecture](ARCHITECTURE.md) -> [Modes and Policy](Modes-and-Policy.md)
 - Gameplay and spatial context:

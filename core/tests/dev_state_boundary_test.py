@@ -11,7 +11,7 @@ def _reset_dev_state_cache() -> None:
 def test_loopback_wizard_base_url_blocks_non_loopback() -> None:
     assert (
         dev_state._loopback_wizard_base_url("https://wizard.example.com")
-        == "http://localhost:8765"
+        == "http://127.0.0.1:8765"
     )
 
 
@@ -29,5 +29,5 @@ def test_get_dev_active_uses_loopback_fallback(monkeypatch):
 
     monkeypatch.setattr(dev_state, "http_get", _fake_http_get)
     assert dev_state.get_dev_active(force=True) is True
-    assert calls["url"] == "http://localhost:8765/api/dev/status"
+    assert calls["url"] == "http://127.0.0.1:8765/api/dev/status"
     assert calls["headers"]["X-Admin-Token"] == "abc123"

@@ -8,10 +8,9 @@ import socket
 import time
 from urllib.parse import urlparse
 
+from core.services.loopback_host_utils import is_loopback_host
 from core.services.logging_manager import get_logger
 from core.services.network_gate_policy import allow_non_loopback_core_network
-
-_LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 
 
 class DevModeToolNetworkService:
@@ -30,14 +29,14 @@ class DevModeToolNetworkService:
         if not host:
             return False
         normalized = host.strip().lower()
-        if normalized in _LOOPBACK_HOSTS:
+        if is_loopback_host(normalized):
             return True
         try:
             parsed = urlparse(normalized if "://" in normalized else f"tcp://{normalized}")
         except ValueError:
             return False
         hostname = (parsed.hostname or normalized).strip().lower()
-        return hostname in _LOOPBACK_HOSTS
+        return is_loopback_host(hostname)
 
     def _is_loopback_subnet(self, subnet: str) -> bool:
         try:
@@ -53,7 +52,7 @@ class DevModeToolNetworkService:
             "operation": operation,
             "target": target,
             "message": "Core networking is restricted to loopback. Use Wizard networking routes for remote targets.",
-            "recovery_hint": "Run through Wizard mode/services or target localhost/127.0.0.1 only",
+            "recovery_hint": "Run through Wizard mode/services or target loopback host only",
         }
 
     def _probe_tcp(self, host: str, port: int, timeout_sec: float) -> tuple[bool, float]:

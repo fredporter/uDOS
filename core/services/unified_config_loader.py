@@ -79,7 +79,7 @@ class UnifiedConfigLoader:
         "UDOS_MEMORY_ROOT": None,
         "VAULT_ROOT": None,
         "VAULT_MD_ROOT": None,
-        "WIZARD_BASE_URL": "http://localhost:8765",
+        "WIZARD_BASE_URL": "http://127.0.0.1:8765",
         "WIZARD_PORT": "8765",
         "USER_NAME": "ghost",
         "UDOS_DEV_MODE": "0",

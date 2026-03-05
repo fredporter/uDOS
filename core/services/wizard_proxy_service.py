@@ -10,15 +10,14 @@ from urllib.parse import urlparse
 
 from core.services.background_service_manager import get_wizard_process_manager
 from core.services.error_contract import CommandError
+from core.services.loopback_host_utils import is_loopback_host
 from core.services.stdlib_http import HTTPError, http_get, http_post
 from core.services.unified_config_loader import get_config
-from core.services.wizard_runtime_config import get_loopback_wizard_base_url
-
-_LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
+from core.services.wizard_runtime_config import get_wizard_base_url
 
 
 def _wizard_base_url() -> str:
-    return get_loopback_wizard_base_url(get_config("WIZARD_BASE_URL", ""))
+    return get_wizard_base_url(get_config("WIZARD_BASE_URL", ""))
 
 
 def _admin_headers() -> dict[str, str]:
@@ -30,12 +29,12 @@ def _admin_headers() -> dict[str, str]:
 def _assert_loopback_base_url(base_url: str) -> None:
     parsed = urlparse(base_url)
     host = (parsed.hostname or "").strip().lower()
-    if host in _LOOPBACK_HOSTS:
+    if is_loopback_host(host):
         return
     raise CommandError(
         code="ERR_BOUNDARY_POLICY",
         message=f"Core command proxy blocked non-loopback Wizard target: {base_url}",
-        recovery_hint="Set WIZARD_BASE_URL to localhost/127.0.0.1 or run the command in Wizard directly",
+        recovery_hint="Set WIZARD_BASE_URL to a loopback host or run the command in Wizard directly",
         level="ERROR",
     )
 

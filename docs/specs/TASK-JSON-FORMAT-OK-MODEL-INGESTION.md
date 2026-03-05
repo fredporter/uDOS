@@ -460,7 +460,7 @@ suggest which should be promoted to standard tasks with full context.
 
 ## API Methods for New Format
 
-See [VibeBinderService](../core/services/vibe_binder_service.py) for:
+See [DevModeToolBinderService](../core/services/dev_mode_compat/binder_service.py) for:
 
 - `add_move()` — Add standard task
 - `add_calendar_event()` — Import calendar event

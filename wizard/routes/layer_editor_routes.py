@@ -12,13 +12,13 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 
-from wizard.services.path_utils import get_repo_root, get_memory_dir
+from wizard.services.path_utils import get_repo_root, get_memory_dir, get_vault_dir
 
 
 ALLOWED_ROOTS = {
-    "sandbox": "memory/sandbox",
+    "binders": "vault/@binders",
     "core": "memory/knowledge/maps",
-    "drafts": "memory/sandbox",
+    "drafts": "vault/@binders",
 }
 
 CORE_MAPS_ROOT = "core/data/maps/layers"
@@ -31,8 +31,20 @@ class LayerSaveRequest(BaseModel):
 
 def _resolve_path(path: str) -> Path:
     repo_root = get_repo_root()
-    candidate = (repo_root / path).resolve()
-    allowed = [repo_root / rel for rel in ALLOWED_ROOTS.values()]
+    memory_root = get_memory_dir().resolve()
+    vault_root = get_vault_dir().resolve()
+    if path.startswith("vault/"):
+        candidate = (vault_root / path[len("vault/"):]).resolve()
+    elif path.startswith("memory/"):
+        candidate = (memory_root / path[len("memory/"):]).resolve()
+    else:
+        candidate = (repo_root / path).resolve()
+    allowed = []
+    for rel in ALLOWED_ROOTS.values():
+        if rel.startswith("vault/"):
+            allowed.append((vault_root / rel[len("vault/"):]).resolve())
+        else:
+            allowed.append((repo_root / rel).resolve())
     if not any(str(candidate).startswith(str(root.resolve())) for root in allowed):
         raise ValueError("Path must be within allowed layer directories")
     return candidate
@@ -49,7 +61,7 @@ def create_layer_editor_routes(auth_guard=None) -> APIRouter:
         return {"success": True, "roots": ALLOWED_ROOTS}
 
     @router.get("/list")
-    async def list_layers(scope: str = "sandbox"):
+    async def list_layers(scope: str = "binders"):
         if scope not in ALLOWED_ROOTS:
             raise HTTPException(status_code=400, detail="Invalid scope")
         root_path = _resolve_path(ALLOWED_ROOTS[scope])

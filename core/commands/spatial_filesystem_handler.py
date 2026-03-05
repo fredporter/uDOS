@@ -2,20 +2,20 @@
 Spatial Filesystem Handler for uDOS TUI
 
 Commands:
-    WORKSPACE list @sandbox              # List files in workspace
-    WORKSPACE read @sandbox/story.md     # Read file
-    WORKSPACE write @sandbox/file.md     # Write file
-    WORKSPACE delete @sandbox/file.md    # Delete file
+    WORKSPACE list @binders              # List files in workspace
+    WORKSPACE read @vault/story.md       # Read file
+    WORKSPACE write @vault/file.md       # Write file
+    WORKSPACE delete @vault/file.md      # Delete file
 
-    LOCATION tag @sandbox/story.md L300-AB15   # Tag file with grid location
+    LOCATION tag @vault/story.md L300-AB15     # Tag file with grid location
     LOCATION find L300-AB15                    # Find files at location
 
-    TAG list @sandbox                    # List tags in workspace
+    TAG list @binders                    # List tags in workspace
     TAG find forest adventure            # Find files with tags
 
-    BINDER open @sandbox/my-project      # Open binder
-    BINDER list @sandbox/my-project      # List chapters
-    BINDER add @sandbox/my-project chapter1.md "Chapter 1"
+    BINDER open @binders/my-project/sandbox      # Open binder
+    BINDER list @binders/my-project/sandbox      # List chapters
+    BINDER add @binders/my-project/sandbox chapter1.md "Chapter 1"
 
 Author: uDOS Development Team
 Version: 1.0.7.0
@@ -294,7 +294,7 @@ class SpatialFilesystemHandler:
   WORKSPACE HELP                         - Show this help
 
 Workspaces (memory-rooted):
-    @sandbox     - Sandbox (memory/sandbox)
+    @binders     - Binder roots (memory/vault/@binders)
     @vault       - Vault (memory/vault)
     @inbox       - Inbox intake (memory/inbox)
     @public      - Public/open/published (memory/contributions)
@@ -316,7 +316,7 @@ def dispatch_spatial_command(handler: SpatialFilesystemHandler, args: List[str])
     Dispatch spatial filesystem command.
 
     Usage:
-        dispatch_spatial_command(handler, ['WORKSPACE', 'list', '@sandbox'])
+        dispatch_spatial_command(handler, ['WORKSPACE', 'list', '@binders'])
     """
     if not args:
         return handler.help()

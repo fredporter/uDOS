@@ -9,6 +9,7 @@ Contributor-only Dev Mode documentation does not live here. Use `dev/docs/` for 
 ## Start Here
 
 - Installation: `docs/INSTALLATION.md`
+- User onboarding flow: `wiki/Onboarding-Flow.md`
 - Stable launcher: `bin/ucode-tui-v1.5.command`
 - Public status: `docs/STATUS.md`
 - Architecture: `docs/ARCHITECTURE.md`
@@ -70,5 +71,6 @@ Contributor-only Dev Mode documentation does not live here. Use `dev/docs/` for 
 - `wiki/` is the short orientation layer, not the canonical contract source.
 - `dev/docs/README.md` is the contributor documentation front door.
 - Planning notes, devlogs, and private milestone tracking belong in local `@dev` workspace paths, not in public `docs/`.
+- Contributor draft submissions for decisions/devlogs/roadmap proposals belong in `dev/docs/contributors/`.
 - `docs/STATUS.md` is the public release/status page.
 - Superseded documents should move out of the active tree into `docs/.compost/`. Active docs should not keep redirect stubs unless a hard external dependency requires one.

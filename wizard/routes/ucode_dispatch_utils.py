@@ -99,16 +99,9 @@ def dispatch_non_ok_command(
     logger: Any,
     corr_id: str,
     command_capability_check: Optional[Callable[[str], Tuple[bool, Optional[str], List[str]]]] = None,
-    deprecated_aliases: Optional[Dict[str, str]] = None,
 ) -> Dict[str, Any]:
     """Dispatch non-OK allowlisted commands, including setup story shortcut."""
     cmd_name = command.split()[0].upper()
-    if deprecated_aliases and cmd_name in deprecated_aliases:
-        canonical = deprecated_aliases[cmd_name]
-        raise HTTPException(
-            status_code=410,
-            detail=f"Legacy command alias removed in v1.3: {cmd_name}. Use {canonical}.",
-        )
     if command_capability_check:
         available, reason, _ = command_capability_check(cmd_name)
         if not available:

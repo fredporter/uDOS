@@ -22,7 +22,6 @@ from wizard.routes.command_capability_utils import (
 )
 from wizard.routes.ucode_contract_utils import (
     load_ucode_allowlist_from_contract,
-    load_ucode_deprecated_aliases,
 )
 from wizard.routes.ucode_dispatch_routes import (
     DispatchRequest,
@@ -49,7 +48,7 @@ from wizard.routes.ucode_logic_mode_utils import (
 )
 from wizard.routes.ucode_logic_routes import create_ucode_logic_routes
 from wizard.routes.ucode_ok_stream_dispatch import dispatch_ok_stream_command
-from wizard.routes.ucode_route_utils import shell_safe
+from wizard.routes.ucode_command_utils import shell_safe
 from wizard.routes.ucode_setup_story_utils import load_setup_story as _load_setup_story
 from wizard.routes.ucode_template_routes import create_ucode_template_routes
 from wizard.routes.ucode_user_routes import create_ucode_user_routes
@@ -99,7 +98,6 @@ def create_ucode_routes(auth_guard=None):
     logger = get_logger("wizard", category="ucode", name="ucode")
 
     allowlist = _load_allowlist()
-    deprecated_aliases = load_ucode_deprecated_aliases()
     wizard_required_commands = load_wizard_required_commands()
     ok_history: list[dict[str, Any]] = []
     ok_counter = 0
@@ -259,7 +257,6 @@ def create_ucode_routes(auth_guard=None):
             logger=logger,
             corr_id=corr_id,
             command_capability_check=_check_command_capability,
-            deprecated_aliases=deprecated_aliases,
         )
 
     router.include_router(

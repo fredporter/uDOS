@@ -72,7 +72,7 @@ class TaskScheduler:
 
     def __init__(self, db_path: Optional[Path] = None):
         repo_root = get_repo_root()
-        default_db = repo_root / "memory" / "wizard" / "tasks.db"
+        default_db = repo_root / "memory" / "wizard" / "ops.db"
         self.db_path = Path(db_path or default_db)
         self._managed = is_managed_mode()
         self.store = get_wizard_store()
@@ -86,44 +86,9 @@ class TaskScheduler:
         schema_path = Path(__file__).parent / "schemas" / "task_schema.sql"
         try:
             with sqlite3.connect(self.db_path) as conn:
-                if schema_path.exists():
-                    conn.executescript(schema_path.read_text())
-                else:
-                    conn.execute(
-                        """
-                        CREATE TABLE IF NOT EXISTS tasks (
-                            id TEXT PRIMARY KEY,
-                            name TEXT,
-                            description TEXT,
-                            schedule TEXT,
-                            state TEXT DEFAULT 'plant',
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                        );
-                        CREATE TABLE IF NOT EXISTS task_runs (
-                            id TEXT PRIMARY KEY,
-                            task_id TEXT,
-                            state TEXT,
-                            result TEXT,
-                            output TEXT,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            completed_at TIMESTAMP,
-                            FOREIGN KEY(task_id) REFERENCES tasks(id)
-                        );
-                        CREATE TABLE IF NOT EXISTS task_queue (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            task_id TEXT,
-                            run_id TEXT,
-                            state TEXT,
-                            scheduled_for TIMESTAMP,
-                            processed_at TIMESTAMP,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            defer_reason TEXT,
-                            defer_count INTEGER DEFAULT 0,
-                            FOREIGN KEY(task_id) REFERENCES tasks(id)
-                        );
-                        """
-                    )
+                if not schema_path.exists():
+                    raise FileNotFoundError(f"Task schema file missing: {schema_path}")
+                conn.executescript(schema_path.read_text(encoding="utf-8"))
                 self._ensure_columns(conn)
                 conn.execute(
                     """
@@ -323,15 +288,16 @@ class TaskScheduler:
             )
         task_id = f"task_{uuid.uuid4().hex[:12]}"
         try:
+            now_iso = utc_now_iso()
             with sqlite3.connect(self.db_path) as conn:
                 self._ensure_columns(conn)
                 conn.execute(
                     """INSERT INTO tasks (
                         id, name, description, schedule, state, provider, enabled,
                         priority, need, mission, objective, resource_cost, requires_network,
-                        kind, payload
+                        kind, payload, created_at, updated_at
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
                         task_id,
                         name,
@@ -348,6 +314,8 @@ class TaskScheduler:
                         1 if requires_network else 0,
                         kind,
                         json.dumps(payload or {}),
+                        now_iso,
+                        now_iso,
                     ),
                 )
                 conn.commit()
@@ -367,7 +335,7 @@ class TaskScheduler:
                 "kind": kind,
                 "payload": payload or {},
                 "state": "plant",
-                "created_at": utc_now_iso(),
+                "created_at": now_iso,
             }
         except sqlite3.Error as exc:
             logger.error(f"[WIZ] Create task error: {exc}")
@@ -421,6 +389,7 @@ class TaskScheduler:
             return self.store.schedule_task(task_id, scheduled_for)
         run_id = f"run_{uuid.uuid4().hex[:12]}"
         try:
+            now_iso = utc_now_iso()
             with sqlite3.connect(self.db_path) as conn:
                 self._ensure_columns(conn)
                 cursor = conn.execute(
@@ -442,18 +411,19 @@ class TaskScheduler:
                         "note": "duplicate avoided",
                     }
                 conn.execute(
-                    """INSERT INTO task_runs (id, task_id, state) VALUES (?, ?, ?)""",
-                    (run_id, task_id, "sprout"),
+                    """INSERT INTO task_runs (id, task_id, state, created_at) VALUES (?, ?, ?, ?)""",
+                    (run_id, task_id, "sprout", now_iso),
                 )
                 conn.execute(
                     """INSERT INTO task_queue
-                    (task_id, run_id, state, scheduled_for, priority, need, resource_cost, requires_network)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (task_id, run_id, state, scheduled_for, created_at, priority, need, resource_cost, requires_network)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
                         task_id,
                         run_id,
                         "pending",
                         _serialize_dt(scheduled_for),
+                        now_iso,
                         task_row[0],
                         task_row[1],
                         task_row[2],

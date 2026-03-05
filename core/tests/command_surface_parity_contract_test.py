@@ -11,7 +11,7 @@ from core.services.command_catalog import CANONICAL_UCODE_COMMANDS
 from core.tui.dispatcher import CommandDispatcher
 
 _CONTRACT_PATH = Path("core/config/ucode_command_contract_v1_3_20.json")
-_PROMPT_ONLY_COMMANDS = frozenset({"EXIT", "OK"})
+_PROMPT_ONLY_COMMANDS = frozenset({"EXIT", "OK", "LOGIC"})
 
 
 def _contract_commands() -> set[str]:

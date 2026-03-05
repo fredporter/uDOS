@@ -533,11 +533,6 @@ SKILL_REGISTRY = {
     "sync": SYNC_SKILL,
 }
 
-SKILL_ALIASES = {
-    "wizard": "wizops",  # temporary compatibility alias
-}
-
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Skill Mapper
 # ─────────────────────────────────────────────────────────────────────────────
@@ -551,9 +546,8 @@ class DevModeToolSkillMapper:
         self.registry = SKILL_REGISTRY
 
     def resolve_skill_name(self, skill_name: str) -> str:
-        """Resolve compatibility aliases to canonical skill names."""
-        normalized = skill_name.lower()
-        return SKILL_ALIASES.get(normalized, normalized)
+        """Resolve and normalize skill names."""
+        return skill_name.lower()
 
     def get_skill(self, skill_name: str) -> Optional[SkillContract]:
         """Get skill contract by name."""

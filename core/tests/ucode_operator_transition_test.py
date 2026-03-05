@@ -19,32 +19,9 @@ def _make_ucode_stub() -> UCODE:
     return instance
 
 
-def test_ok_route_alias_maps_to_operator_in_standard_runtime():
+def test_ok_prefix_handler_removed_in_v1_5_surface():
     ucode = _make_ucode_stub()
-    ucode._dev_mode_active = lambda: False
-    ucode._route_to_operator = lambda prompt: {
-        "status": "operator_plan",
-        "prompt": prompt,
-    }
-
-    result = ucode._handle_ok_prefix("OK ROUTE show scheduler logs")
-
-    assert result["status"] == "operator_plan"
-    assert result["prompt"] == "show scheduler logs"
-
-
-def test_ok_explain_is_dev_only_in_standard_runtime():
-    ucode = _make_ucode_stub()
-    ucode._dev_mode_active = lambda: False
-    ucode._legacy_dev_only_response = lambda text: {
-        "status": "warning",
-        "message": text,
-    }
-
-    result = ucode._handle_ok_prefix("OK EXPLAIN core/tui/ucode.py")
-
-    assert result["status"] == "warning"
-    assert result["message"] == "OK EXPLAIN"
+    assert not hasattr(ucode, "_handle_ok_prefix")
 
 
 def test_operator_prefix_routes_to_ucode_operator_surface():

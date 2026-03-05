@@ -1,6 +1,6 @@
 # v1.5 Demo Certification
 
-Updated: 2026-03-04
+Updated: 2026-03-05
 Status: Certified
 
 This document records the release-demo certification pass for the canonical
@@ -25,6 +25,11 @@ by v1.5.
 | `02-workflow-and-task-planning` | `core`, `creator`, `dev` | `scripts/run_demo_02_workflow_and_task_planning.py` | `.artifacts/release-demos/demo-02-workflow-and-task-planning.json` | Certified |
 | `03-managed-scheduler-and-budget` | `home`, `creator`, `dev` | `scripts/run_demo_03_managed_scheduler_and_budget.py` | `.artifacts/release-demos/demo-03-managed-scheduler-and-budget.json` | Certified |
 | `04-self-hosted-dev-mode` | `dev` | `scripts/run_demo_04_self_hosted_dev_mode.py` | `.artifacts/release-demos/demo-04-self-hosted-dev-mode.json` | Certified |
+| `05-grid-and-view-rendering` | `core`, `creator`, `gaming`, `dev` | `scripts/run_demo_05_grid_and_view_rendering.py` | `.artifacts/release-demos/demo-05-grid-and-view-rendering.json` | Certified |
+| `06-ghost-to-wizard-onboarding` | `core`, `home`, `creator`, `dev` | `scripts/run_demo_06_ghost_to_wizard_onboarding.py` | `.artifacts/release-demos/demo-06-ghost-to-wizard-onboarding.json` | Certified |
+| `07-layer-mapping-and-z-index` | `core`, `creator`, `gaming`, `dev` | `scripts/run_demo_07_layer_mapping_and_z_index.py` | `.artifacts/release-demos/demo-07-layer-mapping-and-z-index.json` | Certified |
+| `08-seed-library-generation` | `core`, `creator`, `dev` | `scripts/run_demo_08_seed_library_generation.py` | `.artifacts/release-demos/demo-08-seed-library-generation.json` | Certified |
+| `09-dev-mode-repair-and-self-extension` | `dev` | `scripts/run_demo_09_dev_mode_repair_and_self_extension.py` | `.artifacts/release-demos/demo-09-dev-mode-repair-and-self-extension.json` | Certified |
 
 ## Release Findings
 
@@ -33,6 +38,11 @@ by v1.5.
 - demo `02` confirmed the canonical workflow runtime produced approval-gated progress and runtime-owned artifacts
 - demo `03` confirmed budget-gated defer behavior and prompt/scheduler parity on the quota-blocked provider contract
 - demo `04` confirmed the self-hosted `@dev` lane can plan, sync, schedule, run, and update task state through runtime-owned surfaces
+- demo `05` confirmed renderer support for text, columns, ascii, teletext, calendar, task, grid, and container view contracts
+- demo `06` confirmed gameplay onboarding progression from Ghost to Wizard while preserving setup command checkpoints
+- demo `07` confirmed z-index bucket mapping and message-theme separation for dungeon/foundation/galaxy lanes
+- demo `08` confirmed deterministic seed library indexing for diagrams, themes, and templates
+- demo `09` confirmed Dev Mode repair plus extension self-growth with policy-gated cloud-code-agent lane metadata
 
 ## Profile Coverage
 
@@ -61,6 +71,11 @@ UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python docs/examples/ucode_v1_5_
 UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python docs/examples/ucode_v1_5_release_pack/scripts/run_demo_02_workflow_and_task_planning.py
 UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python docs/examples/ucode_v1_5_release_pack/scripts/run_demo_03_managed_scheduler_and_budget.py
 UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python docs/examples/ucode_v1_5_release_pack/scripts/run_demo_04_self_hosted_dev_mode.py
+UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python docs/examples/ucode_v1_5_release_pack/scripts/run_demo_05_grid_and_view_rendering.py
+UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python docs/examples/ucode_v1_5_release_pack/scripts/run_demo_06_ghost_to_wizard_onboarding.py
+UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python docs/examples/ucode_v1_5_release_pack/scripts/run_demo_07_layer_mapping_and_z_index.py
+UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python docs/examples/ucode_v1_5_release_pack/scripts/run_demo_08_seed_library_generation.py
+UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python docs/examples/ucode_v1_5_release_pack/scripts/run_demo_09_dev_mode_repair_and_self_extension.py
 ```
 
 Focused regression coverage:

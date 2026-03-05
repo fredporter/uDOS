@@ -35,7 +35,10 @@ def build_report(output_path: Path = DEFAULT_OUTPUT, runtime_root: Path = DEFAUL
             resource_cost=1,
             payload={"budget_units": 1, "estimated_tokens": 500},
         )
-        scheduler.schedule_task(task["id"], utc_now() - timedelta(minutes=1))
+        task_id = str(task.get("id") or task.get("task_id") or "").strip()
+        if not task_id:
+            raise RuntimeError(f"Task scheduler create_task did not return an id: {task}")
+        scheduler.schedule_task(task_id, utc_now() - timedelta(minutes=1))
         run_result = scheduler.run_pending(max_tasks=1)
         queue = scheduler.get_scheduled_queue(limit=10)
 
@@ -47,7 +50,7 @@ def build_report(output_path: Path = DEFAULT_OUTPUT, runtime_root: Path = DEFAUL
     payload = {
         "demo": "03-managed-scheduler-and-budget",
         "runtime_root": str(runtime_root.resolve()),
-        "task_id": task["id"],
+        "task_id": task_id,
         "run_result": run_result,
         "queue": queue,
         "logic_status": logic,

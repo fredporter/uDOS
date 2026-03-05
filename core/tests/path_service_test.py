@@ -50,10 +50,9 @@ def test_resolve_repo_path_uses_repo_root_for_relative_paths(tmp_path: Path, mon
     assert resolved == repo / "memory" / "logs"
 
 
-def test_get_repo_root_raises_for_invalid_udos_root(tmp_path: Path, monkeypatch):
+def test_get_repo_root_ignores_invalid_udos_root_and_falls_back(tmp_path: Path, monkeypatch):
     bad_root = tmp_path / "bad"
     bad_root.mkdir(parents=True)
     monkeypatch.setenv("UDOS_ROOT", str(bad_root))
-
-    with pytest.raises(RuntimeError, match="does not contain uDOS.py marker"):
-        get_repo_root(marker="uDOS.py")
+    resolved = get_repo_root(marker="uDOS.py")
+    assert (resolved / "uDOS.py").exists()

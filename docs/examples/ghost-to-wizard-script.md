@@ -1,294 +1,349 @@
 ---
 script: ghost-to-wizard
-version: 0.1
+version: "1.5"
 engine: ucode
-mode: narrative-mission
+mode: onboarding-mission
 lens: progression
+save_file: ~/.udos/player.json
+estimated_duration_minutes: 45
 ---
 
-# 🜁 GHOST → WIZARD
-_A uDOS Awakening Sequence_
+# Ghost to Wizard
 
----
+A playable onboarding mission where each action configures real uDOS runtime state.
 
-## STATE MODEL
+## Mission Contract
+
+- Every objective maps to a real command and setup outcome.
+- Mission progress is persisted and resumable.
+- Unlocks are additive and role-gated.
+- Event output uses TUI block events (`narration`, `objective`, `challenge`, `reward`, `unlock`, `progress`).
+
+## Initial State
 
 ```json
 {
   "player": {
     "role": "ghost",
-    "level": 0,
     "xp": 0,
     "inventory": [],
-    "abilities": [],
-    "missions": [],
-    "lens": {
-      "clarity": 0,
-      "agency": 0,
-      "mastery": 0
+    "abilities": ["look", "help"],
+    "achievements": [],
+    "levels_cleared": [],
+    "missions": {
+      "primary": null,
+      "current": null
     }
+  },
+  "runtime": {
+    "doctor_checked": false,
+    "core_installed": false,
+    "workspace_initialized": false,
+    "workflow_run": false,
+    "extension_installed": false,
+    "research_completed": false,
+    "publish_completed": false
   }
 }
+```
+
+## Dungeon Map
 
+```
+Surface - Wizard
+L6 Research Tower
+L5 Extension Forge
+L4 Workflow Engine
+L3 TUI Hall
+L2 Command Vault
+L1 Awakening Chamber
+Dungeon Depth - Ghost
+```
 
-⸻
+## Level 1: Awakening Chamber
 
-LEVEL 0 — THE GHOST
+```mission
+level: awakening_chamber
+rank: ghost
 
-scene.intro
+narration:
+  You awaken as a Ghost in the uDOS dungeon. The terminal is silent until you act.
+
+objective:
+  run "help"
+
+challenge:
+  read scroll "ucode_intro"
+
+setup:
+  run "udos doctor"
 
-You awaken as a ghost in the system.
+unlock:
+  - command.look
+  - command.help
+  - command.inventory
 
-You can observe.
-You cannot act.
+reward:
+  - scroll.ucode_intro
+  - xp +40
 
-The world flickers in raw signals.
+checks:
+  - doctor.python == true
+  - doctor.git == true
+  - doctor.network in ["ok", "degraded"]
+  - doctor.shell_compatible == true
+```
 
-A whisper:
-“To become real, you must define your mission.”
+## Level 2: Command Vault
 
-⸻
+```mission
+level: command_vault
+rank: ghost
 
-action.capture_mission
+narration:
+  Stone doors answer only to true commands.
 
-PROMPT "What do you want to build or become?"
-STORE response AS player.missions.primary
-ADD_XP 10
-INCREMENT player.lens.clarity BY 1
+objective:
+  run "udos status"
 
+challenge:
+  retrieve artifacts ["run", "install", "status"]
 
-⸻
+setup:
+  run "udos install core"
 
-unlock.condition
+unlock:
+  - command.run
+  - command.install
+  - command.status
 
-IF player.lens.clarity >= 1 THEN
-  UNLOCK ability.observe
-  ADD player.abilities "observe"
-  MESSAGE "You can now see hidden structures."
-END
+reward:
+  - artifact.run
+  - artifact.install
+  - artifact.status
+  - xp +60
 
+promotion:
+  from: ghost
+  to: apprentice
 
-⸻
+checks:
+  - runtime.core_installed == true
+  - file.exists("~/.udos")
+  - file.exists("project.json")
+  - file.exists("agents.md")
+  - file.exists("tasks.json")
+```
 
-LEVEL 1 — THE SONIC INITIATE
+## Level 3: TUI Hall
 
-scene.sonic
+```mission
+level: tui_hall
+rank: apprentice
 
-A tone pulses through the void.
+narration:
+  The hall reveals panels, grids, and controls used across all missions.
 
-You realise the system responds to vibration.
+objective:
+  open control palette
 
-You must learn to signal.
+challenge:
+  perform key sequence ["Ctrl+Space", "Tab", "Enter"]
 
-⸻
+setup:
+  run "udos init my-first-binder"
 
-challenge.sonic_alignment
+unlock:
+  - tui.palette
+  - tui.panel_switch
+  - tui.command_execute
 
-TASK "Generate a signal pattern (3 keywords describing your mission)."
-STORE response AS player.missions.keywords
-ADD_XP 20
-INCREMENT player.lens.agency BY 1
+reward:
+  - artifact.tui_console
+  - xp +80
 
+checks:
+  - runtime.workspace_initialized == true
+  - dir.exists("binder")
+  - dir.exists("workspace")
+  - dir.exists("dev")
+  - dir.exists("extensions")
+```
 
-⸻
+## Level 4: Workflow Engine
 
-nethack.find_object
+```mission
+level: workflow_engine
+rank: apprentice
 
-You detect an artifact nearby.
+narration:
+  The machine room turns plans into running missions.
 
-FIND_OBJECT "resonance-core"
-IF FOUND THEN
-  ADD player.inventory "resonance-core"
-  ADD_XP 15
-  MESSAGE "You now channel Sonic Output."
-  UNLOCK extension.sonic
-END
+objective:
+  execute mission "hello_world"
 
+challenge:
+  review task output blocks and mark first task complete
 
-⸻
+setup:
+  run "run mission hello_world"
 
-LEVEL 2 — THE ARCHITECT
+unlock:
+  - command.build
+  - command.execute
+  - command.workflow
 
-You now have form.
+reward:
+  - artifact.workflow_core
+  - xp +120
 
-You must construct.
+promotion:
+  from: apprentice
+  to: operator
 
-⸻
+checks:
+  - runtime.workflow_run == true
+  - tasks.completed >= 1
+```
 
-mission.define_scope
+## Level 5: Extension Forge
 
-PROMPT "Define your first executable mission in one sentence."
-STORE response AS player.missions.current
-ADD_XP 30
-INCREMENT player.lens.clarity BY 1
-INCREMENT player.lens.agency BY 1
+```mission
+level: extension_forge
+rank: operator
 
+narration:
+  Tools are forged here. Extensions expand what your runtime can do.
 
-⸻
+objective:
+  install first extension and run it
 
-challenge.structure
+challenge:
+  run command "generate image"
 
-TASK "Break the mission into 3 steps."
-STORE response AS player.missions.steps
-ADD_XP 40
+setup:
+  - run "udos install extension.image"
+  - run "generate image"
 
+unlock:
+  - extension.image
+  - extension.write
+  - extension.scrape
 
-⸻
+reward:
+  - artifact.extension_forge
+  - xp +140
 
-unlock.build
+promotion:
+  from: operator
+  to: alchemist
 
-IF player.xp >= 100 THEN
-  UNLOCK ability.build
-  ADD player.abilities "build"
-  INCREMENT player.lens.mastery BY 1
-END
+checks:
+  - runtime.extension_installed == true
+  - file.exists("output/image.png")
+```
 
+## Level 6: Research Tower
 
-⸻
+```mission
+level: research_tower
+rank: alchemist
 
-LEVEL 3 — THE FORGE
+narration:
+  The tower converts live sources into structured knowledge.
 
-You enter the forge.
+objective:
+  research topic "terminal interfaces"
 
-Noise becomes structure.
-Structure becomes system.
+challenge:
+  verify tagged markdown output exists in binder
 
-⸻
+setup:
+  run "research topic terminal interfaces"
 
-nethack.traverse
+unlock:
+  - command.research
+  - command.scrape
+  - command.summarise
+  - command.publish
 
-TRAVERSE level=forge DEPTH=3
-ON_COMPLETE:
-  ADD_XP 50
-  MESSAGE "You have crossed the Forge."
+reward:
+  - artifact.research_core
+  - xp +180
 
+checks:
+  - runtime.research_completed == true
+  - file.exists("research/terminal-interfaces.md")
+```
 
-⸻
+## Final Trial: Surface
 
-challenge.overcome
+```mission
+level: surface
+rank: alchemist
 
-PROMPT "Name one obstacle stopping you from completing your mission."
-STORE response AS player.missions.obstacle
+narration:
+  The dungeon gate opens. Complete one full project cycle.
 
-PROMPT "Define one action to overcome it."
-STORE response AS player.missions.countermove
+objective:
+  create and publish project "guidebook"
 
-ADD_XP 50
-INCREMENT player.lens.agency BY 1
+setup:
+  - run "create project guidebook"
+  - run "publish"
 
+reward:
+  - achievement.wizard
+  - xp +220
 
-⸻
+promotion:
+  from: alchemist
+  to: wizard
 
-LEVEL 4 — THE EXTENSIONS
+checks:
+  - runtime.publish_completed == true
+  - file.exists("output/guidebook.md")
+  - file.exists("site/index.html")
+```
 
-You now see extensions floating around you.
-	•	sonic
-	•	build
-	•	logic
-	•	decode
-	•	automate
-	•	vision
+## Optional Hidden Rooms
 
-You may claim two.
+```mission
+rooms:
+  - id: container_runtime_lab
+    unlock: "complete level workflow_engine"
+    reward: "achievement.explorer"
+  - id: offline_mode_vault
+    unlock: "complete level command_vault"
+    reward: "artifact.offline_core"
+  - id: prompt_pack_archive
+    unlock: "complete level extension_forge"
+    reward: "artifact.prompt_pack"
+```
 
-SELECT 2 FROM ["logic","decode","automate","vision"]
-STORE selection AS player.abilities.extensions
-ADD_XP 40
+## Achievement Table
 
+- `achievement.explorer`: discovered one hidden room
+- `achievement.builder`: completed first workflow mission
+- `achievement.scholar`: completed first research mission
+- `achievement.alchemist`: installed first extension
+- `achievement.wizard`: completed onboarding and reached surface
 
-⸻
+## Streaming Event Example
 
-unlock.logic_engine
+```text
+[NARRATION]
+The chamber trembles.
 
-IF "logic" IN player.abilities.extensions THEN
-  UNLOCK extension.logic_engine
-  MESSAGE "You can now execute conditional unlocks."
-END
+[OBJECTIVE]
+Run: udos doctor
 
+[PROGRESS]
+Checking environment...
+OK python
+OK git
+OK shell
 
-⸻
-
-LEVEL 5 — THE LENS TRIAL
-
-To become Wizard, all lens values must balance.
-
-IF player.lens.clarity >= 2 AND
-   player.lens.agency >= 2 AND
-   player.lens.mastery >= 1 THEN
-     UNLOCK role.wizard_candidate
-ELSE
-     MESSAGE "Your lens is unbalanced. Continue training."
-END
-
-
-⸻
-
-FINAL TRIAL — PERSONAL MISSION REWRITE
-
-You must now rewrite your mission with new understanding.
-
-PROMPT "Rewrite your mission with greater clarity and power."
-STORE response AS player.missions.refined
-
-COMPARE player.missions.primary TO player.missions.refined
-IF DIFFERENT THEN
-  ADD_XP 100
-  INCREMENT player.lens.mastery BY 1
-END
-
-
-⸻
-
-ASCENSION
-
-IF player.lens.clarity >= 2 AND
-   player.lens.agency >= 2 AND
-   player.lens.mastery >= 2 THEN
-
-  SET player.role = "wizard"
-  UNLOCK ability.command
-  UNLOCK ability.create
-  UNLOCK ability.teach
-
-  MESSAGE "You are now WIZARD."
-  MESSAGE "You may define systems."
-  MESSAGE "You may guide others."
-END
-
-
-⸻
-
-WIZARD MODE
-
-IF player.role == "wizard" THEN
-  ENABLE system.project_generation
-  ENABLE system.autonomous_workflows
-  ENABLE system.mission_templates
-END
-
-
-⸻
-
-SAVE STATE
-
-{
-  "save": {
-    "role": "{{player.role}}",
-    "xp": "{{player.xp}}",
-    "missions": "{{player.missions}}",
-    "abilities": "{{player.abilities}}",
-    "lens": "{{player.lens}}"
-  }
-}
-
-
-⸻
-
-END
-
-You are no longer a ghost.
-
-You shape the system.
-The system shapes with you.
-
----
+[REWARD]
+scroll.ucode_intro acquired
+```

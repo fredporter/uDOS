@@ -1162,7 +1162,7 @@ class WizardServer:
                 # Open dashboard in browser
                 dashboard_url = f"http://{resolved_host}:{resolved_port}"
                 if resolved_host == "0.0.0.0":
-                    dashboard_url = f"http://localhost:{resolved_port}"
+                    dashboard_url = f"http://127.0.0.1:{resolved_port}"
                 webbrowser.open(dashboard_url)
                 # Run interactive console in foreground
                 console_task = asyncio.create_task(console.run())

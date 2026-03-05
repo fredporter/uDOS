@@ -92,8 +92,8 @@ class SonicHandler(BaseCommandHandler):
             "sonic_root": str(sonic_root),
             "wizard_api": {
                 "status": "/api/platform/sonic/status",
-                "device_db": "/api/sonic/db/status",
-                "sync": "/api/sonic/sync",
+                "device_db": "/api/sonic/sync/status",
+                "sync": "/api/sonic/sync/rebuild",
             },
             "datasets": {
                 "table": str(dataset_root / "sonic-devices.table.md"),
@@ -502,5 +502,5 @@ class SonicHandler(BaseCommandHandler):
                 "SONIC RUN [--manifest config/sonic-manifest.json] [--dry-run]",
                 "SONIC RUN [--payloads-dir /path/to/payloads] [--no-validate-payloads] --confirm",
             ],
-            "note": "SONIC VERIFY checks manifest structure, media-source policy, device DB readiness, and optional signed release bundles. SONIC RUN requires --confirm and Linux for destructive operations. SONIC SYNC mirrors Wizard /api/sonic/db/rebuild. SONIC BOOTSTRAP registers the current machine in the local user Sonic catalog. SONIC SUBMISSION manages the local submission queue and contributor approval flow.",
+            "note": "SONIC VERIFY checks manifest structure, media-source policy, device DB readiness, and optional signed release bundles. SONIC RUN requires --confirm and Linux for destructive operations. SONIC SYNC mirrors Wizard /api/sonic/sync/rebuild. SONIC BOOTSTRAP registers the current machine in the local user Sonic catalog. SONIC SUBMISSION manages the local submission queue and contributor approval flow.",
         }

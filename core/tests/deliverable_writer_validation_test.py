@@ -3,7 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 
 from core.services.mission_templates import ProjectInitializer
-from core.services.vibe_binder_service import DevModeToolBinderService, VibeBinderService
+from core.services.dev_mode_compat.binder_service import (
+    DevModeToolBinderService,
+    VibeBinderService,
+)
 
 
 def test_canonical_binder_service_alias_is_stable() -> None:
@@ -26,7 +29,7 @@ def test_project_initializer_writes_validated_project_and_tasks(tmp_path: Path) 
 
 def test_vibe_binder_service_rejects_invalid_project_payload(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(
-        "core.services.vibe_binder_service.get_vault_root",
+        "core.services.dev_mode_compat.binder_service.get_vault_root",
         lambda: tmp_path,
     )
     service = DevModeToolBinderService()
@@ -42,7 +45,7 @@ def test_vibe_binder_service_rejects_invalid_project_payload(monkeypatch, tmp_pa
 
 def test_vibe_binder_service_rejects_invalid_tasks_payload(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(
-        "core.services.vibe_binder_service.get_vault_root",
+        "core.services.dev_mode_compat.binder_service.get_vault_root",
         lambda: tmp_path,
     )
     service = DevModeToolBinderService()
@@ -58,11 +61,11 @@ def test_vibe_binder_service_rejects_invalid_tasks_payload(monkeypatch, tmp_path
 
 def test_vibe_binder_service_rejects_invalid_completed_payload(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(
-        "core.services.vibe_binder_service.get_vault_root",
+        "core.services.dev_mode_compat.binder_service.get_vault_root",
         lambda: tmp_path,
     )
     monkeypatch.setattr(
-        "core.services.vibe_binder_service.get_udos_root",
+        "core.services.dev_mode_compat.binder_service.get_udos_root",
         lambda: tmp_path,
     )
     service = DevModeToolBinderService()

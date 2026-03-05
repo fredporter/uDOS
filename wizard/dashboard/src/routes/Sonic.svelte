@@ -218,9 +218,9 @@
       const [statusRes, integrationRes, healthRes, syncRes, buildsRes, summaryRes, datasetRes] =
         await Promise.all([
           apiFetch("/api/platform/sonic/status", { headers: headers() }),
-          apiFetch("/api/library/integration/sonic", { headers: headers() }),
+          apiFetch("/api/library/integration/sonic-screwdriver", { headers: headers() }),
           apiFetch("/api/sonic/health", { headers: headers() }),
-          apiFetch("/api/sonic/db/status", { headers: headers() }),
+          apiFetch("/api/sonic/sync/status", { headers: headers() }),
           apiFetch("/api/platform/sonic/builds", { headers: headers() }),
           apiFetch("/api/platform/sonic/gui/summary", { headers: headers() }),
           apiFetch("/api/platform/sonic/dataset-contract", { headers: headers() }),
@@ -299,7 +299,7 @@
     error = null;
     try {
       const method = action === "uninstall" ? "DELETE" : "POST";
-      const res = await apiFetch(`/api/library/integration/sonic/${action === "uninstall" ? "" : action}`.replace(/\/$/, ""), {
+      const res = await apiFetch(`/api/library/integration/sonic-screwdriver/${action === "uninstall" ? "" : action}`.replace(/\/$/, ""), {
         method,
         headers: headers(),
       });

@@ -121,7 +121,7 @@ class OAuthManager:
             raise ValueError(f"Missing {provider.upper()}_CLIENT_ID environment variable")
 
         redirect_uri = redirect_uri or get_config(
-            f"{provider.upper()}_REDIRECT_URI", "http://localhost:8000/oauth/callback"
+            f"{provider.upper()}_REDIRECT_URI", "http://127.0.0.1:8000/oauth/callback"
         )
 
         params = {
@@ -164,7 +164,7 @@ class OAuthManager:
             raise ValueError(f"Missing OAuth credentials for {provider}")
 
         redirect_uri = redirect_uri or get_config(
-            f"{provider.upper()}_REDIRECT_URI", "http://localhost:8000/oauth/callback"
+            f"{provider.upper()}_REDIRECT_URI", "http://127.0.0.1:8000/oauth/callback"
         )
 
         # This would normally make an HTTP request to token_uri

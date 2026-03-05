@@ -37,7 +37,7 @@ for provider, status in all_status.items():
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 import logging
 from typing import Any
@@ -63,7 +63,7 @@ class ProviderStatus:
     loaded_models: list[str] = field(default_factory=list)  # What's loaded/available
     default_model: str | None = None  # Configured default model
     issue: str | None = None  # Why not available (if not)
-    last_checked: datetime = field(default_factory=datetime.utcnow)
+    last_checked: datetime = field(default_factory=lambda: datetime.now(UTC))
     details: dict[str, Any] = field(default_factory=dict)  # Extra info
 
     def __str__(self) -> str:

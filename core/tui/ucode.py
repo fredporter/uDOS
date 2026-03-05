@@ -71,6 +71,7 @@ from core.services.command_catalog import (
 from core.services.command_dispatch_service import match_ucode_command
 from core.services.health_training import read_last_summary
 from core.services.hotkey_map import write_hotkey_payload
+from core.services.loopback_host_utils import is_loopback_host
 from core.services.logging_api import (
     get_logger,
     get_repo_root,
@@ -272,7 +273,6 @@ class ComponentDetector:
 class UCODE:
     """Unified Terminal TUI for uDOS."""
 
-    _LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 
     def __init__(self):
         """Initialize uCODE TUI."""
@@ -2205,7 +2205,7 @@ class UCODE:
         """Allow loopback URLs only; return fallback when policy is violated."""
         parsed = urlparse((url or "").strip())
         host = (parsed.hostname or "").strip().lower()
-        if host in self._LOOPBACK_HOSTS:
+        if is_loopback_host(host):
             return url.rstrip("/")
 
         self.logger.warning(

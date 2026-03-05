@@ -26,8 +26,8 @@ def test_help_and_confirmation_text():
 
 def test_resolve_vault_root_default(monkeypatch, tmp_path):
     monkeypatch.delenv("VAULT_ROOT", raising=False)
+    monkeypatch.delenv("UDOS_MEMORY_ROOT", raising=False)
     repo_root = tmp_path / "repo"
     repo_root.mkdir(parents=True, exist_ok=True)
     path = resolve_vault_root(repo_root)
     assert path == Path(repo_root) / "memory" / "vault"
-

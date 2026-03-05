@@ -141,23 +141,6 @@ def build_logic_file_prompt(mode: str, path: Path, content: str) -> str:
     )
 
 
-def parse_ok_file_args(args: str) -> Dict[str, Any]:
-    """Compatibility alias for the v1.5 logic file parser."""
-    return parse_logic_file_args(args)
-
-
-def load_ok_file_content(
-    path: Path, line_start: Optional[int] = None, line_end: Optional[int] = None
-) -> str:
-    """Compatibility alias for the v1.5 logic file loader."""
-    return load_logic_file_content(path, line_start=line_start, line_end=line_end)
-
-
-def build_ok_file_prompt(mode: str, path: Path, content: str) -> str:
-    """Compatibility alias for the v1.5 logic file prompt builder."""
-    return build_logic_file_prompt(mode, path, content)
-
-
 def shell_safe(command: str) -> bool:
     """Check if shell command is safe (no destructive operations)."""
     destructive_keywords = {"rm", "mv", ">", "|", "sudo", "rmdir", "dd", "format"}
@@ -196,7 +179,7 @@ def prepare_logic_coding_request(
 
     path = parsed_file_args["path"]
     try:
-        content = load_ok_file_content(
+        content = load_logic_file_content(
             path,
             line_start=parsed_file_args.get("line_start"),
             line_end=parsed_file_args.get("line_end"),

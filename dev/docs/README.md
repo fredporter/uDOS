@@ -24,6 +24,8 @@ Root `docs/` is reserved for runtime, operator, feature, and product-facing docu
   `roadmap/ROADMAP.md`
 - Contributor devlog index:
   `devlog/README.md`
+- Contributor shared submissions:
+  `contributors/README.md`
 - Contributor task-management index:
   `tasks/README.md`
 - Contributor onboarding:
@@ -32,9 +34,6 @@ Root `docs/` is reserved for runtime, operator, feature, and product-facing docu
   `howto/VIBE-Setup-Guide.md`
 - GitHub integration:
   `features/GITHUB-INTEGRATION.md`
-- Restructure brief:
-  `restructure-v-1-5.md`
-
 ## Tracked Payload
 
 The public, versioned `@dev` payload is intentionally small:
@@ -61,3 +60,4 @@ These paths are working areas and should not be treated as distributable framewo
 - Mature decisions should be advanced into `specs/`, `features/`, or `howto/` documents.
 - Superseded contributor docs should be composted instead of left active in root `docs/`.
 - `vibe` and Dev Mode documentation should reference the `@dev` workspace explicitly.
+- Draft contributor decisions/devlogs/roadmap proposals should start in `contributors/` and be promoted when stable.

@@ -106,7 +106,7 @@ class BinderValidator:
     REQUIRED_FILES = ["index.md"]
 
     # Optional but recommended folders
-    RECOMMENDED_FOLDERS = ["docs", "imports", "tables", "scripts"]
+    RECOMMENDED_FOLDERS = ["docs", "imports", "tables", "scripts", "sandbox", ".compost"]
 
     # Optional files
     OPTIONAL_FILES = ["binder.md", ".binder-config", "uDOS-table.db"]
@@ -223,7 +223,7 @@ class BinderValidator:
 binder_id: binder
 title: New Binder
 status: draft
-workspace: sandbox
+workspace: binders
 tags: [binder]
 created_at: 1970-01-01T00:00:00Z
 updated_at: 1970-01-01T00:00:00Z
@@ -240,6 +240,12 @@ Describe this binder, its scope, and key documents.
             folder_path = binder_path / folder
             folder_path.mkdir(exist_ok=True)
             # Add .gitkeep to ensure folder is tracked
+            (folder_path / ".gitkeep").touch()
+
+        # Binder-local work-in-progress and retention roots
+        for folder in ("sandbox", ".compost"):
+            folder_path = binder_path / folder
+            folder_path.mkdir(exist_ok=True)
             (folder_path / ".gitkeep").touch()
 
         # Save config if provided
@@ -260,7 +266,7 @@ Describe this binder, its scope, and key documents.
         Looks for folders containing index.md
 
         **Args:**
-            root_path: Path to search under (typically memory/sandbox/binders/)
+            root_path: Path to search under (typically memory/vault/@binders/)
 
         **Returns:**
             List of discovered binder paths

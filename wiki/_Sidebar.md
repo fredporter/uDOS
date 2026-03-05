@@ -2,6 +2,7 @@
 
 - [Home](Home.md)
 - [Installation](Installation.md)
+- [Onboarding Flow](Onboarding-Flow.md)
 - [Architecture](ARCHITECTURE.md)
 - [Core](Core.md)
 - [Wizard](Wizard.md)

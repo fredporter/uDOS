@@ -25,7 +25,6 @@ from core.services.todo_service import (
     GanttGridRenderer,
     get_service as get_todo_manager,
 )
-from core.services.unified_config_loader import get_bool_config
 from wizard.services.library_manager_service import get_library_manager
 from wizard.services.path_utils import get_repo_root
 from wizard.services.plugin_factory import APKBuilder
@@ -112,31 +111,12 @@ async def _run_guard(request: Request) -> None:
         await result
 
 
-def _resolve_sonic_integration_name(manager) -> str:
-    status = manager.get_library_status()
-    names = {integration.name for integration in status.integrations}
-    for candidate in ("sonic", "sonic-screwdriver"):
-        if candidate in names:
-            return candidate
-    return "sonic"
-
-
-def _library_sonic_alias_enabled() -> bool:
-    return get_bool_config("UDOS_SONIC_ENABLE_LIBRARY_ALIAS", False)
-
-
 def _resolve_requested_integration_name(manager, requested_name: str) -> str:
     if requested_name == "sonic":
-        if not _library_sonic_alias_enabled():
-            raise HTTPException(
-                status_code=410,
-                detail={
-                    "message": "Library Sonic alias retired",
-                    "alias": "/api/library/integration/sonic",
-                    "canonical": "/api/library/integration/sonic-screwdriver",
-                },
-            )
-        return _resolve_sonic_integration_name(manager)
+        raise HTTPException(
+            status_code=404,
+            detail="Integration not found: sonic",
+        )
     return requested_name
 
 
@@ -293,26 +273,6 @@ async def get_library_status(request: Request):
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Failed to get library status: {e!s}"
-        )
-
-
-@router.get("/aliases/status", response_model=dict[str, Any])
-async def get_library_alias_status(request: Request):
-    """Return compatibility status for Sonic library integration alias."""
-    try:
-        await _run_guard(request)
-        return {
-            "sonic_library_alias_enabled": _library_sonic_alias_enabled(),
-            "status": "compatibility_override"
-            if _library_sonic_alias_enabled()
-            else "retired",
-            "retired_in": "v1.5",
-            "alias": "/api/library/integration/sonic",
-            "canonical": "/api/library/integration/sonic-screwdriver",
-        }
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get alias status: {e!s}"
         )
 
 
@@ -618,62 +578,6 @@ async def uninstall_integration(
         )
 
 
-@router.get("/integration/sonic", response_model=dict[str, Any])
-async def get_sonic_integration(request: Request):
-    await _run_guard(request)
-    manager = get_library_manager()
-    sonic_name = _resolve_sonic_integration_name(manager)
-    integration = manager.get_integration(sonic_name)
-    if not integration:
-        raise HTTPException(status_code=404, detail="Sonic integration not found")
-    return {
-        "success": True,
-        "integration": {
-            "name": integration.name,
-            "path": str(integration.path),
-            "source": integration.source,
-            "has_container": integration.has_container,
-            "version": integration.version,
-            "description": integration.description,
-            "installed": integration.installed,
-            "enabled": integration.enabled,
-            "can_install": integration.can_install,
-        },
-    }
-
-
-@router.post("/integration/sonic/install", response_model=dict[str, Any])
-async def install_sonic_integration(
-    background_tasks: BackgroundTasks, request: Request
-):
-    manager = get_library_manager()
-    sonic_name = _resolve_sonic_integration_name(manager)
-    return await install_integration(sonic_name, background_tasks, request)
-
-
-@router.post("/integration/sonic/enable", response_model=dict[str, Any])
-async def enable_sonic_integration(request: Request):
-    manager = get_library_manager()
-    sonic_name = _resolve_sonic_integration_name(manager)
-    return await enable_integration(sonic_name, request)
-
-
-@router.post("/integration/sonic/disable", response_model=dict[str, Any])
-async def disable_sonic_integration(request: Request):
-    manager = get_library_manager()
-    sonic_name = _resolve_sonic_integration_name(manager)
-    return await disable_integration(sonic_name, request)
-
-
-@router.delete("/integration/sonic", response_model=dict[str, Any])
-async def uninstall_sonic_integration(
-    background_tasks: BackgroundTasks, request: Request
-):
-    manager = get_library_manager()
-    sonic_name = _resolve_sonic_integration_name(manager)
-    return await uninstall_integration(sonic_name, background_tasks, request)
-
-
 @router.get("/enabled", response_model=dict[str, Any])
 async def get_enabled_integrations(request: Request):
     """Get list of enabled integrations.
@@ -933,7 +837,7 @@ async def install_repo_wizard(
             container_result["launch_result"] = launch_result
             if payload.open_thin_gui:
                 container_result["thin_gui"] = {
-                    "target_url": f"http://localhost:{container_config['port']}{container_config['browser_route']}",
+                    "target_url": f"http://127.0.0.1:{container_config['port']}{container_config['browser_route']}",
                     "target_label": cloned.name,
                     "title": container_config["name"],
                 }

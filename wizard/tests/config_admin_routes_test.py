@@ -11,7 +11,6 @@ def _app_with_router(router):
 
 
 def test_admin_token_generate_and_status_local_only(monkeypatch, tmp_path):
-    monkeypatch.setattr(routes, "LOCAL_CLIENTS", {"testclient"})
     monkeypatch.setattr(routes, "get_repo_root", lambda: tmp_path)
     monkeypatch.delenv("WIZARD_KEY", raising=False)
     monkeypatch.delenv("WIZARD_ADMIN_TOKEN", raising=False)
@@ -26,7 +25,7 @@ def test_admin_token_generate_and_status_local_only(monkeypatch, tmp_path):
     monkeypatch.setattr(routes, "get_secret_store", lambda: FakeStore())
 
     app = _app_with_router(routes.create_admin_token_routes())
-    client = TestClient(app)
+    client = TestClient(app, client=("127.0.0.1", 12345))
 
     res = client.post("/api/admin-token/generate")
     assert res.status_code == 200
@@ -49,7 +48,6 @@ def test_admin_token_generate_and_status_local_only(monkeypatch, tmp_path):
 
 
 def test_admin_token_generate_respects_configured_admin_key_id(monkeypatch, tmp_path):
-    monkeypatch.setattr(routes, "LOCAL_CLIENTS", {"testclient"})
     monkeypatch.setattr(routes, "get_repo_root", lambda: tmp_path)
     monkeypatch.delenv("WIZARD_KEY", raising=False)
     monkeypatch.delenv("WIZARD_ADMIN_TOKEN", raising=False)
@@ -73,7 +71,7 @@ def test_admin_token_generate_respects_configured_admin_key_id(monkeypatch, tmp_
     monkeypatch.setattr(routes, "get_secret_store", lambda: fake)
 
     app = _app_with_router(routes.create_admin_token_routes())
-    client = TestClient(app)
+    client = TestClient(app, client=("127.0.0.1", 12345))
     res = client.post("/api/admin-token/generate")
     assert res.status_code == 200
     assert fake.entry is not None
@@ -81,7 +79,6 @@ def test_admin_token_generate_respects_configured_admin_key_id(monkeypatch, tmp_
 
 
 def test_admin_token_generate_rejects_non_local(monkeypatch):
-    monkeypatch.setattr(routes, "LOCAL_CLIENTS", {"127.0.0.1"})
     app = _app_with_router(routes.create_admin_token_routes())
     client = TestClient(app)
 
@@ -91,7 +88,6 @@ def test_admin_token_generate_rejects_non_local(monkeypatch):
 
 
 def test_public_export_list_and_download(monkeypatch, tmp_path):
-    monkeypatch.setattr(routes, "LOCAL_CLIENTS", {"testclient"})
     export_dir = tmp_path / "memory" / "config_exports"
     export_dir.mkdir(parents=True, exist_ok=True)
     export_file = export_dir / "udos-config-export-2026-02-15T00-00-00Z.json"
@@ -99,7 +95,7 @@ def test_public_export_list_and_download(monkeypatch, tmp_path):
     monkeypatch.setattr(routes, "EXPORT_DIR", export_dir)
 
     app = _app_with_router(routes.create_public_export_routes())
-    client = TestClient(app)
+    client = TestClient(app, client=("127.0.0.1", 12345))
 
     list_res = client.get("/api/config/export/list")
     assert list_res.status_code == 200
@@ -112,16 +108,14 @@ def test_public_export_list_and_download(monkeypatch, tmp_path):
 
 
 def test_public_export_download_rejects_invalid_filename(monkeypatch):
-    monkeypatch.setattr(routes, "LOCAL_CLIENTS", {"testclient"})
     app = _app_with_router(routes.create_public_export_routes())
-    client = TestClient(app)
+    client = TestClient(app, client=("127.0.0.1", 12345))
 
     res = client.get("/api/config/export/not-an-export.json")
     assert res.status_code == 400
 
 
 def test_admin_contract_status_and_repair_routes(monkeypatch, tmp_path):
-    monkeypatch.setattr(routes, "LOCAL_CLIENTS", {"testclient"})
     monkeypatch.setattr(routes, "get_repo_root", lambda: tmp_path)
     monkeypatch.setattr(
         routes,
@@ -135,7 +129,7 @@ def test_admin_contract_status_and_repair_routes(monkeypatch, tmp_path):
     )
 
     app = _app_with_router(routes.create_admin_token_routes())
-    client = TestClient(app)
+    client = TestClient(app, client=("127.0.0.1", 12345))
 
     status_res = client.get("/api/admin-token/contract/status")
     assert status_res.status_code == 200

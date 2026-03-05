@@ -313,7 +313,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "description": "Sonic Screwdriver status, dataset sync, and USB planning",
             "usage": "SONIC <STATUS|SYNC|VERIFY|PLAN|RUN|HELP>",
             "example": "SONIC SYNC --force",
-            "notes": "SYNC rebuilds local device DB from sonic/datasets SQL. Wizard parity endpoints live under /api/sonic/db/*.",
+            "notes": "SYNC rebuilds local device DB from sonic/datasets SQL. Wizard parity endpoints live under /api/sonic/sync/*.",
             "category": "System & Maintenance",
             "syntax": "SONIC STATUS | SONIC SYNC [--force] | SONIC VERIFY [--manifest path] | SONIC PLAN [flags] | SONIC RUN [flags] --confirm",
         },
@@ -472,7 +472,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         "BINDER": {
             "description": "Core binder operations",
             "usage": "BINDER [PICK|COMPILE <id>|CHAPTERS <id>|OPEN @ws/binder|LIST @ws/binder|ADD @ws/binder <file.md> [title]|HELP]",
-            "example": "BINDER OPEN @sandbox/my-project or BINDER COMPILE my-binder markdown json",
+            "example": "BINDER OPEN @binders/my-project/sandbox or BINDER COMPILE my-binder markdown json",
             "notes": "Compile binder outputs and browse/add chapters in @workspace paths",
             "category": "Advanced",
             "syntax": "BINDER <PICK|COMPILE|CHAPTERS|OPEN|LIST|ADD|HELP> ...",
@@ -480,7 +480,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
         "PLACE": {
             "description": "Unified workspace/tag/location operations",
             "usage": "PLACE <LIST|READ|WRITE|DELETE|INFO|HELP|TAG|FIND|TAGS|SEARCH> ...",
-            "example": "PLACE LIST @sandbox or PLACE TAG @sandbox/story.md L300-AB15",
+            "example": "PLACE LIST @binders or PLACE TAG @vault/story.md L300-AB15",
             "notes": "Replaces legacy WORKSPACE/TAG/LOCATION command families",
             "category": "Advanced",
             "syntax": "PLACE LIST @workspace | PLACE READ @ws/file | PLACE TAG @ws/file <LocId> | PLACE FIND <LocId> | PLACE TAGS @workspace | PLACE SEARCH <tag...>",

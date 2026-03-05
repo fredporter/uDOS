@@ -19,6 +19,7 @@ import socket
 
 import psutil
 
+from core.services.loopback_host_utils import is_loopback_host
 from core.services.unified_config_loader import get_bool_config
 from core.services.viewport_service import ViewportService
 from core.tui.output import OutputToolkit
@@ -36,8 +37,6 @@ class ServerStatus(Enum):
 
 class TUIStatusBar:
     """Persistent status bar for uCODE."""
-
-    _LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 
     def __init__(self):
         """Initialize status bar."""
@@ -74,7 +73,7 @@ class TUIStatusBar:
             parts.append("[GHOST MODE]")
 
         # Server status
-        wizard_status = self._check_server("localhost", self.wizard_port)
+        wizard_status = self._check_server("127.0.0.1", self.wizard_port)
         parts.append(f"[WIZ: {wizard_status.value}]")
 
         # System stats
@@ -110,7 +109,7 @@ class TUIStatusBar:
 
         # Server status details
         lines.append("\nServers:")
-        wizard_status = self._check_server("localhost", self.wizard_port)
+        wizard_status = self._check_server("127.0.0.1", self.wizard_port)
         lines.append(f"  Wizard (8765):  {wizard_status.value} {wizard_status.name}")
 
         # System resources
@@ -197,7 +196,7 @@ class TUIStatusBar:
             ServerStatus enum
         """
         normalized = (host or "").strip().lower()
-        if normalized not in TUIStatusBar._LOOPBACK_HOSTS:
+        if not is_loopback_host(normalized):
             return ServerStatus.UNKNOWN
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(0.5)

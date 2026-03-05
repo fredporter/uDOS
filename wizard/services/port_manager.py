@@ -330,7 +330,7 @@ class PortManager:
                 environment=ServiceEnvironment.DEVELOPMENT,
                 process_name="npm",
                 description="Vite Dev Server - Frontend development",
-                health_endpoint="http://localhost:5173/",
+                health_endpoint="http://127.0.0.1:5173/",
                 startup_cmd="npm run dev",
                 shutdown_cmd=None,
             ),
@@ -945,7 +945,7 @@ class PortManager:
         for name, svc in self.services.items():
             if svc.port:
                 env_var = f"UDOS_{name.upper()}_URL"
-                script.append(f"export {env_var}=http://localhost:{svc.port}")
+                script.append(f"export {env_var}=http://127.0.0.1:{svc.port}")
 
         return "\n".join(script)
 

@@ -1,6 +1,6 @@
 # AGENTS.md — uDOS Root Governance
 
-Last Updated: 2026-03-03
+Last Updated: 2026-03-05
 Milestone: v1.5 Python Runtime Consolidation
 Status: Active
 
@@ -135,6 +135,14 @@ Each Binder must contain:
 - project.json
 - tasks.md
 - completed.json
+- sandbox/
+- .compost/
+
+Binder runtime policy:
+- The global `@sandbox` workspace is deprecated and must not be reintroduced.
+- Work-in-progress files, references, workflow JSON, contacts, and temp/test assets belong in the binder-local `sandbox/`.
+- Binder-local archive/backup/trash history belongs in binder-local `.compost/`.
+- Final publish/submission JSON artifacts are rendered outside `sandbox/`.
 
 Binder AGENTS.md may refine behaviour but cannot contradict root architecture.
 

@@ -162,6 +162,8 @@ class TestGetters:
             del os.environ["TEST_PATH_VAR"]
 
     def test_get_path_expands_udos_root_placeholders_from_dotenv(self, tmp_path):
+        for key in ("UDOS_ROOT", "UDOS_MEMORY_ROOT", "VAULT_ROOT"):
+            os.environ.pop(key, None)
         repo = tmp_path / "repo"
         repo.mkdir(parents=True)
         (repo / ".env").write_text(

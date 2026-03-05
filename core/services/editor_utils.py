@@ -57,7 +57,7 @@ def resolve_workspace_path(value: str, default_name: str = "untitled.md") -> Pat
     memory_root = get_memory_root()
     workspace_aliases = {
         "memory",
-        "sandbox",
+        "binders",
         "vault",
         "inbox",
         "public",

@@ -188,7 +188,8 @@ function logsPanel() {
         },
         
         connectWebSocket() {
-            this.ws = new WebSocket('ws://localhost:8080/ws/logs');
+            const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+            this.ws = new WebSocket(`${wsProtocol}://${window.location.host}/ws/logs`);
             
             this.ws.onmessage = (event) => {
                 if (!this.streaming) return;

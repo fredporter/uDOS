@@ -1,8 +1,7 @@
 """Canonical Dev Mode compatibility service namespace.
 
 This package provides stable imports for the Dev Mode contributor-tool service
-family while legacy ``core.services.vibe_*`` modules remain as compatibility
-shims.
+family.
 """
 
 from core.services.dev_mode_compat.binder_service import (

@@ -171,8 +171,8 @@ class FileHandler(BaseCommandHandler):
 
             fs = SpatialFilesystem(user_role=self.user_role)
 
-            # Default to @sandbox if no path provided
-            workspace_ref = params[0] if params else "@sandbox"
+            # Default to @vault if no path provided
+            workspace_ref = params[0] if params else "@vault"
 
             # List files
             locations = fs.list_workspace(workspace_ref)
@@ -231,7 +231,7 @@ class FileHandler(BaseCommandHandler):
             return {
                 "status": "error",
                 "message": "FILE SHOW requires a file path",
-                "suggestion": "Usage: FILE SHOW @sandbox/readme.md",
+                "suggestion": "Usage: FILE SHOW @vault/readme.md",
             }
 
         try:
@@ -288,7 +288,7 @@ class FileHandler(BaseCommandHandler):
         return candidates
 
     def _parse_select_params(self, params: List[str]) -> Dict[str, Any]:
-        workspace = "@sandbox"
+        workspace = "@vault"
         files: List[str] = []
         multi = True
 
@@ -298,7 +298,7 @@ class FileHandler(BaseCommandHandler):
             match token:
                 case "--workspace":
                     if i + 1 >= len(params):
-                        raise ValueError("--workspace requires a value (example: @sandbox)")
+                        raise ValueError("--workspace requires a value (example: @vault)")
                     workspace = params[i + 1]
                     i += 2
                 case "--file":
@@ -447,7 +447,7 @@ class FileHandler(BaseCommandHandler):
         Supports:
         - FILE SELECT --file <path>
         - FILE SELECT --files <path1,path2>
-        - FILE SELECT [--workspace @sandbox] [--single]
+        - FILE SELECT [--workspace @vault] [--single]
         """
         try:
             from core.services.spatial_filesystem import SpatialFilesystem
@@ -527,13 +527,13 @@ Quick Commands:
   FILE SELECT --file <path>   Non-interactive single file input
   FILE SELECT --files <paths> Non-interactive multi-file input
   FILE SELECT --workspace @ws  Interactive select in workspace
-  FILE LIST [@workspace]     List files (default: @sandbox)
+  FILE LIST [@workspace]     List files (default: @vault)
   FILE SHOW @ws/file.md      Display file content
   FILE HELP                  Show this help
 
 Workspaces:
-    @sandbox     Sandbox (default)
-    @vault       Vault
+    @vault       Vault (default)
+    @binders     Binder roots
     @inbox       Inbox intake
     @public      Public/open/published
     @submissions Submission intake
@@ -548,15 +548,15 @@ Examples:
   FILE SELECT                       # Interactive selector (TTY)
   FILE SELECT --files readme.md,todo.md
   FILE SELECT --workspace @vault --single
-    FILE LIST @sandbox                # List sandbox files
-    FILE LIST @vault                  # List vault files
+  FILE LIST @vault                  # List vault files
+  FILE LIST @binders                # List binder roots
   FILE LIST @public                 # List public files
-  FILE SHOW @sandbox/readme.md      # Show file content
+  FILE SHOW @vault/readme.md        # Show file content
 
 Related Commands:
     FILE EDIT <file>                  # Open file in editor
-    PLACE LIST @sandbox               # Spatial filesystem commands
-    BINDER open @sandbox/project      # Open binder project
+    PLACE LIST @binders               # Spatial filesystem commands
+    BINDER open @binders/project/sandbox # Open binder sandbox
 
 Navigation in Picker:
   j/k or 2/8     Move down/up

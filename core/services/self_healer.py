@@ -84,8 +84,6 @@ class RepairResult:
 class SelfHealer:
     """Self-healing system for uDOS components."""
 
-    _LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
-
     def __init__(self, component: str = "core", auto_repair: bool = True):
         """Initialize self-healer.
 

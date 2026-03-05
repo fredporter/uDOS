@@ -26,6 +26,7 @@ from urllib.parse import urlparse
 import uuid
 
 from core.services.logging_api import get_logger, get_repo_root
+from core.services.loopback_host_utils import is_loopback_host
 from core.services.paths import get_memory_root, get_vault_md_root, get_vault_root
 from core.services.rate_limit_helpers import guard_wizard_endpoint
 from core.services.stdlib_http import HTTPError, http_post
@@ -80,7 +81,6 @@ class ConfigSyncManager:
         "MISTRAL_API_KEY",
         "STAGING_MISTRAL_API_KEY",
     }
-    _LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 
     def __init__(self):
         """Initialize sync manager."""
@@ -387,7 +387,7 @@ class ConfigSyncManager:
         wizard_api_url = wizard_api_url.rstrip("/")
         parsed = urlparse(wizard_api_url)
         host = (parsed.hostname or "").strip().lower()
-        if host not in self._LOOPBACK_HOSTS:
+        if not is_loopback_host(host):
             logger.warning("[WIZ] Blocked non-loopback sync target: %s", wizard_api_url)
             return False, "⚠️  Boundary policy blocks non-loopback Wizard sync target"
 

@@ -980,14 +980,8 @@ def ucode_command(raw_input: str) -> str:
     return _run_ucode_command(raw_input)
 
 
-@mcp.tool()
-def ucode_dispatch(command: str) -> str:
-    """Deprecated alias of ucode_command; kept temporarily for compatibility."""
-    return _run_ucode_command(command)
-
-
 def _run_ucode_command(command: str) -> str:
-    """Authoritative handler shared by canonical tool and compatibility aliases."""
+    """Authoritative handler for uCODE command execution."""
     resp = _client().ucode_dispatch(command)
     rendered = resp.get("rendered") or resp.get("result", {}).get("output") or ""
     return _wrap_display(rendered)

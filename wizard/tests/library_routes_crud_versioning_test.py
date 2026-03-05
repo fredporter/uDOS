@@ -174,7 +174,7 @@ def test_install_repo_wizard_clones_and_returns_thin_gui(monkeypatch):
     assert payload["success"] is True
     assert payload["container"]["detected"] is True
     assert payload["container"]["launched"] is True
-    assert payload["container"]["thin_gui"]["target_url"] == "http://localhost:4321/app"
+    assert payload["container"]["thin_gui"]["target_url"] == "http://127.0.0.1:4321/app"
 
 
 def test_inventory_install_route(monkeypatch):

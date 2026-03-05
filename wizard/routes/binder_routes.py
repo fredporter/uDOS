@@ -168,7 +168,7 @@ def _ensure_binder(
         if binder_root.exists():
             return ws, binder_root, False
 
-    ws = BinderWorkspace.SANDBOX
+    ws = BinderWorkspace.BINDERS
     binder_root = binder_manager.get_workspace_dir(ws) / binder_id
     binder_manager.create_binder(binder_id, title, ws)
     return ws, binder_root, True
@@ -181,7 +181,7 @@ def create_binder_routes(auth_guard: AuthGuard = None) -> APIRouter:
     class BinderCreateRequest(BaseModel):
         binder_id: str = Field(..., min_length=1)
         title: Optional[str] = None
-        workspace: str = "sandbox"
+        workspace: str = "binders"
 
     class ChapterCreateRequest(BaseModel):
         title: str = Field(..., min_length=1)
@@ -207,7 +207,7 @@ def create_binder_routes(auth_guard: AuthGuard = None) -> APIRouter:
         return {"workspaces": binder_manager.describe_workspaces()}
 
     @router.get("")
-    async def list_binders(request: Request, workspace: str = Query("sandbox")):
+    async def list_binders(request: Request, workspace: str = Query("binders")):
         if auth_guard:
             await auth_guard(request)
         ws = _parse_workspace(workspace)

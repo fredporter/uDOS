@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 
 import requests
 
+from core.services.loopback_host_utils import is_loopback_host
 from core.services.unified_config_loader import get_bool_config, get_config
 from core.services.wizard_runtime_config import get_wizard_base_url
 
@@ -29,8 +30,7 @@ class WizardGateway:
 
     def _is_local_wizard(self) -> bool:
         parsed = urlparse(self.base_url)
-        host = (parsed.hostname or "").lower()
-        return host in {"127.0.0.1", "::1", "localhost"}
+        return is_loopback_host(parsed.hostname)
 
     def _start_local_wizard(self) -> None:
         if not self._wizardd.exists():

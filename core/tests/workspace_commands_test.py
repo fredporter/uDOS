@@ -1,4 +1,5 @@
 from pathlib import Path
+import shutil
 from uuid import uuid4
 
 from core.services.config_sync_service import ConfigSyncManager
@@ -17,7 +18,7 @@ def test_workspace_commands_are_dispatched():
 def test_file_list_workspace_ref_works():
     dispatcher = CommandDispatcher()
 
-    result = dispatcher.dispatch("FILE LIST @sandbox")
+    result = dispatcher.dispatch("FILE LIST @vault")
     assert result["status"] in {"success", "error"}
 
 
@@ -36,7 +37,7 @@ def test_binder_open_workspace_ref_works(monkeypatch):
 
     dispatcher = CommandDispatcher()
     binder_id = f"ws-binder-{uuid4().hex[:8]}"
-    workspace_ref = f"@sandbox/{binder_id}"
+    workspace_ref = f"@binders/{binder_id}"
 
     try:
         result = dispatcher.dispatch(f"BINDER OPEN {workspace_ref}")
@@ -46,11 +47,8 @@ def test_binder_open_workspace_ref_works(monkeypatch):
         else:
             assert "Ghost Mode" in result.get("output", "")
     finally:
-        binder_path = Path("memory/sandbox") / binder_id
+        binder_path = Path("memory/vault/@binders") / binder_id
         if binder_path.exists():
-            for item in binder_path.glob("*"):
-                if item.is_file():
-                    item.unlink()
-            binder_path.rmdir()
+            shutil.rmtree(binder_path)
         if original_user and original_user in user_mgr.users:
             user_mgr.switch_user(original_user)

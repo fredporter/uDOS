@@ -5,7 +5,7 @@ opening FileBrowser. Uses the same SelectorFramework pattern as FileBrowser
 for consistent UX.
 
 Workspaces:
-- memory/sandbox (default workspace)
+- memory/vault/@binders (binder roots)
 - memory/vault (user vault data)
 - memory/sharing (collaborative space)
 - /knowledge (admin only)
@@ -127,10 +127,10 @@ class WorkspacePicker:
 
         workspaces = [
             WorkspaceOption(
-                id="sandbox",
-                name="Sandbox",
-                path=memory_dir / "sandbox",
-                description="Personal workspace for experiments and drafts",
+                id="binders",
+                name="Binders",
+                path=vault_dir / "@binders",
+                description="Binder roots (each binder contains sandbox/ and .compost/)",
                 icon="•",
                 admin_only=False,
             ),

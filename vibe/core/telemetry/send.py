@@ -54,7 +54,10 @@ class TelemetryClient:
             if provider.backend != Backend.MISTRAL:
                 return None
             env_var = provider.api_key_env_var
-            return get_dynamic_config(env_var) if env_var else None
+            if not env_var:
+                return None
+            value = get_dynamic_config(env_var)
+            return value or None
         except ValueError:
             return None
 

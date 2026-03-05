@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from core.services.vibe_network_service import VibeNetworkService
+from core.services.dev_mode_compat.network_service import VibeNetworkService
 
 
 class _DummySocket:
@@ -24,7 +24,7 @@ def test_connect_host_failure_then_recovery(monkeypatch) -> None:
         return next_value
 
     monkeypatch.setattr(
-        "core.services.vibe_network_service.socket.create_connection",
+        "core.services.dev_mode_compat.network_service.socket.create_connection",
         _fake_create_connection,
     )
 
@@ -48,7 +48,7 @@ def test_check_connectivity_unreachable_then_recovery(monkeypatch) -> None:
         return next_value
 
     monkeypatch.setattr(
-        "core.services.vibe_network_service.socket.create_connection",
+        "core.services.dev_mode_compat.network_service.socket.create_connection",
         _fake_create_connection,
     )
 

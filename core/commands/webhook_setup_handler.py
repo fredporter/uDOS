@@ -80,7 +80,7 @@ VERIFICATION:
 
   After setup:
     WIZARD                    Start Wizard server
-    ${WIZARD_BASE_URL:-http://localhost:8765}     Open dashboard
+    ${WIZARD_BASE_URL:-http://127.0.0.1:8765}     Open dashboard
     Settings → Webhooks       Verify connections
 
 REQUIREMENTS:

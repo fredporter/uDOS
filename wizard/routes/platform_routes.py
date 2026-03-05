@@ -233,9 +233,10 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
     @router.get("/sonic/status")
     async def sonic_status():
         workspace = get_template_workspace_service(resolved_repo_root)
+        default_profile = getattr(sonic_builds, "default_profile", "alpine-core+sonic")
         return {
             **sonic.get_status(),
-            "default_build_profile": sonic_builds.default_profile,
+            "default_build_profile": default_profile,
             "default_build_profile_source": getattr(
                 sonic_builds, "default_profile_source", "packaging_manifest"
             ),
@@ -366,9 +367,10 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
                 sync_status = None
 
         workspace = get_template_workspace_service(resolved_repo_root)
+        default_profile = getattr(sonic_builds, "default_profile", "alpine-core+sonic")
         return {
             "sonic": status,
-            "default_build_profile": sonic_builds.default_profile,
+            "default_build_profile": default_profile,
             "default_build_profile_source": getattr(
                 sonic_builds, "default_profile_source", "packaging_manifest"
             ),

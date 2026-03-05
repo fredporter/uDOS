@@ -5,7 +5,7 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-from core.services.vibe_script_service import VibeScriptService
+from core.services.dev_mode_compat.script_service import VibeScriptService
 
 
 def test_run_script_python_success(tmp_path: Path) -> None:
@@ -40,13 +40,13 @@ def test_run_script_failure_then_recovery(monkeypatch, tmp_path: Path) -> None:
     )
 
     monkeypatch.setattr(
-        "core.services.vibe_script_service.subprocess.run",
+        "core.services.dev_mode_compat.script_service.subprocess.run",
         lambda *args, **kwargs: fail,
     )
     first = service.run_script("task")
 
     monkeypatch.setattr(
-        "core.services.vibe_script_service.subprocess.run",
+        "core.services.dev_mode_compat.script_service.subprocess.run",
         lambda *args, **kwargs: ok,
     )
     second = service.run_script("task")
@@ -67,7 +67,7 @@ def test_run_script_timeout_returns_error(monkeypatch, tmp_path: Path) -> None:
         raise subprocess.TimeoutExpired(cmd=["slow.sh"], timeout=120)
 
     monkeypatch.setattr(
-        "core.services.vibe_script_service.subprocess.run",
+        "core.services.dev_mode_compat.script_service.subprocess.run",
         _raise_timeout,
     )
 

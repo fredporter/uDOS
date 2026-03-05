@@ -117,19 +117,6 @@ def test_ucode_command_wraps_display(mcp_server_module, monkeypatch):
     assert "ran OK" in result
 
 
-def test_ucode_dispatch_alias_delegates_to_shared_handler(mcp_server_module, monkeypatch):
-    calls: list[str] = []
-
-    def _fake_run(command: str) -> str:
-        calls.append(command)
-        return f"ran {command}"
-
-    monkeypatch.setattr(mcp_server_module, "_run_ucode_command", _fake_run)
-    result = mcp_server_module.ucode_dispatch("HELP")
-    assert result == "ran HELP"
-    assert calls == ["HELP"]
-
-
 def test_wizard_tools_list_uses_index(mcp_server_module, monkeypatch):
     monkeypatch.setattr(mcp_server_module, "_load_tool_index", lambda: ["a", "b"])
     payload = mcp_server_module.wizard_tools_list()
@@ -261,7 +248,7 @@ def test_mcp_server_has_expected_tools(mcp_server_module):
         "wizard_tools_list",
         "wizard_tools_registration_status",
         "ucode_command",
-        "ucode_dispatch",
     ]
     for tool in expected_tools:
         assert tool in tools, f"Expected tool {tool} not found"
+    assert "ucode_dispatch" not in tools

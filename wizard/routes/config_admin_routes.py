@@ -11,6 +11,7 @@ import secrets
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import FileResponse
 
+from core.services.loopback_host_utils import is_loopback_host
 from core.services.unified_config_loader import get_config
 from core.services.time_utils import utc_from_timestamp, utc_now_iso_z
 from wizard.services.deploy_mode import is_managed_mode
@@ -21,13 +22,12 @@ from wizard.services.admin_secret_contract import (
 from wizard.services.path_utils import get_repo_root
 from wizard.services.secret_store import SecretEntry, SecretStoreError, get_secret_store
 
-LOCAL_CLIENTS = {"127.0.0.1", "::1", "localhost"}
 EXPORT_DIR = Path(__file__).parent.parent.parent / "memory" / "config_exports"
 
 
 def _ensure_local_request(request: Request) -> None:
     client_host = request.client.host if request.client else ""
-    if client_host not in LOCAL_CLIENTS:
+    if not is_loopback_host(client_host):
         raise HTTPException(status_code=403, detail="local requests only")
 
 

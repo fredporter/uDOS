@@ -11,7 +11,7 @@ from wizard.services.secret_store import get_secret_store, SecretStoreError
 
 def get_base_url(host: str, port: int) -> str:
     if host == "0.0.0.0":
-        host = "localhost"
+        host = "127.0.0.1"
     return f"http://{host}:{port}"
 
 

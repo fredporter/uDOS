@@ -9,11 +9,10 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
+from core.services.loopback_host_utils import is_loopback_host
 from core.services.logging_api import get_logger, get_repo_root
 
 logger = get_logger("network-gate-policy")
-
-_LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 _DEFAULT_TTL_SECONDS = 20 * 60
 _EVENT_HISTORY_LIMIT = 50
 
@@ -108,8 +107,7 @@ def _append_event(
 
 
 def _is_loopback_host(host: str | None) -> bool:
-    normalized = (host or "").strip().lower()
-    return normalized in _LOOPBACK_HOSTS
+    return is_loopback_host(host)
 
 
 def is_loopback_url(url: str) -> bool:

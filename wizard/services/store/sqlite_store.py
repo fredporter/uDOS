@@ -9,6 +9,10 @@ from typing import Any
 
 from wizard.services.store.base import WizardStore
 
+_SCHEMA_DIR = Path(__file__).resolve().parents[1] / "schemas"
+_TASK_SCHEMA_PATH = _SCHEMA_DIR / "task_schema.sql"
+_NOTIFICATION_SCHEMA_PATH = _SCHEMA_DIR / "notifications_schema.sql"
+
 
 def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
@@ -26,58 +30,15 @@ class SQLiteWizardStore(WizardStore):
         return conn
 
     def _init_db(self) -> None:
+        if not _TASK_SCHEMA_PATH.exists():
+            raise FileNotFoundError(f"Task schema file missing: {_TASK_SCHEMA_PATH}")
+        if not _NOTIFICATION_SCHEMA_PATH.exists():
+            raise FileNotFoundError(f"Notification schema file missing: {_NOTIFICATION_SCHEMA_PATH}")
         with self._connect() as conn:
+            conn.executescript(_TASK_SCHEMA_PATH.read_text(encoding="utf-8"))
+            conn.executescript(_NOTIFICATION_SCHEMA_PATH.read_text(encoding="utf-8"))
             conn.executescript(
                 """
-                CREATE TABLE IF NOT EXISTS scheduler_settings (
-                    key TEXT PRIMARY KEY,
-                    value TEXT NOT NULL
-                );
-                CREATE TABLE IF NOT EXISTS tasks (
-                    id TEXT PRIMARY KEY,
-                    name TEXT NOT NULL,
-                    description TEXT DEFAULT '',
-                    schedule TEXT DEFAULT 'daily',
-                    state TEXT DEFAULT 'plant',
-                    provider TEXT,
-                    enabled INTEGER DEFAULT 1,
-                    priority INTEGER DEFAULT 5,
-                    need INTEGER DEFAULT 5,
-                    mission TEXT,
-                    objective TEXT,
-                    resource_cost INTEGER DEFAULT 1,
-                    requires_network INTEGER DEFAULT 0,
-                    kind TEXT,
-                    payload TEXT DEFAULT '{}',
-                    created_at TEXT NOT NULL,
-                    updated_at TEXT NOT NULL
-                );
-                CREATE TABLE IF NOT EXISTS task_runs (
-                    id TEXT PRIMARY KEY,
-                    task_id TEXT NOT NULL,
-                    state TEXT NOT NULL,
-                    result TEXT,
-                    output TEXT,
-                    created_at TEXT NOT NULL,
-                    completed_at TEXT
-                );
-                CREATE TABLE IF NOT EXISTS task_queue (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    task_id TEXT NOT NULL,
-                    run_id TEXT NOT NULL,
-                    state TEXT NOT NULL,
-                    scheduled_for TEXT NOT NULL,
-                    processed_at TEXT,
-                    created_at TEXT NOT NULL,
-                    priority INTEGER DEFAULT 5,
-                    need INTEGER DEFAULT 5,
-                    resource_cost INTEGER DEFAULT 1,
-                    requires_network INTEGER DEFAULT 0,
-                    defer_reason TEXT,
-                    defer_count INTEGER DEFAULT 0,
-                    backoff_seconds INTEGER DEFAULT 0,
-                    last_deferred_at TEXT
-                );
                 CREATE TABLE IF NOT EXISTS launch_sessions (
                     session_id TEXT PRIMARY KEY,
                     target TEXT NOT NULL,
@@ -113,17 +74,6 @@ class SQLiteWizardStore(WizardStore):
                     duration_ms REAL,
                     metadata_json TEXT DEFAULT '{}',
                     error TEXT
-                );
-                CREATE TABLE IF NOT EXISTS notifications (
-                    id TEXT PRIMARY KEY,
-                    type TEXT NOT NULL,
-                    title TEXT,
-                    message TEXT NOT NULL,
-                    timestamp TEXT NOT NULL,
-                    duration_ms INTEGER NOT NULL,
-                    sticky INTEGER NOT NULL DEFAULT 0,
-                    action_count INTEGER DEFAULT 0,
-                    dismissed_at TEXT
                 );
                 CREATE TABLE IF NOT EXISTS operator_accounts (
                     subject TEXT PRIMARY KEY,

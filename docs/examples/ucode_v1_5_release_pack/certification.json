@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-04",
+  "updated": "2026-03-05",
   "status": "certified",
   "runtime_command": "UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python",
   "artifact_root": ".artifacts/release-demos",
@@ -9,87 +9,70 @@
       "script": "docs/examples/ucode_v1_5_release_pack/scripts/run_demo_00_setup_and_status.py",
       "artifact": ".artifacts/release-demos/demo-00-setup-and-status.json",
       "profiles": ["core", "home", "creator", "gaming", "dev"],
-      "status": "certified",
-      "validation": [
-        "core/tests/ucode_release_demo_pack_test.py",
-        "core/tests/ucode_release_demo_scripts_test.py"
-      ],
-      "evidence": [
-        "logic/status reported local runtime readiness with quota-aware network planning",
-        "ops config and ops jobs both exposed managed_operations payloads"
-      ]
+      "status": "certified"
     },
     {
       "demo_id": "01-local-assist-and-knowledge",
       "script": "docs/examples/ucode_v1_5_release_pack/scripts/run_demo_01_local_assist_and_knowledge.py",
       "artifact": ".artifacts/release-demos/demo-01-local-assist-and-knowledge.json",
       "profiles": ["core", "home", "dev"],
-      "status": "certified",
-      "validation": [
-        "core/tests/ucode_release_demo_scripts_test.py",
-        "wizard/tests/logic_assist_service_test.py",
-        "wizard/tests/provider_health_routes_test.py",
-        "wizard/tests/self_heal_routes_recovery_test.py",
-        "wizard/tests/ucode_ok_mode_utils_test.py",
-        "wizard/tests/ucode_ok_routes_test.py"
-      ],
-      "evidence": [
-        "local route executed with offline_required enabled",
-        "conversation state persisted and governance context was injected into the prompt"
-      ]
+      "status": "certified"
     },
     {
       "demo_id": "02-workflow-and-task-planning",
       "script": "docs/examples/ucode_v1_5_release_pack/scripts/run_demo_02_workflow_and_task_planning.py",
       "artifact": ".artifacts/release-demos/demo-02-workflow-and-task-planning.json",
       "profiles": ["core", "creator", "dev"],
-      "status": "certified",
-      "validation": [
-        "core/tests/ucode_release_demo_scripts_test.py",
-        "core/tests/workflow_scheduler_test.py",
-        "core/tests/ulogic_deliverables_test.py",
-        "wizard/tests/workflow_routes_test.py"
-      ],
-      "evidence": [
-        "workflow run paused in approval state on the canonical scheduler contract",
-        "workflow artifacts included runtime-owned deliverables and state files"
-      ]
+      "status": "certified"
     },
     {
       "demo_id": "03-managed-scheduler-and-budget",
       "script": "docs/examples/ucode_v1_5_release_pack/scripts/run_demo_03_managed_scheduler_and_budget.py",
       "artifact": ".artifacts/release-demos/demo-03-managed-scheduler-and-budget.json",
       "profiles": ["home", "creator", "dev"],
-      "status": "certified",
-      "validation": [
-        "core/tests/ucode_release_demo_scripts_test.py",
-        "wizard/tests/managed_operations_runtime_contract_test.py",
-        "wizard/tests/cloud_provider_executor_test.py",
-        "wizard/tests/task_scheduler_windows_test.py",
-        "wizard/tests/maintenance_job_test.py",
-        "wizard/tests/ops_routes_test.py",
-        "wizard/tests/ucode_ok_routes_test.py"
-      ],
-      "evidence": [
-        "scheduled work deferred under api_budget_exhausted with provider preserved on the queue",
-        "logic/status and ops runtime surfaces reported the same blocked_by_quota contract"
-      ]
+      "status": "certified"
     },
     {
       "demo_id": "04-self-hosted-dev-mode",
       "script": "docs/examples/ucode_v1_5_release_pack/scripts/run_demo_04_self_hosted_dev_mode.py",
       "artifact": ".artifacts/release-demos/demo-04-self-hosted-dev-mode.json",
       "profiles": ["dev"],
-      "status": "certified",
-      "validation": [
-        "core/tests/ucode_release_demo_scripts_test.py",
-        "core/tests/dev_mode_handler_test.py",
-        "dev/goblin/tests/test_dev_ops_routes.py"
-      ],
-      "evidence": [
-        "tracked workflow plan synced into a runtime project and scheduler template registered cleanly",
-        "runtime task state updated through the canonical Dev Mode handoff contract"
-      ]
+      "status": "certified"
+    },
+    {
+      "demo_id": "05-grid-and-view-rendering",
+      "script": "docs/examples/ucode_v1_5_release_pack/scripts/run_demo_05_grid_and_view_rendering.py",
+      "artifact": ".artifacts/release-demos/demo-05-grid-and-view-rendering.json",
+      "profiles": ["core", "creator", "gaming", "dev"],
+      "status": "certified"
+    },
+    {
+      "demo_id": "06-ghost-to-wizard-onboarding",
+      "script": "docs/examples/ucode_v1_5_release_pack/scripts/run_demo_06_ghost_to_wizard_onboarding.py",
+      "artifact": ".artifacts/release-demos/demo-06-ghost-to-wizard-onboarding.json",
+      "profiles": ["core", "home", "creator", "dev"],
+      "status": "certified"
+    },
+    {
+      "demo_id": "07-layer-mapping-and-z-index",
+      "script": "docs/examples/ucode_v1_5_release_pack/scripts/run_demo_07_layer_mapping_and_z_index.py",
+      "artifact": ".artifacts/release-demos/demo-07-layer-mapping-and-z-index.json",
+      "profiles": ["core", "creator", "gaming", "dev"],
+      "status": "certified"
+    },
+    {
+      "demo_id": "08-seed-library-generation",
+      "script": "docs/examples/ucode_v1_5_release_pack/scripts/run_demo_08_seed_library_generation.py",
+      "artifact": ".artifacts/release-demos/demo-08-seed-library-generation.json",
+      "profiles": ["core", "creator", "dev"],
+      "status": "certified"
+    },
+    {
+      "demo_id": "09-dev-mode-repair-and-self-extension",
+      "script": "docs/examples/ucode_v1_5_release_pack/scripts/run_demo_09_dev_mode_repair_and_self_extension.py",
+      "artifact": ".artifacts/release-demos/demo-09-dev-mode-repair-and-self-extension.json",
+      "profiles": ["dev"],
+      "status": "certified"
     }
   ],
   "profile_coverage": {
@@ -100,7 +83,11 @@
       "demo_coverage": [
         "00-setup-and-status",
         "01-local-assist-and-knowledge",
-        "02-workflow-and-task-planning"
+        "02-workflow-and-task-planning",
+        "05-grid-and-view-rendering",
+        "06-ghost-to-wizard-onboarding",
+        "07-layer-mapping-and-z-index",
+        "08-seed-library-generation"
       ]
     },
     "home": {
@@ -110,7 +97,8 @@
       "demo_coverage": [
         "00-setup-and-status",
         "01-local-assist-and-knowledge",
-        "03-managed-scheduler-and-budget"
+        "03-managed-scheduler-and-budget",
+        "06-ghost-to-wizard-onboarding"
       ]
     },
     "creator": {
@@ -120,7 +108,11 @@
       "demo_coverage": [
         "00-setup-and-status",
         "02-workflow-and-task-planning",
-        "03-managed-scheduler-and-budget"
+        "03-managed-scheduler-and-budget",
+        "05-grid-and-view-rendering",
+        "06-ghost-to-wizard-onboarding",
+        "07-layer-mapping-and-z-index",
+        "08-seed-library-generation"
       ]
     },
     "gaming": {
@@ -128,7 +120,9 @@
       "installed": true,
       "enabled": true,
       "demo_coverage": [
-        "00-setup-and-status"
+        "00-setup-and-status",
+        "05-grid-and-view-rendering",
+        "07-layer-mapping-and-z-index"
       ]
     },
     "dev": {
@@ -140,7 +134,12 @@
         "01-local-assist-and-knowledge",
         "02-workflow-and-task-planning",
         "03-managed-scheduler-and-budget",
-        "04-self-hosted-dev-mode"
+        "04-self-hosted-dev-mode",
+        "05-grid-and-view-rendering",
+        "06-ghost-to-wizard-onboarding",
+        "07-layer-mapping-and-z-index",
+        "08-seed-library-generation",
+        "09-dev-mode-repair-and-self-extension"
       ]
     }
   },

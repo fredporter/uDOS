@@ -42,7 +42,7 @@ class ContainerProxy:
         if not port:
             raise HTTPException(status_code=404, detail=f"Container not found: {container_id}")
 
-        target_url = f"http://localhost:{port}{path}"
+        target_url = f"http://127.0.0.1:{port}{path}"
 
         try:
             # Forward headers (skip host and connection-related headers)

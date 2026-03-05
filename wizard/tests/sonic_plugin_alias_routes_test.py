@@ -85,7 +85,7 @@ class _Enums:
             return value
 
 
-def test_sonic_plugin_alias_routes_are_retired_by_default(monkeypatch):
+def test_sonic_plugin_alias_routes_are_removed(monkeypatch):
     monkeypatch.delenv("UDOS_SONIC_ENABLE_LEGACY_ALIASES", raising=False)
     sync = _Sync()
 
@@ -116,10 +116,7 @@ def test_sonic_plugin_alias_routes_are_retired_by_default(monkeypatch):
     assert canonical_rebuild.json()["status"] == "ok"
 
     alias = client.post("/api/sonic/rescan")
-    assert alias.status_code == 410
-    detail = alias.json()["detail"]
-    assert detail["alias"] == "/api/sonic/rescan"
-    assert detail["canonical"] == "/api/sonic/sync/rebuild?force=false"
+    assert alias.status_code == 404
 
     bootstrap = client.post("/api/sonic/bootstrap/current")
     assert bootstrap.status_code == 200
@@ -127,12 +124,10 @@ def test_sonic_plugin_alias_routes_are_retired_by_default(monkeypatch):
     assert sync.bootstrap_calls == 1
 
     alias_status = client.get("/api/sonic/aliases/status")
-    assert alias_status.status_code == 200
-    assert alias_status.json()["legacy_aliases_enabled"] is False
-    assert alias_status.json()["status"] == "retired"
+    assert alias_status.status_code == 404
 
 
-def test_sonic_plugin_alias_routes_can_be_reenabled(monkeypatch):
+def test_sonic_plugin_alias_routes_ignore_compatibility_override(monkeypatch):
     monkeypatch.setenv("UDOS_SONIC_ENABLE_LEGACY_ALIASES", "1")
     sync = _Sync()
 
@@ -148,10 +143,7 @@ def test_sonic_plugin_alias_routes_can_be_reenabled(monkeypatch):
     client = TestClient(app)
 
     alias = client.post("/api/sonic/rescan")
-    assert alias.status_code == 200
-    assert alias.json()["deprecated_alias"]["canonical"] == "/api/sonic/sync/rebuild?force=false"
+    assert alias.status_code == 404
 
     alias_status = client.get("/api/sonic/aliases/status")
-    assert alias_status.status_code == 200
-    assert alias_status.json()["legacy_aliases_enabled"] is True
-    assert alias_status.json()["status"] == "compatibility_override"
+    assert alias_status.status_code == 404

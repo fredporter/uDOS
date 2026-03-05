@@ -13,7 +13,7 @@ Example:
     fs = SpatialFilesystem(user_role='user')
 
     # Workspace operations
-    fs.list_workspace('@sandbox')      # memory/sandbox
+    fs.list_workspace('@binders')      # memory/vault/@binders
     fs.write_to_workspace('@vault', 'story.md', content)
 
     # Grid location tagging
@@ -25,7 +25,7 @@ Example:
     docs = fs.find_by_tags(['forest', 'adventure'])
 
     # Binder operations
-    binder = fs.open_binder('@sandbox/my-project')
+    binder = fs.open_binder('@binders/my-project/sandbox')
     chapters = binder.list_chapters()
 
 Author: uDOS Development Team
@@ -71,7 +71,7 @@ class UserRole(Enum):
 class WorkspaceType(Enum):
     """Workspace types and their access requirements."""
 
-    SANDBOX = "sandbox"  # memory/sandbox — user writable
+    BINDERS = "binders"  # memory/vault/@binders — binder roots
     VAULT = "vault"  # memory/vault — primary knowledge store
     INBOX = "inbox"  # memory/inbox — intake
     PUBLIC = "public"  # memory/contributions — published/open
@@ -85,10 +85,10 @@ class WorkspaceType(Enum):
 
 # Workspace configuration
 WORKSPACE_CONFIG = {
-    WorkspaceType.SANDBOX: {
-        "path": "memory/sandbox",
+    WorkspaceType.BINDERS: {
+        "path": "memory/vault/@binders",
         "roles": [UserRole.ADMIN, UserRole.USER],
-        "description": "Sandbox for experiments and drafts",
+        "description": "Binder workspace root with per-binder sandbox/",
     },
     WorkspaceType.VAULT: {
         "path": "memory/vault",
@@ -280,8 +280,8 @@ class SpatialFilesystem:
         """Resolve @workspace syntax.
 
         Args:
-            ref: '@sandbox/story.md', '@workspace/sandbox/story.md', or
-                 'memory/sandbox/story.md'
+            ref: '@binders/story.md', '@workspace/binders/story.md', or
+                 'memory/vault/@binders/story.md'
 
         Returns:
             (WorkspaceType, relative_path)

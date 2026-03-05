@@ -21,7 +21,7 @@ class SchedulerHandler(BaseCommandHandler):
 
     def __init__(self):
         super().__init__()
-        self.db_path = get_repo_root() / "memory" / "wizard" / "tasks.db"
+        self.db_path = get_repo_root() / "memory" / "wizard" / "ops.db"
 
     def handle(self, command: str, params: List[str], grid=None, parser=None) -> Dict:
         if not params:
@@ -189,8 +189,8 @@ class SchedulerHandler(BaseCommandHandler):
             with self._connect() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
-                    "INSERT INTO task_runs (id, task_id, state, started_at, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",
-                    (run_id, task_id, "sprout", None),
+                    "INSERT INTO task_runs (id, task_id, state, created_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
+                    (run_id, task_id, "pending"),
                 )
                 cursor.execute(
                     """
@@ -237,7 +237,7 @@ class SchedulerHandler(BaseCommandHandler):
                 if identifier and identifier.lower().startswith("run_"):
                     cursor.execute(
                         """
-                        SELECT r.id, r.task_id, t.name, r.state, r.started_at, r.completed_at, r.result, r.output
+                        SELECT r.id, r.task_id, t.name, r.state, r.created_at, r.completed_at, r.result, r.output
                         FROM task_runs r
                         LEFT JOIN tasks t ON t.id = r.task_id
                         WHERE r.id = ?
@@ -252,14 +252,14 @@ class SchedulerHandler(BaseCommandHandler):
                             recovery_hint="Check run ID and try again",
                             level="ERROR",
                         )
-                    run_id, task_id, name, state, started_at, completed_at, result, output = row
+                    run_id, task_id, name, state, created_at, completed_at, result, output = row
                     lines = [
                         banner,
                         "",
                         f"Run: {run_id}",
                         f"Task: {name or task_id}",
                         f"State: {state}",
-                        f"Started: {started_at or 'n/a'}",
+                        f"Queued: {created_at or 'n/a'}",
                         f"Completed: {completed_at or 'n/a'}",
                         f"Result: {result or 'n/a'}",
                     ]
@@ -276,7 +276,7 @@ class SchedulerHandler(BaseCommandHandler):
                 if task_filter:
                     cursor.execute(
                         """
-                        SELECT r.id, r.task_id, t.name, r.state, r.started_at, r.completed_at, r.result
+                        SELECT r.id, r.task_id, t.name, r.state, r.created_at, r.completed_at, r.result
                         FROM task_runs r
                         LEFT JOIN tasks t ON t.id = r.task_id
                         WHERE r.task_id = ?
@@ -288,7 +288,7 @@ class SchedulerHandler(BaseCommandHandler):
                 else:
                     cursor.execute(
                         """
-                        SELECT r.id, r.task_id, t.name, r.state, r.started_at, r.completed_at, r.result
+                        SELECT r.id, r.task_id, t.name, r.state, r.created_at, r.completed_at, r.result
                         FROM task_runs r
                         LEFT JOIN tasks t ON t.id = r.task_id
                         ORDER BY r.created_at DESC
@@ -314,10 +314,10 @@ class SchedulerHandler(BaseCommandHandler):
             return {"status": "success", "output": "\n".join(lines)}
 
         for row in rows:
-            run_id, task_id, name, state, started_at, completed_at, result = row
+            run_id, task_id, name, state, created_at, completed_at, result = row
             lines.append(f"- {run_id}  {name or task_id}")
             lines.append(f"  State: {state} | Result: {result or 'n/a'}")
-            lines.append(f"  Started: {started_at or 'n/a'} | Completed: {completed_at or 'n/a'}")
+            lines.append(f"  Queued: {created_at or 'n/a'} | Completed: {completed_at or 'n/a'}")
             lines.append("")
 
         return {"status": "success", "output": "\n".join(lines)}

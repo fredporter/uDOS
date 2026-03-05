@@ -20,6 +20,7 @@ from core.services.destructive_ops import (
     scrub_directory,
 )
 from core.services.error_contract import CommandError
+from core.services.loopback_host_utils import is_loopback_host, normalize_loopback_host
 from core.services.logging_api import get_repo_root
 from core.services.logging_manager import get_logger
 from core.services.permission_handler import Permission
@@ -34,8 +35,6 @@ logger = get_logger("wizard-handler")
 
 class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
     """Handler for WIZARD command - maintenance and rebuild."""
-
-    _LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 
     def handle(self, command: str, params: list[str], grid=None, parser=None) -> dict:
         if not params:
@@ -949,10 +948,8 @@ class WizardHandler(BaseCommandHandler, InteractiveMenuMixin):
         return host, port
 
     def _wizard_connect_host(self, host: str) -> str:
-        normalized = (host or "").strip().lower()
-        if normalized in {"0.0.0.0", "::"}:
-            return "127.0.0.1"
-        if normalized in self._LOOPBACK_HOSTS:
+        normalized = normalize_loopback_host(host, fallback="127.0.0.1")
+        if is_loopback_host(normalized):
             return normalized
         logger.warning(
             "[BoundaryPolicy] blocked non-loopback wizard host '%s'; using 127.0.0.1",

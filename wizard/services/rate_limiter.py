@@ -19,6 +19,8 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Dict, Any, Optional, Tuple
 from enum import Enum
+
+from core.services.loopback_host_utils import is_loopback_host
 from wizard.services.provider_load_logger import log_provider_event
 
 
@@ -522,7 +524,7 @@ def create_rate_limit_middleware(rate_limiter: RateLimiter = None):
 
         # Skip rate limiting for localhost requests
         client_host = request.client.host if request.client else ""
-        if client_host in ("127.0.0.1", "localhost", "::1"):
+        if is_loopback_host(client_host):
             return await call_next(request)
 
         # Check rate limit

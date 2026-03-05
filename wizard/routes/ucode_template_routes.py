@@ -7,7 +7,7 @@ from typing import Any, Callable, Dict
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from wizard.routes.ucode_template_dispatch import dispatch_ucode_template_command
+from wizard.routes.ucode_dispatch_routes import DispatchRequest
 
 
 class TemplateDuplicateRequest(BaseModel):
@@ -33,11 +33,7 @@ def create_ucode_template_routes(
                 "Template route dispatch",
                 ctx={"corr_id": corr_id, "command": command},
             )
-            return dispatch_ucode_template_command(
-                command=command,
-                logger=logger,
-                corr_id=corr_id,
-            )
+            return dispatch_core(command, DispatchRequest(command=command), corr_id)
         finally:
             reset_corr_id(token)
 

@@ -3,7 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 
 from core.commands.binder_handler import BinderHandler
-from core.services.vibe_binder_service import DevModeToolBinderService, VibeBinderService
+from core.services.dev_mode_compat.binder_service import (
+    DevModeToolBinderService,
+    VibeBinderService,
+)
 
 
 def test_canonical_binder_service_alias_is_stable() -> None:
@@ -12,11 +15,11 @@ def test_canonical_binder_service_alias_is_stable() -> None:
 
 def test_binder_import_research_creates_imported_move(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(
-        "core.services.vibe_binder_service.get_vault_root",
+        "core.services.dev_mode_compat.binder_service.get_vault_root",
         lambda: tmp_path,
     )
     monkeypatch.setattr(
-        "core.services.vibe_binder_service.get_udos_root",
+        "core.services.dev_mode_compat.binder_service.get_udos_root",
         lambda: tmp_path,
     )
     service = DevModeToolBinderService()

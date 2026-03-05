@@ -37,6 +37,7 @@ dev/
 │   ├── features/
 │   ├── howto/
 │   ├── roadmap/
+│   ├── contributors/
 │   ├── tasks/
 │   └── specs/
 └── goblin/
@@ -82,6 +83,7 @@ It must not become a second runtime root or a private scratch area.
 
 Contributor-facing Dev Mode documentation belongs in `dev/docs/`.
 Contributor mission state, workspace templates, and shared contributor tool config belong in `dev/ops/`.
+Contributor submission drafts belong in `dev/docs/contributors/` before promotion into canonical `dev/docs/` tracks.
 
 Root `docs/` must not host:
 

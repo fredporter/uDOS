@@ -169,7 +169,7 @@ class WizardConsole:
 
     def _print_logic_startup_checks(self) -> None:
         checks = self._logic_status()
-        base_host = "localhost" if self.config.host == "0.0.0.0" else self.config.host
+        base_host = "127.0.0.1" if self.config.host == "0.0.0.0" else self.config.host
         config_url = f"http://{base_host}:{self.config.port}/#config"
 
         local = checks["local"]
@@ -1004,7 +1004,7 @@ class WizardConsole:
 
     def _api_request(self, method: str, path: str, data: dict | None = None):
         """Call Wizard API from the console."""
-        base_host = "localhost" if self.config.host == "0.0.0.0" else self.config.host
+        base_host = "127.0.0.1" if self.config.host == "0.0.0.0" else self.config.host
         url = f"http://{base_host}:{self.config.port}{path}"
         headers = {"Content-Type": "application/json"}
 

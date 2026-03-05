@@ -119,11 +119,18 @@ export async function apiPatch<T>(url: string, body: unknown, options?: ApiReque
  * Resolve API base URL (for dynamic hosts)
  */
 export function resolveApiBase(): string {
-  if (typeof window === "undefined") return "http://localhost:8765";
+  const env = (import.meta as { env?: Record<string, string | undefined> }).env ?? {};
+  const configuredBase = (env.VITE_WIZARD_BASE_URL || "").trim();
+  if (configuredBase) {
+    return configuredBase.replace(/\/+$/, "");
+  }
+  const configuredPort = (env.VITE_WIZARD_PORT || "8765").trim() || "8765";
+
+  if (typeof window === "undefined") return `http://127.0.0.1:${configuredPort}`;
 
   // If we're on localhost, use localhost API
   if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-    return "http://127.0.0.1:8765";
+    return `${window.location.protocol}//127.0.0.1:${configuredPort}`;
   }
 
   // Otherwise use same origin

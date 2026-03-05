@@ -16,6 +16,8 @@ That page is the source of truth for:
 
 ## After Install
 
+- Follow onboarding:
+  [Onboarding Flow](Onboarding-Flow.md)
 - Learn the runtime split:
   [Core](Core.md) and [Wizard](Wizard.md)
 - Read command references:

@@ -31,7 +31,7 @@ def test_dispatch_ok_stream_explain_mode(tmp_path):
     file_path.write_text("print('x')\n", encoding="utf-8")
 
     response = dispatch_ok_stream_command(
-        command=f"OK EXPLAIN {file_path}",
+        command=f"LOGIC EXPLAIN {file_path}",
         corr_id="C1",
         logger=_Logger(),
         ok_model=None,

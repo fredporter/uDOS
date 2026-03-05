@@ -442,7 +442,10 @@ def restore_backup(
                 if dest.exists():
                     raise FileExistsError(f"Restore conflict: {dest}")
         for idx, member in enumerate(members, 1):
-            tar.extract(member, path=target_root)
+            try:
+                tar.extract(member, path=target_root, filter="data")
+            except TypeError:
+                tar.extract(member, path=target_root)
             if on_progress:
                 on_progress(idx, total_members, member.name)
     return f"Restored {archive_path.name} to {target_root}"

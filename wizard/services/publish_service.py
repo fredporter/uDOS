@@ -92,9 +92,9 @@ def _build_provider_capability_contract() -> Dict[str, Dict[str, Any]]:
         },
         "dev": {
             "module": "dev",
-            "publish_lane": "sandbox",
+            "publish_lane": "binders",
             "requires_module_present": True,
-            "allowed_source_prefixes": ["dev", "memory/dev", "memory/vault/@sandbox"],
+            "allowed_source_prefixes": ["dev", "memory/dev", "memory/vault/@binders"],
         },
         "sonic": {
             "module": "sonic",

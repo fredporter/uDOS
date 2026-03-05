@@ -27,7 +27,7 @@ def generate_webhook_secret(length: int = 32) -> str:
     return secrets.token_hex(length)
 
 
-def display_secret_with_instructions(secret: str, wizard_url: str = "http://localhost:8765"):
+def display_secret_with_instructions(secret: str, wizard_url: str = "http://127.0.0.1:8765"):
     """Display the secret and setup instructions."""
 
     print(f"\n{BLUE}{'=' * 70}{NC}")
@@ -127,7 +127,7 @@ def main():
         length = int(sys.argv[1])
 
     # Check for custom wizard URL
-    wizard_url = "http://localhost:8765"
+    wizard_url = "http://127.0.0.1:8765"
     if len(sys.argv) > 2:
         wizard_url = sys.argv[2]
 

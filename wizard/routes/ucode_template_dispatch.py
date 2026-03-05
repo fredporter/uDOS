@@ -39,7 +39,6 @@ def dispatch_ucode_template_command(
         logger=logger,
         corr_id=corr_id,
         command_capability_check=None,
-        deprecated_aliases=None,
     )
 
 

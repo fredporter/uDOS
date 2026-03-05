@@ -32,9 +32,9 @@
         font-family: arial;
     }
 
-    .terminal-r1 { fill: #625e4c }
+    .terminal-r1 { fill: #5e5e5e }
 .terminal-r2 { fill: #c5c8c6 }
-.terminal-r3 { fill: #9d65ff;font-weight: bold }
+.terminal-r3 { fill: #7c7c7c;font-weight: bold }
 .terminal-r4 { fill: #d9d9d9 }
 .terminal-r5 { fill: #d9d9d9;font-weight: bold }
 .terminal-r6 { fill: #e0e0e0 }

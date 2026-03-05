@@ -84,9 +84,11 @@ export function openContainerAction(container: Container): void {
     return;
   }
 
-  // Construct the URL
+  // Construct a local loopback URL that matches current page protocol.
   const route = browser_route || '/';
-  const url = `http://localhost:${port}${route}`;
+  const protocol = window.location.protocol === "https:" ? "https:" : "http:";
+  const host = window.location.hostname === "localhost" ? "127.0.0.1" : window.location.hostname;
+  const url = `${protocol}//${host}:${port}${route}`;
 
   // Open in new tab
   const newWindow = window.open(url, '_blank');

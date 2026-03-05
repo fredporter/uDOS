@@ -240,10 +240,6 @@ class DevModeToolCliHandler:
 
         return self._format_output(result)
 
-    def _handle_wizard(self, action: str, args: List[str]) -> Dict[str, Any]:
-        """Compatibility alias: delegate legacy wizard-form calls to wizops."""
-        return self._handle_wizops(action, args)
-
     def _handle_help(self, action: str, args: List[str]) -> Dict[str, Any]:
         """Handle help skill commands."""
         service = get_help_service()

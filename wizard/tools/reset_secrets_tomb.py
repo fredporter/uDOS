@@ -58,7 +58,7 @@ def main():
     print("   3. Your answers will create a new secrets.tomb with the current WIZARD_KEY")
     print()
     print("💡 Or manually trigger setup via Wizard API:")
-    print("   POST http://localhost:8765/api/setup/story/submit")
+    print("   POST http://127.0.0.1:8765/api/setup/story/submit")
     print()
 
     return 0

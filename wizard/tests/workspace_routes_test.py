@@ -49,7 +49,7 @@ def test_workspace_roots_include_aliases():
     roots = res.json().get("roots", {})
     # All WORKSPACE_CONFIG types + memory root should appear under @key
     assert "@vault" in roots
-    assert "@sandbox" in roots
+    assert "@binders" in roots
     assert "@inbox" in roots
     assert "@memory" in roots
     # Each entry is a rich object, not a plain string

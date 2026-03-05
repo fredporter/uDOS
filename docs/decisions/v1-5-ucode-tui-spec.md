@@ -1,129 +1,142 @@
 # v1.5 ucode TUI Decision
 
 Status: active source of truth  
-Updated: 2026-03-03
+Updated: 2026-03-05
 
 ## Purpose
 
-This document defines the v1.5 `ucode` TUI direction for the standard interactive runtime.
+This document defines the final pre-release v1.5 standard for the `ucode` TUI runtime.
 
-It consolidates the current TUI goals for:
-- predictable fixed-width rendering
-- reusable selectors and input controls
-- backend-driven output contracts
-- safe terminal behavior under resize, paste, and slow output
+It confirms the required feature set across rendering, onboarding, views, layer mapping, seed content, and Dev Mode repair/extension behavior.
 
-## Decision
+## Final v1.5 Standard
 
-The v1.5 `ucode` TUI is a teletext-style terminal surface with:
-- fixed-width, ASCII-safe rendering by default
-- a reusable library of TUI primitives
-- a single output-contract layer for backend events
-- a backend protocol that keeps UI rendering separate from runtime execution
+The v1.5 `ucode` TUI is the canonical operator surface and must provide:
 
-This TUI is the standard interactive runtime surface for normal users.
-`vibe` remains a Dev Mode contributor surface and is not the default user-facing terminal path.
-Mistral-backed contributor flows are treated as Dev Mode operations rather than the baseline user runtime.
-Dev Mode entry is implicit through the active `dev` extension lane and must not behave like a second default runtime.
+- fixed-width text rendering with deterministic layout
+- block-graphic grid rendering with teletext-compatible fallback
+- first-class support for text, columns, ASCII, teletext, calendar, task, block/grid, and container views
+- gameplay-style onboarding that performs real setup work during progression
+- explicit layer mapping with z-index/elevation semantics
+- seed library generation/indexing for rendering and mission templates
+- Dev Mode self-repair and self-extension through runtime tools and cloud-code-agent lane when enabled by policy
+
+`vibe` remains a Dev Mode contributor surface and not the default operator runtime.
 
 ## Architecture
 
 ### Frontend shell
 
-The TUI frontend is a dedicated terminal UI binary that:
-- owns layout
-- owns input handling
-- owns rendering
-- does not print ad hoc backend text directly
+The TUI frontend:
 
-### Backend execution
+- owns layout/input/rendering
+- consumes structured events
+- never prints raw backend formatting as the render source of truth
 
-Backend tasks remain owned by the existing runtime layers:
-- `core` for deterministic local execution
-- `wizard` for managed and network-aware behavior where applicable
+### Backend ownership
 
-The TUI consumes structured events instead of inheriting backend formatting drift.
+- `core` owns deterministic execution and local-first behavior
+- `wizard` owns managed/networked behavior and policy-gated escalation
 
-## Rendering Rules
+Cross-boundary duplication is prohibited.
 
-### Character model
+## Rendering and View Matrix
 
-- ASCII-safe rendering is the default
-- optional richer block rendering may exist, but must never be required for baseline operation
-- layout must remain stable under fixed character-cell assumptions
+v1.5 standard renderer capability includes:
 
-### Layout model
+- plain text panels
+- aligned column panels
+- ASCII diagrams and box layouts
+- teletext block graphics
+- calendar views
+- task list/kanban-style views
+- block/grid/canvas views
+- container/panel composition views
 
-- render inside a fixed canvas width by default
-- use crop-then-pad behavior instead of uncontrolled wrapping
-- fall back to stacked/minimal layouts on narrow terminals
+Rules:
 
-### Theme direction
+- ASCII-safe baseline must remain functional on every supported terminal
+- block graphics are additive, not mandatory for baseline operation
+- crop-then-pad is preferred over uncontrolled soft-wrap
+- narrow-width fallback must preserve command usability and critical status visibility
 
-The standard visual language is teletext-style:
-- high contrast
-- minimal styling
-- ASCII borders
-- predictable block and column layouts
+## Onboarding Standard
 
-## Interaction Rules
+The required onboarding model is progression gameplay:
 
-The TUI must standardize:
-- selectors
-- single-line input
-- multiline input
-- confirmation dialogs
-- picker-style flows
-- consistent help/footer hints
+- flow: Ghost -> Apprentice -> Operator -> Alchemist -> Wizard
+- every onboarding action both teaches and performs real setup/configuration
+- progress is resumable and persisted
+- event stream uses structured blocks (`narration`, `objective`, `challenge`, `reward`, `unlock`, `progress`)
 
-Global behavior should remain stable across all primitives:
-- accept/confirm
-- cancel/back
-- navigation
-- search/filter
-- redraw/refresh
-- quit
+Canonical script path:
 
-## Terminal Safety Rules
+- `docs/examples/ghost-to-wizard-script.md`
 
-The v1.5 TUI must be safe under:
-- bracketed paste
-- resize events
-- partial or slow backend output
-- non-ideal terminal widths
+## Layer Mapping and Z-Index
 
-Pasted text must be handled as literal user input rather than accidental control sequences.
+TUI layer mapping is a required runtime contract:
+
+- explicit z/elevation handling for map/render semantics
+- consistent bucket mapping for dungeon/foundation/galaxy message lenses
+- separate concern between spatial rendering state and message-theme vocabulary
+
+Canonical mapping references:
+
+- `docs/features/THEME-LAYER-MAPPING.md`
+- `docs/examples/FRACTAL-GRID-IMPLEMENTATION.md`
+
+## Seed Library Generation
+
+v1.5 includes seed library generation/indexing for:
+
+- teletext/ascii/block diagram seeds
+- prompt/parser template seeds
+- workflow/mission/story starter templates
+
+Seed generation must emit inspectable artifacts and deterministic indexes.
+
+## Dev Mode Repair and Self-Extension
+
+The runtime must support repair and extension from Dev Mode through official command/tool paths:
+
+- repair diagnostics and remediation (`ucode_repair` lanes)
+- extension scaffolding/activation through runtime-owned workflows
+- policy-gated cloud-code-agent escalation through Wizard-managed controls
 
 ## Output Contract
 
-The backend must emit structured render events rather than preformatted UI text.
+The backend emits structured render events; the TUI owns visual presentation.
 
-The TUI renderer should own presentation of:
-- blocks
-- logs
+Required event classes include:
+
+- block
 - progress
-- dividers
-- multi-column layouts
-- teletext-style graphics where supported
+- result
+- done
+
+Extended classes for onboarding and grid rendering are allowed as long as the protocol envelope remains compatible.
+
+## Demo Certification Requirement
+
+v1.5 release proof requires the extended demo pack (`00` through `09`) under:
+
+- `docs/examples/ucode_v1_5_release_pack/`
+
+This pack is the canonical evidence set for the final pre-release round.
 
 ## Supporting Documents
 
 - `docs/decisions/udos-protocol-v1.md`
 - `docs/decisions/udos-reference-implementation.md`
 - `docs/decisions/udos-teletext-theme.md`
-
-## v1.5 Refactor Scope
-
-The pre-release TUI refactor should cover:
-- standard `ucode`-first entry behavior
-- teletext-safe layout consistency
-- reusable selector/input primitives
-- protocol and event-contract alignment
-- shakedown coverage for paste, resize, fallback, and workflow/task flows
+- `docs/features/DIAGRAM-SPECS.md`
+- `docs/features/PROMPT-PARSER-REFERENCE.md`
+- `docs/features/TODO-RENDERER-REFERENCE.md`
+- `docs/features/SQL-RUNNER-GUIDE.md`
 
 ## Related Documents
 
-- `docs/STATUS.md`
-- `dev/docs/decisions/v1-5-rebaseline.md`
 - `docs/specs/RUNTIME-INTERFACE-SPEC.md`
 - `docs/specs/UCODE-DISPATCH-CONTRACT.md`
+- `dev/docs/decisions/v1-5-rebaseline.md`

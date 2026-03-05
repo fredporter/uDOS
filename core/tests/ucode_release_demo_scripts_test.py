@@ -95,6 +95,76 @@ def test_demo_04_script_builds_self_hosted_dev_report(tmp_path):
     assert payload["update"]["task"]["status"] == "completed"
 
 
+def test_demo_05_script_builds_grid_rendering_report(tmp_path):
+    module = _load_module(SCRIPTS_ROOT / "run_demo_05_grid_and_view_rendering.py")
+    output_path = tmp_path / "demo-05.json"
+    runtime_root = tmp_path / "demo-05-runtime"
+
+    report_path = module.build_report(output_path=output_path, runtime_root=runtime_root)
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+
+    assert payload["demo"] == "05-grid-and-view-rendering"
+    assert payload["character_model"]["ascii_safe_default"] is True
+    views = {item["view"] for item in payload["view_matrix"]}
+    assert {"text", "columns", "ascii", "teletext", "calendar", "task", "grid", "container"}.issubset(views)
+
+
+def test_demo_06_script_builds_onboarding_report(tmp_path):
+    module = _load_module(SCRIPTS_ROOT / "run_demo_06_ghost_to_wizard_onboarding.py")
+    output_path = tmp_path / "demo-06.json"
+    runtime_root = tmp_path / "demo-06-runtime"
+
+    report_path = module.build_report(output_path=output_path, runtime_root=runtime_root)
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+
+    assert payload["demo"] == "06-ghost-to-wizard-onboarding"
+    assert payload["mission_script_exists"] is True
+    assert payload["final_state"]["role"] == "wizard"
+    assert payload["level_sequence"][0] == "awakening_chamber"
+    assert payload["level_sequence"][-1] == "surface"
+
+
+def test_demo_07_script_builds_layer_mapping_report(tmp_path):
+    module = _load_module(SCRIPTS_ROOT / "run_demo_07_layer_mapping_and_z_index.py")
+    output_path = tmp_path / "demo-07.json"
+    runtime_root = tmp_path / "demo-07-runtime"
+
+    report_path = module.build_report(output_path=output_path, runtime_root=runtime_root)
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+
+    assert payload["demo"] == "07-layer-mapping-and-z-index"
+    assert payload["z_policy"]["dungeon"] == "z < 0"
+    assert any(item["lane"] == "galaxy" for item in payload["sample_mapping"])
+
+
+def test_demo_08_script_builds_seed_library_report(tmp_path):
+    module = _load_module(SCRIPTS_ROOT / "run_demo_08_seed_library_generation.py")
+    output_path = tmp_path / "demo-08.json"
+    runtime_root = tmp_path / "demo-08-runtime"
+
+    report_path = module.build_report(output_path=output_path, runtime_root=runtime_root)
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+
+    assert payload["demo"] == "08-seed-library-generation"
+    assert payload["paths_exist"]["seed_root"] is True
+    assert payload["counts"]["themes"] > 0
+    assert payload["counts"]["diagrams_ascii"] > 0
+
+
+def test_demo_09_script_builds_repair_and_extension_report(tmp_path):
+    module = _load_module(SCRIPTS_ROOT / "run_demo_09_dev_mode_repair_and_self_extension.py")
+    output_path = tmp_path / "demo-09.json"
+    runtime_root = tmp_path / "demo-09-runtime"
+
+    report_path = module.build_report(output_path=output_path, runtime_root=runtime_root)
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+
+    assert payload["demo"] == "09-dev-mode-repair-and-self-extension"
+    assert payload["repair"]["dry_run"]["status"] == "ok"
+    assert payload["extension"]["enabled"] is True
+    assert payload["cloud_code_agent_lane"]["policy_gated"] is True
+
+
 def test_demo_scripts_run_from_cli_entrypoints(tmp_path):
     scripts = [
         ("run_demo_00_setup_and_status.py", "00-setup-and-status"),
@@ -102,6 +172,11 @@ def test_demo_scripts_run_from_cli_entrypoints(tmp_path):
         ("run_demo_02_workflow_and_task_planning.py", "02-workflow-and-task-planning"),
         ("run_demo_03_managed_scheduler_and_budget.py", "03-managed-scheduler-and-budget"),
         ("run_demo_04_self_hosted_dev_mode.py", "04-self-hosted-dev-mode"),
+        ("run_demo_05_grid_and_view_rendering.py", "05-grid-and-view-rendering"),
+        ("run_demo_06_ghost_to_wizard_onboarding.py", "06-ghost-to-wizard-onboarding"),
+        ("run_demo_07_layer_mapping_and_z_index.py", "07-layer-mapping-and-z-index"),
+        ("run_demo_08_seed_library_generation.py", "08-seed-library-generation"),
+        ("run_demo_09_dev_mode_repair_and_self_extension.py", "09-dev-mode-repair-and-self-extension"),
     ]
 
     for script_name, demo_id in scripts:

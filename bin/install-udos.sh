@@ -1254,7 +1254,7 @@ function run_health_check() {
     echo "  micro: $(if command -v micro &> /dev/null; then echo "✓"; else echo "✗"; fi)"
     echo "  Obsidian: $(if [[ "$OBSIDIAN_INSTALLED" == true ]]; then echo "✓"; else echo "✗"; fi)"
     echo "  GPT4All package: $(UV_PROJECT_ENVIRONMENT=.venv uv run python -c "import importlib.util; print('✓' if importlib.util.find_spec('gpt4all') else '✗')" 2>/dev/null || echo "✗")"
-    echo "  udos-tui: $(if [[ -x "$REPO_ROOT/tui/bin/udos-tui" ]]; then echo "✓ $REPO_ROOT/tui/bin/udos-tui"; else echo "✗"; fi)"
+    echo "  udos-tui: $(if [[ -x "$REPO_ROOT/bin/udos-tui" ]]; then echo "✓ $REPO_ROOT/bin/udos-tui"; else echo "✗"; fi)"
     echo ""
     echo "Configuration:"
     echo "  Repo Root: $REPO_ROOT"

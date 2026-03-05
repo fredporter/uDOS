@@ -44,6 +44,7 @@ def test_run_pending_defers_when_api_budget_is_exhausted(tmp_path):
         payload={"budget_units": 3},
     )
     scheduler.schedule_task(task["id"], utc_now() - timedelta(minutes=1))
+    scheduler._resources_ok = lambda _item: True  # type: ignore[method-assign]
 
     result = scheduler.run_pending(max_tasks=1)
     queue = scheduler.get_scheduled_queue(limit=5)

@@ -611,7 +611,9 @@
 
   function openContainerThinGui(container) {
     const route = container?.browser_route || "/";
-    const url = `http://localhost:${container.port}${route}`;
+    const protocol = window.location.protocol === "https:" ? "https:" : "http:";
+    const host = window.location.hostname === "localhost" ? "127.0.0.1" : window.location.hostname;
+    const url = `${protocol}//${host}:${container.port}${route}`;
     openThinGuiWindow({
       title: container?.name || container?.id || "Container",
       targetUrl: url,

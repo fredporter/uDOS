@@ -7,11 +7,16 @@ It is intentionally empty of personal data. Keep only starter docs and folder st
 ## Workspaces
 
 - `@inbox/` incoming captures to process
-- `@sandbox/` drafts and experiments
 - `@binders/` active thematic collections
 - `@shared/` collaboration and selective sharing
 - `@public/` publish-ready content
 - `@private/` personal/private markdown notes
+
+## Binder-local Workspaces
+
+Each binder under `@binders/<binder_id>/` owns its local:
+- `sandbox/` work in progress, references, imports, workflow JSON, contacts
+- `.compost/` elastic archive/backup/trash history for that binder
 
 ## Important
 

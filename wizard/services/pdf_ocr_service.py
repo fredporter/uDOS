@@ -8,7 +8,7 @@ Features:
 - Single file extraction: EXTRACT {file.pdf}
 - Batch processing: EXTRACT (no args) - processes inbox folder
 - Automatic image extraction and linking
-- Output to /memory/sandbox/processed/
+- Output to /memory/vault/@inbox/processed/
 
 Example:
     service = PDFOCRService()
@@ -38,7 +38,7 @@ class PDFOCRService:
         self.repo_root = get_repo_root()
         self.library_path = self.repo_root / "library" / "pdf-ocr"
         self.inbox_path = self.repo_root / "memory" / "inbox"
-        self.processed_path = self.repo_root / "memory" / "sandbox" / "processed"
+        self.processed_path = self.repo_root / "memory" / "vault" / "@inbox" / "processed"
 
         # Create directories if needed
         self.inbox_path.mkdir(parents=True, exist_ok=True)

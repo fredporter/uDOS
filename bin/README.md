@@ -23,6 +23,11 @@ This directory contains the active install and launcher scripts for the v1.5 run
 - Opens Terminal and runs `bin/udos tui`
 - **Usage**: Double-click in Finder after installation
 
+### `udos-tui` (Linux/macOS shell)
+- Executable launcher for the stable `uDOS` TUI path
+- Runs `bin/udos tui`
+- **Usage**: `./bin/udos-tui`
+
 ### `smoke-test.sh`
 - Comprehensive test suite for the installer
 - Tests all failure scenarios and recovery paths

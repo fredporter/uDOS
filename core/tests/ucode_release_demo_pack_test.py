@@ -12,6 +12,11 @@ DEMO_FILES = [
     "02-workflow-and-task-planning.md",
     "03-managed-scheduler-and-budget.md",
     "04-self-hosted-dev-mode.md",
+    "05-grid-and-view-rendering.md",
+    "06-ghost-to-wizard-onboarding.md",
+    "07-layer-mapping-and-z-index.md",
+    "08-seed-library-generation.md",
+    "09-dev-mode-repair-and-self-extension.md",
 ]
 REQUIRED_SECTIONS = [
     "## Goal",
@@ -46,6 +51,6 @@ def test_release_demo_pack_certification_covers_all_demos_and_profiles():
     payload = json.loads((PACK_ROOT / "certification.json").read_text(encoding="utf-8"))
 
     assert payload["status"] == "certified"
-    assert len(payload["demos"]) == 5
+    assert len(payload["demos"]) == 10
     assert set(payload["profile_coverage"]) == {"core", "home", "creator", "gaming", "dev"}
     assert all(item["status"] == "certified" for item in payload["demos"])
