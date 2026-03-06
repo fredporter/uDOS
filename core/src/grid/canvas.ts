@@ -5,7 +5,6 @@ import {
   TableOptions,
   MinimapCell,
   MinimapOptions,
-  LocIdOverlay,
 } from "./types.js";
 
 function pad(s: string, w: number): string {
@@ -13,12 +12,14 @@ function pad(s: string, w: number): string {
   return s + " ".repeat(w - s.length);
 }
 
-export class Canvas80x30 {
-  readonly width = 80 as const;
-  readonly height = 30 as const;
+export class Canvas {
+  readonly width: number;
+  readonly height: number;
   private buf: string[][];
 
-  constructor() {
+  constructor(width = 80, height = 30) {
+    this.width = Math.max(8, Math.floor(width));
+    this.height = Math.max(8, Math.floor(height));
     this.buf = Array.from({ length: this.height }, () =>
       Array.from({ length: this.width }, () => " "),
     );
@@ -105,7 +106,6 @@ export class Canvas80x30 {
     const showHeader = opts.header ?? true;
     const rowSep = opts.rowSep ?? false;
 
-    // Calculate column widths
     const colCount = columns.length;
     const colWidths = columns.map(
       (c) => c.width || Math.floor((w - 2) / colCount) - 1,
@@ -113,7 +113,6 @@ export class Canvas80x30 {
 
     let cy = y + 1;
 
-    // Draw header
     if (showHeader && cy < y + h) {
       let cx = x + 1;
       for (let i = 0; i < colCount && cx < x + w; i++) {
@@ -129,7 +128,6 @@ export class Canvas80x30 {
       }
     }
 
-    // Draw rows
     for (const row of rows) {
       if (cy >= y + h - 1) break;
       let cx = x + 1;
@@ -149,29 +147,40 @@ export class Canvas80x30 {
     w: number,
     h: number,
     cells: Map<string, MinimapCell>,
-    opts: MinimapOptions = {},
+    _opts: MinimapOptions = {},
   ) {
     const cellSize = 2;
     const cols = Math.floor((w - 2) / cellSize);
     const rows = Math.floor((h - 2) / cellSize);
+    if (cols <= 0 || rows <= 0) return;
+
+    const entries = Array.from(cells.values());
+    const withCoord = entries.filter((cell) => !!cell.coord);
+    const withoutCoord = entries.filter((cell) => !cell.coord);
+
+    for (const cell of withCoord) {
+      const col = Math.max(0, Math.min(cols - 1, cell.coord!.x));
+      const row = Math.max(0, Math.min(rows - 1, cell.coord!.y));
+      const cx = x + 1 + col * cellSize;
+      const cy = y + 1 + row;
+      if (cell.type === "selected") {
+        this.put(cx, cy, "[");
+        this.put(cx + 1, cy, "]");
+      } else if (cell.overlay) {
+        this.put(cx, cy, cell.overlay.icon);
+        this.put(cx + 1, cy, " ");
+      } else {
+        this.put(cx, cy, cell.content?.[0] || ".");
+        this.put(cx + 1, cy, " ");
+      }
+    }
 
     let idx = 0;
-    for (let row = 0; row < rows && y + 1 + row < y + h - 1; row++) {
-      for (
-        let col = 0;
-        col < cols && x + 1 + col * cellSize < x + w - 1;
-        col++
-      ) {
-        const locId = Array.from(cells.keys())[idx++];
-        if (!locId) break;
-
-        const cell = cells.get(locId);
-        if (!cell) continue;
-
+    for (let row = 0; row < rows && idx < withoutCoord.length; row++) {
+      for (let col = 0; col < cols && idx < withoutCoord.length; col++) {
+        const cell = withoutCoord[idx++];
         const cx = x + 1 + col * cellSize;
         const cy = y + 1 + row;
-
-        // Draw cell marker
         if (cell.type === "selected") {
           this.put(cx, cy, "[");
           this.put(cx + 1, cy, "]");
@@ -179,14 +188,13 @@ export class Canvas80x30 {
           this.put(cx, cy, cell.overlay.icon);
           this.put(cx + 1, cy, " ");
         } else {
-          this.put(cx, cy, ".");
+          this.put(cx, cy, cell.content?.[0] || ".");
           this.put(cx + 1, cy, " ");
         }
       }
     }
 
-    // Draw legend if overlays present
-    const hasOverlays = Array.from(cells.values()).some((c) => c.overlay);
+    const hasOverlays = entries.some((c) => c.overlay);
     if (hasOverlays && y + h - 3 >= y) {
       this.write(x + 2, y + h - 3, "T=Task N=Note E=Event !=Alert");
     }
@@ -194,5 +202,11 @@ export class Canvas80x30 {
 
   toLines(): string[] {
     return this.buf.map((r) => r.join(""));
+  }
+}
+
+export class Canvas80x30 extends Canvas {
+  constructor() {
+    super(80, 30);
   }
 }

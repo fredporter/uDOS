@@ -46,6 +46,7 @@ The following variables moved **from `.env` to `config.toml`**:
 
 ### Application
 - `OS_TYPE` → `[app].os_type`
+- `UDOS_VIEWPORT_SIZE_CH` → viewport size contract (`<cols>x<rows>`)
 - `UDOS_VIEWPORT_COLS` → `[app].viewport_cols`
 - `UDOS_VIEWPORT_ROWS` → `[app].viewport_rows`
 - `UDOS_COMPOST_MAX_BYTES` → `[app.cleanup].compost_max_bytes`
@@ -76,7 +77,12 @@ Only **startup essentials** remain in `.env`:
 - `VAULT_MD_ROOT` - Markdown vault alias
 - `USER_NAME` - Identity (set by SETUP)
 - `WIZARD_BASE_URL` - Wizard server endpoint
+- `UDOS_VIEWPORT_SIZE_CH` - preferred viewport in characters (`<cols>x<rows>`)
 - Dev flags (UDOS_DEV_MODE, UDOS_TEST_MODE, UDOS_AUTOMATION, UDOS_DEFAULT_USER)
+
+Optional user-scoped fallback:
+- `memory/bank/private/user.json` may define top-level `UDOS_VIEWPORT_SIZE_CH`
+  or `viewport.size_ch` / `viewport.cols` / `viewport.rows`.
 
 ## What Goes in Secrets
 

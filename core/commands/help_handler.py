@@ -234,7 +234,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "description": "Measure and cache terminal viewport size",
             "usage": "VIEWPORT [SHOW|REFRESH]",
             "example": "VIEWPORT",
-            "notes": "Persists UDOS_VIEWPORT_COLS/ROWS in .env for stable TUI sizing.",
+            "notes": "Persists UDOS_VIEWPORT_SIZE_CH (+ COLS/ROWS compatibility keys) in .env for stable TUI sizing.",
             "category": "System & Maintenance",
             "syntax": "VIEWPORT [SHOW|REFRESH]",
         },

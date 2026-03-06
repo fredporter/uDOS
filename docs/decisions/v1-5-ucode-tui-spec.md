@@ -1,142 +1,94 @@
 # v1.5 ucode TUI Decision
 
 Status: active source of truth  
-Updated: 2026-03-05
+Updated: 2026-03-06
 
 ## Purpose
 
-This document defines the final pre-release v1.5 standard for the `ucode` TUI runtime.
+Define the canonical v1.5 viewport and rendering contract for `ucode` TUI, aligned with UGRID.
 
-It confirms the required feature set across rendering, onboarding, views, layer mapping, seed content, and Dev Mode repair/extension behavior.
+## Core Rule
 
-## Final v1.5 Standard
+All viewport sizing is specified as **characters**: `WIDTHxHEIGHT` (columns x rows).  
+Pixel classes (watch/tablet/laptop/desktop) are advisory only.
 
-The v1.5 `ucode` TUI is the canonical operator surface and must provide:
+## Viewport Tiers (Character Matrix)
 
-- fixed-width text rendering with deterministic layout
-- block-graphic grid rendering with teletext-compatible fallback
-- first-class support for text, columns, ASCII, teletext, calendar, task, block/grid, and container views
-- gameplay-style onboarding that performs real setup work during progression
-- explicit layer mapping with z-index/elevation semantics
-- seed library generation/indexing for rendering and mission templates
-- Dev Mode self-repair and self-extension through runtime tools and cloud-code-agent lane when enabled by policy
+| Tier | Device class | Pixel reference (typical) | Character viewport (W x H) |
+|---|---|---|---|
+| V0 | Watch minimum | tiny terminal/overlay | `25x25` (minimum supported) |
+| V1 | Compact handheld | ~640x360 class | `40x25` |
+| V2 | Tablet portrait | ~1024x768 class | `64x32` |
+| V3 | Tablet landscape | ~1280x800 class | `80x40` |
+| V4 | Laptop baseline | ~1366x768 class | `100x40` |
+| V5 | Desktop baseline | ~1600x900 class | `120x50` |
+| V6 | Widescreen HD (1280p class) | `1280x720` | `80x45` |
+| V7 | Widescreen FHD (1920x1080 class) | `1920x1080` | `120x67` |
 
-Mistral Vive remains an `@dev` contributor surface and not the default operator runtime.
+Notes:
+- `25x25` is the hard minimum viewport for v1.5.
+- Terminal runtime may exceed these sizes; renderer must clamp/pad deterministically.
+- ASCII-safe operation is required at every tier.
 
-## Architecture
+## Configuration Contract (.env / user.json)
 
-### Frontend shell
+The active viewport is registered by variable, not by implicit terminal assumptions.
 
-The TUI frontend:
+Primary key:
+- `UDOS_VIEWPORT_SIZE_CH=<width>x<height>` (example: `80x40`)
 
-- owns layout/input/rendering
-- consumes structured events
-- never prints raw backend formatting as the render source of truth
+Compatibility keys:
+- `UDOS_VIEWPORT_COLS=<width>`
+- `UDOS_VIEWPORT_ROWS=<height>`
 
-### Backend ownership
+Supported storage lanes:
+- `.env` (highest priority)
+- `memory/bank/private/user.json` (user-scoped fallback)
 
-- `core` owns deterministic execution and local-first behavior
-- `wizard` owns managed/networked behavior and policy-gated escalation
+`user.json` examples:
 
-Cross-boundary duplication is prohibited.
+```json
+{
+  "UDOS_VIEWPORT_SIZE_CH": "80x40"
+}
+```
 
-## Rendering and View Matrix
+or:
 
-v1.5 standard renderer capability includes:
+```json
+{
+  "viewport": {
+    "size_ch": "120x67",
+    "cols": 120,
+    "rows": 67
+  }
+}
+```
 
-- plain text panels
-- aligned column panels
-- ASCII diagrams and box layouts
-- teletext block graphics
-- calendar views
-- task list/kanban-style views
-- block/grid/canvas views
-- container/panel composition views
+## Architecture Boundary
 
-Rules:
+Frontend shell (Bubble Tea + Lip Gloss):
+- owns layout/input/rendering and mode transitions
+- respects measured+configured viewport contract
 
-- ASCII-safe baseline must remain functional on every supported terminal
-- block graphics are additive, not mandatory for baseline operation
-- crop-then-pad is preferred over uncontrolled soft-wrap
-- narrow-width fallback must preserve command usability and critical status visibility
+Backend (`core`/`wizard`):
+- emits structured events
+- owns execution, policy, orchestration
 
-## Onboarding Standard
+## Rendering Rules
 
-The required onboarding model is progression gameplay:
+- crop-then-pad over uncontrolled wrap
+- deterministic ordering and stable line widths
+- teletext/block glyph support is additive; ASCII fallback is mandatory
+- narrow viewport fallback must keep command usability and status visibility
 
-- flow: Ghost -> Apprentice -> Operator -> Alchemist -> Wizard
-- every onboarding action both teaches and performs real setup/configuration
-- progress is resumable and persisted
-- event stream uses structured blocks (`narration`, `objective`, `challenge`, `reward`, `unlock`, `progress`)
+## UGRID Alignment
 
-Canonical script path:
+UGRID remains deterministic-first with canonical snapshots (`80x30`) and adaptive runtime rendering for live sessions.  
+This TUI decision and `docs/specs/07-grid-canvas-rendering.md` now share one viewport model.
 
-- `docs/examples/ghost-to-wizard-script.md`
+## Related
 
-## Layer Mapping and Z-Index
-
-TUI layer mapping is a required runtime contract:
-
-- explicit z/elevation handling for map/render semantics
-- consistent bucket mapping for dungeon/foundation/galaxy message lenses
-- separate concern between spatial rendering state and message-theme vocabulary
-
-Canonical mapping references:
-
-- `docs/features/THEME-LAYER-MAPPING.md`
-- `docs/examples/FRACTAL-GRID-IMPLEMENTATION.md`
-
-## Seed Library Generation
-
-v1.5 includes seed library generation/indexing for:
-
-- teletext/ascii/block diagram seeds
-- prompt/parser template seeds
-- workflow/mission/story starter templates
-
-Seed generation must emit inspectable artifacts and deterministic indexes.
-
-## Dev Mode Repair and Self-Extension
-
-The runtime must support repair and extension from Dev Mode through official command/tool paths:
-
-- repair diagnostics and remediation (`ucode_repair` lanes)
-- extension scaffolding/activation through runtime-owned workflows
-- policy-gated cloud-code-agent escalation through Wizard-managed controls
-
-## Output Contract
-
-The backend emits structured render events; the TUI owns visual presentation.
-
-Required event classes include:
-
-- block
-- progress
-- result
-- done
-
-Extended classes for onboarding and grid rendering are allowed as long as the protocol envelope remains compatible.
-
-## Demo Certification Requirement
-
-v1.5 release proof requires the extended demo pack (`00` through `09`) under:
-
-- `docs/examples/ucode_v1_5_release_pack/`
-
-This pack is the canonical evidence set for the final pre-release round.
-
-## Supporting Documents
-
-- `docs/decisions/udos-protocol-v1.md`
-- `docs/decisions/udos-reference-implementation.md`
-- `docs/decisions/udos-teletext-theme.md`
-- `docs/features/DIAGRAM-SPECS.md`
-- `docs/features/PROMPT-PARSER-REFERENCE.md`
-- `docs/features/TODO-RENDERER-REFERENCE.md`
-- `docs/features/SQL-RUNNER-GUIDE.md`
-
-## Related Documents
-
-- `docs/specs/RUNTIME-INTERFACE-SPEC.md`
+- `docs/specs/07-grid-canvas-rendering.md`
+- `docs/specs/TUI-KEYBINDINGS-v1.5.md`
 - `docs/specs/UCODE-DISPATCH-CONTRACT.md`
-- `dev/docs/decisions/v1-5-rebaseline.md`

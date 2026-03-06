@@ -1,23 +1,27 @@
-import { Canvas80x30 } from "../canvas.js";
+import { Canvas } from "../canvas.js";
 import { packageGrid } from "../pack.js";
 import { GridCanvasSpec, ScheduleInput, TableColumn } from "../types.js";
 import { normalizeScheduleRows } from "./shared.js";
 
+function clamp(v: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, v));
+}
+
 export function renderSchedule(spec: GridCanvasSpec, input: ScheduleInput) {
-  const c = new Canvas80x30();
+  const width = clamp(Math.floor(spec.width || 80), 40, 220);
+  const height = clamp(Math.floor(spec.height || 30), 16, 120);
+
+  const c = new Canvas(width, height);
   c.clear(" ");
 
-  // Main header
-  c.box(0, 0, 80, 30, "single", spec.title);
+  c.box(0, 0, width, height, "single", (spec.title || "Schedule").slice(0, Math.max(0, width - 4)));
 
-  // Schedule table area
   const columns: TableColumn[] = [
-    { key: "time", title: "Time", width: 10 },
-    { key: "item", title: "Item", width: 40 },
-    { key: "location", title: "Location/LocId", width: 26 },
+    { key: "time", title: "Time", width: Math.max(8, Math.floor((width - 6) * 0.16)) },
+    { key: "item", title: "Item", width: Math.max(12, Math.floor((width - 6) * 0.50)) },
+    { key: "location", title: "Location/LocId", width: Math.max(10, Math.floor((width - 6) * 0.30)) },
   ];
 
-  // Normalize and sort schedule rows by time/title/location
   const spatialRefs = new Set<string>();
   const sourceRows = input.scheduleItems && input.scheduleItems.length > 0
     ? input.scheduleItems
@@ -31,12 +35,13 @@ export function renderSchedule(spec: GridCanvasSpec, input: ScheduleInput) {
     };
   });
 
-  c.table(1, 2, 78, 26, columns, events, {
+  const tableY = 2;
+  const tableH = Math.max(6, height - 4);
+  c.table(1, tableY, width - 2, tableH, columns, events, {
     header: true,
     rowSep: true,
   });
 
-  // Footer: filter/spatial-link info
   const footerParts: string[] = [];
   if (input.filters) {
     const filterStr = Object.entries(input.filters)
@@ -48,9 +53,9 @@ export function renderSchedule(spec: GridCanvasSpec, input: ScheduleInput) {
     footerParts.push(`Spatial ${Array.from(spatialRefs).join(", ")}`);
   }
   if (footerParts.length > 0) {
-    c.write(2, 29, footerParts.join(" | ").slice(0, 76));
+    c.write(2, height - 1, footerParts.join(" | ").slice(0, Math.max(1, width - 4)));
   }
 
   const lines = c.toLines();
-  return packageGrid({ ...spec, mode: "schedule" }, lines);
+  return packageGrid({ ...spec, mode: "schedule", width, height }, lines);
 }

@@ -174,11 +174,13 @@ class EnvAutoDetectService:
             viewport_service = ViewportService()
             viewport_result = viewport_service.refresh(source="autodetect")
 
+            results["viewport_size_ch"] = viewport_result.get("size_ch")
             results["viewport_cols"] = viewport_result.get("cols")
             results["viewport_rows"] = viewport_result.get("rows")
             results["updated"].append(
-                f"UDOS_VIEWPORT_COLS={viewport_result.get('cols')}, "
-                f"UDOS_VIEWPORT_ROWS={viewport_result.get('rows')}"
+                f"UDOS_VIEWPORT_SIZE_CH={viewport_result.get('size_ch')} "
+                f"(UDOS_VIEWPORT_COLS={viewport_result.get('cols')}, "
+                f"UDOS_VIEWPORT_ROWS={viewport_result.get('rows')})"
             )
         except Exception as e:
             results["errors"].append(f"Viewport detection failed: {e}")

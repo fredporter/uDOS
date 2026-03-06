@@ -1,4 +1,4 @@
-# uDOS v1.3.26+ — Grid Canvas and Text Rendering Spec
+# uDOS v1.5 — Grid Canvas and Text Rendering Spec
 
 Status: active alignment spec for current uCODE/TUI behavior.
 
@@ -23,6 +23,46 @@ Rules:
 - Canonical mode never probes runtime terminal size.
 - Adaptive mode may read viewport columns and clamp/truncate accordingly.
 - Both modes must produce stable ordering and deterministic content for the same input.
+
+## 2.1 Character Viewport Matrix (Aligned With TUI Decision)
+
+All viewport sizes are defined in **characters** (`width x height`):
+
+| Tier | Device class | Character viewport |
+|---|---|---|
+| V0 | Watch minimum | `25x25` |
+| V1 | Compact handheld | `40x25` |
+| V2 | Tablet portrait | `64x32` |
+| V3 | Tablet landscape | `80x40` |
+| V4 | Laptop baseline | `100x40` |
+| V5 | Desktop baseline | `120x50` |
+| V6 | Widescreen 1280x720 class | `80x45` |
+| V7 | Widescreen 1920x1080 class | `120x67` |
+
+Rules:
+- Minimum supported adaptive viewport is `25x25`.
+- Canonical snapshots stay `80x30`.
+- Adaptive mode may render above matrix tiers if terminal allows.
+
+## 2.2 Runtime Viewport Variable Contract
+
+Primary variable:
+- `UDOS_VIEWPORT_SIZE_CH=<width>x<height>`
+
+Compatibility variables:
+- `UDOS_VIEWPORT_COLS=<width>`
+- `UDOS_VIEWPORT_ROWS=<height>`
+
+Supported config lanes:
+- `.env`
+- `memory/bank/private/user.json`
+
+Resolution priority:
+1. Process environment
+2. `.env`
+3. `user.json`
+4. Runtime terminal measurement
+5. Defaults (`80x30`)
 
 ## 3) Text Rendering Capabilities
 

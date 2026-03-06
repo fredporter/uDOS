@@ -25,6 +25,7 @@ class ViewportHandler(BaseCommandHandler, HandlerLoggingMixin):
                 "status": "success",
                 "command": "VIEWPORT",
                 "message": f"Viewport cached: {cols}x{rows}",
+                "size_ch": f"{cols}x{rows}",
                 "cols": cols,
                 "rows": rows,
             }
@@ -37,6 +38,7 @@ class ViewportHandler(BaseCommandHandler, HandlerLoggingMixin):
                 "status": result.get("status", "success"),
                 "command": "VIEWPORT",
                 "message": f"Viewport measured: {cols}x{rows}",
+                "size_ch": result.get("size_ch"),
                 "cols": int(cols) if cols else None,
                 "rows": int(rows) if rows else None,
                 "updated_at": result.get("updated_at"),

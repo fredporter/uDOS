@@ -213,6 +213,32 @@ class UdosLauncherService:
     def _bubbletea_binary(self) -> Path:
         return self.repo_root / "tui" / "bin" / "udos-tui"
 
+    def _bubbletea_needs_rebuild(self, binary: Path) -> bool:
+        if not binary.exists():
+            return True
+        try:
+            binary_mtime = binary.stat().st_mtime
+        except OSError:
+            return True
+
+        candidates: list[Path] = [
+            self.repo_root / "tui" / "go.mod",
+            self.repo_root / "tui" / "go.sum",
+        ]
+        for root in (self.repo_root / "tui" / "cmd", self.repo_root / "tui" / "internal"):
+            if not root.exists():
+                continue
+            for path in root.rglob("*.go"):
+                candidates.append(path)
+
+        for path in candidates:
+            try:
+                if path.exists() and path.stat().st_mtime > binary_mtime:
+                    return True
+            except OSError:
+                continue
+        return False
+
     def _build_bubbletea_tui(self) -> bool:
         build_script = self.repo_root / "scripts" / "build_udos_tui.sh"
         if not build_script.exists():
@@ -239,7 +265,7 @@ class UdosLauncherService:
 
     def launch_tui(self, extra_args: list[str]) -> int:
         bubbletea = self._bubbletea_binary()
-        if not (bubbletea.exists() and os.access(bubbletea, os.X_OK)):
+        if not (bubbletea.exists() and os.access(bubbletea, os.X_OK)) or self._bubbletea_needs_rebuild(bubbletea):
             self._build_bubbletea_tui()
 
         if bubbletea.exists() and os.access(bubbletea, os.X_OK):

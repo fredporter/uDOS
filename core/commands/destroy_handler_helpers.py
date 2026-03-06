@@ -226,6 +226,7 @@ def reset_local_env(repo_root: Path) -> List[str]:
         "WIZARD_ADMIN_TOKEN": None,
         "WIZARD_KEY": str(uuid.uuid4()),
         "UDOS_INSTALLATION_ID": None,
+        "UDOS_VIEWPORT_SIZE_CH": None,
         "UDOS_VIEWPORT_COLS": None,
         "UDOS_VIEWPORT_ROWS": None,
         "UDOS_VIEWPORT_SOURCE": None,

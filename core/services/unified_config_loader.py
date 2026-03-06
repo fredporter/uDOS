@@ -6,10 +6,11 @@ Replaces scattered os.getenv() calls and ad-hoc config loading.
 Loads configuration in priority order:
   1. .env file (environment variables) — highest priority
   2. config.toml — application settings
-  3. wizard.json — wizard server config
-  4. ok_modes.json — OK provider config
-  5. provider_setup_flags.json — provider state
-  6. Defaults — built-in defaults
+  3. user.json — user-scoped runtime overrides
+  4. wizard.json — wizard server config
+  5. ok_modes.json — OK provider config
+  6. provider_setup_flags.json — provider state
+  7. Defaults — built-in defaults
 
 **Design Principle:**
   Single point of configuration access.
@@ -67,6 +68,7 @@ class UnifiedConfigLoader:
     Loads configuration from:
       - .env → environment variables (highest priority)
       - core/config/config.toml → application settings (TOML)
+      - memory/bank/private/user.json → user runtime overrides
       - wizard/config/wizard.json → wizard server config
       - core/config/ok_modes.json → OK provider config
       - wizard/config/provider_setup_flags.json → provider state
@@ -397,6 +399,7 @@ class UnifiedConfigLoader:
     def _load_json_configs(self) -> None:
         """Load JSON config files (wizard.json, ok_modes.json, etc.)."""
         json_files = [
+            ("user", self._repo_root / "memory" / "bank" / "private" / "user.json"),
             # wizard.json is owned by WizardConfig.load() — not surfaced here.
             ("ok_modes", self._repo_root / "core" / "config" / "ok_modes.json"),
             (
@@ -414,9 +417,61 @@ class UnifiedConfigLoader:
                     data = json.load(f)
 
                 self._json_caches[config_name] = data
+                self._surface_json_values(config_name, data)
                 self.logger.debug(f"[CONFIG] Loaded {config_name} from {config_path}")
             except Exception as exc:
                 self.logger.warning(f"[CONFIG] Failed to load {config_name}: {exc}")
+
+    def _surface_json_values(self, config_name: str, data: dict[str, Any]) -> None:
+        """Expose selected JSON scalar values to get(key).
+
+        Currently this is used for user-scoped runtime overrides in
+        memory/bank/private/user.json.
+        """
+        if not isinstance(data, dict):
+            return
+
+        if config_name == "user":
+            # Top-level UDOS_* keys are surfaced as-is.
+            for key, value in data.items():
+                if not isinstance(key, str) or not key.startswith("UDOS_"):
+                    continue
+                if key in self._all_values:
+                    continue
+                if isinstance(value, (str, int, float, bool)):
+                    self._all_values[key] = ConfigValue(
+                        key=key,
+                        value=str(value),
+                        source="json",
+                        section="user",
+                    )
+
+            # Optional nested viewport object:
+            # {"viewport": {"size_ch": "80x30", "cols": 80, "rows": 30}}
+            viewport = data.get("viewport")
+            if isinstance(viewport, dict):
+                self._surface_user_viewport_value(
+                    "UDOS_VIEWPORT_SIZE_CH", viewport.get("size_ch")
+                )
+                self._surface_user_viewport_value(
+                    "UDOS_VIEWPORT_COLS", viewport.get("cols")
+                )
+                self._surface_user_viewport_value(
+                    "UDOS_VIEWPORT_ROWS", viewport.get("rows")
+                )
+
+    def _surface_user_viewport_value(self, key: str, value: Any) -> None:
+        if key in self._all_values:
+            return
+        if value is None:
+            return
+        if isinstance(value, (str, int, float, bool)):
+            self._all_values[key] = ConfigValue(
+                key=key,
+                value=str(value),
+                source="json",
+                section="user",
+            )
 
     @staticmethod
     def _resolve_repo_root(repo_root: Path | str | None) -> Path:

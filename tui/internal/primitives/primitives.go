@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 type MenuItem struct {
@@ -143,7 +143,7 @@ func (i *Input) Blur() { i.Model.Blur() }
 
 func (i Input) Value() string { return i.Model.Value() }
 
-func (i Input) Validate() bool {
+func (i *Input) Validate() bool {
 	if i.ValidateFn == nil {
 		i.Error = ""
 		return true

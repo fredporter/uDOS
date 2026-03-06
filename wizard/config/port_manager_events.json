@@ -1,0 +1,85 @@
+{
+  "timestamp": "2026-03-06T10:28:22Z",
+  "events": [
+    {
+      "timestamp": "2026-03-06T09:34:16.578963+00:00",
+      "service_name": "system",
+      "event_type": "killed_process",
+      "details": "Killed PID 1401",
+      "pid": 1401,
+      "port": null
+    },
+    {
+      "timestamp": "2026-03-06T09:34:17.085021+00:00",
+      "service_name": "wizard",
+      "event_type": "stopped",
+      "details": "Killed service on port 8765",
+      "pid": null,
+      "port": 8765
+    },
+    {
+      "timestamp": "2026-03-06T09:39:17.249913+00:00",
+      "service_name": "system",
+      "event_type": "killed_process",
+      "details": "Killed PID 9475",
+      "pid": 9475,
+      "port": null
+    },
+    {
+      "timestamp": "2026-03-06T09:39:17.756253+00:00",
+      "service_name": "wizard",
+      "event_type": "stopped",
+      "details": "Killed service on port 8765",
+      "pid": null,
+      "port": 8765
+    },
+    {
+      "timestamp": "2026-03-06T09:43:59.630877+00:00",
+      "service_name": "system",
+      "event_type": "killed_process",
+      "details": "Killed PID 11350",
+      "pid": 11350,
+      "port": null
+    },
+    {
+      "timestamp": "2026-03-06T09:44:00.137113+00:00",
+      "service_name": "wizard",
+      "event_type": "stopped",
+      "details": "Killed service on port 8765",
+      "pid": null,
+      "port": 8765
+    },
+    {
+      "timestamp": "2026-03-06T10:02:20.530039+00:00",
+      "service_name": "system",
+      "event_type": "killed_process",
+      "details": "Killed PID 12457",
+      "pid": 12457,
+      "port": null
+    },
+    {
+      "timestamp": "2026-03-06T10:02:21.035913+00:00",
+      "service_name": "wizard",
+      "event_type": "stopped",
+      "details": "Killed service on port 8765",
+      "pid": null,
+      "port": 8765
+    },
+    {
+      "timestamp": "2026-03-06T10:28:21.704441+00:00",
+      "service_name": "system",
+      "event_type": "killed_process",
+      "details": "Killed PID 15373",
+      "pid": 15373,
+      "port": null
+    },
+    {
+      "timestamp": "2026-03-06T10:28:22.210620+00:00",
+      "service_name": "wizard",
+      "event_type": "stopped",
+      "details": "Killed service on port 8765",
+      "pid": null,
+      "port": 8765
+    }
+  ]
+}

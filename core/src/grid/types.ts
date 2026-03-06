@@ -7,8 +7,8 @@ export type GridMode =
   | "workflow";
 
 export interface GridCanvasSpec {
-  width: 80;
-  height: 30;
+  width: number;
+  height: number;
   title?: string;
   theme?: string;
   mode?: GridMode;
@@ -111,6 +111,7 @@ export interface MinimapCell {
   type: "empty" | "occupied" | "selected" | "tagged";
   content?: string;
   overlay?: LocIdOverlay;
+  coord?: { x: number; y: number };
 }
 
 export interface MinimapOptions {

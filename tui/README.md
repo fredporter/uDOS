@@ -12,6 +12,39 @@ The Go frontend owns:
 - panel rendering
 - teletext-safe presentation
 
+## Startup Menu Customization
+
+The home menu can be extended via:
+
+- `memory/bank/private/tui-startup-menu.json`
+
+Schema:
+
+```json
+{
+  "items": [
+    {
+      "key": "a",
+      "label": "My Startup",
+      "desc": "Run custom startup script",
+      "command": "RUN memory/user/system/my-startup.script.md"
+    },
+    {
+      "key": "b",
+      "label": "Health Check",
+      "desc": "Run health status",
+      "job": "health.status"
+    }
+  ]
+}
+```
+
+Notes:
+
+- `command` executes through `ucode.command`.
+- `job` executes directly via backend `run` job.
+- Built-in startup/reboot script entries are included automatically.
+
 The Python backend remains responsible for:
 
 - command routing
