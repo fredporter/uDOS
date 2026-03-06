@@ -1,11 +1,15 @@
 package render
 
 import (
+	"regexp"
 	"strings"
 	"testing"
 
+	"github.com/mattn/go-runewidth"
 	"udos/tui/internal/protocol"
 )
+
+var ansiPattern = regexp.MustCompile(`\x1b\[[0-9;]*m`)
 
 func TestRenderEventLogKind(t *testing.T) {
 	theme := NewTheme()
@@ -51,5 +55,25 @@ func TestRenderEventColumnsKind(t *testing.T) {
 	}
 	if !strings.Contains(out, "LEFT") || !strings.Contains(out, "RIGHT") {
 		t.Fatalf("expected column headers in output: %q", out)
+	}
+}
+
+func TestRenderEventColumnsDoesNotOverflowCanvasWidth(t *testing.T) {
+	theme := NewTheme()
+	theme.CanvasWidth = 78
+	maxRenderedWidth := theme.CanvasWidth + 2
+	out := RenderEvent(theme, protocol.Event{
+		Kind:  "columns",
+		Title: "runner summary",
+		Cols: []protocol.Column{
+			{Title: "status", Lines: []string{"job: sonic.status", "state: request run-123 accepted"}},
+			{Title: "recent", Lines: []string{"LOG: Local operator guidance ready", "BLOCK: OUTPUT"}},
+		},
+	})
+	for _, line := range strings.Split(out, "\n") {
+		clean := ansiPattern.ReplaceAllString(line, "")
+		if runewidth.StringWidth(clean) > maxRenderedWidth {
+			t.Fatalf("line width overflow: got=%d want<=%d line=%q", runewidth.StringWidth(clean), maxRenderedWidth, clean)
+		}
 	}
 }

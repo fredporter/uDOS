@@ -140,7 +140,8 @@ func renderColumns(theme Theme, event protocol.Event) string {
 	if maxCols > 4 {
 		maxCols = 4
 	}
-	canvasInner := theme.CanvasWidth - 2
+	frame := theme.Block.GetHorizontalFrameSize()
+	canvasInner := theme.CanvasWidth - frame
 	gap := 1
 	colWidth := (canvasInner - (maxCols-1)*gap) / maxCols
 	if colWidth < 18 {

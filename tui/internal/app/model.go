@@ -256,7 +256,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.input.Model.Width = inputWidth
 			m.askInput.Model.Width = inputWidth
 			m.pathInput.Model.Width = inputWidth
-		m.viewport.Width = max(minTerminalWidth, m.theme.CanvasWidth)
+			viewportWidth := m.theme.CanvasWidth + 2
+			if m.width > 0 {
+				viewportWidth = min(viewportWidth, m.width)
+			}
+			m.viewport.Width = max(minTerminalWidth, viewportWidth)
 		m.viewport.Height = max(8, msg.Height-8)
 		m.refreshViewportContent()
 		return m, nil
