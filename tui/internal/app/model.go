@@ -1,16 +1,18 @@
 package app
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/viewport"
+	tea "github.com/charmbracelet/bubbletea"
 
 	"udos/tui/internal/backend"
 	"udos/tui/internal/primitives"
@@ -21,10 +23,13 @@ import (
 type screenMode string
 
 const (
-	modeHome   screenMode = "home"
-	modeInput  screenMode = "input"
-	modePath   screenMode = "path"
-	modeRunner screenMode = "runner"
+	modeHome         screenMode = "home"
+	modeInput        screenMode = "input"
+	modeAsk          screenMode = "ask"
+	modePath         screenMode = "path"
+	modeRunner       screenMode = "runner"
+	minTerminalWidth            = 25
+	minInputWidth               = 8
 )
 
 type backendMessage struct {
@@ -37,8 +42,10 @@ type Model struct {
 	mode         screenMode
 	width        int
 	height       int
+	staticItems  []primitives.MenuItem
 	selectOne    primitives.SelectOne
 	input        primitives.Input
+	askInput     primitives.Input
 	pathPicker   primitives.PickerPath
 	pathInput    primitives.Input
 	viewport     viewport.Model
@@ -69,6 +76,18 @@ func actionItems() []primitives.MenuItem {
 	}
 }
 
+type startupMenuConfig struct {
+	Items []startupMenuItem `json:"items"`
+}
+
+type startupMenuItem struct {
+	Key     string `json:"key"`
+	Label   string `json:"label"`
+	Desc    string `json:"desc"`
+	Job     string `json:"job"`
+	Command string `json:"command"`
+}
+
 func NewModel() (Model, error) {
 	repoRoot, err := os.Getwd()
 	if err != nil {
@@ -82,8 +101,10 @@ func NewModel() (Model, error) {
 	if err != nil {
 		return Model{}, err
 	}
-	selectOne := primitives.NewSelectOne("uDOS v1.5", actionItems(), 78, 12, true)
+	items := startupMenuItems(repoRoot)
+	selectOne := primitives.NewSelectOne("uDOS v1.5", items, 78, 12, true)
 	input := primitives.NewInput("CUSTOM COMMAND", "Enter ucode command", 72, nil)
+	askInput := primitives.NewInput("FREEFORM QUESTION", "Ask a question (runs: OK ASK <prompt>)", 72, nil)
 	pathPicker := primitives.PickerPath{
 		Title:     "Pick Path",
 		StartDir:  ".",
@@ -113,16 +134,18 @@ func NewModel() (Model, error) {
 	spin.Spinner = spinner.Line
 
 	return Model{
-		theme:    render.NewTheme(),
-		mode:     modeHome,
-		selectOne: selectOne,
-		input:    input,
-		pathPicker: pathPicker,
-		pathInput:  pathInput,
-		viewport: vp,
-		help:     help.New(),
-		spinner:  spin,
-		backend:  client,
+		theme:       render.NewTheme(),
+		mode:        modeHome,
+		staticItems: items,
+		selectOne:   selectOne,
+		input:       input,
+		askInput:    askInput,
+		pathPicker:  pathPicker,
+		pathInput:   pathInput,
+		viewport:    vp,
+		help:        help.New(),
+		spinner:     spin,
+		backend:     client,
 	}, nil
 }
 
@@ -176,7 +199,7 @@ func sanitizeSingleLineInput(raw string) string {
 }
 
 func (m Model) cycleMode(forward bool) Model {
-	seq := []screenMode{modeHome, modeInput, modePath, modeRunner}
+	seq := []screenMode{modeHome, modeInput, modeAsk, modePath, modeRunner}
 	idx := 0
 	for i, mode := range seq {
 		if mode == m.mode {
@@ -193,12 +216,19 @@ func (m Model) cycleMode(forward bool) Model {
 	m.mode = next
 	if next == modeInput {
 		m.input.Focus()
+		m.askInput.Blur()
+		m.pathInput.Blur()
+	} else if next == modeAsk {
+		m.askInput.Focus()
+		m.input.Blur()
 		m.pathInput.Blur()
 	} else if next == modePath {
 		m.pathInput.Focus()
 		m.input.Blur()
+		m.askInput.Blur()
 	} else {
 		m.input.Blur()
+		m.askInput.Blur()
 		m.pathInput.Blur()
 	}
 	return m
@@ -220,9 +250,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
-		m.selectOne.List.SetWidth(max(20, msg.Width-2))
-		m.viewport.Width = max(20, min(msg.Width-2, m.theme.CanvasWidth))
+		m.theme.CanvasWidth = m.computeCanvasWidth(msg.Width)
+			m.selectOne.List.SetWidth(max(minTerminalWidth, m.theme.CanvasWidth-2))
+			inputWidth := max(minInputWidth, m.theme.CanvasWidth-6)
+			m.input.Model.Width = inputWidth
+			m.askInput.Model.Width = inputWidth
+			m.pathInput.Model.Width = inputWidth
+		m.viewport.Width = max(minTerminalWidth, m.theme.CanvasWidth)
 		m.viewport.Height = max(8, msg.Height-8)
+		m.refreshViewportContent()
 		return m, nil
 	case spinner.TickMsg:
 		var cmd tea.Cmd
@@ -239,7 +275,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if status, ok := value["status"].(string); ok && status == "ready" {
 					m.statusLine = "backend ready"
 					if actions, ok := value["actions"].([]interface{}); ok {
-						m.selectOne.List.SetItems(actionsToListItems(actions))
+						m.selectOne.List.SetItems(actionsToListItems(actions, m.staticItems))
 					}
 				}
 				if jobID, ok := value["job_id"].(string); ok {
@@ -249,7 +285,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		if msg.msg.Type == "event" && msg.msg.Event != nil {
 			m.events = append(m.events, *msg.msg.Event)
-			m.viewport.SetContent(m.renderEvents())
+			m.refreshViewportContent()
 		}
 		if msg.msg.Type == "done" {
 			if msg.msg.OK {
@@ -266,19 +302,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c":
 			return m, tea.Quit
-		case "ctrl+r":
-			return m.reloadCurrent()
-		case "?":
-			m.showHelp = !m.showHelp
-			return m, nil
-		case "m":
-			m.theme.TeletextUnicode = !m.theme.TeletextUnicode
+			case "ctrl+r":
+				return m.reloadCurrent()
+			case "f1":
+				m.showHelp = !m.showHelp
+				return m, nil
+			case "?":
+				if m.mode != modeAsk {
+					m.mode = modeAsk
+					m.askInput.Focus()
+					m.statusLine = "freeform prompt mode"
+					return m, nil
+				}
+			case "m":
+				m.theme.TeletextUnicode = !m.theme.TeletextUnicode
 			if m.theme.TeletextUnicode {
 				m.statusLine = "teletext mode: unicode blocks"
 			} else {
 				m.statusLine = "teletext mode: ascii"
 			}
-			m.viewport.SetContent(m.renderEvents())
+			m.refreshViewportContent()
 			return m, nil
 		case "ctrl+l":
 			return m, tea.ClearScreen
@@ -289,44 +332,51 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m = m.cycleMode(false)
 			return m, nil
 		case "esc":
-			if m.mode == modeRunner || m.mode == modeInput || m.mode == modePath {
-				m.mode = modeHome
-				return m, nil
-			}
+			fallthrough
+		case "escape":
+				if m.mode == modeRunner || m.mode == modeInput || m.mode == modeAsk || m.mode == modePath {
+					m.mode = modeHome
+					return m, nil
+				}
 		}
 
 		switch m.mode {
 		case modeHome:
-			if msg.String() == "n" {
-				msg = tea.KeyMsg{Type: tea.KeyDown}
-			} else if msg.String() == "N" {
-				msg = tea.KeyMsg{Type: tea.KeyUp}
+			switch msg.String() {
+			case "n":
+				m.moveHomeSelection(1, 0)
+				return m, nil
+			case "N":
+				m.moveHomeSelection(-1, 0)
+				return m, nil
+			case "up":
+				m.moveHomeSelection(-1, 0)
+				return m, nil
+			case "down":
+				m.moveHomeSelection(1, 0)
+				return m, nil
+			case "left":
+				m.moveHomeSelection(0, -1)
+				return m, nil
+			case "right":
+				m.moveHomeSelection(0, 1)
+				return m, nil
+			}
+			if selected, ok := m.shortcutSelection(msg.String()); ok {
+				return m.runSelection(selected)
 			}
 			if msg.String() == "enter" {
 				selected, ok := m.selectOne.Selected()
 				if !ok {
 					return m, nil
 				}
-				if selected.Value == "picker.path" {
-					m.mode = modePath
-					m.pathInput.Focus()
-					if m.pathInput.Value() == "" {
-						m.pathInput.Model.SetValue(m.pathPicker.StartDir)
-					}
-					return m, nil
-				}
-				if selected.Value == "custom.command" {
-					m.mode = modeInput
-					m.input.Focus()
-					return m, nil
-				}
-				return m.startJob(selected.Value, "")
+				return m.runSelection(selected)
 			}
 			var cmd tea.Cmd
 			m.selectOne, cmd = m.selectOne.Update(msg)
 			return m, cmd
-		case modeInput:
-			if msg.String() == "enter" {
+			case modeInput:
+				if msg.String() == "enter" {
 				command := sanitizeSingleLineInput(m.input.Value())
 				if command == "" {
 					return m, nil
@@ -335,9 +385,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m.startJob("ucode.command", command)
 			}
 			var cmd tea.Cmd
-			m.input, cmd = m.input.Update(msg)
-			return m, cmd
-		case modePath:
+				m.input, cmd = m.input.Update(msg)
+				return m, cmd
+			case modeAsk:
+				if msg.String() == "enter" {
+					question := sanitizeSingleLineInput(m.askInput.Value())
+					if question == "" {
+						return m, nil
+					}
+					m.askInput.Blur()
+					return m.startJob("ucode.command", "OK ASK "+question)
+				}
+				var cmd tea.Cmd
+				m.askInput, cmd = m.askInput.Update(msg)
+				return m, cmd
+			case modePath:
 			if msg.String() == "enter" {
 				if !m.pathInput.Validate() {
 					return m, nil
@@ -350,6 +412,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.pathInput, cmd = m.pathInput.Update(msg)
 			return m, cmd
 		case modeRunner:
+			if msg.String() == "enter" || msg.String() == "h" {
+				m.mode = modeHome
+				return m, nil
+			}
 			var cmd tea.Cmd
 			m.viewport, cmd = m.viewport.Update(msg)
 			return m, cmd
@@ -388,12 +454,12 @@ func (m Model) View() string {
 	header := render.RenderHeader(
 		m.theme,
 		"uDOS v1.5 teletext shell",
-		"Bubble Tea + Lip Gloss frontend over the v1.5 JSONL runtime contract",
+		"Bubble Tea + Lip Gloss | v1.5 JSONL runtime",
 	)
 	body := ""
 	switch m.mode {
 	case modeHome:
-		body = m.selectOne.View()
+		body = m.renderHomeMenu()
 	case modeInput:
 		body = render.RenderEvent(
 			m.theme,
@@ -402,6 +468,19 @@ func (m Model) View() string {
 				Title: "CUSTOM COMMAND",
 				Style: "accent",
 				Lines: []string{m.input.View()},
+			},
+		)
+	case modeAsk:
+		body = render.RenderEvent(
+			m.theme,
+			protocol.Event{
+				Kind:  "block",
+				Title: "FREEFORM PROMPT",
+				Style: "accent",
+				Lines: []string{
+					"Type your question and press Enter",
+					m.askInput.View(),
+				},
 			},
 		)
 	case modePath:
@@ -420,7 +499,7 @@ func (m Model) View() string {
 	case modeRunner:
 		body = m.viewport.View()
 	}
-	footer := "Enter select  / filter  n next  N prev  m teletext  Tab next  Shift+Tab prev  Esc back  Ctrl+R refresh  ? help  Ctrl+L redraw  Ctrl+C quit"
+	footer := m.footerHint()
 	if m.statusLine != "" {
 		footer = footer + " | " + m.statusLine
 	}
@@ -430,8 +509,387 @@ func (m Model) View() string {
 	return strings.Join([]string{
 		header,
 		body,
-		m.theme.Footer.Width(m.theme.CanvasWidth).Render(footer),
+		m.theme.Footer.Width(m.theme.CanvasWidth).Render(render.CropPad(footer, m.theme.CanvasWidth)),
 	}, "\n\n")
+}
+
+func (m Model) runSelection(selected primitives.MenuItem) (tea.Model, tea.Cmd) {
+	if selected.Value == "picker.path" {
+		m.mode = modePath
+		m.pathInput.Focus()
+		if m.pathInput.Value() == "" {
+			m.pathInput.Model.SetValue(m.pathPicker.StartDir)
+		}
+		return m, nil
+	}
+	if selected.Value == "custom.command" {
+		m.mode = modeInput
+		m.input.Focus()
+		return m, nil
+	}
+	if command, ok := strings.CutPrefix(selected.Value, "ucode.command:"); ok {
+		command = sanitizeSingleLineInput(command)
+		if command == "" {
+			return m, nil
+		}
+		return m.startJob("ucode.command", command)
+	}
+	return m.startJob(selected.Value, "")
+}
+
+func (m Model) shortcutSelection(key string) (primitives.MenuItem, bool) {
+	for _, entry := range m.selectOne.List.Items() {
+		item, ok := entry.(primitives.MenuItem)
+		if !ok {
+			continue
+		}
+		if item.Key == key {
+			return item, true
+		}
+	}
+	return primitives.MenuItem{}, false
+}
+
+func (m Model) footerHint() string {
+	switch m.mode {
+	case modeHome:
+		return "Key/Enter run item  n next  N prev  ? freeform prompt  F1 help  m teletext  Tab next  Shift+Tab prev  Ctrl+R refresh  Ctrl+L redraw  Ctrl+C quit"
+	case modeInput:
+		return "Type command  Enter run  Esc back  ? freeform prompt  F1 help  Tab next  Shift+Tab prev  m teletext  Ctrl+R refresh  Ctrl+L redraw  Ctrl+C quit"
+	case modeAsk:
+		return "Type freeform question  Enter run OK ASK  Esc back  F1 help  Tab next  Shift+Tab prev  m teletext  Ctrl+R refresh  Ctrl+L redraw  Ctrl+C quit"
+	case modePath:
+		return "Type path  Enter run READ <path>  Esc back  ? freeform prompt  F1 help  Tab next  Shift+Tab prev  m teletext  Ctrl+R refresh  Ctrl+L redraw  Ctrl+C quit"
+	case modeRunner:
+		return "Enter/H home  Esc back  PgUp/PgDn scroll  ? freeform prompt  F1 help  Tab next  Shift+Tab prev  m teletext  Ctrl+R rerun/refresh  Ctrl+L redraw  Ctrl+C quit"
+	default:
+		return "? freeform prompt  F1 help  Tab next  Shift+Tab prev  Ctrl+R refresh  Ctrl+L redraw  Ctrl+C quit"
+	}
+}
+
+func (m Model) renderHomeMenu() string {
+	menuItems := make([]primitives.MenuItem, 0, len(m.selectOne.List.Items()))
+	for _, entry := range m.selectOne.List.Items() {
+		if item, ok := entry.(primitives.MenuItem); ok {
+			menuItems = append(menuItems, item)
+		}
+	}
+	if len(menuItems) == 0 {
+		menu := render.RenderEvent(
+			m.theme,
+			protocol.Event{
+				Kind:  "block",
+				Title: "STARTUP MENU",
+				Style: "accent",
+				Lines: []string{"(no menu items)"},
+			},
+		)
+		preview := render.RenderEvent(
+			m.theme,
+			protocol.Event{
+				Kind:  "block",
+				Title: "PREDICTIVE COMMAND",
+				Style: "ok",
+				Lines: []string{"No selection"},
+			},
+		)
+		return strings.Join([]string{menu, preview}, "\n\n")
+	}
+
+	selected := m.selectOne.List.Index()
+	if selected < 0 {
+		selected = 0
+	}
+	colCount := menuColumnCount(m.theme.CanvasWidth)
+	if colCount == 1 {
+		lines := make([]string, 0, len(menuItems))
+		for idx, item := range menuItems {
+			marker := " "
+			if idx == selected {
+				marker = ">"
+			}
+			key := strings.TrimSpace(item.Key)
+			if key == "" {
+				key = " "
+			}
+			lines = append(lines, fmt.Sprintf("%s [%s] %s", marker, key, item.Label))
+		}
+		menu := render.RenderEvent(
+			m.theme,
+			protocol.Event{
+				Kind:  "block",
+				Title: "STARTUP MENU",
+				Style: "accent",
+				Lines: lines,
+			},
+		)
+		preview := m.renderPredictiveCommandBlock(menuItems, selected)
+		return strings.Join([]string{menu, preview}, "\n\n")
+	}
+
+	rowCount := (len(menuItems) + colCount - 1) / colCount
+	columns := make([]protocol.Column, 0, colCount)
+	for col := 0; col < colCount; col++ {
+		lines := make([]string, 0, rowCount)
+		for row := 0; row < rowCount; row++ {
+			idx := row*colCount + col
+			if idx >= len(menuItems) {
+				continue
+			}
+			item := menuItems[idx]
+			marker := " "
+			if idx == selected {
+				marker = ">"
+			}
+			key := strings.TrimSpace(item.Key)
+			if key == "" {
+				key = " "
+			}
+			lines = append(lines, fmt.Sprintf("%s [%s] %s", marker, key, item.Label))
+		}
+		if len(lines) == 0 {
+			lines = append(lines, "")
+		}
+		columns = append(columns, protocol.Column{
+			Title: fmt.Sprintf("MENU %d", col+1),
+			Lines: lines,
+		})
+	}
+
+	menu := render.RenderEvent(
+		m.theme,
+		protocol.Event{
+			Kind:  "columns",
+			Title: "STARTUP MENU",
+			Cols:  columns,
+		},
+	)
+	preview := m.renderPredictiveCommandBlock(menuItems, selected)
+	return strings.Join([]string{menu, preview}, "\n\n")
+}
+
+func (m Model) renderPredictiveCommandBlock(menuItems []primitives.MenuItem, selected int) string {
+	if len(menuItems) == 0 {
+		return render.RenderEvent(
+			m.theme,
+			protocol.Event{
+				Kind:  "block",
+				Title: "PREDICTIVE COMMAND",
+				Style: "ok",
+				Lines: []string{"No selection"},
+			},
+		)
+	}
+	selected = max(0, min(selected, len(menuItems)-1))
+	item := menuItems[selected]
+	job, command := predictSelection(item)
+	maxLen := max(16, m.theme.CanvasWidth-12)
+	lines := []string{
+		"selection: " + compactLine(item.Label, maxLen),
+		"job: " + compactLine(job, maxLen),
+	}
+	if command != "" {
+		lines = append(lines, "command: "+compactLine(command, maxLen))
+	}
+	lines = append(lines, "Enter executes this route")
+	return render.RenderEvent(
+		m.theme,
+		protocol.Event{
+			Kind:  "block",
+			Title: "PREDICTIVE COMMAND",
+			Style: "ok",
+			Lines: lines,
+		},
+	)
+}
+
+func predictSelection(selected primitives.MenuItem) (job string, command string) {
+	if selected.Value == "picker.path" {
+		return "ucode.command", "READ <path>"
+	}
+	if selected.Value == "custom.command" {
+		return "ucode.command", "<typed command>"
+	}
+	if cmd, ok := strings.CutPrefix(selected.Value, "ucode.command:"); ok {
+		return "ucode.command", sanitizeSingleLineInput(cmd)
+	}
+	return selected.Value, ""
+}
+
+func menuColumnCount(canvasWidth int) int {
+	if canvasWidth >= 110 {
+		return 3
+	}
+	if canvasWidth < 70 {
+		return 1
+	}
+	return 2
+}
+
+func startupMenuItems(repoRoot string) []primitives.MenuItem {
+	items := append([]primitives.MenuItem{}, actionItems()...)
+	items = append(items, defaultScriptItems()...)
+	items = append(items, discoveredScriptItems(repoRoot)...)
+	items = append(items, customStartupMenuItems(repoRoot)...)
+	return dedupeMenuItems(items)
+}
+
+func defaultScriptItems() []primitives.MenuItem {
+	return []primitives.MenuItem{
+		{
+			Key:   "s",
+			Label: "Startup Script",
+			Desc:  "Run memory/bank/system/startup-script.md",
+			Value: "ucode.command:RUN memory/bank/system/startup-script.md",
+		},
+		{
+			Key:   "r",
+			Label: "Reboot Script",
+			Desc:  "Run memory/bank/system/reboot-script.md",
+			Value: "ucode.command:RUN memory/bank/system/reboot-script.md",
+		},
+	}
+}
+
+func discoveredScriptItems(repoRoot string) []primitives.MenuItem {
+	roots := []string{
+		filepath.Join(repoRoot, "memory", "user", "system"),
+		filepath.Join(repoRoot, "memory", "bank", "system"),
+	}
+	var paths []string
+	seen := map[string]bool{}
+	for _, root := range roots {
+		matches, _ := filepath.Glob(filepath.Join(root, "*.md"))
+		for _, path := range matches {
+			base := filepath.Base(path)
+			if !strings.HasSuffix(base, "-script.md") && !strings.HasSuffix(base, ".script.md") {
+				continue
+			}
+			rel := relPath(repoRoot, path)
+			if rel == "" || seen[rel] {
+				continue
+			}
+			seen[rel] = true
+			paths = append(paths, rel)
+		}
+	}
+	sort.Strings(paths)
+	items := make([]primitives.MenuItem, 0, len(paths))
+	for idx, rel := range paths {
+		label := strings.TrimSuffix(filepath.Base(rel), filepath.Ext(rel))
+		items = append(items, primitives.MenuItem{
+			Key:   fmt.Sprintf("f%d", idx+1),
+			Label: "Script: " + label,
+			Desc:  "Run " + rel,
+			Value: "ucode.command:RUN " + rel,
+		})
+	}
+	return items
+}
+
+func customStartupMenuItems(repoRoot string) []primitives.MenuItem {
+	path := filepath.Join(repoRoot, "memory", "bank", "private", "tui-startup-menu.json")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil
+	}
+	var config startupMenuConfig
+	if err := json.Unmarshal(data, &config); err != nil {
+		return nil
+	}
+	items := make([]primitives.MenuItem, 0, len(config.Items))
+	for _, entry := range config.Items {
+		value := strings.TrimSpace(entry.Job)
+		if cmd := sanitizeSingleLineInput(entry.Command); cmd != "" {
+			value = "ucode.command:" + cmd
+		}
+		if value == "" || strings.TrimSpace(entry.Label) == "" {
+			continue
+		}
+		items = append(items, primitives.MenuItem{
+			Key:   strings.TrimSpace(entry.Key),
+			Label: strings.TrimSpace(entry.Label),
+			Desc:  strings.TrimSpace(entry.Desc),
+			Value: value,
+		})
+	}
+	return items
+}
+
+func dedupeMenuItems(items []primitives.MenuItem) []primitives.MenuItem {
+	result := make([]primitives.MenuItem, 0, len(items))
+	seenValue := map[string]bool{}
+	usedKey := map[string]bool{}
+	keyPool := []string{
+		"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
+		"n", "o", "p", "q", "t", "u", "v", "w", "x", "y", "z",
+		"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+		"N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+	}
+	nextKey := 0
+	for _, item := range items {
+		if item.Value == "" || seenValue[item.Value] {
+			continue
+		}
+		key := strings.TrimSpace(item.Key)
+		if key != "" && usedKey[key] {
+			key = ""
+		}
+		if key == "" {
+			for {
+				if nextKey >= len(keyPool) {
+					break
+				}
+				candidate := keyPool[nextKey]
+				nextKey++
+				if !usedKey[candidate] {
+					key = candidate
+					break
+				}
+			}
+		}
+		item.Key = key
+		if key != "" {
+			usedKey[key] = true
+		}
+		seenValue[item.Value] = true
+		result = append(result, item)
+	}
+	return result
+}
+
+func relPath(root, path string) string {
+	rel, err := filepath.Rel(root, path)
+	if err != nil {
+		return ""
+	}
+	return filepath.ToSlash(rel)
+}
+
+func (m Model) computeCanvasWidth(termWidth int) int {
+	frame := m.maxFrameWidth()
+	contentWidth := termWidth - frame
+	if contentWidth < minTerminalWidth {
+		return minTerminalWidth
+	}
+	return contentWidth
+}
+
+func (m Model) maxFrameWidth() int {
+	frames := []int{
+		m.theme.Header.GetHorizontalFrameSize(),
+		m.theme.Block.GetHorizontalFrameSize(),
+		m.theme.AccentBlock.GetHorizontalFrameSize(),
+		m.theme.WarnBlock.GetHorizontalFrameSize(),
+		m.theme.OKBlock.GetHorizontalFrameSize(),
+	}
+	maxFrame := 0
+	for _, frame := range frames {
+		if frame > maxFrame {
+			maxFrame = frame
+		}
+	}
+	return maxFrame
 }
 
 func (m Model) renderEvents() string {
@@ -442,7 +900,239 @@ func (m Model) renderEvents() string {
 	return strings.Join(rendered, "\n\n")
 }
 
-func actionsToListItems(raw []interface{}) []list.Item {
+func (m *Model) refreshViewportContent() {
+	if m.mode == modeRunner {
+		m.viewport.SetContent(m.renderRunnerContent())
+		return
+	}
+	m.viewport.SetContent(m.renderEvents())
+}
+
+func (m Model) renderRunnerContent() string {
+	if len(m.events) == 0 {
+		return render.RenderEvent(
+			m.theme,
+			protocol.Event{
+				Kind:  "block",
+				Title: "RUNNER",
+				Style: "accent",
+				Lines: []string{"Waiting for runtime events..."},
+			},
+		)
+	}
+
+	colCount := runnerColumnCount(m.theme.CanvasWidth)
+	statusLines := m.runnerStatusLines()
+	eventLines := m.recentEventLines(10)
+	logLines := m.recentLogLines(10)
+
+	var summary string
+	if colCount == 1 {
+		lines := []string{"STATUS"}
+		lines = append(lines, statusLines...)
+		lines = append(lines, "")
+		lines = append(lines, "RECENT")
+		lines = append(lines, eventLines...)
+		if len(logLines) > 0 {
+			lines = append(lines, "")
+			lines = append(lines, "LOG")
+			lines = append(lines, logLines...)
+		}
+		summary = render.RenderEvent(
+			m.theme,
+			protocol.Event{
+				Kind:  "block",
+				Title: "RUNNER SUMMARY",
+				Style: "accent",
+				Lines: lines,
+			},
+		)
+	} else if colCount == 2 {
+		summary = render.RenderEvent(
+			m.theme,
+			protocol.Event{
+				Kind:  "columns",
+				Title: "RUNNER SUMMARY",
+				Cols: []protocol.Column{
+					{Title: "STATUS", Lines: statusLines},
+					{Title: "RECENT", Lines: eventLines},
+				},
+			},
+		)
+	} else {
+		summary = render.RenderEvent(
+			m.theme,
+			protocol.Event{
+				Kind:  "columns",
+				Title: "RUNNER SUMMARY",
+				Cols: []protocol.Column{
+					{Title: "STATUS", Lines: statusLines},
+					{Title: "RECENT", Lines: eventLines},
+					{Title: "LOG", Lines: logLines},
+				},
+			},
+		)
+	}
+
+	tailStart := len(m.events) - 2
+	if tailStart < 0 {
+		tailStart = 0
+	}
+	details := make([]string, 0, len(m.events)-tailStart)
+	for _, event := range m.events[tailStart:] {
+		details = append(details, render.RenderEvent(m.theme, event))
+	}
+
+	if len(details) == 0 {
+		return summary
+	}
+	return strings.Join([]string{summary, strings.Join(details, "\n\n")}, "\n\n")
+}
+
+func (m Model) runnerStatusLines() []string {
+	lines := []string{}
+	if m.lastJob != "" {
+		lines = append(lines, "job: "+compactLine(m.lastJob, 44))
+	}
+	if m.currentJobID != "" {
+		lines = append(lines, "id: "+compactLine(m.currentJobID, 44))
+	}
+	if m.statusLine != "" {
+		lines = append(lines, "state: "+compactLine(m.statusLine, 44))
+	}
+	if m.lastError != "" {
+		lines = append(lines, "error: "+compactLine(m.lastError, 44))
+	}
+	if len(lines) == 0 {
+		lines = append(lines, "state: running")
+	}
+	return lines
+}
+
+func (m Model) recentEventLines(limit int) []string {
+	if limit <= 0 {
+		limit = 8
+	}
+	start := len(m.events) - limit
+	if start < 0 {
+		start = 0
+	}
+	lines := make([]string, 0, len(m.events)-start)
+	for _, event := range m.events[start:] {
+		kind := strings.ToUpper(strings.TrimSpace(event.Kind))
+		if kind == "" {
+			kind = "EVENT"
+		}
+		detail := strings.TrimSpace(event.Title)
+		if detail == "" {
+			detail = strings.TrimSpace(event.Message)
+		}
+		if detail == "" && len(event.Lines) > 0 {
+			detail = strings.TrimSpace(event.Lines[0])
+		}
+		if detail == "" {
+			lines = append(lines, kind)
+		} else {
+			lines = append(lines, kind+": "+compactLine(detail, 44))
+		}
+	}
+	if len(lines) == 0 {
+		return []string{"No events"}
+	}
+	return lines
+}
+
+func (m Model) recentLogLines(limit int) []string {
+	if limit <= 0 {
+		limit = 8
+	}
+	lines := make([]string, 0, limit)
+	for idx := len(m.events) - 1; idx >= 0 && len(lines) < limit; idx-- {
+		event := m.events[idx]
+		if !strings.EqualFold(event.Kind, "log") {
+			continue
+		}
+		level := strings.ToUpper(strings.TrimSpace(event.Level))
+		if level == "" {
+			level = "INFO"
+		}
+		msg := strings.TrimSpace(event.Message)
+		if msg == "" && len(event.Lines) > 0 {
+			msg = strings.TrimSpace(event.Lines[0])
+		}
+		if msg == "" {
+			msg = "(empty)"
+		}
+		lines = append(lines, "["+level+"] "+compactLine(msg, 44))
+	}
+	for i, j := 0, len(lines)-1; i < j; i, j = i+1, j-1 {
+		lines[i], lines[j] = lines[j], lines[i]
+	}
+	if len(lines) == 0 {
+		return []string{"No logs"}
+	}
+	return lines
+}
+
+func runnerColumnCount(canvasWidth int) int {
+	if canvasWidth >= 120 {
+		return 3
+	}
+	if canvasWidth < 70 {
+		return 1
+	}
+	return 2
+}
+
+func compactLine(value string, maxLen int) string {
+	text := strings.TrimSpace(value)
+	if maxLen <= 0 || len(text) <= maxLen {
+		return text
+	}
+	if maxLen <= 3 {
+		return text[:maxLen]
+	}
+	return text[:maxLen-3] + "..."
+}
+
+func (m *Model) moveHomeSelection(deltaRow, deltaCol int) {
+	items := m.selectOne.List.Items()
+	if len(items) == 0 {
+		return
+	}
+
+	colCount := menuColumnCount(m.theme.CanvasWidth)
+	if colCount < 1 {
+		colCount = 1
+	}
+	rowCount := (len(items) + colCount - 1) / colCount
+	current := m.selectOne.List.Index()
+	if current < 0 {
+		current = 0
+	}
+	if current >= len(items) {
+		current = len(items) - 1
+	}
+
+	row := current / colCount
+	col := current % colCount
+	row = max(0, min(row+deltaRow, rowCount-1))
+	col = max(0, min(col+deltaCol, colCount-1))
+
+	next := row*colCount + col
+	for next >= len(items) && col > 0 {
+		col--
+		next = row*colCount + col
+	}
+	for next >= len(items) && row > 0 {
+		row--
+		next = row*colCount + col
+	}
+	next = max(0, min(next, len(items)-1))
+	m.selectOne.List.Select(next)
+}
+
+func actionsToListItems(raw []interface{}, fallbackItems []primitives.MenuItem) []list.Item {
 	items := make([]list.Item, 0, len(raw))
 	for _, entry := range raw {
 		action, ok := entry.(map[string]interface{})
@@ -459,15 +1149,32 @@ func actionsToListItems(raw []interface{}) []list.Item {
 			Value: job,
 		})
 	}
+	for _, fallback := range fallbackItems {
+		items = append(items, fallback)
+	}
+	items = listItemsFromMenu(dedupeMenuItems(menuItemsFromList(items)))
 	if len(items) == 0 {
-		defaults := actionItems()
-		fallback := make([]list.Item, 0, len(defaults))
-		for _, item := range defaults {
-			fallback = append(fallback, item)
-		}
-		return fallback
+		return listItemsFromMenu(actionItems())
 	}
 	return items
+}
+
+func menuItemsFromList(items []list.Item) []primitives.MenuItem {
+	out := make([]primitives.MenuItem, 0, len(items))
+	for _, item := range items {
+		if menu, ok := item.(primitives.MenuItem); ok {
+			out = append(out, menu)
+		}
+	}
+	return out
+}
+
+func listItemsFromMenu(items []primitives.MenuItem) []list.Item {
+	out := make([]list.Item, 0, len(items))
+	for _, item := range items {
+		out = append(out, item)
+	}
+	return out
 }
 
 func min(a, b int) int {
