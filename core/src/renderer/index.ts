@@ -45,6 +45,7 @@ type PageInfo = {
   absolute: string;
   rel: string;
   slug: string;
+  aliases: string[];
   title: string;
   frontmatter: Record<string, unknown>;
   content: string;
@@ -169,6 +170,23 @@ export async function renderVault(
         size: stat.size,
         updatedAt: stat.mtime.toISOString(),
       });
+
+      for (const alias of info.aliases) {
+        if (!alias || alias === info.slug) {
+          continue;
+        }
+        const aliasOutDir = path.join(siteThemeDir, alias);
+        await fs.mkdir(aliasOutDir, { recursive: true });
+        const aliasOutPath = path.join(aliasOutDir, "index.html");
+        const aliasHref = relativeHref(alias, info.slug);
+        await fs.writeFile(aliasOutPath, renderAliasRedirect(aliasHref, info.title), "utf-8");
+        const aliasStat = await fs.stat(aliasOutPath);
+        renderedFiles.push({
+          path: path.posix.join(alias, "index.html"),
+          size: aliasStat.size,
+          updatedAt: aliasStat.mtime.toISOString(),
+        });
+      }
     }
 
     log("INFO", `[RENDER] Successfully rendered ${renderedFiles.length} files`);
@@ -236,18 +254,23 @@ async function readPageInfo(
     const raw = await fs.readFile(filePath, "utf-8");
     const { data, content } = matter(raw);
     const rel = path.relative(vaultRoot, filePath);
-    const slug = normalizeRel(rel);
+    const fallbackSlug = normalizeRel(rel);
+    const frontmatter = (data ?? {}) as Record<string, unknown>;
+    const frontmatterSlug = normalizeFrontmatterSlug(frontmatter.slug);
+    const slug = frontmatterSlug || fallbackSlug;
+    const aliases = collectAliasSlugs(frontmatter, fallbackSlug, slug);
     const title =
-      typeof data.title === "string" && data.title.trim().length > 0
-        ? data.title
+      typeof frontmatter.title === "string" && frontmatter.title.trim().length > 0
+        ? frontmatter.title
         : path.basename(slug) || "Untitled";
 
     return {
       absolute: filePath,
       rel,
       slug,
+      aliases,
       title,
-      frontmatter: data,
+      frontmatter,
       content,
     };
   } catch (err) {
@@ -260,7 +283,115 @@ async function readPageInfo(
 
 function normalizeRel(rel: string): string {
   const trimmed = rel.replace(/\\/g, "/").replace(/\.md$/i, "");
-  return trimmed;
+  const segments = trimmed
+    .split("/")
+    .map((segment) => normalizeSlugSegment(segment))
+    .filter((segment) => segment.length > 0);
+  return segments.join("/");
+}
+
+function normalizeSlugSegment(segment: string): string {
+  const keepAtPrefix = segment.startsWith("@");
+  let base = keepAtPrefix ? segment.slice(1) : segment;
+  base = base.trim().toLowerCase();
+  base = base.replace(/--+/g, "-");
+  base = base.replace(/[_\s]+/g, "-");
+  base = base.replace(/[^a-z0-9-]/g, "-");
+  base = base.replace(/-+/g, "-").replace(/^-+|-+$/g, "");
+  if (!base) {
+    return keepAtPrefix ? "@note" : "note";
+  }
+  return keepAtPrefix ? `@${base}` : base;
+}
+
+function normalizeFrontmatterSlug(value: unknown): string {
+  if (typeof value !== "string") {
+    return "";
+  }
+  const raw = value.trim().replace(/\\/g, "/");
+  if (!raw) {
+    return "";
+  }
+  return raw
+    .split("/")
+    .map((segment) => normalizeSlugSegment(segment))
+    .filter((segment) => segment.length > 0)
+    .join("/");
+}
+
+function collectAliasSlugs(
+  frontmatter: Record<string, unknown>,
+  fallbackSlug: string,
+  canonicalSlug: string,
+): string[] {
+  const aliases: string[] = [];
+  if (fallbackSlug && fallbackSlug !== canonicalSlug) {
+    aliases.push(fallbackSlug);
+  }
+
+  const aliasCandidates: string[] = [];
+  const maybeAliases = frontmatter.aliases;
+  if (Array.isArray(maybeAliases)) {
+    for (const alias of maybeAliases) {
+      if (typeof alias === "string") {
+        aliasCandidates.push(alias);
+      }
+    }
+  } else if (typeof maybeAliases === "string") {
+    aliasCandidates.push(maybeAliases);
+  }
+
+  const maybeSlugHistory = frontmatter.slug_history;
+  if (Array.isArray(maybeSlugHistory)) {
+    for (const alias of maybeSlugHistory) {
+      if (typeof alias === "string") {
+        aliasCandidates.push(alias);
+      }
+    }
+  }
+
+  for (const alias of aliasCandidates) {
+    const normalized = normalizeFrontmatterSlug(alias);
+    if (normalized) {
+      aliases.push(normalized);
+    }
+  }
+
+  return dedupeStrings(aliases).filter((slug) => slug !== canonicalSlug);
+}
+
+function dedupeStrings(values: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const value of values) {
+    if (!value || seen.has(value)) {
+      continue;
+    }
+    seen.add(value);
+    out.push(value);
+  }
+  return out;
+}
+
+function relativeHref(fromSlug: string, toSlug: string): string {
+  const fromDir = `/${fromSlug}/`;
+  const toDir = `/${toSlug}/`;
+  const rel = path.posix.relative(fromDir, toDir);
+  return rel || "./";
+}
+
+function renderAliasRedirect(href: string, title: string): string {
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content="0; url=${escapeHtml(href)}" />
+    <title>${escapeHtml(title)}</title>
+  </head>
+  <body>
+    <p>Moved: <a href="${escapeHtml(href)}">${escapeHtml(title)}</a></p>
+  </body>
+</html>`;
 }
 
 function wrapContent(

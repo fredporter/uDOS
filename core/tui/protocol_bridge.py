@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import json
+import subprocess
 import sys
 from typing import Any, TextIO
 from uuid import uuid4
@@ -20,15 +21,153 @@ from core.ulogic.parser import parse_primary_input
 
 
 HOME_ACTIONS = [
-    {"key": "1", "label": "Status", "job": "status"},
-    {"key": "2", "label": "Workflow Templates", "job": "workflow.templates"},
-    {"key": "3", "label": "Workflow Runs", "job": "workflow.runs"},
-    {"key": "4", "label": "Knowledge Templates", "job": "knowledge.templates"},
-    {"key": "5", "label": "Research Notes", "job": "knowledge.research.list"},
-    {"key": "6", "label": "Health", "job": "health.status"},
-    {"key": "7", "label": "Repair Status", "job": "repair.status"},
-    {"key": "8", "label": "Sonic Status", "job": "sonic.status"},
-    {"key": "9", "label": "Custom Command", "job": "custom.command"},
+    {
+        "key": "1",
+        "label": "Start Mission / New Binder",
+        "desc": "Create a new @binder workspace",
+        "job": "ucode.command",
+        "command": "BINDER CREATE @binder/new-mission",
+    },
+    {
+        "key": "2",
+        "label": "Resume Mission / Open Binder",
+        "desc": "Open existing @binder workspace",
+        "job": "ucode.command",
+        "command": "BINDER OPEN @binder",
+    },
+    {
+        "key": "3",
+        "label": "Read Knowledge Guide",
+        "desc": "Open uCODE docs and guide references",
+        "job": "ucode.command",
+        "command": "UCODE DOCS --query ucode json @binder guide",
+    },
+    {
+        "key": "4",
+        "label": "Workflow Scheduler",
+        "desc": "Show local workflow queue and scheduler state",
+        "job": "ucode.command",
+        "command": "UCODE OPERATOR QUEUE",
+    },
+    {
+        "key": "5",
+        "label": "Grid Layer Editor",
+        "desc": "Run grid workflow panel using local JSON input",
+        "job": "ucode.command",
+        "command": "GRID WORKFLOW --input memory/system/grid-workflow-sample.json",
+    },
+    {
+        "key": "6",
+        "label": "Script Editor",
+        "desc": "Run script workflow from local memory bank",
+        "job": "ucode.command",
+        "command": "RUN memory/bank/system/startup-script.md",
+    },
+    {
+        "key": "7",
+        "label": "Setup User Story",
+        "desc": "Open mission template for user story setup",
+        "job": "ucode.command",
+        "command": "UCODE TEMPLATE READ missions MISSION-template",
+    },
+    {
+        "key": "8",
+        "label": "Device Config Settings",
+        "desc": "Open device submission template for local config",
+        "job": "ucode.command",
+        "command": "UCODE TEMPLATE READ submissions DEVICE-SUBMISSION-template",
+    },
+    {
+        "key": "9",
+        "label": "Select Role and Theme",
+        "desc": "Inspect available local themes",
+        "job": "ucode.command",
+        "command": "MODE THEME LIST",
+    },
+    {
+        "key": "0",
+        "label": "Destroy Repair Restore",
+        "desc": "Show repair/restore readiness and status",
+        "job": "ucode.command",
+        "command": "UCODE REPAIR STATUS",
+    },
+    {
+        "key": "h",
+        "label": "uHOME Console",
+        "desc": "Inspect home profile and setup status",
+        "job": "ucode.command",
+        "command": "UCODE PROFILE SHOW home",
+    },
+    {
+        "key": "t",
+        "label": "Toybox Menu",
+        "desc": "Open toybox/play subsystem status",
+        "job": "ucode.command",
+        "command": "PLAY STATUS",
+    },
+    {
+        "key": "s",
+        "label": "Sonic Screwdriver",
+        "desc": "Show Sonic runtime and device status",
+        "job": "ucode.command",
+        "command": "SONIC STATUS",
+    },
+    {
+        "key": "c",
+        "label": "Plugin Containers",
+        "desc": "Check plugin container launch readiness",
+        "job": "ucode.command",
+        "command": "WIZARD CHECK",
+    },
+    {
+        "key": "w",
+        "label": "Wizard Start",
+        "desc": "Start wizard services for local control plane",
+        "job": "ucode.command",
+        "command": "WIZARD START",
+    },
+    {
+        "key": "x",
+        "label": "Wizard GUI",
+        "desc": "Open Wizard GUI route for active toybox profile",
+        "job": "ucode.command",
+        "command": "PLAY GUI OPEN crawler3d",
+    },
+    {
+        "key": "y",
+        "label": "Thin GUI (Direct)",
+        "desc": "Open Thin GUI route directly",
+        "job": "ucode.command",
+        "command": "THINGUI OPEN crawler3d",
+    },
+    {
+        "key": "d",
+        "label": "Enter Dev Mode",
+        "desc": "Enter dev workflow planning mode",
+        "job": "ucode.command",
+        "command": "DEV PLAN",
+    },
+    {
+        "key": "g",
+        "label": "GPT4All Prompt (?)",
+        "desc": "Open local GPT4All-style prompt mode",
+        "job": "ucode.command",
+        "command": "?",
+    },
+    {
+        "key": "k",
+        "label": "uCODE HELP",
+        "desc": "Show all core ucode commands",
+        "job": "ucode.command",
+        "command": "HELP",
+    },
+    {
+        "key": "r",
+        "label": "Reboot",
+        "desc": "Trigger local reboot command route",
+        "job": "ucode.command",
+        "command": "REBOOT",
+    },
 ]
 
 
@@ -226,6 +365,12 @@ class UdosProtocolBridge:
         if not raw:
             return {"status": "error", "message": "Empty input"}
 
+        if raw.startswith("/"):
+            forced = raw[1:].strip()
+            if not forced:
+                return {"status": "error", "message": "Slash route missing command text"}
+            return self._route_forced_command(forced, raw)
+
         if raw.startswith("?"):
             return self._route_to_operator(raw[1:].strip())
 
@@ -234,17 +379,68 @@ class UdosProtocolBridge:
             prompt = raw.split(None, 1)[1] if " " in raw else ""
             return self._route_to_operator(prompt)
 
-        if raw.startswith("/"):
-            slash = parse_slash_command(raw)
-            if slash:
-                return self._dispatch_command(slash)
-            return {"status": "error", "message": f"Unknown slash command: {raw}"}
-
         frame = parse_primary_input(raw)
         if frame:
             return self._route_frame(frame)
 
         return self._route_to_operator(raw)
+
+    def _route_forced_command(self, forced: str, original_input: str) -> dict[str, Any]:
+        slash = parse_slash_command(original_input)
+        if slash:
+            result = self._dispatch_command(slash)
+            if result.get("status") != "error":
+                return result
+
+        direct = self._dispatch_command(forced)
+        if direct.get("status") != "error":
+            return direct
+
+        bash_result = self._run_fallback_bash(forced)
+        if bash_result.get("status") != "error":
+            return bash_result
+
+        guided = self._route_to_operator(forced)
+        guided["message"] = (
+            "Slash route failed as ucode and bash; returned operator guidance fallback"
+        )
+        return guided
+
+    def _run_fallback_bash(self, command_text: str) -> dict[str, Any]:
+        try:
+            proc = subprocess.run(
+                ["/bin/bash", "-lc", command_text],
+                cwd=str(get_repo_root()),
+                capture_output=True,
+                text=True,
+                timeout=20,
+                check=False,
+            )
+        except Exception as exc:
+            return {
+                "status": "error",
+                "message": f"bash fallback failed to start: {exc}",
+            }
+
+        stdout = (proc.stdout or "").strip()
+        stderr = (proc.stderr or "").strip()
+        if proc.returncode != 0:
+            return {
+                "status": "error",
+                "message": f"bash fallback failed (exit {proc.returncode})",
+                "output": "\n".join(line for line in [stdout, stderr] if line).strip(),
+            }
+
+        output = stdout or stderr or "(no output)"
+        return {
+            "status": "success",
+            "message": "slash command executed via bash fallback",
+            "output": output,
+            "bash": {
+                "command": command_text,
+                "exit_code": proc.returncode,
+            },
+        }
 
     def _route_frame(self, frame: IntentFrame) -> dict[str, Any]:
         route = frame.routing_outcome().route

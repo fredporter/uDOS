@@ -49,6 +49,9 @@ class ThinGuiHandlerTest(unittest.TestCase):
         self.assertEqual(payload["title"], "Crawler3D")
         self.assertEqual(payload["label"], "Crawler")
         self.assertEqual(payload["extension"], "thin-gui")
+        contract = payload.get("ui_contract", {})
+        self.assertTrue(contract.get("single_window"))
+        self.assertTrue(contract.get("single_use"))
 
     def test_open_uses_wizard_base_url(self) -> None:
         previous = os.environ.get("WIZARD_BASE_URL")
@@ -85,6 +88,8 @@ class ThinGuiHandlerTest(unittest.TestCase):
         payload = json.loads(self.handler.intent_path.read_text(encoding="utf-8"))
         self.assertEqual(payload["profile_id"], "crawler3d")
         self.assertEqual(payload["target"], "http://127.0.0.1:7424")
+        contract = payload.get("ui_contract", {})
+        self.assertTrue(contract.get("fullscreen"))
 
 
 if __name__ == "__main__":

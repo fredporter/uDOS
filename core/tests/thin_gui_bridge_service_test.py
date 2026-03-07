@@ -45,6 +45,10 @@ class ThinGuiBridgeServiceTest(unittest.TestCase):
         launch = self.service.resolve_target("crawler3d")
         payload = self.service.write_intent(launch)
         self.assertEqual(payload["profile_id"], "crawler3d")
+        contract = payload.get("ui_contract", {})
+        self.assertTrue(contract.get("single_window"))
+        self.assertTrue(contract.get("single_use"))
+        self.assertTrue(contract.get("fullscreen"))
         self.assertTrue(self.service.intent_path.exists())
 
     def test_wizard_route_contains_thin_gui_hash(self) -> None:

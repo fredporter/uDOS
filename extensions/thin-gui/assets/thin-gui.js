@@ -6,8 +6,10 @@ const hudEl = document.getElementById("hud");
 const profileEl = document.getElementById("hud-profile");
 const modeEl = document.getElementById("hud-mode");
 const targetEl = document.getElementById("hud-target");
-const openDirectBtn = document.getElementById("open-direct");
-const toggleHudBtn = document.getElementById("toggle-hud");
+const closeReturnBtn = document.getElementById("close-return");
+
+const SINGLE_WINDOW_LOCK_KEY = "udos.thin_gui.single_window";
+const SINGLE_WINDOW_ID = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 function parseQuery() {
   const params = new URLSearchParams(window.location.search || "");
@@ -17,6 +19,7 @@ function parseQuery() {
     label: params.get("label") || "extension-owned fullscreen lane",
     profile: params.get("profile") || "",
     mode: params.get("mode") || "",
+    returnTo: params.get("returnTo") || "",
   };
 }
 
@@ -48,7 +51,56 @@ function applySession(session) {
   }
 }
 
+function requestFullscreen() {
+  const root = document.documentElement;
+  if (!document.fullscreenElement && root && root.requestFullscreen) {
+    root.requestFullscreen().catch(() => {});
+  }
+}
+
+function claimSingleWindow() {
+  try {
+    const existing = localStorage.getItem(SINGLE_WINDOW_LOCK_KEY);
+    if (existing && existing !== SINGLE_WINDOW_ID) {
+      placeholderEl.hidden = false;
+      placeholderEl.innerHTML = `
+        <h2>Thin GUI already active</h2>
+        <p>Only one Thin GUI window is allowed. Close the active window and retry.</p>
+      `;
+      frameEl.removeAttribute("src");
+      return false;
+    }
+    localStorage.setItem(SINGLE_WINDOW_LOCK_KEY, SINGLE_WINDOW_ID);
+    window.addEventListener("beforeunload", () => {
+      if (localStorage.getItem(SINGLE_WINDOW_LOCK_KEY) === SINGLE_WINDOW_ID) {
+        localStorage.removeItem(SINGLE_WINDOW_LOCK_KEY);
+      }
+    });
+    return true;
+  } catch {
+    return true;
+  }
+}
+
+function closeAndReturn(returnTo) {
+  if (returnTo) {
+    window.location.assign(returnTo);
+    return;
+  }
+  if (window.history.length > 1) {
+    window.history.back();
+    return;
+  }
+  if (window.close) {
+    window.close();
+  }
+}
+
 async function bootstrap() {
+  if (!claimSingleWindow()) {
+    return;
+  }
+
   const fromQuery = parseQuery();
   if (fromQuery.target) {
     applySession({
@@ -58,27 +110,31 @@ async function bootstrap() {
       profile_id: fromQuery.profile,
       mode: fromQuery.mode,
     });
+    requestFullscreen();
     return;
   }
 
   const intent = await readIntent();
   if (intent) {
     applySession(intent);
+    requestFullscreen();
     return;
   }
 
   applySession(fromQuery);
+  requestFullscreen();
 }
 
-openDirectBtn.addEventListener("click", () => {
-  const target = frameEl.getAttribute("src");
-  if (target) {
-    window.open(target, "_blank", "noopener,noreferrer");
+closeReturnBtn.addEventListener("click", async () => {
+  if (document.fullscreenElement && document.exitFullscreen) {
+    try {
+      await document.exitFullscreen();
+    } catch {
+      // Continue even when fullscreen exit is blocked.
+    }
   }
-});
-
-toggleHudBtn.addEventListener("click", () => {
-  document.body.classList.toggle("hud-hidden");
+  const query = parseQuery();
+  closeAndReturn(query.returnTo);
 });
 
 void bootstrap();

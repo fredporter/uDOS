@@ -148,11 +148,11 @@
       {#if templateSnapshot}
         <div class="meta-grid">
           <div>
-            <label>Source</label>
+            <div class="meta-label">Source</div>
             <div>{templateSnapshot.effective_source}</div>
           </div>
           <div>
-            <label>Path</label>
+            <div class="meta-label">Path</div>
             <div class="path">{templateSnapshot.effective_path}</div>
           </div>
         </div>
@@ -222,8 +222,7 @@
   }
 
   .panel-header span,
-  .empty,
-  label {
+  .empty {
     color: #94a3b8;
   }
 
@@ -274,6 +273,14 @@
     border-radius: 0.85rem;
     background: #111827;
     border: 1px solid #334155;
+  }
+
+  .meta-label {
+    color: #94a3b8;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.2rem;
   }
 
   .path {

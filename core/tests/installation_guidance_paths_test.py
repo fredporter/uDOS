@@ -16,6 +16,10 @@ def test_installation_guide_covers_core_and_wizard_profiles() -> None:
     assert "ALPINE-CORE-PLUGIN-FORMAT-v1.5.md" in installation_doc
     assert "uv sync --extra udos" in installation_doc
     assert "uv sync --extra udos-wizard" in installation_doc
+    assert "./scripts/demo_renderer.sh" in installation_doc
+    assert "./scripts/demo_core_stdlib_py_strict.sh" in installation_doc
+    assert "./scripts/demo_wizard_advanced_strict.sh" in installation_doc
+    assert "./scripts/demo_story_form_tui.sh" in installation_doc
 
 
 def test_sonic_release_install_guide_exists_and_contains_build_flow() -> None:

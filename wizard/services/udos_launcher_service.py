@@ -160,21 +160,44 @@ class UdosLauncherService:
         )
 
     def rebuild_runtime(self) -> LauncherResult:
+        repair_details = self._repair_ports()
         commands: list[list[str]] = [
             ["uv", "sync", "--extra", "udos-wizard", "--dev"],
         ]
+        command_cwds: list[Path] = [self.repo_root]
+        skipped: list[str] = []
+
+        core_dir = self.repo_root / "core"
+        if core_dir.exists() and (core_dir / "package.json").exists():
+            if shutil.which("npm"):
+                commands.extend(
+                    [
+                        ["npm", "install", "--no-audit", "--no-fund"],
+                        ["npm", "run", "-s", "test:renderer"],
+                        ["npm", "run", "-s", "test:renderer-cli"],
+                    ]
+                )
+                command_cwds.extend([core_dir, core_dir, core_dir])
+            else:
+                skipped.append("core renderer build/tests skipped (npm not found on PATH)")
+
         build_script = self.repo_root / "scripts" / "build_udos_tui.sh"
         if build_script.exists():
             commands.append(["bash", str(build_script)])
+            command_cwds.append(self.repo_root)
         completed: list[dict[str, Any]] = []
-        for command in commands:
-            completed.append(self._run(command))
+        for index, command in enumerate(commands):
+            completed.append(self._run(command, cwd=command_cwds[index]))
         success = all(item["returncode"] == 0 for item in completed)
         return LauncherResult(
             success=success,
             action="rebuild",
             message="uDOS rebuild complete" if success else "uDOS rebuild failed",
-            details={"commands": completed},
+            details={
+                "commands": completed,
+                "repair": repair_details,
+                "skipped": skipped,
+            },
             exit_code=0 if success else 1,
         )
 
@@ -362,7 +385,12 @@ class UdosLauncherService:
         if service is None or service.port is None:
             return None
         old_port = service.port
-        new_port = self.port_manager.get_available_port(old_port + 1)
+        reserved = {
+            svc.port
+            for name, svc in self.port_manager.services.items()
+            if name != "wizard" and svc.port is not None
+        }
+        new_port = self.port_manager.get_available_port(old_port + 1, reserved_ports=reserved, include_registered=False)
         config = load_wizard_config_data()
         config["port"] = new_port
         save_wizard_config_data(config)
@@ -370,15 +398,17 @@ class UdosLauncherService:
         _log.info("reassigned wizard port", ctx={"old_port": old_port, "new_port": new_port})
         return {"old_port": old_port, "new_port": new_port}
 
-    def _run(self, command: list[str]) -> dict[str, Any]:
+    def _run(self, command: list[str], cwd: Path | None = None) -> dict[str, Any]:
+        run_cwd = cwd or self.repo_root
         proc = subprocess.run(
             command,
-            cwd=self.repo_root,
+            cwd=run_cwd,
             capture_output=True,
             text=True,
         )
         return {
             "command": command,
+            "cwd": str(run_cwd),
             "returncode": proc.returncode,
             "stdout": proc.stdout,
             "stderr": proc.stderr,

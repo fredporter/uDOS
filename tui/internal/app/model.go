@@ -13,6 +13,7 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
 	"udos/tui/internal/backend"
 	"udos/tui/internal/primitives"
@@ -38,41 +39,64 @@ type backendMessage struct {
 }
 
 type Model struct {
-	theme        render.Theme
-	mode         screenMode
-	width        int
-	height       int
-	staticItems  []primitives.MenuItem
-	selectOne    primitives.SelectOne
-	input        primitives.Input
-	askInput     primitives.Input
-	pathPicker   primitives.PickerPath
-	pathInput    primitives.Input
-	viewport     viewport.Model
-	help         help.Model
-	spinner      spinner.Model
-	backend      *backend.Client
-	events       []protocol.Event
-	showHelp     bool
-	statusLine   string
-	lastError    string
-	currentJobID string
-	lastJob      string
-	lastCommand  string
+	theme         render.Theme
+	repoRoot      string
+	coreCommands  []string
+	workspaceRefs []string
+	mode          screenMode
+	width         int
+	height        int
+	staticItems   []primitives.MenuItem
+	selectOne     primitives.SelectOne
+	input         primitives.Input
+	askInput      primitives.Input
+	pathPicker    primitives.PickerPath
+	pathInput     primitives.Input
+	viewport      viewport.Model
+	help          help.Model
+	spinner       spinner.Model
+	backend       *backend.Client
+	events        []protocol.Event
+	showHelp      bool
+	statusLine    string
+	lastError     string
+	currentJobID  string
+	lastJob       string
+	lastCommand   string
+}
+
+var commandOptionHints = map[string][]string{
+	"status":   {"--compact", "--json", "--verbose", "--option"},
+	"run":      {"--fullscreen", "--preview", "--dry-run"},
+	"workflow": {"--json", "--verbose", "--compact"},
+	"wizard":   {"--background", "--no-daemon"},
+	"dev":      {"--sync", "--fast"},
+	"mode":     {"--json"},
 }
 
 func actionItems() []primitives.MenuItem {
 	return []primitives.MenuItem{
-		{Key: "0", Label: "Pick Path", Desc: "Pick an existing path and inspect it", Value: "picker.path"},
-		{Key: "1", Label: "Status", Desc: "System status and route health", Value: "status"},
-		{Key: "2", Label: "Workflow Templates", Desc: "List workflow templates", Value: "workflow.templates"},
-		{Key: "3", Label: "Workflow Runs", Desc: "List workflow runs", Value: "workflow.runs"},
-		{Key: "4", Label: "Knowledge Templates", Desc: "List template families", Value: "knowledge.templates"},
-		{Key: "5", Label: "Research Notes", Desc: "List persisted research notes", Value: "knowledge.research.list"},
-		{Key: "6", Label: "Health", Desc: "Run runtime health checks", Value: "health.status"},
-		{Key: "7", Label: "Repair Status", Desc: "Show Python and runtime status", Value: "repair.status"},
-		{Key: "8", Label: "Sonic Status", Desc: "Show Sonic runtime status", Value: "sonic.status"},
-		{Key: "9", Label: "Custom Command", Desc: "Enter a full ucode command", Value: "custom.command"},
+		{Key: "1", Label: "Start Mission / New Binder", Desc: "Create a new @binder workspace", Value: "ucode.command:BINDER CREATE @binder/new-mission"},
+		{Key: "2", Label: "Resume Mission / Open Binder", Desc: "Open existing @binder workspace", Value: "ucode.command:BINDER OPEN @binder"},
+		{Key: "3", Label: "Read Knowledge Guide", Desc: "Open uCODE docs and guide references", Value: "ucode.command:UCODE DOCS --query ucode json @binder guide"},
+		{Key: "4", Label: "Workflow Scheduler", Desc: "Show local workflow queue and scheduler state", Value: "ucode.command:UCODE OPERATOR QUEUE"},
+		{Key: "5", Label: "Grid Layer Editor", Desc: "Run grid workflow panel using local JSON input", Value: "ucode.command:GRID WORKFLOW --input memory/system/grid-workflow-sample.json"},
+		{Key: "6", Label: "Script Editor", Desc: "Run script workflow from local memory bank", Value: "ucode.command:RUN memory/bank/system/startup-script.md"},
+		{Key: "7", Label: "Setup User Story", Desc: "Open mission template for user story setup", Value: "ucode.command:UCODE TEMPLATE READ missions MISSION-template"},
+		{Key: "8", Label: "Device Config Settings", Desc: "Open device submission template for local config", Value: "ucode.command:UCODE TEMPLATE READ submissions DEVICE-SUBMISSION-template"},
+		{Key: "9", Label: "Select Role and Theme", Desc: "Inspect available local themes", Value: "ucode.command:MODE THEME LIST"},
+		{Key: "0", Label: "Destroy Repair Restore", Desc: "Show repair/restore readiness and status", Value: "ucode.command:UCODE REPAIR STATUS"},
+		{Key: "h", Label: "uHOME Console", Desc: "Inspect home profile and setup status", Value: "ucode.command:UCODE PROFILE SHOW home"},
+		{Key: "t", Label: "Toybox Menu", Desc: "Open toybox/play subsystem status", Value: "ucode.command:PLAY STATUS"},
+		{Key: "s", Label: "Sonic Screwdriver", Desc: "Show Sonic runtime and device status", Value: "ucode.command:SONIC STATUS"},
+		{Key: "c", Label: "Plugin Containers", Desc: "Check plugin container launch readiness", Value: "ucode.command:WIZARD CHECK"},
+		{Key: "w", Label: "Wizard Start", Desc: "Start wizard services for local control plane", Value: "ucode.command:WIZARD START"},
+		{Key: "x", Label: "Wizard GUI", Desc: "Open Wizard GUI route for active toybox profile", Value: "ucode.command:PLAY GUI OPEN crawler3d"},
+		{Key: "y", Label: "Thin GUI (Direct)", Desc: "Open Thin GUI route directly", Value: "ucode.command:THINGUI OPEN crawler3d"},
+		{Key: "d", Label: "Enter Dev Mode", Desc: "Enter dev workflow planning mode", Value: "ucode.command:DEV PLAN"},
+		{Key: "g", Label: "GPT4All Prompt (?)", Desc: "Open local GPT4All-style prompt mode", Value: "freeform.ask"},
+		{Key: "k", Label: "uCODE HELP", Desc: "Show all core ucode commands", Value: "ucode.command:HELP"},
+		{Key: "r", Label: "Reboot", Desc: "Trigger local reboot command route", Value: "ucode.command:REBOOT"},
 	}
 }
 
@@ -104,7 +128,8 @@ func NewModel() (Model, error) {
 	items := startupMenuItems(repoRoot)
 	selectOne := primitives.NewSelectOne("uDOS v1.5", items, 78, 12, true)
 	input := primitives.NewInput("CUSTOM COMMAND", "Enter ucode command", 72, nil)
-	askInput := primitives.NewInput("FREEFORM QUESTION", "Ask a question (runs: OK ASK <prompt>)", 72, nil)
+	input.Model.ShowSuggestions = true
+	askInput := primitives.NewInput("GPT4ALL PROMPT", "Ask local prompt with ? (runs: OK ASK <prompt>)", 72, nil)
 	pathPicker := primitives.PickerPath{
 		Title:     "Pick Path",
 		StartDir:  ".",
@@ -133,20 +158,25 @@ func NewModel() (Model, error) {
 	spin := spinner.New()
 	spin.Spinner = spinner.Line
 
-	return Model{
-		theme:       render.NewTheme(),
-		mode:        modeHome,
-		staticItems: items,
-		selectOne:   selectOne,
-		input:       input,
-		askInput:    askInput,
-		pathPicker:  pathPicker,
-		pathInput:   pathInput,
-		viewport:    vp,
-		help:        help.New(),
-		spinner:     spin,
-		backend:     client,
-	}, nil
+	model := Model{
+		theme:         render.NewTheme(),
+		repoRoot:      repoRoot,
+		coreCommands:  loadCoreCommands(repoRoot),
+		workspaceRefs: discoverWorkspaceRefs(repoRoot),
+		mode:          modeHome,
+		staticItems:   items,
+		selectOne:     selectOne,
+		input:         input,
+		askInput:      askInput,
+		pathPicker:    pathPicker,
+		pathInput:     pathInput,
+		viewport:      vp,
+		help:          help.New(),
+		spinner:       spin,
+		backend:       client,
+	}
+	model.refreshInputSuggestions()
+	return model, nil
 }
 
 func waitForBackend(client *backend.Client) tea.Cmd {
@@ -198,6 +228,222 @@ func sanitizeSingleLineInput(raw string) string {
 	return strings.TrimSpace(s)
 }
 
+func loadCoreCommands(repoRoot string) []string {
+	contractPath := filepath.Join(repoRoot, "core", "config", "ucode_command_contract_v1_3_20.json")
+	data, err := os.ReadFile(contractPath)
+	if err != nil {
+		return []string{"STATUS", "RUN", "WORKFLOW", "BINDER", "UCODE", "WIZARD", "DEV", "HELP"}
+	}
+	var payload struct {
+		UCODE struct {
+			Commands []string `json:"commands"`
+		} `json:"ucode"`
+	}
+	if err := json.Unmarshal(data, &payload); err != nil {
+		return []string{"STATUS", "RUN", "WORKFLOW", "BINDER", "UCODE", "WIZARD", "DEV", "HELP"}
+	}
+	if len(payload.UCODE.Commands) == 0 {
+		return []string{"STATUS", "RUN", "WORKFLOW", "BINDER", "UCODE", "WIZARD", "DEV", "HELP"}
+	}
+	return payload.UCODE.Commands
+}
+
+func discoverWorkspaceRefs(repoRoot string) []string {
+	refs := []string{
+		"@workspace",
+		"@binder",
+		"@binder/new-mission",
+		"@user/sandbox/demo-script.md",
+	}
+	candidates := []string{
+		filepath.Join(repoRoot, "memory", "user", "sandbox", "demo-script.md"),
+		filepath.Join(repoRoot, "memory", "bank", "system", "startup-script.md"),
+		filepath.Join(repoRoot, "memory", "system", "grid-workflow-sample.json"),
+	}
+	seen := map[string]bool{}
+	for _, base := range refs {
+		seen[base] = true
+	}
+	for _, path := range candidates {
+		if _, err := os.Stat(path); err != nil {
+			continue
+		}
+		rel := relPath(repoRoot, path)
+		if rel == "" {
+			continue
+		}
+		ref := "@" + rel
+		if !seen[ref] {
+			refs = append(refs, ref)
+			seen[ref] = true
+		}
+	}
+	sort.Strings(refs)
+	return refs
+}
+
+func (m Model) commandTemplates() []string {
+	return []string{
+		"help",
+		"status @workspace --option",
+		"run @user/sandbox/demo-script.md --fullscreen",
+		"workflow list templates",
+		"workflow list runs",
+		"workflow status <workflow_id>",
+		"binder open @binder",
+		"binder create @binder/new-mission",
+		"ucode help",
+		"ucode operator queue",
+		"wizard start",
+		"wizard status",
+		"dev plan",
+		"mode theme list",
+		"sonic status",
+		"reboot",
+	}
+}
+
+func (m *Model) refreshInputSuggestions() {
+	suggestions := m.inputSuggestions(m.input.Value())
+	m.input.Model.SetSuggestions(suggestions)
+	m.input.Model.ShowSuggestions = true
+}
+
+func (m Model) inputSuggestions(raw string) []string {
+	value := strings.TrimSpace(raw)
+	templates := m.commandTemplates()
+	if value == "" {
+		return templates
+	}
+	if token, ok := trailingAtToken(value); ok {
+		refs := m.matchWorkspaceRefs(token)
+		return applyTrailingToken(value, token, refs)
+	}
+	if token, ok := trailingOptionToken(value); ok {
+		opts := m.matchOptionHints(value, token)
+		return applyTrailingToken(value, token, opts)
+	}
+	suggestions := make([]string, 0, len(templates))
+	lower := strings.ToLower(value)
+	for _, item := range templates {
+		if strings.HasPrefix(strings.ToLower(item), lower) {
+			suggestions = append(suggestions, item)
+		}
+	}
+	for _, command := range m.coreCommands {
+		lowerCmd := strings.ToLower(command)
+		if strings.HasPrefix(lowerCmd, lower) {
+			suggestions = append(suggestions, lowerCmd)
+		}
+	}
+	return dedupeStrings(suggestions)
+}
+
+func (m Model) matchWorkspaceRefs(prefix string) []string {
+	matches := make([]string, 0, len(m.workspaceRefs))
+	lower := strings.ToLower(prefix)
+	for _, ref := range m.workspaceRefs {
+		if strings.HasPrefix(strings.ToLower(ref), lower) {
+			matches = append(matches, ref)
+		}
+	}
+	return matches
+}
+
+func (m Model) matchOptionHints(raw, prefix string) []string {
+	parts := strings.Fields(strings.ToLower(raw))
+	if len(parts) == 0 {
+		return nil
+	}
+	command := parts[0]
+	opts := commandOptionHints[command]
+	if len(opts) == 0 {
+		return nil
+	}
+	matches := make([]string, 0, len(opts))
+	lower := strings.ToLower(prefix)
+	for _, opt := range opts {
+		if strings.HasPrefix(opt, lower) {
+			matches = append(matches, opt)
+		}
+	}
+	return matches
+}
+
+func applyTrailingToken(raw, token string, replacements []string) []string {
+	if len(replacements) == 0 || token == "" {
+		return nil
+	}
+	idx := strings.LastIndex(raw, token)
+	if idx < 0 {
+		return nil
+	}
+	prefix := raw[:idx]
+	suggestions := make([]string, 0, len(replacements))
+	for _, replacement := range replacements {
+		suggestions = append(suggestions, prefix+replacement)
+	}
+	return suggestions
+}
+
+func trailingAtToken(raw string) (string, bool) {
+	fields := strings.Fields(raw)
+	if len(fields) == 0 {
+		return "", false
+	}
+	last := fields[len(fields)-1]
+	if strings.HasPrefix(last, "@") {
+		return last, true
+	}
+	return "", false
+}
+
+func trailingOptionToken(raw string) (string, bool) {
+	fields := strings.Fields(raw)
+	if len(fields) == 0 {
+		return "", false
+	}
+	last := fields[len(fields)-1]
+	if strings.HasPrefix(last, "--") {
+		return last, true
+	}
+	return "", false
+}
+
+func dedupeStrings(values []string) []string {
+	if len(values) == 0 {
+		return nil
+	}
+	seen := map[string]bool{}
+	result := make([]string, 0, len(values))
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value == "" || seen[value] {
+			continue
+		}
+		seen[value] = true
+		result = append(result, value)
+	}
+	return result
+}
+
+func firstCompletion(raw string, suggestions []string) (string, bool) {
+	trimmed := strings.TrimSpace(raw)
+	if trimmed == "" {
+		return "", false
+	}
+	lower := strings.ToLower(trimmed)
+	for _, suggestion := range suggestions {
+		if len(suggestion) <= len(trimmed) {
+			continue
+		}
+		if strings.HasPrefix(strings.ToLower(suggestion), lower) {
+			return suggestion, true
+		}
+	}
+	return "", false
+}
+
 func (m Model) cycleMode(forward bool) Model {
 	seq := []screenMode{modeHome, modeInput, modeAsk, modePath, modeRunner}
 	idx := 0
@@ -212,26 +458,61 @@ func (m Model) cycleMode(forward bool) Model {
 	} else {
 		idx = (idx + len(seq) - 1) % len(seq)
 	}
-	next := seq[idx]
+	m.setMode(seq[idx])
+	return m
+}
+
+func (m *Model) setMode(next screenMode) {
 	m.mode = next
-	if next == modeInput {
+	switch next {
+	case modeInput:
 		m.input.Focus()
 		m.askInput.Blur()
 		m.pathInput.Blur()
-	} else if next == modeAsk {
+		m.refreshInputSuggestions()
+	case modeAsk:
 		m.askInput.Focus()
 		m.input.Blur()
 		m.pathInput.Blur()
-	} else if next == modePath {
+	case modePath:
 		m.pathInput.Focus()
 		m.input.Blur()
 		m.askInput.Blur()
-	} else {
+	default:
 		m.input.Blur()
 		m.askInput.Blur()
 		m.pathInput.Blur()
 	}
-	return m
+}
+
+func isEnterKey(msg tea.KeyMsg) bool {
+	switch msg.String() {
+	case "enter", "ctrl+m":
+		return true
+	default:
+		return false
+	}
+}
+
+func (m *Model) syncViewportDimensions() {
+	if m.width <= 0 || m.height <= 0 {
+		return
+	}
+	viewportWidth := m.theme.CanvasWidth + 2
+	if m.width > 0 {
+		viewportWidth = min(viewportWidth, m.width)
+	}
+	m.viewport.Width = max(minTerminalWidth, viewportWidth)
+
+	header := render.RenderHeader(
+		m.theme,
+		"uDOS v1.5 teletext shell",
+		"Bubble Tea + Lip Gloss | v1.5 JSONL runtime",
+	)
+	footer := m.renderFooter()
+	reserved := lipgloss.Height(header) + lipgloss.Height(footer) + 4
+	viewportHeight := m.height - reserved
+	m.viewport.Height = max(6, viewportHeight)
 }
 
 func (m Model) reloadCurrent() (tea.Model, tea.Cmd) {
@@ -251,17 +532,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 		m.theme.CanvasWidth = m.computeCanvasWidth(msg.Width)
-			m.selectOne.List.SetWidth(max(minTerminalWidth, m.theme.CanvasWidth-2))
-			inputWidth := max(minInputWidth, m.theme.CanvasWidth-6)
-			m.input.Model.Width = inputWidth
-			m.askInput.Model.Width = inputWidth
-			m.pathInput.Model.Width = inputWidth
-			viewportWidth := m.theme.CanvasWidth + 2
-			if m.width > 0 {
-				viewportWidth = min(viewportWidth, m.width)
-			}
-			m.viewport.Width = max(minTerminalWidth, viewportWidth)
-		m.viewport.Height = max(8, msg.Height-8)
+		m.selectOne.List.SetWidth(max(minTerminalWidth, m.theme.CanvasWidth-2))
+		inputWidth := max(minInputWidth, m.theme.CanvasWidth-6)
+		m.input.Model.Width = inputWidth
+		m.askInput.Model.Width = inputWidth
+		m.pathInput.Model.Width = inputWidth
+		m.syncViewportDimensions()
 		m.refreshViewportContent()
 		return m, nil
 	case spinner.TickMsg:
@@ -306,20 +582,30 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c":
 			return m, tea.Quit
-			case "ctrl+r":
-				return m.reloadCurrent()
-			case "f1":
-				m.showHelp = !m.showHelp
+		case "ctrl+r":
+			return m.reloadCurrent()
+		case "f1":
+			m.showHelp = !m.showHelp
+			return m, nil
+		case "?":
+			if m.mode != modeAsk {
+				m.setMode(modeAsk)
+				m.statusLine = "GPT4All prompt mode"
 				return m, nil
-			case "?":
-				if m.mode != modeAsk {
-					m.mode = modeAsk
-					m.askInput.Focus()
-					m.statusLine = "freeform prompt mode"
-					return m, nil
+			}
+		case "/":
+			if m.mode != modeInput {
+				m.setMode(modeInput)
+				if strings.TrimSpace(m.input.Value()) == "" {
+					m.input.Model.SetValue("/")
+					m.input.Model.CursorEnd()
+					m.refreshInputSuggestions()
 				}
-			case "m":
-				m.theme.TeletextUnicode = !m.theme.TeletextUnicode
+				m.statusLine = "ucode command mode (/ forced route)"
+				return m, nil
+			}
+		case "m":
+			m.theme.TeletextUnicode = !m.theme.TeletextUnicode
 			if m.theme.TeletextUnicode {
 				m.statusLine = "teletext mode: unicode blocks"
 			} else {
@@ -330,18 +616,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+l":
 			return m, tea.ClearScreen
 		case "tab":
-			m = m.cycleMode(true)
-			return m, nil
+			if m.mode == modeHome || m.mode == modeRunner {
+				m = m.cycleMode(true)
+				return m, nil
+			}
 		case "shift+tab":
 			m = m.cycleMode(false)
 			return m, nil
 		case "esc":
 			fallthrough
 		case "escape":
-				if m.mode == modeRunner || m.mode == modeInput || m.mode == modeAsk || m.mode == modePath {
-					m.mode = modeHome
-					return m, nil
-				}
+			if m.mode == modeRunner || m.mode == modeInput || m.mode == modeAsk || m.mode == modePath {
+				m.setMode(modeHome)
+				return m, nil
+			}
 		}
 
 		switch m.mode {
@@ -369,7 +657,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if selected, ok := m.shortcutSelection(msg.String()); ok {
 				return m.runSelection(selected)
 			}
-			if msg.String() == "enter" {
+			if isEnterKey(msg) {
 				selected, ok := m.selectOne.Selected()
 				if !ok {
 					return m, nil
@@ -379,32 +667,42 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			var cmd tea.Cmd
 			m.selectOne, cmd = m.selectOne.Update(msg)
 			return m, cmd
-			case modeInput:
-				if msg.String() == "enter" {
+		case modeInput:
+			if isEnterKey(msg) {
 				command := sanitizeSingleLineInput(m.input.Value())
-				if command == "" {
+				if command == "" || command == "/" {
 					return m, nil
 				}
 				m.input.Blur()
 				return m.startJob("ucode.command", command)
 			}
-			var cmd tea.Cmd
-				m.input, cmd = m.input.Update(msg)
-				return m, cmd
-			case modeAsk:
-				if msg.String() == "enter" {
-					question := sanitizeSingleLineInput(m.askInput.Value())
-					if question == "" {
-						return m, nil
-					}
-					m.askInput.Blur()
-					return m.startJob("ucode.command", "OK ASK "+question)
+			if msg.String() == "right" || msg.String() == "tab" {
+				suggestions := m.inputSuggestions(m.input.Value())
+				if completion, ok := firstCompletion(m.input.Value(), suggestions); ok {
+					m.input.Model.SetValue(completion)
+					m.input.Model.CursorEnd()
+					m.refreshInputSuggestions()
+					return m, nil
 				}
-				var cmd tea.Cmd
-				m.askInput, cmd = m.askInput.Update(msg)
-				return m, cmd
-			case modePath:
-			if msg.String() == "enter" {
+			}
+			var cmd tea.Cmd
+			m.input, cmd = m.input.Update(msg)
+			m.refreshInputSuggestions()
+			return m, cmd
+		case modeAsk:
+			if isEnterKey(msg) {
+				question := sanitizeSingleLineInput(m.askInput.Value())
+				if question == "" {
+					return m, nil
+				}
+				m.askInput.Blur()
+				return m.startJob("ucode.command", "OK ASK "+question)
+			}
+			var cmd tea.Cmd
+			m.askInput, cmd = m.askInput.Update(msg)
+			return m, cmd
+		case modePath:
+			if isEnterKey(msg) {
 				if !m.pathInput.Validate() {
 					return m, nil
 				}
@@ -416,8 +714,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.pathInput, cmd = m.pathInput.Update(msg)
 			return m, cmd
 		case modeRunner:
-			if msg.String() == "enter" || msg.String() == "h" {
-				m.mode = modeHome
+			if isEnterKey(msg) || msg.String() == "h" {
+				m.setMode(modeHome)
 				return m, nil
 			}
 			var cmd tea.Cmd
@@ -429,7 +727,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) startJob(job, command string) (tea.Model, tea.Cmd) {
-	m.mode = modeRunner
+	m.setMode(modeRunner)
 	m.events = nil
 	m.lastError = ""
 	m.statusLine = "running"
@@ -460,18 +758,28 @@ func (m Model) View() string {
 		"uDOS v1.5 teletext shell",
 		"Bubble Tea + Lip Gloss | v1.5 JSONL runtime",
 	)
+	if m.showHelp {
+		footer := m.renderFooter()
+		return strings.Join([]string{
+			header,
+			m.renderHelpPanel(),
+			footer,
+		}, "\n\n")
+	}
 	body := ""
 	switch m.mode {
 	case modeHome:
 		body = m.renderHomeMenu()
 	case modeInput:
+		lines := []string{m.input.View()}
+		lines = append(lines, m.renderInputAssistLines()...)
 		body = render.RenderEvent(
 			m.theme,
 			protocol.Event{
 				Kind:  "block",
 				Title: "CUSTOM COMMAND",
 				Style: "accent",
-				Lines: []string{m.input.View()},
+				Lines: lines,
 			},
 		)
 	case modeAsk:
@@ -479,10 +787,10 @@ func (m Model) View() string {
 			m.theme,
 			protocol.Event{
 				Kind:  "block",
-				Title: "FREEFORM PROMPT",
+				Title: "GPT4ALL PROMPT",
 				Style: "accent",
 				Lines: []string{
-					"Type your question and press Enter",
+					"Type your question and press Enter (? opens this mode)",
 					m.askInput.View(),
 				},
 			},
@@ -503,6 +811,15 @@ func (m Model) View() string {
 	case modeRunner:
 		body = m.viewport.View()
 	}
+	footer := m.renderFooter()
+	return strings.Join([]string{
+		header,
+		body,
+		footer,
+	}, "\n\n")
+}
+
+func (m Model) renderFooter() string {
 	footer := m.footerHint()
 	if m.statusLine != "" {
 		footer = footer + " | " + m.statusLine
@@ -510,25 +827,71 @@ func (m Model) View() string {
 	if m.lastError != "" {
 		footer = footer + " | error: " + m.lastError
 	}
-	return strings.Join([]string{
-		header,
-		body,
-		m.theme.Footer.Width(m.theme.CanvasWidth).Render(render.CropPad(footer, m.theme.CanvasWidth)),
-	}, "\n\n")
+	return m.theme.Footer.Width(m.theme.CanvasWidth).Render(render.CropPad(footer, m.theme.CanvasWidth))
+}
+
+func (m Model) renderInputAssistLines() []string {
+	lines := []string{
+		"Autocomplete: Tab/Right accept  |  Type @ for workspace refs  |  Type -- for options",
+	}
+	suggestions := m.inputSuggestions(m.input.Value())
+	if completion, ok := firstCompletion(m.input.Value(), suggestions); ok {
+		lines = append(lines, "next: "+compactLine(completion, max(20, m.theme.CanvasWidth-10)))
+	}
+	for idx, suggestion := range suggestions {
+		if idx >= 3 {
+			break
+		}
+		lines = append(lines, "hint: "+compactLine(suggestion, max(20, m.theme.CanvasWidth-10)))
+	}
+	return lines
+}
+
+func (m Model) renderHelpPanel() string {
+	core := m.coreCommands
+	if len(core) == 0 {
+		core = []string{"STATUS", "RUN", "WORKFLOW", "BINDER", "UCODE", "WIZARD", "DEV", "HELP"}
+	}
+	sort.Strings(core)
+	commandLine := compactLine(strings.Join(core, ", "), max(30, m.theme.CanvasWidth-8))
+	return render.RenderEvent(
+		m.theme,
+		protocol.Event{
+			Kind:  "block",
+			Title: "UCODE HELP",
+			Style: "ok",
+			Lines: []string{
+				"Core commands: " + commandLine,
+				"",
+				"Shell examples:",
+				"  ucode status @workspace --option",
+				"  uv run @user/sandbox/demo-script.md --fullscreen",
+				"",
+				"uCODE TUI skill input examples:",
+				"  status @workspace --option",
+				"  run @user/sandbox/demo-script.md --fullscreen",
+				"  help",
+				"",
+				"Tips: ? opens GPT4All prompt | F1 closes this panel",
+			},
+		},
+	)
 }
 
 func (m Model) runSelection(selected primitives.MenuItem) (tea.Model, tea.Cmd) {
+	if selected.Value == "freeform.ask" {
+		m.setMode(modeAsk)
+		return m, nil
+	}
 	if selected.Value == "picker.path" {
-		m.mode = modePath
-		m.pathInput.Focus()
+		m.setMode(modePath)
 		if m.pathInput.Value() == "" {
 			m.pathInput.Model.SetValue(m.pathPicker.StartDir)
 		}
 		return m, nil
 	}
 	if selected.Value == "custom.command" {
-		m.mode = modeInput
-		m.input.Focus()
+		m.setMode(modeInput)
 		return m, nil
 	}
 	if command, ok := strings.CutPrefix(selected.Value, "ucode.command:"); ok {
@@ -542,32 +905,49 @@ func (m Model) runSelection(selected primitives.MenuItem) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) shortcutSelection(key string) (primitives.MenuItem, bool) {
+	isAlt := strings.HasPrefix(key, "alt+")
+	normalized := key
+	if isAlt {
+		normalized = strings.TrimPrefix(key, "alt+")
+	}
 	for _, entry := range m.selectOne.List.Items() {
 		item, ok := entry.(primitives.MenuItem)
 		if !ok {
 			continue
 		}
-		if item.Key == key {
+		if item.Key != normalized {
+			continue
+		}
+		if isNumericKey(item.Key) {
 			return item, true
 		}
+		if isAlt {
+			return item, true
+		}
+		return primitives.MenuItem{}, false
 	}
 	return primitives.MenuItem{}, false
+}
+
+func isNumericKey(key string) bool {
+	key = strings.TrimSpace(key)
+	return len(key) == 1 && key[0] >= '0' && key[0] <= '9'
 }
 
 func (m Model) footerHint() string {
 	switch m.mode {
 	case modeHome:
-		return "Key/Enter run item  n next  N prev  ? freeform prompt  F1 help  m teletext  Tab next  Shift+Tab prev  Ctrl+R refresh  Ctrl+L redraw  Ctrl+C quit"
+		return "0-9 run item  Alt+key run alpha item  n next  N prev  / command  ? prompt  F1 help  m teletext  Tab next  Shift+Tab prev  Ctrl+R refresh  Ctrl+L redraw  Ctrl+C quit"
 	case modeInput:
-		return "Type command  Enter run  Esc back  ? freeform prompt  F1 help  Tab next  Shift+Tab prev  m teletext  Ctrl+R refresh  Ctrl+L redraw  Ctrl+C quit"
+		return "Type command  Enter run  Tab/Right autocomplete  Esc back  / command mode  ? GPT4All prompt  F1 help  Shift+Tab prev mode  m teletext  Ctrl+R refresh  Ctrl+L redraw  Ctrl+C quit"
 	case modeAsk:
-		return "Type freeform question  Enter run OK ASK  Esc back  F1 help  Tab next  Shift+Tab prev  m teletext  Ctrl+R refresh  Ctrl+L redraw  Ctrl+C quit"
+		return "Type freeform question  Enter run OK ASK  Esc back  F1 help  Shift+Tab prev  m teletext  Ctrl+R refresh  Ctrl+L redraw  Ctrl+C quit"
 	case modePath:
-		return "Type path  Enter run READ <path>  Esc back  ? freeform prompt  F1 help  Tab next  Shift+Tab prev  m teletext  Ctrl+R refresh  Ctrl+L redraw  Ctrl+C quit"
+		return "Type path  Enter run READ <path>  Esc back  ? prompt  F1 help  Shift+Tab prev  m teletext  Ctrl+R refresh  Ctrl+L redraw  Ctrl+C quit"
 	case modeRunner:
-		return "Enter/H home  Esc back  PgUp/PgDn scroll  ? freeform prompt  F1 help  Tab next  Shift+Tab prev  m teletext  Ctrl+R rerun/refresh  Ctrl+L redraw  Ctrl+C quit"
+		return "Enter/H home  Esc back  PgUp/PgDn scroll  ? prompt  F1 help  Tab next  Shift+Tab prev  m teletext  Ctrl+R rerun/refresh  Ctrl+L redraw  Ctrl+C quit"
 	default:
-		return "? freeform prompt  F1 help  Tab next  Shift+Tab prev  Ctrl+R refresh  Ctrl+L redraw  Ctrl+C quit"
+		return "? prompt  F1 help  Tab next  Shift+Tab prev  Ctrl+R refresh  Ctrl+L redraw  Ctrl+C quit"
 	}
 }
 
@@ -732,8 +1112,6 @@ func menuColumnCount(canvasWidth int) int {
 
 func startupMenuItems(repoRoot string) []primitives.MenuItem {
 	items := append([]primitives.MenuItem{}, actionItems()...)
-	items = append(items, defaultScriptItems()...)
-	items = append(items, discoveredScriptItems(repoRoot)...)
 	items = append(items, customStartupMenuItems(repoRoot)...)
 	return dedupeMenuItems(items)
 }
@@ -1146,11 +1524,28 @@ func actionsToListItems(raw []interface{}, fallbackItems []primitives.MenuItem) 
 		key, _ := action["key"].(string)
 		label, _ := action["label"].(string)
 		job, _ := action["job"].(string)
+		desc, _ := action["desc"].(string)
+		command, _ := action["command"].(string)
+		command = sanitizeSingleLineInput(command)
+		value := strings.TrimSpace(job)
+		if command != "" {
+			value = "ucode.command:" + command
+		}
+		if value == "" {
+			continue
+		}
+		if desc == "" {
+			if command != "" {
+				desc = "Run " + command
+			} else {
+				desc = "Run " + value
+			}
+		}
 		items = append(items, primitives.MenuItem{
 			Key:   key,
 			Label: label,
-			Desc:  fmt.Sprintf("Run %s", job),
-			Value: job,
+			Desc:  desc,
+			Value: value,
 		})
 	}
 	for _, fallback := range fallbackItems {

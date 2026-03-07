@@ -38,6 +38,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime, timedelta
 
+from core.services.unified_config_loader import get_config
 from core.services.wizard_runtime_config import get_wizard_base_url
 
 from core.services.time_utils import parse_utc_datetime, utc_now, utc_now_iso_z
@@ -668,7 +669,33 @@ class PortManager:
         finally:
             sock.close()
 
-    def get_port_occupant(self, port: int) -> Optional[Dict[str, any]]:
+    @staticmethod
+    def _normalize_process_name(name: Optional[str]) -> str:
+        if not name:
+            return ""
+        value = os.path.basename(str(name)).strip().lower()
+        if value.endswith(".exe"):
+            value = value[:-4]
+        return value
+
+    def _occupant_matches_service(self, service: Service, occupant: Optional[Dict[str, Any]]) -> bool:
+        if not occupant:
+            return False
+        expected = self._normalize_process_name(service.process_name)
+        actual = self._normalize_process_name(occupant.get("process"))
+        if not expected or not actual:
+            return False
+        if actual == expected:
+            return True
+        if expected == "python":
+            return actual.startswith("python")
+        if expected == "npm":
+            return actual in {"npm", "node", "nodejs", "pnpm", "yarn"}
+        if expected == "tauri":
+            return actual in {"tauri", "cargo", "node", "nodejs"}
+        return actual.startswith(expected)
+
+    def get_port_occupant(self, port: int) -> Optional[Dict[str, Any]]:
         """Get process occupying a port (macOS/Linux)."""
         if port is None:
             return None
@@ -676,7 +703,7 @@ class PortManager:
         try:
             # Use lsof to find process using the port
             output = subprocess.run(
-                ["lsof", "-i", f":{port}"], capture_output=True, text=True, timeout=5
+                ["lsof", "-nP", "-iTCP:%s" % port, "-sTCP:LISTEN"], capture_output=True, text=True, timeout=5
             )
 
             lines = output.stdout.strip().split("\n")[1:]  # Skip header
@@ -702,7 +729,7 @@ class PortManager:
             if occupant:
                 service.status = (
                     ServiceStatus.RUNNING
-                    if occupant["process"] == service.process_name
+                    if self._occupant_matches_service(service, occupant)
                     else ServiceStatus.PORT_CONFLICT
                 )
                 service.pid = occupant["pid"]
@@ -725,14 +752,26 @@ class PortManager:
         for name, service in self.services.items():
             if service.port:
                 occupant = self.get_port_occupant(service.port)
-                if occupant and occupant["process"] != service.process_name:
+                if occupant and not self._occupant_matches_service(service, occupant):
                     conflicts.append((name, occupant))
         return conflicts
 
-    def get_available_port(self, start_port: int = 9000) -> int:
+    def get_available_port(
+        self,
+        start_port: int = 9000,
+        reserved_ports: Optional[set[int]] = None,
+        include_registered: bool = True,
+    ) -> int:
         """Find an available port starting from start_port."""
+        reserved = {p for p in (reserved_ports or set()) if p}
+        if include_registered:
+            reserved.update(s.port for s in self.services.values() if s.port)
+
         port = start_port
         while port < 65535:
+            if port in reserved:
+                port += 1
+                continue
             if self.is_port_open(port):
                 return port
             port += 1

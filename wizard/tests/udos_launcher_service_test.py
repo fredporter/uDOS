@@ -242,3 +242,76 @@ def test_launch_tui_errors_when_bubbletea_unavailable(monkeypatch, tmp_path: Pat
         service.launch_tui(["--", "STATUS"])
 
     assert "Bubble Tea TUI is unavailable" in str(exc.value)
+
+
+def test_rebuild_runtime_runs_renderer_checks_when_npm_available(monkeypatch, tmp_path: Path) -> None:
+    fake_sessions = _FakeSessions()
+    fake_ports = _FakePortManager()
+    fake_process_manager = SimpleNamespace(status=lambda: _wizard_status(connected=True))
+
+    monkeypatch.setattr(launcher_mod, "get_launch_session_service", lambda repo_root=None: fake_sessions)
+    monkeypatch.setattr(launcher_mod, "get_wizard_process_manager", lambda: fake_process_manager)
+    monkeypatch.setattr(launcher_mod, "get_port_manager", lambda: fake_ports)
+    monkeypatch.setattr(launcher_mod.shutil, "which", lambda name: "/usr/bin/npm" if name == "npm" else None)
+
+    (tmp_path / "core").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "core" / "package.json").write_text("{}", encoding="utf-8")
+
+    service = launcher_mod.UdosLauncherService(repo_root=tmp_path)
+    monkeypatch.setattr(service, "_repair_ports", lambda: {"remaining": []})
+
+    captured: list[tuple[list[str], Path | None]] = []
+
+    def _fake_run(command: list[str], cwd: Path | None = None):
+        captured.append((command, cwd))
+        return {"command": command, "cwd": str(cwd or tmp_path), "returncode": 0, "stdout": "", "stderr": ""}
+
+    monkeypatch.setattr(service, "_run", _fake_run)
+
+    result = service.rebuild_runtime()
+
+    assert result.success is True
+    assert any(cmd == ["npm", "run", "-s", "test:renderer"] for cmd, _cwd in captured)
+    assert any(cmd == ["npm", "run", "-s", "test:renderer-cli"] for cmd, _cwd in captured)
+
+
+def test_reassign_wizard_port_skips_reserved_ports(monkeypatch, tmp_path: Path) -> None:
+    fake_sessions = _FakeSessions()
+    fake_process_manager = SimpleNamespace(status=lambda: _wizard_status(connected=True))
+
+    class _Service:
+        def __init__(self, port):
+            self.port = port
+
+    class _FakePorts:
+        def __init__(self):
+            self.services = {"wizard": _Service(8765), "vite": _Service(5173)}
+            self.calls = []
+            self.reassigned = []
+
+        def get_available_port(self, start_port, reserved_ports=None, include_registered=True):
+            self.calls.append((start_port, reserved_ports, include_registered))
+            return 8770
+
+        def reassign_port(self, service_name, new_port):
+            self.reassigned.append((service_name, new_port))
+            return True
+
+    fake_ports = _FakePorts()
+
+    monkeypatch.setattr(launcher_mod, "get_launch_session_service", lambda repo_root=None: fake_sessions)
+    monkeypatch.setattr(launcher_mod, "get_wizard_process_manager", lambda: fake_process_manager)
+    monkeypatch.setattr(launcher_mod, "get_port_manager", lambda: fake_ports)
+    monkeypatch.setattr(launcher_mod, "load_wizard_config_data", lambda: {"port": 8765})
+    saved = {}
+    monkeypatch.setattr(launcher_mod, "save_wizard_config_data", lambda cfg: saved.update(cfg))
+
+    service = launcher_mod.UdosLauncherService(repo_root=tmp_path)
+    outcome = service._reassign_wizard_port()
+
+    assert outcome == {"old_port": 8765, "new_port": 8770}
+    assert fake_ports.calls[0][0] == 8766
+    assert fake_ports.calls[0][1] == {5173}
+    assert fake_ports.calls[0][2] is False
+    assert fake_ports.reassigned == [("wizard", 8770)]
+    assert saved["port"] == 8770

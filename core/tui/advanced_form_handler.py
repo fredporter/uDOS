@@ -269,7 +269,11 @@ class AdvancedFormField:
         progress = field.get("_progress")
         if progress:
             lines.append(self._box_line(self._render_progress_bar(progress)))
-        lines.append(self._box_line(f"{Colors.DIM}ENTER ⏎ to continue{Colors.RESET}"))
+        lines.append(
+            self._box_line(
+                f"{Colors.DIM}Press Enter ↩ to continue.{Colors.RESET}"
+            )
+        )
 
         lines.extend(self._box_footer())
         return "\n".join(lines)
@@ -548,7 +552,9 @@ class AdvancedFormField:
                         )
                     )
                     print(
-                        self._box_line(f"{Colors.DIM}ENTER ⏎ to continue{Colors.RESET}")
+                        self._box_line(
+                            f"{Colors.DIM}Press Enter ↩ to continue.{Colors.RESET}"
+                        )
                     )
                     print("\n".join(self._box_footer()))
 

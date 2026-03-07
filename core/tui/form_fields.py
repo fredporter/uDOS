@@ -30,6 +30,7 @@ from core.input.confirmation_utils import normalize_default, parse_confirmation
 from core.services.logging_api import get_logger, get_repo_root
 from core.services.maintenance_utils import get_memory_root
 from core.services.time_utils import render_utc_as_local, resolve_timezone, utc_now
+from core.services.unified_config_loader import get_bool_config, get_int_config
 from core.services.viewport_service import ViewportService
 from core.utils.text_width import truncate_ansi_to_width
 
@@ -306,7 +307,7 @@ class DatePicker:
                 line(
                     f"{ANSI_DIM}Use ←/→ to +/- option, ↑/↓ or Tab to move{ANSI_RESET}"
                 ),
-                line(f"{ANSI_DIM}ENTER ⏎ to continue{ANSI_RESET}"),
+                line(f"{ANSI_DIM}Press Enter ↩ to continue.{ANSI_RESET}"),
                 border("└", "─", "┘"),
             ]
             if self.progress:
@@ -324,7 +325,7 @@ class DatePicker:
         lines.extend(self._render_calendar())
 
         lines.append(
-            f"\n{ANSI_DIM}▸ Use arrow keys or type | ENTER ⏎ to continue{ANSI_RESET}"
+            f"\n{ANSI_DIM}▸ Use arrow keys or type | Press Enter ↩ to continue.{ANSI_RESET}"
         )
         return "\n".join(lines)
 
@@ -453,7 +454,7 @@ class TimePicker:
             lines.append(picker.render(focused=focused))
 
         lines.append(
-            f"\n{ANSI_DIM}▸ Use arrow keys or type | ENTER ⏎ to continue{ANSI_RESET}"
+            f"\n{ANSI_DIM}▸ Use arrow keys or type | Press Enter ↩ to continue.{ANSI_RESET}"
         )
         return "\n".join(lines)
 
@@ -663,7 +664,9 @@ class DateTimeApproval:
         lines.extend([
             border("├", "─", "┤"),
             line(f"{ANSI_DIM}Current date, time, and timezone detected{ANSI_RESET}"),
-            line(f"{ANSI_DIM}ENTER ⏎ to continue with these settings{ANSI_RESET}"),
+            line(
+                f"{ANSI_DIM}Press Enter ↩ to continue with these settings.{ANSI_RESET}"
+            ),
             border("└", "─", "┘"),
         ])
 
@@ -839,7 +842,9 @@ class BarSelector:
 
         lines.append(border("├", "─", "┤"))
         lines.append(
-            line(f"{ANSI_DIM}Use arrow keys ↑/↓ | ENTER ⏎ to continue{ANSI_RESET}")
+            line(
+                f"{ANSI_DIM}Use arrow keys ↑/↓ | Press Enter ↩ to continue.{ANSI_RESET}"
+            )
         )
         lines.append(border("└", "─", "┘"))
 

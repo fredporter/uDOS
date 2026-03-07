@@ -102,6 +102,13 @@ class ThinGuiBridgeService:
             "wizard_route": "#thin-gui",
             "extension": "thin-gui",
             "extension_owner": launch.extension_owner,
+            "ui_contract": {
+                "single_window": True,
+                "single_use": True,
+                "fullscreen": True,
+                "top_layer": True,
+                "controls": ["close-return-tui"],
+            },
         }
         self.intent_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
         return payload
@@ -109,4 +116,3 @@ class ThinGuiBridgeService:
 
 def get_thin_gui_bridge_service() -> ThinGuiBridgeService:
     return ThinGuiBridgeService()
-

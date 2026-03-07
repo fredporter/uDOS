@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_ROOT"
+
 export UV_PROJECT_ENVIRONMENT="${UV_PROJECT_ENVIRONMENT:-.venv}"
+export PYTHONWARNINGS="${PYTHONWARNINGS:-error}"
 
 if [[ -x "./.venv/bin/python" ]]; then
   PYTHON_BIN="./.venv/bin/python"
@@ -12,6 +16,7 @@ else
   exit 127
 fi
 
+echo "[demo] strict core stdlib python lane"
 "$PYTHON_BIN" -m py_compile scripts/check_core_stdlib_contract.py
 "$PYTHON_BIN" scripts/check_core_stdlib_contract.py
 
@@ -23,3 +28,5 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 uv run --group dev python -m pytest \
   core/tests/workflow_scheduler_test.py \
   core/tests/ulogic_parser_test.py \
   "$@"
+
+echo "[demo] strict core stdlib python lane passed"

@@ -388,6 +388,46 @@ export UDOS_AUTOMATION=1
 ./bin/udos install --core
 ```
 
+## Core Renderer Verification
+
+Run the TypeScript renderer checks from repo root:
+```bash
+./scripts/demo_renderer.sh
+```
+
+Manual equivalent:
+```bash
+cd core
+npm run test:renderer
+npm run test:renderer-cli
+```
+
+## Core Stdlib Python Strict Demo
+
+Run the strict Python stdlib lane from repo root:
+```bash
+./scripts/demo_core_stdlib_py_strict.sh
+```
+
+## Wizard Advanced Strict Demo
+
+Run the strict Wizard advanced command lane from repo root:
+```bash
+./scripts/demo_wizard_advanced_strict.sh
+```
+
+## TUI Story Form Selectors Demo
+
+Preview the generated story form (non-interactive):
+```bash
+./scripts/demo_story_form_tui.sh --spec
+```
+
+Run the interactive TUI selector demo:
+```bash
+./scripts/demo_story_form_tui.sh
+```
+
 ## Uninstallation
 
 ### Remove Dev Mode tooling

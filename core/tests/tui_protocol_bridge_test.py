@@ -18,7 +18,14 @@ def test_protocol_bridge_hello_returns_ready_and_banner() -> None:
     assert packets[0]["type"] == "result"
     assert packets[0]["value"]["status"] == "ready"
     assert packets[0]["value"]["canvas_width"] == 78
-    assert packets[0]["value"]["actions"][0]["job"] == "status"
+    action_labels = [item["label"] for item in packets[0]["value"]["actions"]]
+    assert "Wizard Start" in action_labels
+    assert "Enter Dev Mode" in action_labels
+    assert "Plugin Containers" in action_labels
+    assert "Wizard GUI" in action_labels
+    assert "Thin GUI (Direct)" in action_labels
+    assert packets[0]["value"]["actions"][0]["job"] == "ucode.command"
+    assert "command" in packets[0]["value"]["actions"][0]
     assert packets[1]["type"] == "event"
     assert packets[1]["event"]["kind"] == "teletext"
 
@@ -120,3 +127,38 @@ def test_protocol_bridge_formats_helper_events() -> None:
 
     titles = [event["title"] for event in events if event.get("kind") == "block"]
     assert "FORMAT HELPER" in titles
+
+
+def test_protocol_bridge_slash_route_uses_bash_fallback_when_dispatch_fails() -> None:
+    bridge = UdosProtocolBridge()
+    bridge._dispatch_command = lambda *_args, **_kwargs: {  # type: ignore[assignment]
+        "status": "error",
+        "message": "unknown",
+    }
+    bridge._run_fallback_bash = lambda _cmd: {  # type: ignore[assignment]
+        "status": "success",
+        "message": "bash ok",
+        "output": "hello",
+    }
+
+    result = bridge._route_input("/echo hello")
+
+    assert result["status"] == "success"
+    assert result["message"] == "bash ok"
+
+
+def test_protocol_bridge_slash_route_falls_back_to_operator_guidance() -> None:
+    bridge = UdosProtocolBridge()
+    bridge._dispatch_command = lambda *_args, **_kwargs: {  # type: ignore[assignment]
+        "status": "error",
+        "message": "unknown",
+    }
+    bridge._run_fallback_bash = lambda _cmd: {  # type: ignore[assignment]
+        "status": "error",
+        "message": "bash failed",
+    }
+
+    result = bridge._route_input("/unknown command")
+
+    assert result["status"] == "success"
+    assert "operator guidance fallback" in result["message"].lower()

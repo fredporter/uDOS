@@ -54,22 +54,31 @@ func newTestModel(t *testing.T) Model {
 	}
 }
 
-func TestHomePickerPathSelectionEntersPathMode(t *testing.T) {
+func TestHomeEnterRunsFirstStartupCommand(t *testing.T) {
 	m := newTestModel(t)
 	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
 	updated, ok := next.(Model)
 	if !ok {
 		t.Fatalf("expected model type")
 	}
-	if updated.mode != modePath {
-		t.Fatalf("expected modePath, got %s", updated.mode)
+	if updated.mode != modeRunner {
+		t.Fatalf("expected modeRunner, got %s", updated.mode)
+	}
+	if updated.lastJob != "ucode.command" {
+		t.Fatalf("expected lastJob ucode.command, got %s", updated.lastJob)
+	}
+	if updated.lastCommand != "BINDER CREATE @binder/new-mission" {
+		t.Fatalf("unexpected lastCommand: %s", updated.lastCommand)
 	}
 }
 
-func TestPathModeRejectsMissingPath(t *testing.T) {
+func TestRunSelectionPathModeRejectsMissingPath(t *testing.T) {
 	m := newTestModel(t)
-	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
-	updated := next.(Model)
+	next, _ := m.runSelection(primitives.MenuItem{Value: "picker.path"})
+	updated, ok := next.(Model)
+	if !ok {
+		t.Fatalf("expected model type")
+	}
 
 	updated.pathInput.Model.SetValue("/tmp/does-not-exist-udos-test")
 	next, _ = updated.Update(tea.KeyMsg{Type: tea.KeyEnter})
@@ -83,9 +92,9 @@ func TestPathModeRejectsMissingPath(t *testing.T) {
 	}
 }
 
-func TestPathModeBuildsReadCommandForExistingPath(t *testing.T) {
+func TestRunSelectionPathModeBuildsReadCommandForExistingPath(t *testing.T) {
 	m := newTestModel(t)
-	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	next, _ := m.runSelection(primitives.MenuItem{Value: "picker.path"})
 	updated := next.(Model)
 
 	tempDir := t.TempDir()
@@ -111,8 +120,47 @@ func TestHomeNumericShortcutOpensCustomCommandMode(t *testing.T) {
 	m := newTestModel(t)
 	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("9")})
 	updated := next.(Model)
+	if updated.mode != modeRunner {
+		t.Fatalf("expected modeRunner, got %s", updated.mode)
+	}
+	if updated.lastCommand != "MODE THEME LIST" {
+		t.Fatalf("unexpected lastCommand: %s", updated.lastCommand)
+	}
+}
+
+func TestHomeWizardShortcutRunsWizardStart(t *testing.T) {
+	m := newTestModel(t)
+	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("w"), Alt: true})
+	updated := next.(Model)
+	if updated.mode != modeRunner {
+		t.Fatalf("expected modeRunner, got %s", updated.mode)
+	}
+	if updated.lastCommand != "WIZARD START" {
+		t.Fatalf("unexpected lastCommand: %s", updated.lastCommand)
+	}
+}
+
+func TestHomeDevShortcutRunsDevPlan(t *testing.T) {
+	m := newTestModel(t)
+	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("d"), Alt: true})
+	updated := next.(Model)
+	if updated.mode != modeRunner {
+		t.Fatalf("expected modeRunner, got %s", updated.mode)
+	}
+	if updated.lastCommand != "DEV PLAN" {
+		t.Fatalf("unexpected lastCommand: %s", updated.lastCommand)
+	}
+}
+
+func TestHomeSlashOpensCommandMode(t *testing.T) {
+	m := newTestModel(t)
+	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("/")})
+	updated := next.(Model)
 	if updated.mode != modeInput {
 		t.Fatalf("expected modeInput, got %s", updated.mode)
+	}
+	if updated.input.Value() != "/" {
+		t.Fatalf("expected input to be prefilled with '/', got %q", updated.input.Value())
 	}
 }
 
@@ -139,6 +187,21 @@ func TestAskModeEnterBuildsOkAskCommand(t *testing.T) {
 		t.Fatalf("expected lastJob ucode.command, got %s", updated.lastJob)
 	}
 	if updated.lastCommand != "OK ASK how is health status" {
+		t.Fatalf("unexpected lastCommand: %s", updated.lastCommand)
+	}
+}
+
+func TestAskModeCtrlMBuildsOkAskCommand(t *testing.T) {
+	m := newTestModel(t)
+	m.mode = modeAsk
+	m.askInput.Focus()
+	m.askInput.Model.SetValue("status please")
+	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyCtrlM})
+	updated := next.(Model)
+	if updated.mode != modeRunner {
+		t.Fatalf("expected modeRunner, got %s", updated.mode)
+	}
+	if updated.lastCommand != "OK ASK status please" {
 		t.Fatalf("unexpected lastCommand: %s", updated.lastCommand)
 	}
 }
@@ -209,6 +272,15 @@ func TestRunSelectionCommandPrefixStartsUcodeCommandJob(t *testing.T) {
 	}
 	if updated.lastCommand != "RUN memory/bank/system/startup-script.md" {
 		t.Fatalf("unexpected lastCommand: %s", updated.lastCommand)
+	}
+}
+
+func TestRunSelectionFreeformAskOpensAskMode(t *testing.T) {
+	m := newTestModel(t)
+	next, _ := m.runSelection(primitives.MenuItem{Value: "freeform.ask"})
+	updated := next.(Model)
+	if updated.mode != modeAsk {
+		t.Fatalf("expected modeAsk, got %s", updated.mode)
 	}
 }
 
@@ -287,5 +359,121 @@ func TestRenderHomeMenuIncludesPredictiveCommandBlock(t *testing.T) {
 	view := m.renderHomeMenu()
 	if !strings.Contains(view, "PREDICTIVE COMMAND") {
 		t.Fatalf("expected predictive command block in home menu")
+	}
+}
+
+func TestHelpPanelIncludesShellAndTUISkillExamples(t *testing.T) {
+	m := newTestModel(t)
+	m.showHelp = true
+	view := m.View()
+	if !strings.Contains(view, "ucode status @workspace --option") {
+		t.Fatalf("expected shell help example in help panel")
+	}
+	if !strings.Contains(view, "run @user/sandbox/demo-script.md --fullscreen") {
+		t.Fatalf("expected run help example in help panel")
+	}
+}
+
+func TestInputAutocompleteAcceptsWithRightArrow(t *testing.T) {
+	m := newTestModel(t)
+	m.mode = modeInput
+	m.input.Focus()
+	m.input.Model.SetValue("sta")
+	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyRight})
+	updated := next.(Model)
+	if updated.input.Value() == "sta" {
+		t.Fatalf("expected right arrow to accept completion")
+	}
+	if !strings.HasPrefix(strings.ToLower(updated.input.Value()), "status") {
+		t.Fatalf("expected status completion, got %q", updated.input.Value())
+	}
+}
+
+func TestInputSuggestionsIncludeWorkspaceRefsAndOptions(t *testing.T) {
+	m := newTestModel(t)
+	m.workspaceRefs = []string{"@workspace", "@binder"}
+	at := m.inputSuggestions("status @wo")
+	if len(at) == 0 || !strings.Contains(strings.ToLower(strings.Join(at, " ")), "@workspace") {
+		t.Fatalf("expected @workspace suggestion, got %v", at)
+	}
+
+	opts := m.inputSuggestions("status --co")
+	if len(opts) == 0 {
+		t.Fatalf("expected option suggestions, got none")
+	}
+	joined := strings.ToLower(strings.Join(opts, " "))
+	if !strings.Contains(joined, "--compact") {
+		t.Fatalf("expected --compact suggestion, got %v", opts)
+	}
+}
+
+func TestAllStartupMenuOptionsHaveRunnableRoutes(t *testing.T) {
+	m := newTestModel(t)
+	for _, item := range actionItems() {
+		next, _ := m.runSelection(item)
+		updated, ok := next.(Model)
+		if !ok {
+			t.Fatalf("expected model type for key %q", item.Key)
+		}
+		switch {
+		case item.Value == "freeform.ask":
+			if updated.mode != modeAsk {
+				t.Fatalf("key %q expected modeAsk, got %s", item.Key, updated.mode)
+			}
+		case strings.HasPrefix(item.Value, "ucode.command:"):
+			if updated.mode != modeRunner {
+				t.Fatalf("key %q expected modeRunner, got %s", item.Key, updated.mode)
+			}
+			want := strings.TrimPrefix(item.Value, "ucode.command:")
+			if updated.lastCommand != want {
+				t.Fatalf("key %q expected command %q, got %q", item.Key, want, updated.lastCommand)
+			}
+		default:
+			t.Fatalf("key %q has unsupported route value %q", item.Key, item.Value)
+		}
+	}
+}
+
+func TestActionsToListItemsPrefersCommandWhenPresent(t *testing.T) {
+	items := actionsToListItems(
+		[]interface{}{
+			map[string]interface{}{
+				"key":     "x",
+				"label":   "Guided Status",
+				"job":     "ucode.command",
+				"command": "STATUS",
+			},
+		},
+		nil,
+	)
+	if len(items) != 1 {
+		t.Fatalf("expected one item, got %d", len(items))
+	}
+	menu, ok := items[0].(primitives.MenuItem)
+	if !ok {
+		t.Fatalf("expected primitives.MenuItem type")
+	}
+	if menu.Value != "ucode.command:STATUS" {
+		t.Fatalf("expected value to include command route, got %q", menu.Value)
+	}
+}
+
+func TestWindowResizeUsesRenderedChromeForViewportHeight(t *testing.T) {
+	m := newTestModel(t)
+	next, _ := m.Update(tea.WindowSizeMsg{Width: 100, Height: 30})
+	updated := next.(Model)
+
+	header := render.RenderHeader(
+		updated.theme,
+		"uDOS v1.5 teletext shell",
+		"Bubble Tea + Lip Gloss | v1.5 JSONL runtime",
+	)
+	footer := updated.renderFooter()
+	expected := 30 - (strings.Count(header, "\n") + 1) - (strings.Count(footer, "\n") + 1) - 4
+	if expected < 6 {
+		expected = 6
+	}
+	if updated.viewport.Height != expected {
+		t.Fatalf("viewport height=%d, want %d", updated.viewport.Height, expected)
 	}
 }

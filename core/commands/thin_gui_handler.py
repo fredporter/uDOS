@@ -220,6 +220,13 @@ class ThinGuiHandler(BaseCommandHandler):
             "label": label,
             "wizard_route": "#thin-gui",
             "extension": "thin-gui",
+            "ui_contract": {
+                "single_window": True,
+                "single_use": True,
+                "fullscreen": True,
+                "top_layer": True,
+                "controls": ["close-return-tui"],
+            },
         }
         self.intent_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
         return {

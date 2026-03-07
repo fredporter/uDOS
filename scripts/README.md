@@ -25,6 +25,28 @@ This directory contains scripts that support project versioning and deployment w
 ./scripts/run_pytest_core_stdlib.sh
 ```
 
+### Core stdlib strict demo lane
+
+```bash
+./scripts/demo_core_stdlib_py_strict.sh
+```
+
+### Wizard advanced strict demo lane
+
+```bash
+./scripts/demo_wizard_advanced_strict.sh
+```
+
+### TUI story form selectors/elements demo
+
+```bash
+# Preview generated form spec (non-interactive)
+./scripts/demo_story_form_tui.sh --spec
+
+# Run interactive TUI form demo
+./scripts/demo_story_form_tui.sh
+```
+
 ### Clean Python artifacts
 
 ```bash

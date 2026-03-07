@@ -1103,6 +1103,42 @@ function install_core_requirements() {
     fi
 }
 
+function install_core_renderer_requirements() {
+    if [[ "$WIZARD_ONLY" == true ]]; then
+        info "Skipping core renderer toolchain setup (wizard-only install)"
+        return
+    fi
+
+    if [[ ! -f "$REPO_ROOT/core/package.json" ]]; then
+        warning "Skipping core renderer toolchain setup (missing core/package.json)"
+        return
+    fi
+
+    if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
+        warning "Node.js/npm not found; skipping renderer TypeScript toolchain setup."
+        warning "Install Node 20+ and rerun ./bin/udos install --update to enable renderer tests and demos."
+        return
+    fi
+
+    step "Installing core renderer TypeScript toolchain..."
+    (
+        cd "$REPO_ROOT/core"
+        npm install --no-audit --no-fund
+    )
+    success "Core renderer dependencies installed"
+
+    step "Verifying core renderer build pipeline..."
+    if (
+        cd "$REPO_ROOT/core"
+        npm run -s build
+    ); then
+        success "Core renderer build verified"
+    else
+        warning "Core renderer build failed during install verification."
+        warning "Retry manually with: (cd core && npm run test:renderer && npm run test:renderer-cli)"
+    fi
+}
+
 # ── Install Wizard Requirements (Lazy) ──────────────────────
 function install_wizard_requirements() {
     if [[ "$CORE_ONLY" == true ]] || ! _profile_selected "home"; then
@@ -1293,6 +1329,8 @@ function run_health_check() {
     echo "  micro: $(if command -v micro &> /dev/null; then echo "✓"; else echo "✗"; fi)"
     echo "  Obsidian: $(if [[ "$OBSIDIAN_INSTALLED" == true ]]; then echo "✓"; else echo "✗"; fi)"
     echo "  GPT4All package: $(UV_PROJECT_ENVIRONMENT=.venv uv run python -c "import importlib.util; print('✓' if importlib.util.find_spec('gpt4all') else '✗')" 2>/dev/null || echo "✗")"
+    echo "  Node.js: $(if command -v node &> /dev/null; then echo "✓ $(node --version)"; else echo "✗"; fi)"
+    echo "  npm: $(if command -v npm &> /dev/null; then echo "✓ $(npm --version)"; else echo "✗"; fi)"
     echo "  udos-tui launcher: $(if [[ -x "$REPO_ROOT/bin/udos-tui" ]]; then echo "✓ $REPO_ROOT/bin/udos-tui"; else echo "✗"; fi)"
     echo "  udos-tui binary: $(if [[ -x "$REPO_ROOT/tui/bin/udos-tui" ]]; then echo "✓ $REPO_ROOT/tui/bin/udos-tui"; else echo "✗"; fi)"
     echo ""
@@ -1355,6 +1393,7 @@ function main() {
         info "Skipping Dev Mode tooling installation (dev profile not selected)"
     fi
     install_core_requirements
+    install_core_renderer_requirements
     build_required_tui
     ensure_launcher_wiring
 
