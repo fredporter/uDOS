@@ -85,6 +85,7 @@ class UdosLauncherService:
         *,
         auto_repair: bool = True,
         wait_seconds: int = 25,
+        require_scheduler: bool = True,
     ) -> LauncherResult:
         session = self.sessions.create_session(
             target="udos-runtime",
@@ -100,7 +101,7 @@ class UdosLauncherService:
         wizard_status = self.process_manager.ensure_running(
             wait_seconds=wait_seconds,
             auto_repair=auto_repair,
-            require_scheduler=True,
+            require_scheduler=require_scheduler,
         )
         state = "ready" if wizard_status.connected else "error"
         self.sessions.transition(
@@ -301,9 +302,16 @@ class UdosLauncherService:
         )
 
     def launch_ops(self, extra_args: list[str]) -> int:
-        result = self.start_runtime(auto_repair=True, wait_seconds=25)
+        result = self.start_runtime(
+            auto_repair=False,
+            wait_seconds=6,
+            require_scheduler=False,
+        )
         if not result.success:
-            return result.exit_code
+            _log.warning(
+                "runtime startup degraded during ops launch; continuing to TUI",
+                ctx={"wizard": result.details.get("wizard", {})},
+            )
         return self.launch_tui(extra_args)
 
     def wizard_command(self, command: str) -> LauncherResult:

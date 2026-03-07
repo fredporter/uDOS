@@ -315,3 +315,34 @@ def test_reassign_wizard_port_skips_reserved_ports(monkeypatch, tmp_path: Path) 
     assert fake_ports.calls[0][2] is False
     assert fake_ports.reassigned == [("wizard", 8770)]
     assert saved["port"] == 8770
+
+
+def test_launch_ops_continues_to_tui_when_runtime_start_fails(monkeypatch, tmp_path: Path) -> None:
+    fake_sessions = _FakeSessions()
+    fake_ports = _FakePortManager()
+    fake_process_manager = SimpleNamespace(status=lambda: _wizard_status(connected=True))
+
+    monkeypatch.setattr(launcher_mod, "get_launch_session_service", lambda repo_root=None: fake_sessions)
+    monkeypatch.setattr(launcher_mod, "get_wizard_process_manager", lambda: fake_process_manager)
+    monkeypatch.setattr(launcher_mod, "get_port_manager", lambda: fake_ports)
+
+    service = launcher_mod.UdosLauncherService(repo_root=tmp_path)
+    launch_calls = []
+
+    monkeypatch.setattr(
+        service,
+        "start_runtime",
+        lambda **kwargs: launcher_mod.LauncherResult(
+            success=False,
+            action="start",
+            message="degraded",
+            details={"wizard": {"connected": False}},
+            exit_code=1,
+        ),
+    )
+    monkeypatch.setattr(service, "launch_tui", lambda args: launch_calls.append(args) or 0)
+
+    rc = service.launch_ops(["--", "STATUS"])
+
+    assert rc == 0
+    assert launch_calls == [["--", "STATUS"]]
