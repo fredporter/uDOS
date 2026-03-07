@@ -5,7 +5,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 export UV_PROJECT_ENVIRONMENT="${UV_PROJECT_ENVIRONMENT:-.venv}"
-"$SCRIPT_DIR/udos" "$@"
+"$SCRIPT_DIR/udos" ops "$@"
 status=$?
 
 echo
