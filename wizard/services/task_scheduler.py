@@ -16,6 +16,7 @@ from wizard.services.logging_api import get_logger
 from wizard.services.deploy_mode import is_managed_mode
 from wizard.services.path_utils import get_repo_root
 from wizard.services.system_info_service import get_system_info_service
+from wizard.services.store.base import WizardStore
 from wizard.services.store import get_wizard_store
 from core.services.maintenance_utils import compost_cleanup, run_housekeeping
 from core.services.time_utils import parse_utc_datetime, utc_now, utc_now_iso
@@ -70,12 +71,19 @@ def _coerce_utc(value: datetime) -> datetime:
 class TaskScheduler:
     """Manage task scheduling and execution with organic cron model."""
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(
+        self,
+        db_path: Optional[Path] = None,
+        *,
+        store: WizardStore | None = None,
+    ):
         repo_root = get_repo_root()
         default_db = repo_root / "memory" / "wizard" / "ops.db"
         self.db_path = Path(db_path or default_db)
         self._managed = is_managed_mode()
-        self.store = get_wizard_store()
+        self.store = store or get_wizard_store(
+            None if self._managed else self.db_path
+        )
         self.workflow_scheduler = WorkflowScheduler(Path(repo_root))
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         if not self._managed:

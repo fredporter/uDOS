@@ -10,6 +10,12 @@
   let pairingCode = "";
   let pairingQR = "";
   let pairingSvg = "";
+  let pairingDeviceId = "";
+  let pairingDeviceName = "";
+  let pairingDeviceType = "desktop";
+  let pairingPublicKey = "";
+  let pairedDeviceToken = "";
+  let pairingStatus = "";
   let adminToken = "";
   let sharedView = false;
   let shareLinkCopied = false;
@@ -102,6 +108,8 @@
 
   async function generatePairingCode() {
     try {
+      pairedDeviceToken = "";
+      pairingStatus = "";
       const res = await apiFetch("/api/mesh/pairing-code", {
         method: "POST",
         headers: authHeaders(),
@@ -128,6 +136,49 @@
       }
     } catch (err) {
       error = `Failed to generate pairing code: ${err.message}`;
+    }
+  }
+
+  async function completePairing() {
+    if (!pairingCode || !pairingDeviceId.trim() || !pairingDeviceName.trim()) {
+      error = "Pairing code, device ID, and device name are required";
+      return;
+    }
+    try {
+      const res = await apiFetch("/api/mesh/pair", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders(),
+        },
+        body: JSON.stringify({
+          code: pairingCode,
+          device_id: pairingDeviceId.trim(),
+          device_name: pairingDeviceName.trim(),
+          device_type: pairingDeviceType,
+          public_key: pairingPublicKey.trim(),
+        }),
+      });
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({}));
+        throw new Error(payload.detail || `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      pairedDeviceToken = data.device_token || "";
+      pairingStatus = `Paired ${data.device?.name || pairingDeviceName.trim()}`;
+      await loadDevices();
+    } catch (err) {
+      error = `Pairing failed: ${err.message}`;
+    }
+  }
+
+  async function copyDeviceToken() {
+    if (!pairedDeviceToken || typeof navigator === "undefined") return;
+    try {
+      await navigator.clipboard.writeText(pairedDeviceToken);
+      pairingStatus = "Device token copied";
+    } catch (err) {
+      error = `Failed to copy device token: ${err.message || err}`;
     }
   }
 
@@ -374,6 +425,58 @@
               <div class="text-xs text-gray-300 bg-gray-900 border border-gray-700 rounded p-3 break-all">
                 {pairingQR}
               </div>
+            {/if}
+          </div>
+          <div class="mt-6 space-y-3 text-left">
+            <input
+              bind:value={pairingDeviceName}
+              class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white"
+              placeholder="Device name"
+            />
+            <input
+              bind:value={pairingDeviceId}
+              class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white"
+              placeholder="Device ID"
+            />
+            <select
+              bind:value={pairingDeviceType}
+              class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white"
+            >
+              <option value="desktop">Desktop</option>
+              <option value="mobile">Mobile</option>
+              <option value="alpine">Alpine</option>
+            </select>
+            <textarea
+              bind:value={pairingPublicKey}
+              class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white"
+              placeholder="Optional device public key"
+              rows="3"
+            />
+            <button
+              class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors"
+              on:click={completePairing}
+            >
+              Complete Pairing
+            </button>
+            {#if pairedDeviceToken}
+              <div class="rounded border border-emerald-700 bg-emerald-950/30 p-3">
+                <p class="mb-2 text-xs uppercase tracking-[0.2em] text-emerald-200">Device Token</p>
+                <div class="break-all rounded bg-gray-950 p-3 font-mono text-xs text-emerald-100">
+                  {pairedDeviceToken}
+                </div>
+                <p class="mt-2 text-xs text-emerald-200">
+                  Store this once on the device. It is not shown again.
+                </p>
+                <button
+                  class="mt-3 w-full px-3 py-2 bg-emerald-700 hover:bg-emerald-600 rounded text-white transition-colors"
+                  on:click={copyDeviceToken}
+                >
+                  Copy Device Token
+                </button>
+              </div>
+            {/if}
+            {#if pairingStatus}
+              <p class="text-sm text-emerald-300">{pairingStatus}</p>
             {/if}
           </div>
         {:else}

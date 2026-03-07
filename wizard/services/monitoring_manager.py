@@ -5,12 +5,13 @@ Provides health checks, alerts, rate limit tracking, cost monitoring,
 and comprehensive audit logging for Wizard Server operations.
 """
 
-import json
-import time
 import asyncio
-import requests
+import json
+import os
+import time
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Callable
+from typing import Any, Callable, Dict, List, Optional
+import requests
 from datetime import datetime, timedelta
 from dataclasses import dataclass, asdict
 from enum import Enum
@@ -21,9 +22,9 @@ from core.services.time_utils import parse_utc_datetime, utc_day_string, utc_now
 from wizard.services.deploy_mode import is_managed_mode
 from wizard.services.logging_api import get_logger
 from wizard.services.notification_history_service import NotificationHistoryService
-import os
 from wizard.services.path_utils import get_logs_dir
 from wizard.services.plugin_registry import get_registry
+from wizard.services.store.base import WizardStore
 from wizard.services.store import get_wizard_store
 from wizard.services.task_scheduler import TaskScheduler
 
@@ -161,6 +162,10 @@ class MonitoringManager:
         data_dir: Path = None,
         check_interval: int = 60,
         alert_callbacks: Optional[List[Callable]] = None,
+        *,
+        db_path: Path | None = None,
+        store: WizardStore | None = None,
+        scheduler_factory: Callable[[], TaskScheduler] | None = None,
     ):
         """
         Initialize monitoring manager.
@@ -172,7 +177,13 @@ class MonitoringManager:
         """
         self.data_dir = data_dir or (get_logs_dir() / "monitoring")
         self._managed = is_managed_mode()
-        self.store = get_wizard_store()
+        self._db_path = Path(db_path) if db_path is not None else None
+        self.store = store or get_wizard_store(
+            None if self._managed else self._db_path
+        )
+        self._scheduler_factory = scheduler_factory or (
+            lambda: TaskScheduler(db_path=self._db_path, store=self.store)
+        )
         if not self._managed:
             self.data_dir.mkdir(parents=True, exist_ok=True)
 
@@ -220,7 +231,10 @@ class MonitoringManager:
         """Notify history service when issues remain."""
         remaining = health_log.get("self_heal", {}).get("remaining", 0)
         if remaining > 0:
-            notif = NotificationHistoryService()
+            notif = NotificationHistoryService(
+                db_path=str(self._db_path) if self._db_path is not None else None,
+                store=self.store,
+            )
             message = (
                 f"Self-Heal drift detected: {remaining} issue(s) remain (status {summary.get('status')})"
             )
@@ -465,7 +479,7 @@ class MonitoringManager:
 
     def check_scheduler_queue(self) -> HealthCheck:
         def check():
-            scheduler = TaskScheduler()
+            scheduler = self._scheduler_factory()
             settings = scheduler.get_settings()
             defer_threshold = int(settings.get("defer_alert_threshold", 3) or 0)
             backoff_threshold_seconds = int(settings.get("backoff_alert_minutes", 120) or 0) * 60

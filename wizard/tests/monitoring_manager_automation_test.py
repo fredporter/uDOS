@@ -5,7 +5,10 @@ from wizard.services.task_scheduler import TaskScheduler
 
 
 def test_record_automation_run_exposed_in_recent_runs(tmp_path):
-    manager = MonitoringManager(data_dir=tmp_path / "monitoring")
+    manager = MonitoringManager(
+        data_dir=tmp_path / "monitoring",
+        db_path=tmp_path / "ops.db",
+    )
 
     manager.record_automation_run(
         "run_due_tasks",
@@ -25,7 +28,10 @@ def test_record_automation_run_exposed_in_recent_runs(tmp_path):
 
 
 def test_overdue_automation_job_creates_alert(tmp_path):
-    manager = MonitoringManager(data_dir=tmp_path / "monitoring")
+    manager = MonitoringManager(
+        data_dir=tmp_path / "monitoring",
+        db_path=tmp_path / "ops.db",
+    )
     manager.store.update_scheduler_settings(
         {
             "automation_heartbeat:run_due_tasks": {
@@ -44,7 +50,10 @@ def test_overdue_automation_job_creates_alert(tmp_path):
 
 
 def test_overdue_alert_resolves_after_recovery(tmp_path):
-    manager = MonitoringManager(data_dir=tmp_path / "monitoring")
+    manager = MonitoringManager(
+        data_dir=tmp_path / "monitoring",
+        db_path=tmp_path / "ops.db",
+    )
     manager.store.update_scheduler_settings(
         {
             "automation_heartbeat:run_due_tasks": {
@@ -69,7 +78,10 @@ def test_overdue_alert_resolves_after_recovery(tmp_path):
 
 
 def test_failure_alert_resolves_after_successful_run(tmp_path):
-    manager = MonitoringManager(data_dir=tmp_path / "monitoring")
+    manager = MonitoringManager(
+        data_dir=tmp_path / "monitoring",
+        db_path=tmp_path / "ops.db",
+    )
 
     manager.record_automation_run("run_due_tasks", success=False, error="boom")
     failed_alerts = [
@@ -89,7 +101,7 @@ def test_failure_alert_resolves_after_successful_run(tmp_path):
     assert all(alert.resolved for alert in refreshed)
 
 
-def test_deferred_queue_pressure_creates_and_resolves_alert(tmp_path, monkeypatch):
+def test_deferred_queue_pressure_creates_and_resolves_alert(tmp_path):
     scheduler = TaskScheduler(db_path=tmp_path / "tasks.db")
     scheduler.update_settings(
         {
@@ -116,10 +128,11 @@ def test_deferred_queue_pressure_creates_and_resolves_alert(tmp_path, monkeypatc
         settings=scheduler.get_settings(),
     )
 
-    import wizard.services.monitoring_manager as monitoring_module
-
-    monkeypatch.setattr(monitoring_module, "TaskScheduler", lambda: scheduler)
-    manager = MonitoringManager(data_dir=tmp_path / "monitoring")
+    manager = MonitoringManager(
+        data_dir=tmp_path / "monitoring",
+        db_path=tmp_path / "tasks.db",
+        scheduler_factory=lambda: scheduler,
+    )
     health = manager.check_scheduler_queue()
 
     assert health.status == "degraded"
@@ -134,3 +147,25 @@ def test_deferred_queue_pressure_creates_and_resolves_alert(tmp_path, monkeypatc
     pressure_alerts = [alert for alert in refreshed if "deferred queue pressure" in alert.message.lower()]
     assert pressure_alerts
     assert all(alert.resolved for alert in pressure_alerts)
+
+
+def test_self_heal_notification_uses_configured_store(tmp_path, monkeypatch):
+    manager = MonitoringManager(
+        data_dir=tmp_path / "monitoring",
+        db_path=tmp_path / "ops.db",
+    )
+    monkeypatch.setattr(
+        "wizard.services.monitoring_manager.read_last_summary",
+        lambda: {"self_heal": {"remaining": 1}},
+    )
+    monkeypatch.setattr(
+        manager,
+        "get_health_summary",
+        lambda: {"status": "degraded"},
+    )
+
+    manager.log_training_summary()
+
+    notifications, total = manager.store.get_notifications(limit=10, offset=0)
+    assert total == 1
+    assert "Self-Heal drift detected" in notifications[0]["message"]

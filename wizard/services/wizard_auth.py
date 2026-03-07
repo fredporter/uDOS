@@ -52,16 +52,17 @@ class WizardAuthService:
             raise HTTPException(status_code=401, detail="Missing authorization")
 
         token = auth_header[7:]
-        device_id = token.split(":")[0] if ":" in token else token[:16]
         auth = get_device_auth()
-        if not auth.get_device(device_id):
-            raise HTTPException(status_code=401, detail="Unknown device")
+        device = auth.authenticate_bearer_token(token)
+        if not device:
+            raise HTTPException(status_code=401, detail="Invalid device token")
+        device_id = device.id
 
         now = datetime.now(UTC).isoformat().replace("+00:00", "Z")
         if device_id not in self.sessions:
             self.sessions[device_id] = DeviceSession(
                 device_id=device_id,
-                device_name="Unknown",
+                device_name=device.name,
                 authenticated_at=now,
                 last_request=now,
             )

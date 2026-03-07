@@ -6,6 +6,7 @@ from typing import Dict, List
 
 from core.commands.base import BaseCommandHandler
 from core.services.logging_api import get_logger
+from core.services.provider_registry import CoreProviderRegistry, ProviderNotAvailableError, ProviderType
 
 logger = get_logger("command-ok")
 
@@ -82,41 +83,27 @@ class OKHandler(BaseCommandHandler):
         backend = self._state.get("backend", "gpt4all")
         logger.info(f"[OK] ask via {backend}: {prompt[:80]}")
         try:
-            if backend == "gpt4all":
-                from wizard.services.logic_assist_service import (
-                    LogicAssistRequest,
-                    get_logic_assist_service,
-                )
-
-                result = __import__("asyncio").run(
-                    get_logic_assist_service().complete(
-                        LogicAssistRequest(prompt=prompt, offline_required=True),
-                        device_id="local",
-                    )
-                )
-                if not result.success:
-                    return {"status": "error", "message": result.error or "Logic assist failed."}
-                output = result.content
-            else:
-                from wizard.services.logic_assist_service import (
-                    LogicAssistRequest,
-                    get_logic_assist_service,
-                )
-
-                result = __import__("asyncio").run(
-                    get_logic_assist_service().complete(
-                        LogicAssistRequest(prompt=prompt, force_network=True),
-                        device_id="local",
-                    )
-                )
-                if not result.success:
-                    return {"status": "error", "message": result.error or "Network assist failed."}
-                output = result.content
+            provider = CoreProviderRegistry.get(ProviderType.LOGIC_ASSIST)
+            result = provider.complete(
+                prompt,
+                offline_required=backend == "gpt4all",
+                force_network=backend != "gpt4all",
+                device_id="local",
+            )
+            if not result.get("success"):
+                fallback = "Logic assist failed." if backend == "gpt4all" else "Network assist failed."
+                return {"status": "error", "message": result.get("error") or fallback}
+            output = result.get("content") or ""
             history = self._state.setdefault("history", [])
             history.append({"prompt": prompt, "response": output[:500]})
             if len(history) > 20:
                 history[:] = history[-20:]
             return {"status": "success", "backend": backend, "response": output}
+        except ProviderNotAvailableError:
+            return {
+                "status": "error",
+                "message": "Logic assist provider unavailable. Start Wizard to use OK.",
+            }
         except Exception as e:
             return {"status": "error", "message": str(e)}
 

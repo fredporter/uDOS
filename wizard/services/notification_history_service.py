@@ -26,6 +26,7 @@ import uuid
 from wizard.services.deploy_mode import is_managed_mode
 from wizard.services.path_utils import get_repo_root
 from wizard.services.store import get_wizard_store
+from wizard.services.store.base import WizardStore
 
 
 @dataclass
@@ -55,7 +56,12 @@ class ExportRequest:
 class NotificationHistoryService:
     """SQLite-based notification history."""
 
-    def __init__(self, db_path: str | None = None):
+    def __init__(
+        self,
+        db_path: str | None = None,
+        *,
+        store: WizardStore | None = None,
+    ):
         self.repo_root = get_repo_root()
         if db_path:
             self.db_path = Path(db_path)
@@ -64,7 +70,9 @@ class NotificationHistoryService:
             self.db_path = self.repo_root / "memory" / "wizard" / "ops.db"
             self._using_default_db = True
         self._managed = is_managed_mode()
-        self.store = get_wizard_store()
+        self.store = store or get_wizard_store(
+            None if self._managed else self.db_path
+        )
         if not self._managed:
             self.db_path.parent.mkdir(parents=True, exist_ok=True)
             self._init_schema()

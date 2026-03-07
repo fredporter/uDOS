@@ -43,6 +43,8 @@ class ProviderType(Enum):
     RATE_LIMITER = "rate_limiter"
     PROVIDER_LOAD_LOGGER = "provider_load_logger"
     NOTIFICATION_HISTORY = "notification_history"
+    LOGIC_ASSIST = "logic_assist"
+    LOCAL_CODE_ASSIST = "local_code_assist"
 
 
 @dataclass
@@ -242,23 +244,9 @@ class CoreProviderRegistry:
 
     @classmethod
     def auto_register_vibe(cls):
-        """Auto-register the Dev Mode contributor helper when the local logic-assist runtime is ready."""
-        try:
-            from wizard.services.vibe_service import DevModeToolConfig, DevModeToolService
-
-            config = DevModeToolConfig()
-            contributor_tool = DevModeToolService(config)
-            if contributor_tool._verify_connection():
-                cls.register(
-                    ProviderType.VIBE_SERVICE,
-                    contributor_tool,
-                    name="DevModeToolService",
-                    description="Local Dev Mode contributor helper (logic-assist)",
-                    version="1.0.0",
-                )
-                logger.info("Auto-registered DevModeToolService provider.")
-        except Exception as exc:
-            logger.warning(f"Auto-register DevModeToolService failed: {exc}")
+        """Keep Core side effect free; Wizard registers contributor providers explicitly."""
+        if cls.is_available(ProviderType.VIBE_SERVICE):
+            logger.debug("Vibe provider already registered.")
 
 
 # Convenience functions

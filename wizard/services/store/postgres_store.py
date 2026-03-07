@@ -546,3 +546,85 @@ class PostgresWizardStore(WizardStore):
         if not row:
             raise KeyError(subject)
         return row
+
+    def get_device_record(self, device_id: str) -> dict[str, Any] | None:
+        with self._connect() as conn, conn.cursor() as cur:
+            cur.execute("SELECT * FROM device_registry WHERE id = %s", (device_id,))
+            return cur.fetchone()
+
+    def list_device_records(self) -> list[dict[str, Any]]:
+        with self._connect() as conn, conn.cursor() as cur:
+            cur.execute("SELECT * FROM device_registry ORDER BY paired_at ASC, id ASC")
+            return cur.fetchall()
+
+    def upsert_device_record(self, payload: dict[str, Any]) -> dict[str, Any]:
+        with self._connect() as conn, conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO device_registry (
+                    id, name, device_type, trust_level, status, transport, paired_at,
+                    last_seen, last_sync, sync_version, public_key, token_hash, token_last_rotated_at
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (id) DO UPDATE SET
+                    name = EXCLUDED.name,
+                    device_type = EXCLUDED.device_type,
+                    trust_level = EXCLUDED.trust_level,
+                    status = EXCLUDED.status,
+                    transport = EXCLUDED.transport,
+                    paired_at = EXCLUDED.paired_at,
+                    last_seen = EXCLUDED.last_seen,
+                    last_sync = EXCLUDED.last_sync,
+                    sync_version = EXCLUDED.sync_version,
+                    public_key = EXCLUDED.public_key,
+                    token_hash = EXCLUDED.token_hash,
+                    token_last_rotated_at = EXCLUDED.token_last_rotated_at
+                RETURNING *
+                """,
+                (
+                    payload["id"],
+                    payload["name"],
+                    payload["device_type"],
+                    payload["trust_level"],
+                    payload["status"],
+                    payload.get("transport", "meshcore"),
+                    payload["paired_at"],
+                    payload.get("last_seen", ""),
+                    payload.get("last_sync", ""),
+                    int(payload.get("sync_version", 0) or 0),
+                    payload.get("public_key", ""),
+                    payload.get("token_hash", ""),
+                    payload.get("token_last_rotated_at"),
+                ),
+            )
+            return cur.fetchone()
+
+    def delete_device_record(self, device_id: str) -> bool:
+        with self._connect() as conn, conn.cursor() as cur:
+            cur.execute("DELETE FROM device_registry WHERE id = %s", (device_id,))
+            return cur.rowcount > 0
+
+    def get_runtime_state(self, key: str) -> dict[str, Any] | None:
+        with self._connect() as conn, conn.cursor() as cur:
+            cur.execute("SELECT payload_json FROM runtime_state WHERE key = %s", (key,))
+            row = cur.fetchone()
+        if not row:
+            return None
+        value = row.get("payload_json")
+        if isinstance(value, str):
+            return json.loads(value)
+        return value
+
+    def set_runtime_state(self, key: str, payload: dict[str, Any]) -> dict[str, Any]:
+        data = payload or {}
+        with self._connect() as conn, conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO runtime_state (key, payload_json, updated_at)
+                VALUES (%s, %s::jsonb, %s)
+                ON CONFLICT (key) DO UPDATE SET
+                    payload_json = EXCLUDED.payload_json,
+                    updated_at = EXCLUDED.updated_at
+                """,
+                (key, json.dumps(data), _utc_now()),
+            )
+        return data

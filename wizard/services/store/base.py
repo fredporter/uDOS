@@ -152,3 +152,27 @@ class WizardStore(ABC):
     @abstractmethod
     def set_operator_role(self, subject: str, role: str) -> dict[str, Any]:
         raise NotImplementedError
+
+    @abstractmethod
+    def get_device_record(self, device_id: str) -> dict[str, Any] | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def list_device_records(self) -> list[dict[str, Any]]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def upsert_device_record(self, payload: dict[str, Any]) -> dict[str, Any]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete_device_record(self, device_id: str) -> bool:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_runtime_state(self, key: str) -> dict[str, Any] | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_runtime_state(self, key: str, payload: dict[str, Any]) -> dict[str, Any]:
+        raise NotImplementedError

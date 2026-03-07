@@ -14,19 +14,22 @@ Version: v1.0.0.0
 Date: 2026-01-06
 """
 
-import os
 import json
 import secrets
 import hashlib
+import hmac
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, asdict
 from enum import Enum
 import threading
 
 from core.services.time_utils import utc_now, utc_now_iso_z
 from wizard.services.logging_api import get_logger
+from wizard.services.deploy_mode import is_managed_mode
+from wizard.services.store import get_wizard_store
+from wizard.services.store.base import WizardStore
 
 logger = get_logger("wizard", category="device-auth", name="device-auth")
 
@@ -68,11 +71,16 @@ class Device:
     last_sync: str = ""
     sync_version: int = 0
     public_key: str = ""
+    token_hash: str = ""
+    token_last_rotated_at: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self, *, include_sensitive: bool = False) -> Dict[str, Any]:
         d = asdict(self)
         d["trust_level"] = self.trust_level.value
         d["status"] = self.status.value
+        if not include_sensitive:
+            d.pop("token_hash", None)
+            d.pop("token_last_rotated_at", None)
         return d
 
     @classmethod
@@ -99,23 +107,12 @@ class DeviceAuthService:
     Manages the mesh network device registry.
     """
 
-    _instance = None
-    _lock = threading.Lock()
+    def __init__(self, *, store: WizardStore | None = None):
+        self._managed = is_managed_mode()
+        self.store = store or get_wizard_store()
 
-    def __new__(cls):
-        if cls._instance is None:
-            with cls._lock:
-                if cls._instance is None:
-                    cls._instance = super().__new__(cls)
-        return cls._instance
-
-    def __init__(self):
-        if hasattr(self, "_initialized"):
-            return
-        self._initialized = True
-
-        # Ensure data directory exists
-        WIZARD_DATA.mkdir(parents=True, exist_ok=True)
+        if not self._managed:
+            WIZARD_DATA.mkdir(parents=True, exist_ok=True)
 
         # Load devices
         self.devices: Dict[str, Device] = {}
@@ -134,6 +131,14 @@ class DeviceAuthService:
 
     def _load_devices(self):
         """Load devices from persistent storage."""
+        if self._managed:
+            try:
+                for device_data in self.store.list_device_records():
+                    device = Device.from_dict(device_data)
+                    self.devices[device.id] = device
+            except Exception as e:
+                logger.error("[WIZ] Failed to load managed devices: %s", e)
+            return
         if DEVICES_FILE.exists():
             try:
                 with open(DEVICES_FILE) as f:
@@ -146,15 +151,55 @@ class DeviceAuthService:
 
     def _save_devices(self):
         """Save devices to persistent storage."""
+        if self._managed:
+            try:
+                for device in self.devices.values():
+                    self.store.upsert_device_record(
+                        device.to_dict(include_sensitive=True)
+                    )
+            except Exception as e:
+                logger.error("[WIZ] Failed to save managed devices: %s", e)
+            return
         try:
             data = {
-                "devices": [d.to_dict() for d in self.devices.values()],
+                "devices": [
+                    d.to_dict(include_sensitive=True) for d in self.devices.values()
+                ],
                 "updated_at": utc_now_iso_z(),
             }
             with open(DEVICES_FILE, "w") as f:
                 json.dump(data, f, indent=2)
         except Exception as e:
             logger.error("[WIZ] Failed to save devices: %s", e)
+
+    def _persist_device(self, device: Device) -> None:
+        if self._managed:
+            try:
+                self.store.upsert_device_record(device.to_dict(include_sensitive=True))
+                return
+            except Exception as e:
+                logger.error("[WIZ] Failed to persist managed device %s: %s", device.id, e)
+        self._save_devices()
+
+    def _delete_device(self, device_id: str) -> None:
+        if self._managed:
+            try:
+                self.store.delete_device_record(device_id)
+                return
+            except Exception as e:
+                logger.error("[WIZ] Failed to delete managed device %s: %s", device_id, e)
+        self._save_devices()
+
+    def _hash_device_secret(self, secret: str) -> str:
+        return hashlib.sha256(secret.encode("utf-8")).hexdigest()
+
+    def _issue_device_token(self, device: Device) -> str:
+        secret = secrets.token_urlsafe(32)
+        now = utc_now_iso_z()
+        device.token_hash = self._hash_device_secret(secret)
+        device.token_last_rotated_at = now
+        self._persist_device(device)
+        return f"{device.id}:{secret}"
 
     # =========================================================================
     # Pairing
@@ -249,7 +294,7 @@ class DeviceAuthService:
         )
 
         self.devices[device_id] = device
-        self._save_devices()
+        self._persist_device(device)
 
         # Clean up pairing request
         del self.pairing_requests[code]
@@ -257,6 +302,12 @@ class DeviceAuthService:
         logger.info("[WIZ] Device paired: %s (%s)", device_name, device_id)
 
         return device
+
+    def rotate_device_token(self, device_id: str) -> Optional[str]:
+        device = self.devices.get(device_id)
+        if not device:
+            return None
+        return self._issue_device_token(device)
 
     # =========================================================================
     # Device Management
@@ -289,7 +340,7 @@ class DeviceAuthService:
         if device:
             device.status = status
             device.last_seen = utc_now_iso_z()
-            self._save_devices()
+            self._persist_device(device)
 
     def update_device_sync(self, device_id: str, sync_version: int):
         """Update device sync version after successful sync."""
@@ -297,14 +348,14 @@ class DeviceAuthService:
         if device:
             device.last_sync = utc_now_iso_z()
             device.sync_version = sync_version
-            self._save_devices()
+            self._persist_device(device)
 
     def remove_device(self, device_id: str) -> bool:
         """Remove device from mesh."""
         if device_id in self.devices:
             device = self.devices[device_id]
             del self.devices[device_id]
-            self._save_devices()
+            self._delete_device(device_id)
             logger.info("[WIZ] Device removed: %s (%s)", device.name, device_id)
             return True
         return False
@@ -328,12 +379,30 @@ class DeviceAuthService:
         if not device:
             return False
 
-        # STUB: proper token validation
-        # For now, just check device exists and update last_seen
+        if not token or ":" not in token:
+            return False
+        token_device_id, secret = token.split(":", 1)
+        if token_device_id != device_id or not secret or not device.token_hash:
+            return False
+        if not hmac.compare_digest(
+            device.token_hash,
+            self._hash_device_secret(secret),
+        ):
+            return False
+
         device.last_seen = utc_now_iso_z()
         device.status = DeviceStatus.ONLINE
+        self._persist_device(device)
 
         return True
+
+    def authenticate_bearer_token(self, token: str) -> Optional[Device]:
+        if not token or ":" not in token:
+            return None
+        device_id = token.split(":", 1)[0].strip()
+        if not device_id or not self.authenticate(device_id, token):
+            return None
+        return self.devices.get(device_id)
 
     def get_trust_level(self, device_id: str) -> TrustLevel:
         """Get device trust level."""
@@ -343,11 +412,14 @@ class DeviceAuthService:
 
 # Singleton accessor
 _device_auth: Optional[DeviceAuthService] = None
+_device_auth_lock = threading.Lock()
 
 
 def get_device_auth() -> DeviceAuthService:
     """Get device authentication service instance."""
     global _device_auth
     if _device_auth is None:
-        _device_auth = DeviceAuthService()
+        with _device_auth_lock:
+            if _device_auth is None:
+                _device_auth = DeviceAuthService()
     return _device_auth

@@ -7,6 +7,7 @@ from typing import Dict, List
 
 from core.commands.base import BaseCommandHandler
 from core.services.logging_api import get_logger, get_repo_root
+from core.services.provider_registry import CoreProviderRegistry, ProviderNotAvailableError, ProviderType
 
 logger = get_logger("command-okfix")
 
@@ -90,15 +91,14 @@ class OkfixHandler(BaseCommandHandler):
         model = self._model()
         logger.info(f"[OKFIX] prompt via gpt4all: {prompt[:80]}")
         try:
-            from wizard.services.local_model_gpt4all import GPT4AllLocalAssist
-            from wizard.services.logic_assist_profile import load_logic_assist_profile
-
-            profile = load_logic_assist_profile()
-            payload = profile.to_dict()
-            payload["local_model_name"] = model
-            profile = profile.__class__(**payload)
-            result = GPT4AllLocalAssist(profile, get_repo_root()).generate(prompt)
+            provider = CoreProviderRegistry.get(ProviderType.LOCAL_CODE_ASSIST)
+            result = provider.generate(prompt, model=model)
             return {"status": "success", "backend": "gpt4all", "model": model, "response": result}
+        except ProviderNotAvailableError:
+            return {
+                "status": "error",
+                "message": "Local code assist provider unavailable. Start Wizard to use OKFIX.",
+            }
         except Exception as e:
             return {"status": "error", "message": str(e)}
 

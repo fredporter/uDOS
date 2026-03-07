@@ -8,15 +8,18 @@ from wizard.services.store.base import WizardStore
 from wizard.services.store.postgres_store import PostgresWizardStore
 from wizard.services.store.sqlite_store import SQLiteWizardStore
 
-_STORE: WizardStore | None = None
+_STORES: dict[str, WizardStore] = {}
 
 
-def get_wizard_store() -> WizardStore:
-    global _STORE
-    if _STORE is None:
-        if is_managed_mode():
-            _STORE = PostgresWizardStore()
-        else:
-            db_path = get_repo_root() / "memory" / "wizard" / "ops.db"
-            _STORE = SQLiteWizardStore(Path(db_path))
-    return _STORE
+def get_wizard_store(db_path: Path | None = None) -> WizardStore:
+    if is_managed_mode():
+        key = "managed"
+        if key not in _STORES:
+            _STORES[key] = PostgresWizardStore()
+        return _STORES[key]
+
+    resolved_path = Path(db_path or (get_repo_root() / "memory" / "wizard" / "ops.db")).resolve()
+    key = f"sqlite:{resolved_path}"
+    if key not in _STORES:
+        _STORES[key] = SQLiteWizardStore(resolved_path)
+    return _STORES[key]

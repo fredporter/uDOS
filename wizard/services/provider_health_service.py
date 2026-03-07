@@ -10,7 +10,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from core.services.integration_registry import get_provider_definitions
+from wizard.services.deploy_mode import is_managed_mode
 from wizard.services.path_utils import get_repo_root
+from wizard.services.store import get_wizard_store
+from wizard.services.store.base import WizardStore
 
 
 def _utc_now() -> str:
@@ -20,13 +23,21 @@ def _utc_now() -> str:
 class ProviderHealthService:
     """Runs provider availability checks and stores monitoring history."""
 
-    def __init__(self, repo_root: Optional[Path] = None):
+    def __init__(
+        self,
+        repo_root: Optional[Path] = None,
+        *,
+        store: WizardStore | None = None,
+    ):
         self.repo_root = Path(repo_root) if repo_root else get_repo_root()
         self.providers = get_provider_definitions()
         self._lock = threading.Lock()
+        self._managed = is_managed_mode()
+        self._store = store or get_wizard_store()
         self._state_dir = self.repo_root / "memory" / "wizard" / "providers"
         self._state_path = self._state_dir / "provider_health_state.json"
-        self._state_dir.mkdir(parents=True, exist_ok=True)
+        if not self._managed:
+            self._state_dir.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
     def _run_shell_check(cmd: str) -> Dict[str, Any]:
@@ -47,6 +58,12 @@ class ProviderHealthService:
             return {"ok": False, "returncode": -1, "detail": str(exc)}
 
     def _load_state(self) -> Dict[str, Any]:
+        if self._managed:
+            return self._store.get_runtime_state("provider_health_state") or {
+                "last_checked_at": None,
+                "checks": [],
+                "history": [],
+            }
         if not self._state_path.exists():
             return {"last_checked_at": None, "checks": [], "history": []}
         try:
@@ -55,6 +72,9 @@ class ProviderHealthService:
             return {"last_checked_at": None, "checks": [], "history": []}
 
     def _save_state(self, payload: Dict[str, Any]) -> None:
+        if self._managed:
+            self._store.set_runtime_state("provider_health_state", payload)
+            return
         self._state_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     def run_checks(self) -> Dict[str, Any]:

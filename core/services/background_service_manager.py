@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import shutil
 import signal
+import sqlite3
 import subprocess
 import sys
 import time
@@ -15,6 +16,7 @@ import time
 from core.services.loopback_host_utils import is_loopback_host, normalize_loopback_host
 from core.services.logging_api import get_logger, get_repo_root
 from core.services.stdlib_http import HTTPError, http_get
+from core.services.time_utils import parse_utc_datetime, utc_now
 
 _WIZARD_DEFAULT_BASE_URL = "http://127.0.0.1:8765"
 _WIZARD_START_CMD = ("uv", "run", "wizard/server.py", "--no-interactive")
@@ -128,9 +130,45 @@ class WizardProcessManager:
 
     def _scheduler_status(self) -> dict[str, object]:
         try:
-            from wizard.services.monitoring_manager import MonitoringManager
-
-            statuses = MonitoringManager().get_automation_status()
+            db_path = self.repo_root / "memory" / "wizard" / "ops.db"
+            if not db_path.exists():
+                return {"healthy": False, "error": "scheduler store missing", "jobs": {}}
+            with sqlite3.connect(db_path) as conn:
+                conn.row_factory = sqlite3.Row
+                rows = conn.execute(
+                    """
+                    SELECT key, value
+                    FROM scheduler_settings
+                    WHERE key LIKE 'automation_heartbeat:%'
+                    """
+                ).fetchall()
+            payloads = {
+                str(row["key"]).replace("automation_heartbeat:", "", 1): json.loads(row["value"])
+                for row in rows
+                if row["value"]
+            }
+            now = utc_now()
+            windows = {"run_due_tasks": 5, "health_snapshot": 15, "maintenance": 90}
+            statuses = {}
+            for job_name, grace_minutes in windows.items():
+                payload = payloads.get(job_name) or {}
+                last_success_raw = payload.get("last_success_at")
+                last_success = (
+                    parse_utc_datetime(last_success_raw)
+                    if isinstance(last_success_raw, str) and last_success_raw
+                    else None
+                )
+                overdue = last_success is None or (
+                    now - last_success
+                ).total_seconds() > (grace_minutes * 60)
+                statuses[job_name] = {
+                    "job": job_name,
+                    "last_run_at": payload.get("last_run_at"),
+                    "last_success_at": payload.get("last_success_at"),
+                    "last_failure_at": payload.get("last_failure_at"),
+                    "last_status": payload.get("last_status", "unknown"),
+                    "overdue": overdue,
+                }
         except Exception as exc:
             return {"healthy": False, "error": str(exc), "jobs": {}}
 

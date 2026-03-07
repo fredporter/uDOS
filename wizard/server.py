@@ -221,6 +221,11 @@ class WizardServer:
         try:
             from wizard.services.notification_history_adapter import NotificationHistoryAdapter
             from core.services.provider_registry import CoreProviderRegistry, ProviderType
+            from wizard.services.logic_assist_adapter import (
+                LocalCodeAssistAdapter,
+                LogicAssistAdapter,
+            )
+            from wizard.services.secret_store_adapter import SecretStoreAdapter
             CoreProviderRegistry.register(
                 ProviderType.NOTIFICATION_HISTORY,
                 NotificationHistoryAdapter(history_service),
@@ -228,8 +233,29 @@ class WizardServer:
                 description="SQLite-backed notification history (Wizard)",
                 version=WIZARD_SERVER_VERSION,
             )
+            CoreProviderRegistry.register(
+                ProviderType.LOGIC_ASSIST,
+                LogicAssistAdapter(REPO_ROOT),
+                name="LogicAssist",
+                description="Wizard-backed logic assist provider",
+                version=WIZARD_SERVER_VERSION,
+            )
+            CoreProviderRegistry.register(
+                ProviderType.LOCAL_CODE_ASSIST,
+                LocalCodeAssistAdapter(REPO_ROOT),
+                name="LocalCodeAssist",
+                description="Wizard-backed local GPT4All code generation",
+                version=WIZARD_SERVER_VERSION,
+            )
+            CoreProviderRegistry.register(
+                ProviderType.SECRET_STORE,
+                SecretStoreAdapter(),
+                name="SecretStore",
+                description="Wizard-backed secret store access",
+                version=WIZARD_SERVER_VERSION,
+            )
         except Exception as _exc:
-            self.logger.warning("Failed to register NotificationHistory provider: %s", _exc)
+            self.logger.warning("Failed to register Core providers: %s", _exc)
 
         # Register Dev Mode routes
         from wizard.routes.dev_routes import create_dev_routes
@@ -979,7 +1005,11 @@ class WizardServer:
             )
             if not device:
                 raise HTTPException(status_code=400, detail="Invalid or expired code")
-            return {"status": "success", "device": device.to_dict()}
+            return {
+                "status": "success",
+                "device": device.to_dict(),
+                "device_token": auth.rotate_device_token(device.id),
+            }
 
         @app.post("/api/mesh/devices/{device_id}/sync")
         async def mesh_sync_device(device_id: str, request: Request):

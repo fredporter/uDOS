@@ -28,6 +28,7 @@ import uuid
 from core.services.logging_api import get_logger, get_repo_root
 from core.services.loopback_host_utils import is_loopback_host
 from core.services.paths import get_memory_root, get_vault_md_root, get_vault_root
+from core.services.provider_registry import ProviderNotAvailableError, ProviderType, get_provider
 from core.services.rate_limit_helpers import guard_wizard_endpoint
 from core.services.stdlib_http import HTTPError, http_post
 from core.services.unified_config_loader import get_process_env
@@ -314,11 +315,12 @@ class ConfigSyncManager:
     def _secret_store_env_lookup(self, key: str) -> str | None:
         """Resolve secrets from Wizard secret store for env-style keys."""
         try:
-            from wizard.security.key_store import get_wizard_key
-
-            value = get_wizard_key(key)
+            provider = get_provider(ProviderType.SECRET_STORE)
+            value = provider.get(key)
             if isinstance(value, str) and value.strip():
                 return value.strip()
+            return None
+        except ProviderNotAvailableError:
             return None
         except Exception:
             return None

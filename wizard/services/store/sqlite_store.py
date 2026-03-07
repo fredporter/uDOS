@@ -39,6 +39,26 @@ class SQLiteWizardStore(WizardStore):
             conn.executescript(_NOTIFICATION_SCHEMA_PATH.read_text(encoding="utf-8"))
             conn.executescript(
                 """
+                CREATE TABLE IF NOT EXISTS runtime_state (
+                    key TEXT PRIMARY KEY,
+                    payload_json TEXT NOT NULL DEFAULT '{}',
+                    updated_at TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS device_registry (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    device_type TEXT NOT NULL,
+                    trust_level TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    transport TEXT NOT NULL DEFAULT 'meshcore',
+                    paired_at TEXT NOT NULL,
+                    last_seen TEXT,
+                    last_sync TEXT,
+                    sync_version INTEGER NOT NULL DEFAULT 0,
+                    public_key TEXT DEFAULT '',
+                    token_hash TEXT DEFAULT '',
+                    token_last_rotated_at TEXT
+                );
                 CREATE TABLE IF NOT EXISTS launch_sessions (
                     session_id TEXT PRIMARY KEY,
                     target TEXT NOT NULL,
@@ -662,3 +682,91 @@ class SQLiteWizardStore(WizardStore):
         if not row:
             raise KeyError(subject)
         return dict(row)
+
+    def get_device_record(self, device_id: str) -> dict[str, Any] | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT * FROM device_registry WHERE id = ?",
+                (device_id,),
+            ).fetchone()
+        return dict(row) if row else None
+
+    def list_device_records(self) -> list[dict[str, Any]]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT * FROM device_registry ORDER BY paired_at ASC, id ASC"
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def upsert_device_record(self, payload: dict[str, Any]) -> dict[str, Any]:
+        with self._connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO device_registry (
+                    id, name, device_type, trust_level, status, transport, paired_at,
+                    last_seen, last_sync, sync_version, public_key, token_hash, token_last_rotated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    name = excluded.name,
+                    device_type = excluded.device_type,
+                    trust_level = excluded.trust_level,
+                    status = excluded.status,
+                    transport = excluded.transport,
+                    paired_at = excluded.paired_at,
+                    last_seen = excluded.last_seen,
+                    last_sync = excluded.last_sync,
+                    sync_version = excluded.sync_version,
+                    public_key = excluded.public_key,
+                    token_hash = excluded.token_hash,
+                    token_last_rotated_at = excluded.token_last_rotated_at
+                """,
+                (
+                    payload["id"],
+                    payload["name"],
+                    payload["device_type"],
+                    payload["trust_level"],
+                    payload["status"],
+                    payload.get("transport", "meshcore"),
+                    payload["paired_at"],
+                    payload.get("last_seen", ""),
+                    payload.get("last_sync", ""),
+                    int(payload.get("sync_version", 0) or 0),
+                    payload.get("public_key", ""),
+                    payload.get("token_hash", ""),
+                    payload.get("token_last_rotated_at"),
+                ),
+            )
+        return self.get_device_record(str(payload["id"])) or dict(payload)
+
+    def delete_device_record(self, device_id: str) -> bool:
+        with self._connect() as conn:
+            result = conn.execute(
+                "DELETE FROM device_registry WHERE id = ?",
+                (device_id,),
+            )
+        return bool(result.rowcount)
+
+    def get_runtime_state(self, key: str) -> dict[str, Any] | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT payload_json FROM runtime_state WHERE key = ?",
+                (key,),
+            ).fetchone()
+        if not row:
+            return None
+        return self._json_load(row["payload_json"])
+
+    def set_runtime_state(self, key: str, payload: dict[str, Any]) -> dict[str, Any]:
+        data = payload or {}
+        with self._connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO runtime_state (key, payload_json, updated_at)
+                VALUES (?, ?, ?)
+                ON CONFLICT(key) DO UPDATE SET
+                    payload_json = excluded.payload_json,
+                    updated_at = excluded.updated_at
+                """,
+                (key, self._json_dump(data), _utc_now()),
+            )
+        return data
