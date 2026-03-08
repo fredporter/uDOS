@@ -7,6 +7,7 @@ import socket
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from core.services.external_repo_service import sonic_repo_available
 
 def _wizard_root_from_here() -> Path:
     return Path(__file__).resolve().parent.parent
@@ -44,7 +45,6 @@ def detect_wizard_capabilities(wizard_root: Optional[Path] = None) -> Dict[str, 
     repo_root = root.parent
     dashboard_root = root / "dashboard"
     dev_root = repo_root / "dev"
-    sonic_root = repo_root / "sonic"
     groovebox_root = repo_root / "groovebox"
 
     wizard_gui = dashboard_root.exists() and (
@@ -65,7 +65,7 @@ def detect_wizard_capabilities(wizard_root: Optional[Path] = None) -> Dict[str, 
         "wizard_gui": bool(wizard_gui),
         "networking": bool(networking),
         "module_dev": bool(dev_root.exists()),
-        "module_sonic": bool(sonic_root.exists()),
+        "module_sonic": bool(sonic_repo_available(repo_root)),
         "module_groovebox": bool(groovebox_root.exists()),
         "dev_mode_active": bool(dev_mode_active),
     }

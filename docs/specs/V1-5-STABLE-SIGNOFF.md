@@ -35,7 +35,7 @@ UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python -m core.services.release_
 | Profile | Install state | Verify | Repair evidence | Rollback or recovery evidence | Demo coverage |
 | --- | --- | --- | --- | --- | --- |
 | `core` | installed and enabled in `memory/ucode/release-profiles.json` | `UCODE PROFILE VERIFY core` and `ReleaseProfileService.verify_profile("core")` return healthy | `UCODE REPAIR STATUS` and `core/tests/ucode_min_spec_command_test.py::test_ucode_repair_status` | rollback not applicable for mandatory base profile; recovery is reinstall plus re-verify, and mandatory-disable guard is covered by `test_set_enabled_rejects_disabling_mandatory_profile` | `00` `01` `02` |
-| `home` | installed and enabled | `UCODE PROFILE VERIFY home` returns healthy | `UCODE REPAIR STATUS` covers shared runtime repair contract before profile verify | rollback path exists through the `uHOME` installer rollback token contract in `core/tests/sonic_uhome_bundle_test.py::test_plan_includes_rollback_commit_step` | `00` `01` `03` |
+| `home` | installed and enabled | `UCODE PROFILE VERIFY home` returns healthy | `UCODE REPAIR STATUS` covers shared runtime repair contract before profile verify | rollback and install behavior now live in the external `uHOME-server` repo; this repo only verifies Wizard-facing uHOME control surfaces | `00` `01` `03` |
 | `creator` | installed and enabled | `UCODE PROFILE VERIFY creator` returns healthy | `UCODE REPAIR STATUS` plus profile verify | recovery path is profile-gated disable and re-enable through `UCODE PROFILE DISABLE|ENABLE creator`; the optional-profile recovery contract is covered by `core/tests/release_profile_service_test.py::test_set_enabled_can_disable_and_reenable_optional_profile` | `00` `02` `03` |
 | `gaming` | installed and enabled | `UCODE PROFILE VERIFY gaming` returns healthy | `UCODE REPAIR STATUS` plus profile verify | recovery path is profile-gated disable and re-enable through `UCODE PROFILE DISABLE|ENABLE gaming`; the shared optional-profile recovery contract is covered by `test_set_enabled_can_disable_and_reenable_optional_profile` | `00` |
 | `dev` | installed and enabled | `UCODE PROFILE VERIFY dev` returns healthy | `UCODE REPAIR STATUS` plus profile verify | recovery path is profile-gated disable and re-enable through `UCODE PROFILE DISABLE|ENABLE dev`; surface coverage exists in `core/tests/ucode_min_spec_command_test.py::test_ucode_profile_enable_disable_surface` | `00` `01` `02` `03` `04` |
@@ -65,5 +65,5 @@ UV_PROJECT_ENVIRONMENT=.venv uv run --group dev python -m pytest \
   core/tests/ucode_min_spec_command_test.py \
   core/tests/ucode_release_demo_pack_test.py \
   core/tests/ucode_release_demo_scripts_test.py \
-  core/tests/sonic_uhome_bundle_test.py
+  wizard/tests/home_assistant_routes_test.py
 ```

@@ -3,7 +3,7 @@
 Goal: controlled rollout readiness and release package completion.
 
 ## Scope
-- Empire private extension only.
+- Empire internal extension only.
 - Launch package complete with gate automation.
 - Live provider cutover executed during rollout window using production credentials.
 
@@ -29,7 +29,7 @@ Exit Criteria
 
 ## Commands
 - Launch gate:
-  `cd /Users/fredbook/Code/uDOS/empire && scripts/smoke/phase5_launch_gate.sh`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && scripts/smoke/phase5_launch_gate.sh`
 
 ## Execution Log
 - 2026-02-15: Phase 5 started.

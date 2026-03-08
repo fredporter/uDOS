@@ -7,7 +7,7 @@ They intentionally do not perform any destructive operations yet.
 - `build-game-mode.ps1` — build Windows Game Mode image
 
 Integration notes:
-- Flash-pack metadata is defined in `sonic/config/flash-packs/windows10-entertainment.json`.
+- Flash-pack metadata is defined in `../uDOS-sonic/config/flash-packs/windows10-entertainment.json`.
 - Device capability selection can be pre-filtered with:
   - `GET /api/sonic/devices?windows10_boot=wtg&media_mode=htpc`
   - `GET /api/sonic/db/status`

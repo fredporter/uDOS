@@ -10,7 +10,11 @@ from typing import Any, TextIO
 from uuid import uuid4
 from pathlib import Path
 
-from core.services.command_catalog import parse_slash_command
+from core.services.command_catalog import (
+    CANONICAL_UCODE_COMMANDS,
+    parse_slash_command,
+    normalize_command_tokens,
+)
 from core.services.logging_api import get_repo_root
 from core.services.operator_mode_service import get_operator_mode_service
 from core.tui.dispatcher import CommandDispatcher
@@ -23,17 +27,17 @@ from core.ulogic.parser import parse_primary_input
 HOME_ACTIONS = [
     {
         "key": "1",
-        "label": "Start Mission / New Binder",
-        "desc": "Create a new @binder workspace",
+        "label": "Mission Templates",
+        "desc": "List available mission templates",
         "job": "ucode.command",
-        "command": "BINDER CREATE @binder/new-mission",
+        "command": "UCODE TEMPLATE LIST missions",
     },
     {
         "key": "2",
-        "label": "Resume Mission / Open Binder",
-        "desc": "Open existing @binder workspace",
+        "label": "Binder Library",
+        "desc": "List available binder roots",
         "job": "ucode.command",
-        "command": "BINDER OPEN @binder",
+        "command": "PLACE LIST @binders",
     },
     {
         "key": "3",
@@ -58,24 +62,24 @@ HOME_ACTIONS = [
     },
     {
         "key": "6",
-        "label": "Script Editor",
-        "desc": "Run script workflow from local memory bank",
+        "label": "Core Health Check",
+        "desc": "Run offline core health checks",
         "job": "ucode.command",
-        "command": "RUN memory/bank/system/startup-script.md",
+        "command": "HEALTH",
     },
     {
         "key": "7",
-        "label": "Setup User Story",
-        "desc": "Open mission template for user story setup",
+        "label": "Setup Profile",
+        "desc": "Show local setup profile and readiness",
         "job": "ucode.command",
-        "command": "UCODE TEMPLATE READ missions MISSION-template",
+        "command": "SETUP --profile",
     },
     {
         "key": "8",
-        "label": "Device Config Settings",
-        "desc": "Open device submission template for local config",
+        "label": "Device Config Status",
+        "desc": "Show local configuration and device status",
         "job": "ucode.command",
-        "command": "UCODE TEMPLATE READ submissions DEVICE-SUBMISSION-template",
+        "command": "CONFIG SHOW",
     },
     {
         "key": "9",
@@ -107,17 +111,17 @@ HOME_ACTIONS = [
     },
     {
         "key": "s",
-        "label": "Sonic Screwdriver",
-        "desc": "Show Sonic runtime and device status",
+        "label": "Runtime Status",
+        "desc": "Show current runtime mode and status",
         "job": "ucode.command",
-        "command": "SONIC STATUS",
+        "command": "STATUS",
     },
     {
         "key": "c",
-        "label": "Plugin Containers",
-        "desc": "Check plugin container launch readiness",
+        "label": "Wizard Status",
+        "desc": "Check Wizard server readiness",
         "job": "ucode.command",
-        "command": "WIZARD CHECK",
+        "command": "WIZARD STATUS",
     },
     {
         "key": "w",
@@ -142,10 +146,10 @@ HOME_ACTIONS = [
     },
     {
         "key": "d",
-        "label": "Enter Dev Mode",
-        "desc": "Enter dev workflow planning mode",
+        "label": "Dev Mode Status",
+        "desc": "Inspect dev mode and wizard connectivity",
         "job": "ucode.command",
-        "command": "DEV PLAN",
+        "command": "DEV STATUS",
     },
     {
         "key": "g",
@@ -163,10 +167,10 @@ HOME_ACTIONS = [
     },
     {
         "key": "r",
-        "label": "Reboot",
-        "desc": "Trigger local reboot command route",
+        "label": "TS Runtime Verify",
+        "desc": "Verify TypeScript runtime readiness",
         "job": "ucode.command",
-        "command": "REBOOT",
+        "command": "VERIFY",
     },
 ]
 
@@ -379,11 +383,21 @@ class UdosProtocolBridge:
             prompt = raw.split(None, 1)[1] if " " in raw else ""
             return self._route_to_operator(prompt)
 
+        if self._looks_like_direct_ucode_command(raw):
+            return self._dispatch_command(raw)
+
         frame = parse_primary_input(raw)
         if frame:
             return self._route_frame(frame)
 
         return self._route_to_operator(raw)
+
+    @staticmethod
+    def _looks_like_direct_ucode_command(raw: str) -> bool:
+        command_name, _params = normalize_command_tokens(raw)
+        if not command_name:
+            return False
+        return command_name in CANONICAL_UCODE_COMMANDS
 
     def _route_forced_command(self, forced: str, original_input: str) -> dict[str, Any]:
         slash = parse_slash_command(original_input)
@@ -828,7 +842,18 @@ class UdosProtocolBridge:
                     "lines": output_text.splitlines(),
                 }
             )
-        elif not events:
+        else:
+            summary_lines = self._structured_result_lines(result)
+            if summary_lines:
+                events.append(
+                    {
+                        "kind": "block",
+                        "title": "RESULT SUMMARY",
+                        "style": "default",
+                        "lines": summary_lines,
+                    }
+                )
+        if not events:
             rendered = self.context.renderer.render(result).strip()
             events.append(
                 {
@@ -839,6 +864,58 @@ class UdosProtocolBridge:
                 }
             )
         return events
+
+    @staticmethod
+    def _structured_result_lines(result: dict[str, Any]) -> list[str]:
+        lines: list[str] = []
+        message = str(result.get("message") or "").strip()
+        if message:
+            lines.append(f"message: {message}")
+
+        preferred_keys = [
+            "mode",
+            "checks_passed",
+            "checks_total",
+            "sonic_root",
+            "db_path",
+            "route",
+            "profile_id",
+            "target",
+        ]
+        for key in preferred_keys:
+            if key not in result:
+                continue
+            value = result.get(key)
+            if value in (None, "", [], {}):
+                continue
+            lines.append(f"{key}: {value}")
+
+        for key, value in result.items():
+            if key in {
+                "status",
+                "message",
+                "output",
+                "routing",
+                "operator_plan",
+                "workflow",
+                "format_helper",
+                "saved_path",
+                "artifact_path",
+                "imported",
+                "duplicate",
+            }:
+                continue
+            if key in preferred_keys:
+                continue
+            if isinstance(value, (str, int, float, bool)):
+                lines.append(f"{key}: {value}")
+            elif isinstance(value, dict):
+                lines.append(f"{key}: {', '.join(sorted(str(item) for item in value.keys())[:6])}")
+            elif isinstance(value, list) and value:
+                lines.append(f"{key}: {len(value)} item(s)")
+            if len(lines) >= 8:
+                break
+        return lines[:8]
 
 
 def run_stdio(stdin: TextIO, stdout: TextIO) -> int:

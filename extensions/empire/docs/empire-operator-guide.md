@@ -1,14 +1,16 @@
 # Empire Operator Guide (Phase 5)
 
+Empire is an internal uDOS extension. Enable it through Wizard Extensions before using Empire routes or operational flows.
+
 Runbook
 - Start API:
-  `cd /Users/fredbook/Code/uDOS/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 -m uvicorn empire.api.server:app --host 127.0.0.1 --port 8991`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 -m uvicorn empire.api.server:app --host 127.0.0.1 --port 8991`
 - API smoke:
-  `cd /Users/fredbook/Code/uDOS/empire && scripts/smoke/run_phase2_api_smoke.sh`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && scripts/smoke/run_phase2_api_smoke.sh`
 - Integration preflight:
-  `cd /Users/fredbook/Code/uDOS/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/smoke/integration_preflight.py --db data/empire.db --strict`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/smoke/integration_preflight.py --db data/empire.db --strict`
 - Launch gate:
-  `cd /Users/fredbook/Code/uDOS/empire && scripts/smoke/phase5_launch_gate.sh`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && scripts/smoke/phase5_launch_gate.sh`
 
 Secret management
 - Set HubSpot token:

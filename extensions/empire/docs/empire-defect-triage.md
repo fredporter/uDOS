@@ -1,7 +1,7 @@
 # Empire Defect Triage (Phase 1)
 
 Scope
-- Empire private extension only.
+- Empire internal extension only.
 - Internal beta and alpha stabilization.
 
 Severity model

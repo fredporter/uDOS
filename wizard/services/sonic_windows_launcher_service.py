@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from core.services.external_repo_service import resolve_sonic_repo_root
 from core.services.json_utils import read_json_file, write_json_file
 from core.services.time_utils import utc_now_iso_z
 from wizard.services.launch_adapters import LaunchAdapterExecution
@@ -43,8 +44,9 @@ class _WindowsLauncherAdapter:
 class SonicWindowsLauncherService:
     def __init__(self, repo_root: Path | None = None):
         self.repo_root = repo_root or Path(__file__).resolve().parent.parent.parent
+        sonic_root = resolve_sonic_repo_root(self.repo_root)
         self.flash_pack_path = (
-            self.repo_root / "sonic" / "config" / "flash-packs" / "windows10-entertainment.json"
+            sonic_root / "config" / "flash-packs" / "windows10-entertainment.json"
         )
         self.state_dir = self.repo_root / "memory" / "wizard" / "sonic"
         self.state_path = self.state_dir / "windows-launcher.json"

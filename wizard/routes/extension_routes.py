@@ -7,6 +7,7 @@ from typing import Any, Dict, Optional
 from fastapi import APIRouter, Request
 
 from core.services.container_catalog_service import get_container_catalog_service
+from core.services.external_repo_service import resolve_sonic_repo_root, sonic_repo_available
 from wizard.services.extension_hot_reload_service import get_extension_hot_reload_service
 from wizard.services.empire_extension_service import get_empire_extension_service
 from wizard.services.path_utils import get_repo_root
@@ -77,10 +78,13 @@ def _get_extension_status(ext: Dict[str, Any]) -> Dict[str, Any]:
             "installed": payload["installed"],
             "available": payload["available"],
             "enabled": payload["enabled"],
+            "activation_state": payload["activation_state"],
+            "activation_required": payload["activation_required"],
             "configured": payload["configured"],
             "configuration_state": payload["configuration_state"],
             "healthy": payload["healthy"],
             "degraded": payload["degraded"],
+            "access_error": payload["access_error"],
             "version": payload["version"],
             "path": payload["path"],
             "wizard_route": payload["wizard_route"],
@@ -95,6 +99,35 @@ def _get_extension_status(ext: Dict[str, Any]) -> Dict[str, Any]:
             "template_workspace": ext.get("template_workspace"),
             "standalone_capable": ext.get("standalone_capable", False),
             "lens_vars": ext.get("lens_vars", {}),
+        }
+    if ext["id"] == "sonic":
+        sonic_root = resolve_sonic_repo_root(REPO_ROOT)
+        present = sonic_repo_available(REPO_ROOT)
+        return {
+            "id": "sonic",
+            "name": ext["name"],
+            "description": ext["description"],
+            "icon": ext["icon"],
+            "category": ext["category"],
+            "present": present,
+            "installed": present,
+            "available": present,
+            "enabled": present,
+            "configured": present,
+            "configuration_state": "configured" if present else "missing",
+            "healthy": present,
+            "degraded": False,
+            "api_prefix": ext["api_prefix"],
+            "web_port": ext["web_port"],
+            "visibility": ext.get("visibility", "official"),
+            "runtime_owner": ext.get("runtime_owner", "shared"),
+            "callable_from": ext.get("callable_from", []),
+            "library_refs": ext.get("library_refs", []),
+            "template_workspace": ext.get("template_workspace"),
+            "standalone_capable": True,
+            "lens_vars": ext.get("lens_vars", {}),
+            "path": str(sonic_root),
+            "version": ext.get("version") or "external",
         }
     present = bool(ext.get("present"))
 
@@ -171,10 +204,13 @@ async def empire_token_status(request: Request) -> Dict[str, Any]:
     return {
         "present": payload["installed"],
         "enabled": payload["enabled"],
+        "activation_state": payload["activation_state"],
+        "activation_required": payload["activation_required"],
         "configured": payload["configured"],
         "configuration_state": payload["configuration_state"],
         "token_configured": payload["configuration_state"] == "configured",
         "healthy": payload["healthy"],
+        "access_error": payload["access_error"],
     }
 
 

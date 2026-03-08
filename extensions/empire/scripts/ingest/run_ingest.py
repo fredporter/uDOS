@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""CLI entry for Empire ingestion."""
+"""CLI entry for Empire ingestion.
+
+Manual operator wrapper only.
+Wizard Empire import routes and services are the canonical runtime surface.
+"""
 
 from __future__ import annotations
 
@@ -11,6 +15,9 @@ from empire.services.ingestion_service import ingest_file, ingest_many
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Ingest raw records to JSONL")
+    parser.epilog = (
+        "Operator wrapper only. Prefer Wizard Empire import actions for the supported runtime path."
+    )
     parser.add_argument("inputs", nargs="+", help="Input files (.csv/.json/.jsonl)")
     parser.add_argument("--out", required=True, help="Output JSONL path")
     parser.add_argument("--source", default=None, help="Optional source label")

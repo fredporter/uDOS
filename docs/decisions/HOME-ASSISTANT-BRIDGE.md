@@ -15,7 +15,7 @@ Expose a minimal contract so Home Assistant can discover uDOS services and inter
 ## Contract Files
 - **Wizard API contract (this doc):** `docs/decisions/HOME-ASSISTANT-BRIDGE.md`
 - **Service definition + routes:** `library/home-assistant/bridge.json`
-- **uHOME runtime/install companion spec:** `docs/specs/UHOME-v1.5.md`
+- **uHOME external integration contract:** `docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md`
 
 ### Required Routes (v1.5 target)
 - `GET /api/ha/status`

@@ -5,7 +5,7 @@ from core.services.sonic_device_service import get_sonic_device_service
 
 
 def _seed_sql(repo_root: Path) -> None:
-    datasets = repo_root / "sonic" / "datasets"
+    datasets = repo_root.parent / "uDOS-sonic" / "datasets"
     datasets.mkdir(parents=True, exist_ok=True)
     (datasets / "sonic-devices.sql").write_text(
         (

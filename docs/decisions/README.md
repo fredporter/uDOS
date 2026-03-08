@@ -45,6 +45,8 @@ Planning note:
 |------|-------|
 | [v1-5-logic-assist-final-spec.md](v1-5-logic-assist-final-spec.md) | Active v1.5 logic-assist routing and runtime interaction design |
 | [v1-5-ucode-tui-spec.md](v1-5-ucode-tui-spec.md) | Active v1.5 `ucode` TUI decision |
+| [v1-5-1-TUI-OPERATIONAL-CLOSEOUT.md](v1-5-1-TUI-OPERATIONAL-CLOSEOUT.md) | Active v1.5.1 patch-stream decision for truthful Bubble Tea launcher behavior and operational closeout |
+| [v1-5-4-REPO-BOUNDARIES.md](v1-5-4-REPO-BOUNDARIES.md) | Active repo-boundary decision for internal extensions, companion repos, and separate app repos |
 | [v1-5-gameplay-3d-thin-gui-assessment.md](v1-5-gameplay-3d-thin-gui-assessment.md) | Pre-release assessment of gameplay/lens scope, 3D extension boundary, and Thin GUI readiness |
 | [udos-protocol-v1.md](udos-protocol-v1.md) | Supporting TUI protocol reference |
 | [udos-reference-implementation.md](udos-reference-implementation.md) | Supporting TUI reference implementation skeleton |
@@ -55,8 +57,8 @@ Planning note:
 | File | Topic |
 |------|-------|
 | [HOME-ASSISTANT-BRIDGE.md](HOME-ASSISTANT-BRIDGE.md) | uDOS ↔ Home Assistant bridge design |
-| [uHOME-spec.md](uHOME-spec.md) | uHOME home profile decision |
-| [../specs/UHOME-v1.5.md](../specs/UHOME-v1.5.md) | Canonical v1.5 uHOME runtime and install contract |
+| [v1-5-3-UHOME-KIOSK.md](v1-5-3-UHOME-KIOSK.md) | uHOME kiosk/controller direction and separate-repo boundary |
+| [../howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md](../howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md) | Local install and Wizard integration contract for external Sonic and uHOME repos |
 
 ## Sonic & Media Stack
 

@@ -62,7 +62,7 @@ Contributor-only Dev Mode documentation does not live here. Use `dev/docs/` for 
 - Working on Sonic or `uHOME`:
   `docs/specs/ALPINE-CORE-PLUGIN-FORMAT-v1.5.md`,
   `docs/howto/BARE-METAL-Alpine-Install.md`,
-  `docs/howto/SONIC-STANDALONE-RELEASE-AND-INSTALL.md`,
+  `docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md`,
   `docs/examples/ucode_v1_5_release_pack/04-self-hosted-dev-mode.md`
 - Working on binders/templates:
   `docs/howto/BINDER-QUICKSTART.md`,

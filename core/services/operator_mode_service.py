@@ -6,6 +6,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
+from core.services.external_repo_service import sonic_repo_available
 from core.services.logging_api import get_repo_root
 from core.services.release_profile_service import get_release_profile_service
 
@@ -87,8 +88,8 @@ class OperatorModeService:
             ),
             OperatorCapability(
                 "sonic",
-                (self.repo_root / "sonic").exists(),
-                "Sonic screwdriver workspace present" if (self.repo_root / "sonic").exists() else "Sonic workspace missing",
+                sonic_repo_available(self.repo_root),
+                "Sonic external repo present" if sonic_repo_available(self.repo_root) else "Sonic external repo missing",
             ),
         ]
         return {
@@ -236,7 +237,7 @@ class OperatorModeService:
             OperatorCapability("profiles", True, "Certified profile registry loaded"),
             OperatorCapability("topology", True, topology["summary"]),
             OperatorCapability("wizard", (self.repo_root / "wizard" / "server.py").exists(), "Wizard runtime detected" if (self.repo_root / "wizard" / "server.py").exists() else "Wizard runtime missing"),
-            OperatorCapability("sonic", (self.repo_root / "sonic").exists(), "Sonic runtime detected" if (self.repo_root / "sonic").exists() else "Sonic runtime missing"),
+            OperatorCapability("sonic", sonic_repo_available(self.repo_root), "Sonic runtime detected" if sonic_repo_available(self.repo_root) else "Sonic runtime missing"),
         ]
 
     def _queued_tasks(self) -> list[OperatorTask]:

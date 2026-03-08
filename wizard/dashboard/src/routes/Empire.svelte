@@ -67,6 +67,8 @@
   let promotingRecordId = "";
   let loadingMergeRecordId = "";
   let mergingCandidateId = "";
+  let activationBusy = false;
+  let activationError = "";
   let webhookForm = {
     mapping_id: "",
     name: "HubSpot Contact Inbound",
@@ -256,12 +258,52 @@
     return Object.entries(groups);
   }
 
+  async function decodeError(res) {
+    let payload = null;
+    try {
+      payload = await res.json();
+    } catch {
+      payload = null;
+    }
+    const detail = payload?.detail;
+    if (detail?.message) {
+      const err = new Error(detail.message);
+      err.status = res.status;
+      err.payload = detail;
+      return err;
+    }
+    const err = new Error(`HTTP ${res.status}`);
+    err.status = res.status;
+    err.payload = payload;
+    return err;
+  }
+
   async function loadJson(url, fallback) {
     const res = await apiFetch(url);
     if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`);
+      throw await decodeError(res);
     }
     return res.json().catch(() => fallback);
+  }
+
+  async function activateEmpire() {
+    activationBusy = true;
+    activationError = "";
+    error = "";
+    try {
+      const res = await apiFetch("/api/empire/status/enabled", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: true }),
+      });
+      if (!res.ok) throw await decodeError(res);
+      status = await res.json();
+      await loadAll();
+    } catch (err) {
+      activationError = err.message || String(err);
+    } finally {
+      activationBusy = false;
+    }
   }
 
   async function loadAll() {
@@ -327,6 +369,7 @@
         await openDocument(documents[0].document_id);
       }
     } catch (err) {
+      status = status || err?.payload?.extension || null;
       error = err.message || String(err);
     } finally {
       loading = false;
@@ -720,6 +763,38 @@
     <div class="mb-6 rounded-lg border border-red-700 bg-red-900 p-4 text-red-200">{error}</div>
   {/if}
 
+  {#if status?.activation_required}
+    <div class="mb-6 rounded-xl border border-amber-700 bg-amber-950/60 p-5">
+      <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <div class="text-xs uppercase tracking-[0.2em] text-amber-300">Wizard Activation Required</div>
+          <h2 class="mt-2 text-xl font-semibold text-amber-50">Empire is currently disabled</h2>
+          <p class="mt-2 text-sm text-amber-100">
+            Empire is bundled as an internal uDOS extension but stays off by default. Activate it through Wizard Extensions to unlock imports, CRM sync, templates, and connector jobs.
+          </p>
+          {#if activationError}
+            <div class="mt-3 rounded border border-rose-700 bg-rose-950/50 px-3 py-2 text-sm text-rose-200">{activationError}</div>
+          {/if}
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button
+            class="rounded bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-500 disabled:opacity-50"
+            disabled={activationBusy}
+            on:click={activateEmpire}
+          >
+            {activationBusy ? "Activating..." : "Activate Empire"}
+          </button>
+          <button
+            class="rounded bg-gray-800 px-4 py-2 text-sm text-gray-200 hover:bg-gray-700"
+            on:click={() => (window.location.hash = "extensions?ext=empire")}
+          >
+            Back To Extensions
+          </button>
+        </div>
+      </div>
+    </div>
+  {/if}
+
   <div class="mb-6 flex flex-wrap gap-2">
     {#each tabs as tab}
       <button
@@ -755,6 +830,8 @@
 
   {#if loading}
     <div class="text-gray-400">Loading Empire workspace...</div>
+  {:else if status?.activation_required}
+    <div class="text-sm text-gray-400">Activate Empire to load the managed workspace.</div>
   {:else if activeTab === "overview"}
     <div class="grid gap-4 md:grid-cols-4">
       <div class="rounded-lg border border-gray-700 bg-gray-900 p-4">

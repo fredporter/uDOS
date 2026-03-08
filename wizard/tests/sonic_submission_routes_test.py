@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import sys
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -74,18 +73,8 @@ class _Schemas:
             self.kwargs = kwargs
 
 
-class _Enums:
-    class ReflashPotential:
-        def __new__(cls, value):
-            return value
-
-    class USBBootSupport:
-        def __new__(cls, value):
-            return value
-
-
 def _seed_sonic_dataset(repo_root) -> None:
-    datasets = repo_root / "sonic" / "datasets"
+    datasets = repo_root.parent / "uDOS-sonic" / "datasets"
     datasets.mkdir(parents=True, exist_ok=True)
     (datasets / "sonic-devices.sql").write_text(
         (
@@ -141,8 +130,6 @@ def test_sonic_submission_routes_queue_and_approve(tmp_path, monkeypatch):
             "schemas": _Schemas,
         },
     )
-    monkeypatch.setitem(sys.modules, "library.sonic.schemas", _Enums)
-
     app = FastAPI()
     app.include_router(sonic_routes.create_sonic_plugin_routes(repo_root=repo_root))
     client = TestClient(app)
@@ -187,8 +174,6 @@ def test_sonic_submission_routes_reject_pending_record(tmp_path, monkeypatch):
             "schemas": _Schemas,
         },
     )
-    monkeypatch.setitem(sys.modules, "library.sonic.schemas", _Enums)
-
     app = FastAPI()
     app.include_router(sonic_routes.create_sonic_plugin_routes(repo_root=repo_root))
     client = TestClient(app)

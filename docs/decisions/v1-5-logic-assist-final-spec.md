@@ -373,7 +373,7 @@ Any nondeterministic behavior must be:
 /library/intents/
 /library/workflows/
 /library/missions/
-/library/sonic/
+/extensions/
 /schemas/
 /vault/
 /memory/

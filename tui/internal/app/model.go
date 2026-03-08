@@ -76,27 +76,27 @@ var commandOptionHints = map[string][]string{
 
 func actionItems() []primitives.MenuItem {
 	return []primitives.MenuItem{
-		{Key: "1", Label: "Start Mission / New Binder", Desc: "Create a new @binder workspace", Value: "ucode.command:BINDER CREATE @binder/new-mission"},
-		{Key: "2", Label: "Resume Mission / Open Binder", Desc: "Open existing @binder workspace", Value: "ucode.command:BINDER OPEN @binder"},
+		{Key: "1", Label: "Mission Templates", Desc: "List available mission templates", Value: "ucode.command:UCODE TEMPLATE LIST missions"},
+		{Key: "2", Label: "Binder Library", Desc: "List available binder roots", Value: "ucode.command:PLACE LIST @binders"},
 		{Key: "3", Label: "Read Knowledge Guide", Desc: "Open uCODE docs and guide references", Value: "ucode.command:UCODE DOCS --query ucode json @binder guide"},
 		{Key: "4", Label: "Workflow Scheduler", Desc: "Show local workflow queue and scheduler state", Value: "ucode.command:UCODE OPERATOR QUEUE"},
 		{Key: "5", Label: "Grid Layer Editor", Desc: "Run grid workflow panel using local JSON input", Value: "ucode.command:GRID WORKFLOW --input memory/system/grid-workflow-sample.json"},
-		{Key: "6", Label: "Script Editor", Desc: "Run script workflow from local memory bank", Value: "ucode.command:RUN memory/bank/system/startup-script.md"},
-		{Key: "7", Label: "Setup User Story", Desc: "Open mission template for user story setup", Value: "ucode.command:UCODE TEMPLATE READ missions MISSION-template"},
-		{Key: "8", Label: "Device Config Settings", Desc: "Open device submission template for local config", Value: "ucode.command:UCODE TEMPLATE READ submissions DEVICE-SUBMISSION-template"},
+		{Key: "6", Label: "Core Health Check", Desc: "Run offline core health checks", Value: "ucode.command:HEALTH"},
+		{Key: "7", Label: "Setup Profile", Desc: "Show local setup profile and readiness", Value: "ucode.command:SETUP --profile"},
+		{Key: "8", Label: "Device Config Status", Desc: "Show local configuration and device status", Value: "ucode.command:CONFIG SHOW"},
 		{Key: "9", Label: "Select Role and Theme", Desc: "Inspect available local themes", Value: "ucode.command:MODE THEME LIST"},
 		{Key: "0", Label: "Destroy Repair Restore", Desc: "Show repair/restore readiness and status", Value: "ucode.command:UCODE REPAIR STATUS"},
 		{Key: "h", Label: "uHOME Console", Desc: "Inspect home profile and setup status", Value: "ucode.command:UCODE PROFILE SHOW home"},
 		{Key: "t", Label: "Toybox Menu", Desc: "Open toybox/play subsystem status", Value: "ucode.command:PLAY STATUS"},
-		{Key: "s", Label: "Sonic Screwdriver", Desc: "Show Sonic runtime and device status", Value: "ucode.command:SONIC STATUS"},
-		{Key: "c", Label: "Plugin Containers", Desc: "Check plugin container launch readiness", Value: "ucode.command:WIZARD CHECK"},
+		{Key: "s", Label: "Runtime Status", Desc: "Show current runtime mode and status", Value: "ucode.command:STATUS"},
+		{Key: "c", Label: "Wizard Status", Desc: "Check Wizard server readiness", Value: "ucode.command:WIZARD STATUS"},
 		{Key: "w", Label: "Wizard Start", Desc: "Start wizard services for local control plane", Value: "ucode.command:WIZARD START"},
 		{Key: "x", Label: "Wizard GUI", Desc: "Open Wizard GUI route for active toybox profile", Value: "ucode.command:PLAY GUI OPEN crawler3d"},
 		{Key: "y", Label: "Thin GUI (Direct)", Desc: "Open Thin GUI route directly", Value: "ucode.command:THINGUI OPEN crawler3d"},
-		{Key: "d", Label: "Enter Dev Mode", Desc: "Enter dev workflow planning mode", Value: "ucode.command:DEV PLAN"},
+		{Key: "d", Label: "Dev Mode Status", Desc: "Inspect dev mode and wizard connectivity", Value: "ucode.command:DEV STATUS"},
 		{Key: "g", Label: "GPT4All Prompt (?)", Desc: "Open local GPT4All-style prompt mode", Value: "freeform.ask"},
 		{Key: "k", Label: "uCODE HELP", Desc: "Show all core ucode commands", Value: "ucode.command:HELP"},
-		{Key: "r", Label: "Reboot", Desc: "Trigger local reboot command route", Value: "ucode.command:REBOOT"},
+		{Key: "r", Label: "TS Runtime Verify", Desc: "Verify TypeScript runtime readiness", Value: "ucode.command:VERIFY"},
 	}
 }
 
@@ -1356,12 +1356,9 @@ func (m Model) renderRunnerContent() string {
 		)
 	}
 
-	tailStart := len(m.events) - 2
-	if tailStart < 0 {
-		tailStart = 0
-	}
-	details := make([]string, 0, len(m.events)-tailStart)
-	for _, event := range m.events[tailStart:] {
+	detailEvents := m.runnerDetailEvents(3)
+	details := make([]string, 0, len(detailEvents))
+	for _, event := range detailEvents {
 		details = append(details, render.RenderEvent(m.theme, event))
 	}
 
@@ -1369,6 +1366,31 @@ func (m Model) renderRunnerContent() string {
 		return summary
 	}
 	return strings.Join([]string{summary, strings.Join(details, "\n\n")}, "\n\n")
+}
+
+func (m Model) runnerDetailEvents(limit int) []protocol.Event {
+	if limit <= 0 {
+		limit = 2
+	}
+	selected := make([]protocol.Event, 0, limit)
+	for idx := len(m.events) - 1; idx >= 0 && len(selected) < limit; idx-- {
+		event := m.events[idx]
+		if strings.EqualFold(event.Kind, "progress") || strings.EqualFold(event.Kind, "rule") {
+			continue
+		}
+		selected = append(selected, event)
+	}
+	if len(selected) == 0 {
+		start := len(m.events) - min(limit, len(m.events))
+		if start < 0 {
+			start = 0
+		}
+		return append([]protocol.Event{}, m.events[start:]...)
+	}
+	for i, j := 0, len(selected)-1; i < j; i, j = i+1, j-1 {
+		selected[i], selected[j] = selected[j], selected[i]
+	}
+	return selected
 }
 
 func (m Model) runnerStatusLines() []string {
@@ -1395,12 +1417,12 @@ func (m Model) recentEventLines(limit int) []string {
 	if limit <= 0 {
 		limit = 8
 	}
-	start := len(m.events) - limit
-	if start < 0 {
-		start = 0
-	}
-	lines := make([]string, 0, len(m.events)-start)
-	for _, event := range m.events[start:] {
+	lines := make([]string, 0, limit)
+	for idx := len(m.events) - 1; idx >= 0 && len(lines) < limit; idx-- {
+		event := m.events[idx]
+		if strings.EqualFold(event.Kind, "rule") || strings.EqualFold(event.Kind, "progress") {
+			continue
+		}
 		kind := strings.ToUpper(strings.TrimSpace(event.Kind))
 		if kind == "" {
 			kind = "EVENT"
@@ -1417,6 +1439,9 @@ func (m Model) recentEventLines(limit int) []string {
 		} else {
 			lines = append(lines, kind+": "+compactLine(detail, 44))
 		}
+	}
+	for i, j := 0, len(lines)-1; i < j; i, j = i+1, j-1 {
+		lines[i], lines[j] = lines[j], lines[i]
 	}
 	if len(lines) == 0 {
 		return []string{"No events"}

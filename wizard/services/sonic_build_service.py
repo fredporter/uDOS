@@ -7,6 +7,7 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from core.services.external_repo_service import ensure_sonic_python_paths, resolve_sonic_repo_root
 from core.services.hash_utils import sha256_file
 from core.services.json_utils import read_json_file
 from core.services.packaging_build_metadata_service import (
@@ -15,9 +16,6 @@ from core.services.packaging_build_metadata_service import (
 )
 from core.services.packaging_manifest_service import load_packaging_manifest
 from core.services.template_workspace_service import get_template_workspace_service
-from sonic.core.verify import verify_detached_signature, verify_release_bundle
-
-
 class SonicBuildService:
     def __init__(self, repo_root: Optional[Path] = None):
         self.repo_root = repo_root or Path(__file__).resolve().parent.parent.parent
@@ -32,7 +30,8 @@ class SonicBuildService:
         self.default_profile_source = (
             "template_workspace" if workspace_default_profile else "packaging_manifest"
         )
-        self.build_script = self.repo_root / str(
+        self.sonic_root = resolve_sonic_repo_root(self.repo_root)
+        self.build_script = self.sonic_root / str(
             sonic_stick.get("build_script") or "distribution/alpine-core/build-sonic-stick.sh"
         )
         self.builds_root = resolve_sonic_builds_root(self.repo_root)
@@ -63,6 +62,9 @@ class SonicBuildService:
 
     @staticmethod
     def _verify_detached_signature(payload_path: Path, signature_path: Path) -> Dict[str, Any]:
+        ensure_sonic_python_paths()
+        from installers.usb.verify import verify_detached_signature
+
         return verify_detached_signature(payload_path, signature_path)
 
     def start_build(
@@ -200,6 +202,9 @@ class SonicBuildService:
         build_dir = self.builds_root / build_id
         if not build_dir.exists():
             raise FileNotFoundError(f"Build not found: {build_id}")
+        ensure_sonic_python_paths(self.repo_root)
+        from installers.usb.verify import verify_release_bundle
+
         return verify_release_bundle(build_dir, pubkey=os.environ.get("WIZARD_SONIC_SIGN_PUBKEY", "").strip() or None)
 
 

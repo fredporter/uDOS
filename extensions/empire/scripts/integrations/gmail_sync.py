@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Sync Gmail contacts into Empire."""
+"""Sync Gmail contacts into Empire.
+
+Manual operator wrapper only.
+Wizard Empire connector routes and services are the canonical runtime surface.
+"""
 
 from __future__ import annotations
 
@@ -11,6 +15,9 @@ from empire.integrations.google_gmail import fetch_and_ingest
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Fetch Gmail messages and ingest contacts")
+    parser.epilog = (
+        "Operator wrapper only. Prefer Wizard Empire connector actions for the supported runtime path."
+    )
     parser.add_argument(
         "--credentials",
         default=None,

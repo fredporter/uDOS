@@ -53,7 +53,7 @@ NORMALISED_WIZARD_DOCS = [
     REPO_ROOT / "docs" / "howto" / "SETUP-SECRETS.md",
     REPO_ROOT / "docs" / "howto" / "WIZARD-ADMIN-SECRET-CONTRACT-RECOVERY.md",
     REPO_ROOT / "docs" / "howto" / "renderer-indexer-runbook.md",
-    REPO_ROOT / "docs" / "features" / "SONIC-MODULAR-FILE-INDEX.md",
+    REPO_ROOT / "docs" / "howto" / "SONIC-UHOME-EXTERNAL-INTEGRATION.md",
     REPO_ROOT / "docs" / "troubleshooting" / "README.md",
     REPO_ROOT / "docs" / "specs" / "ENV-STRUCTURE-V1.1.0.md",
     REPO_ROOT / "wizard" / "docs" / "SONIC-DATASETS.md",

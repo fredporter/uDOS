@@ -151,8 +151,10 @@ def get_logger(category: str, source: Optional[str] = None):
 def _load_sonic_module():
     """Load sonic container module."""
     try:
-        # Try direct import first (if in-repo)
-        from sonic.core import sonic_cli, manifest, plan
+        from core.services.external_repo_service import ensure_sonic_python_paths
+
+        ensure_sonic_python_paths()
+        from installers.usb import cli as sonic_cli, manifest, plan
         return type('SonicScrewdriver', (), {
             'sonic_cli': sonic_cli,
             'manifest': manifest,
@@ -162,7 +164,7 @@ def _load_sonic_module():
             'PlanManager': plan.PlanManager if hasattr(plan, 'PlanManager') else None,
         })()
     except ImportError:
-        raise RuntimeError("Sonic module not found in sonic/core path")
+        raise RuntimeError("Sonic module not found in external uDOS-sonic repo")
 
 
 def _load_distribution_module():

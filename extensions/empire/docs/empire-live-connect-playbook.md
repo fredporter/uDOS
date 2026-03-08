@@ -7,11 +7,12 @@ Prerequisites
 - Phase 4 checklist complete.
 - Secrets configured in `config/empire_secrets.json`.
 - Backup drill validated.
+- Empire enabled through Wizard Extensions.
 
 Cutover sequence
 1. Freeze code and config for release candidate.
 2. Run launch gate:
-   `cd /Users/fredbook/Code/uDOS/empire && scripts/smoke/phase5_launch_gate.sh`
+   `cd /Users/fredbook/Code/uDOS/extensions/empire && scripts/smoke/phase5_launch_gate.sh`
 3. Verify integration credentials:
    - `hubspot_private_app_token`
    - `google_gmail_credentials_path`

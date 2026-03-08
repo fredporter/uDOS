@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import json
 import subprocess
+import importlib
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
 
 from core.commands.base import BaseCommandHandler
+from core.services.external_repo_service import ensure_sonic_python_paths, resolve_sonic_repo_root
 from core.services.logging_api import get_logger, LogTags
 from core.services.mode_policy import RuntimeMode, boundaries_enforced, resolve_runtime_mode
 from core.services.sonic_device_service import get_sonic_device_service
@@ -24,7 +26,7 @@ class SonicHandler(BaseCommandHandler):
             return {
                 "status": "error",
                 "message": "Sonic extension not installed.",
-                "suggestion": "Install the sonic submodule or extension package, then retry.",
+                "suggestion": "Install uDOS-sonic beside uDOS or set UDOS_SONIC_ROOT, then retry.",
             }
         if not params:
             return self._help()
@@ -56,7 +58,7 @@ class SonicHandler(BaseCommandHandler):
         return Path(__file__).resolve().parents[2]
 
     def _sonic_root(self) -> Path:
-        return self._repo_root() / "sonic"
+        return resolve_sonic_repo_root(self._repo_root())
 
     def _parse_flags(self, params: List[str]) -> Tuple[Dict[str, Any], List[str]]:
         flags: Dict[str, Any] = {}
@@ -83,6 +85,44 @@ class SonicHandler(BaseCommandHandler):
                 flags[key] = None
         return flags, args
 
+    def _import_sonic_module(self, module_name: str):
+        ensure_sonic_python_paths(self._repo_root())
+        return importlib.import_module(module_name)
+
+    def _verify_sonic_ready(self, sonic_root: Path, *, manifest_path: Path, build_dir: Path | None = None, flash_pack: str | None = None) -> Dict[str, Any]:
+        verifier = self._import_sonic_module("installers.usb.verify")
+        return verifier.verify_sonic_ready(
+            sonic_root,
+            manifest_path=manifest_path,
+            build_dir=build_dir,
+            flash_pack=flash_pack,
+        )
+
+    def _write_sonic_plan(
+        self,
+        *,
+        sonic_root: Path,
+        usb_device: str,
+        dry_run: bool,
+        layout_path: Path,
+        format_mode: str | None,
+        payload_dir: Path | None,
+        out_path: Path,
+    ) -> tuple[Dict[str, Any], Dict[str, Any]]:
+        manifest_mod = self._import_sonic_module("installers.usb.manifest")
+        plan_mod = self._import_sonic_module("installers.usb.plan")
+        manifest = plan_mod.write_plan(
+            repo_root=sonic_root,
+            usb_device=usb_device,
+            dry_run=dry_run,
+            layout_path=layout_path,
+            format_mode=format_mode,
+            payload_dir=payload_dir,
+            out_path=out_path,
+        )
+        verification = manifest_mod.validate_manifest_data(manifest, manifest_path=out_path)
+        return manifest, verification
+
     def _status(self) -> Dict:
         sonic_root = self._sonic_root()
         dataset_root = sonic_root / "datasets"
@@ -96,10 +136,10 @@ class SonicHandler(BaseCommandHandler):
                 "sync": "/api/sonic/sync/rebuild",
             },
             "datasets": {
-                "table": str(dataset_root / "sonic-devices.table.md"),
                 "schema": str(dataset_root / "sonic-devices.schema.json"),
                 "sql": str(dataset_root / "sonic-devices.sql"),
-                "available": (dataset_root / "sonic-devices.table.md").exists(),
+                "version": str(dataset_root / "version.json"),
+                "available": (dataset_root / "sonic-devices.sql").exists(),
             },
             "device_db": {
                 "path": runtime["paths"]["legacy_db_path"],
@@ -134,20 +174,18 @@ class SonicHandler(BaseCommandHandler):
         flash_pack = str(flags.get("flash-pack")).strip() if flags.get("flash-pack") else None
 
         try:
-            from sonic.core.verify import verify_sonic_ready
+            verification = self._verify_sonic_ready(
+                sonic_root,
+                manifest_path=manifest_path,
+                build_dir=build_dir,
+                flash_pack=flash_pack,
+            )
         except ImportError:
             return {
                 "status": "error",
                 "message": "Sonic manifest verifier is unavailable",
-                "suggestion": "Install the Sonic module and retry SONIC VERIFY.",
+                "suggestion": "Install uDOS-sonic beside uDOS or set UDOS_SONIC_ROOT, then retry SONIC VERIFY.",
             }
-
-        verification = verify_sonic_ready(
-            sonic_root,
-            manifest_path=manifest_path,
-            build_dir=build_dir,
-            flash_pack=flash_pack,
-        )
         if not verification["ok"]:
             return {
                 "status": "error",
@@ -180,7 +218,7 @@ class SonicHandler(BaseCommandHandler):
             return {
                 "status": "error",
                 "message": f"Sonic dataset SQL missing: {sql_source}",
-                "suggestion": "Initialize/update the sonic submodule, then run SONIC SYNC again.",
+                "suggestion": "Install uDOS-sonic beside uDOS or set UDOS_SONIC_ROOT, then run SONIC SYNC again.",
             }
 
         db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -277,18 +315,8 @@ class SonicHandler(BaseCommandHandler):
         resolved_payloads = _resolve(payloads_dir) if payloads_dir else None
 
         try:
-            from sonic.core.manifest import validate_manifest_data
-            from sonic.core.plan import write_plan
-        except ImportError:
-            return {
-                "status": "error",
-                "message": "Sonic extension not available",
-                "suggestion": "Install sonic extension or check SONIC_ROOT path",
-            }
-
-        try:
-            manifest = write_plan(
-                repo_root=sonic_root,
+            manifest, verification = self._write_sonic_plan(
+                sonic_root=sonic_root,
                 usb_device=flags.get("usb-device") or "/dev/sdb",
                 dry_run=bool(flags.get("dry-run")),
                 layout_path=resolved_layout,
@@ -296,10 +324,14 @@ class SonicHandler(BaseCommandHandler):
                 payload_dir=resolved_payloads,
                 out_path=resolved_out,
             )
+        except ImportError:
+            return {
+                "status": "error",
+                "message": "Sonic extension not available",
+                "suggestion": "Install uDOS-sonic beside uDOS or set UDOS_SONIC_ROOT.",
+            }
         except ValueError as exc:
             return {"status": "error", "message": str(exc)}
-
-        verification = validate_manifest_data(manifest, manifest_path=resolved_out)
         logger.info(f"{LogTags.LOCAL} SONIC: plan written {resolved_out}")
         policy_flag = None
         policy_note = None
@@ -412,19 +444,17 @@ class SonicHandler(BaseCommandHandler):
             manifest_path = sonic_root / manifest_path
 
         try:
-            from sonic.core.verify import verify_sonic_ready
+            verification = self._verify_sonic_ready(
+                sonic_root,
+                manifest_path=manifest_path,
+                flash_pack=(str(flags.get("flash-pack")).strip() if flags.get("flash-pack") else None),
+            )
         except ImportError:
             return {
                 "status": "error",
                 "message": "Sonic manifest verifier is unavailable",
-                "suggestion": "Install the Sonic module and retry SONIC RUN.",
+                "suggestion": "Install uDOS-sonic beside uDOS or set UDOS_SONIC_ROOT, then retry SONIC RUN.",
             }
-
-        verification = verify_sonic_ready(
-            sonic_root,
-            manifest_path=manifest_path,
-            flash_pack=(str(flags.get("flash-pack")).strip() if flags.get("flash-pack") else None),
-        )
         manifest_verification = verification.get("manifest") or {"ok": False, "errors": ["manifest verification unavailable"]}
         if not manifest_verification["ok"]:
             return {
@@ -447,7 +477,7 @@ class SonicHandler(BaseCommandHandler):
                 ),
             }
 
-        cmd = ["python3", str(sonic_root / "core" / "sonic_cli.py"), "run", "--manifest", str(manifest_path)]
+        cmd = ["python3", str(sonic_root / "installers" / "usb" / "cli.py"), "run", "--manifest", str(manifest_path)]
         if flags.get("dry-run"):
             cmd.append("--dry-run")
         if flags.get("skip-payloads"):

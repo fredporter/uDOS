@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from core.services.external_repo_service import resolve_sonic_repo_root
 from core.services.hash_utils import sha256_file
 from core.services.packaging_adapters.manifest_reader import read_platform
 from core.services.packaging_build_metadata_service import (
@@ -73,7 +74,7 @@ def build_sonic_stick(
 
     version = resolve_release_version(repo_root)
     root_sha = _git_sha(repo_root)
-    sonic_repo = repo_root / "sonic"
+    sonic_repo = resolve_sonic_repo_root(repo_root)
     sonic_sha = _git_sha(sonic_repo) if sonic_repo.exists() else "missing"
     basename = resolve_sonic_artifact_basename(repo_root, build_id=build_id, version=version)
     img_name = f"{basename}.img"

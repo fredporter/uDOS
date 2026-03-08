@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from core.services.external_repo_service import resolve_sonic_repo_root
 from core.services.json_utils import read_json_file, write_json_file
 from core.services.template_workspace_service import get_template_workspace_service
 from core.services.time_utils import utc_now_iso_z
@@ -12,7 +13,7 @@ from core.services.time_utils import utc_now_iso_z
 class SonicBootProfileService:
     def __init__(self, repo_root: Optional[Path] = None):
         self.repo_root = repo_root or Path(__file__).resolve().parent.parent.parent
-        self.sonic_root = self.repo_root / "sonic"
+        self.sonic_root = resolve_sonic_repo_root(self.repo_root)
         self.boot_selector_path = self.sonic_root / "config" / "boot-selector.json"
         self.state_dir = self.repo_root / "memory" / "wizard" / "sonic"
         self.state_path = self.state_dir / "boot-route.json"

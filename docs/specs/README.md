@@ -22,7 +22,6 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 - `docs/specs/WORKFLOW-MANAGER-CONTRACT-v1.5.md` — canonical cross-surface workflow manager contract for core, Wizard, and offline logic
 - `docs/specs/KNOWLEDGE-BANK-RUNBOOK-STANDARD-v1.5.md` — canonical librarian content, seed/local split, and Markdown runbook/template standard
 - `docs/specs/PYTHON-RUNTIME-OPERATIONS-v1.5.md` — canonical `.venv`/`uv`/pytest operating contract for v1.5
-- `docs/specs/UHOME-v1.5.md` — canonical v1.5 home profile runtime and Sonic install contract
 - `docs/specs/FORMATTING-SPEC-v1.4.md` — canonical formatting and `.compost` archival contract
 - `docs/specs/TYPESCRIPT-MARKDOWN-RUNTIME-CONTRACT.md` — active TypeScript markdown runtime contract
 - `docs/specs/PACKAGING-RELEASE-CONTRACT-v1.5.md` — active packaging and release contract
@@ -35,6 +34,7 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 - `docs/specs/MINIMUM-SPEC-DEV-MODE-UCODE.md` — active minimum runtime pathway contract
 - `docs/specs/UCODE-SELECTOR-INTEGRATION-BRIEF.md` — supporting selector brief for the v1.5 `ucode` TUI
 - `docs/specs/DOCUMENTATION-CANONICAL-MAP.md` — current docs assessment and canonical ownership map
+- `docs/specs/EMPIRE-MARKDOWN-EMAIL-PUBLISH-SPEC-v1.5.2.md` — active server-side markdown email render/draft/send contract for the Empire stream
 
 ## Detailed / Historical Execution Specs
 
@@ -50,8 +50,11 @@ This index organizes main specs and detailed specs under `docs/specs/`.
 - `docs/releases/v1.4.3-release-notes.md` — consolidated v1.4+ release notes
 - `docs/STATUS.md` — public status page
 - `docs/specs/V1-5-SHAKEDOWN-CHECKLIST.md` — consolidated v1.5 spec-to-runtime shakedown tracker
+- `docs/specs/V1-5-1-TUI-CLOSEOUT-CHECKLIST.md` — patch-stream checklist for Bubble Tea launcher closeout before v1.5.2/v1.5.3 dependent work
 - `docs/decisions/v1-5-workflow.md` — workflow architecture decision
 - `docs/decisions/v1-5-offline-assist.md` — offline assist architecture decision
+- `docs/decisions/v1-5-1-TUI-OPERATIONAL-CLOSEOUT.md` — launcher/controller closeout decision for the v1.5.1 patch stream
+- `docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md` — current local install and Wizard integration contract for external `uDOS-sonic` and `uHOME-server`
 - `docs/howto/WORKFLOW-SCHEDULER-QUICKSTART.md` — operator workflow quickstart
 
 ## Usage Guidance

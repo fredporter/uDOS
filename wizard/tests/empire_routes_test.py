@@ -99,6 +99,7 @@ def _seed_empire_root(repo_root: Path) -> EmpireExtensionService:
 
 def test_empire_routes_expose_status_and_templates(tmp_path, monkeypatch):
     service = _seed_empire_root(tmp_path)
+    service.set_enabled(True)
     monkeypatch.setattr(empire_routes, "get_empire_extension_service", lambda: service)
 
     app = FastAPI()
@@ -249,7 +250,9 @@ def test_empire_record_merge_routes_delegate_to_extension_service(tmp_path, monk
 
 
 def test_empire_document_review_route_delegates_to_document_service(tmp_path, monkeypatch):
-    _seed_empire_root(tmp_path)
+    service = _seed_empire_root(tmp_path)
+    service.set_enabled(True)
+    monkeypatch.setattr(empire_routes, "get_empire_extension_service", lambda: service)
 
     class _FakeDocumentService:
         def review_document(self, *, document_id: str, scope: str = "master", binder_id: str | None = None, review_status: str, review_notes: str | None = None, classification: str | None = None):
@@ -317,12 +320,52 @@ def test_extension_routes_keep_empire_visible_as_official_extension(tmp_path, mo
     payload = response.json()
     empire = next(item for item in payload["extensions"] if item["id"] == "empire")
     assert empire["visibility"] == "official"
-    assert empire["enabled"] is True
+    assert empire["enabled"] is False
+    assert empire["activation_state"] == "disabled"
+    assert empire["activation_required"] is True
     assert empire["wizard_route"] == "#empire"
+
+
+def test_empire_protected_routes_soft_fail_when_extension_disabled(tmp_path, monkeypatch):
+    service = _seed_empire_root(tmp_path)
+    monkeypatch.setattr(empire_routes, "get_empire_extension_service", lambda: service)
+
+    app = FastAPI()
+    app.include_router(empire_routes.create_empire_routes())
+    client = TestClient(app)
+
+    response = client.get("/api/empire/templates")
+    assert response.status_code == 409
+    payload = response.json()["detail"]
+    assert payload["error"] == "extension_disabled"
+    assert payload["extension"]["enabled"] is False
+    assert payload["extension"]["activation_required"] is True
+
+
+def test_empire_enable_toggle_activates_protected_routes(tmp_path, monkeypatch):
+    service = _seed_empire_root(tmp_path)
+    monkeypatch.setattr(empire_routes, "get_empire_extension_service", lambda: service)
+
+    app = FastAPI()
+    app.include_router(empire_routes.create_empire_routes())
+    client = TestClient(app)
+
+    disabled = client.get("/api/empire/templates")
+    assert disabled.status_code == 409
+
+    toggle = client.post("/api/empire/status/enabled", json={"enabled": True})
+    assert toggle.status_code == 200
+    assert toggle.json()["enabled"] is True
+    assert toggle.json()["activation_state"] == "enabled"
+
+    enabled = client.get("/api/empire/templates")
+    assert enabled.status_code == 200
+    assert {entry["name"] for entry in enabled.json()["templates"]} >= {"default.md", "intake-review.md"}
 
 
 def test_empire_scope_routes_resolve_master_and_binder(tmp_path, monkeypatch):
     service = _seed_empire_root(tmp_path)
+    service.set_enabled(True)
     binders_root = tmp_path / "memory" / "vault" / "@binders" / "project-a"
     binders_root.mkdir(parents=True)
     monkeypatch.setattr(empire_routes, "get_empire_extension_service", lambda: service)
@@ -351,6 +394,7 @@ def test_empire_scope_routes_resolve_master_and_binder(tmp_path, monkeypatch):
 
 def test_empire_import_route_delegates_to_rebuild_service(tmp_path, monkeypatch):
     service = _seed_empire_root(tmp_path)
+    service.set_enabled(True)
     monkeypatch.setattr(empire_routes, "get_empire_extension_service", lambda: service)
 
     class _FakeImportService:
@@ -383,6 +427,7 @@ def test_empire_import_route_delegates_to_rebuild_service(tmp_path, monkeypatch)
 
 def test_empire_collate_route_delegates_to_collation_service(tmp_path, monkeypatch):
     service = _seed_empire_root(tmp_path)
+    service.set_enabled(True)
     monkeypatch.setattr(empire_routes, "get_empire_extension_service", lambda: service)
 
     class _FakeCollationService:
@@ -411,7 +456,9 @@ def test_empire_collate_route_delegates_to_collation_service(tmp_path, monkeypat
 
 
 def test_empire_task_review_route_delegates_to_task_service(tmp_path, monkeypatch):
-    _seed_empire_root(tmp_path)
+    service = _seed_empire_root(tmp_path)
+    service.set_enabled(True)
+    monkeypatch.setattr(empire_routes, "get_empire_extension_service", lambda: service)
 
     class _FakeTaskService:
         def review_task(self, *, task_id: str, scope: str = "master", binder_id: str | None = None, review_status: str, status: str | None = None, due_hint: str | None = None, notes: str | None = None):
@@ -441,6 +488,7 @@ def test_empire_task_review_route_delegates_to_task_service(tmp_path, monkeypatc
 
 def test_empire_connector_run_route_delegates_to_sync_service(tmp_path, monkeypatch):
     service = _seed_empire_root(tmp_path)
+    service.set_enabled(True)
     monkeypatch.setattr(empire_routes, "get_empire_extension_service", lambda: service)
 
     class _FakeSyncService:
@@ -661,6 +709,7 @@ def test_empire_import_job_detail_route_reads_job(tmp_path, monkeypatch):
 
 def test_empire_accounts_route_exposes_wizard_managed_actions(tmp_path, monkeypatch):
     service = _seed_empire_root(tmp_path)
+    service.set_enabled(True)
 
     monkeypatch.setattr(
         EmpireExtensionService,

@@ -7,6 +7,22 @@
 
 ## Active Issues
 
+### KI-000 — Bubble Tea home menu shipped as a partly aspirational surface (P2)
+
+**Scope:** `tui/internal/app/model.go`, `core/tui/protocol_bridge.py`, launcher/menu UX
+**Symptom:** Built-in menu items could point to invalid or incomplete commands, and
+  successful command results could be obscured by protocol progress packets, making
+  the shell feel log-only rather than operational.
+**Impact:** The stable launcher path existed, but the operational contract of the
+  Bubble Tea shell was not fully closed for launcher/controller use.
+**Workaround:** Use direct typed commands instead of trusting every built-in menu
+  label as a complete workflow.
+**Fix target:** v1.5.1 — close out truthful menu semantics, runner result visibility,
+  and explicit deferment of unfinished create/edit workflows.
+**Owner:** tui-runtime
+
+---
+
 ### KI-001 — `tui_genre_manager` imports `yaml` at module level (P3)
 
 **Scope:** `core/services/tui_genre_manager.py:3`
@@ -67,6 +83,7 @@
 
 | ID | Description | Target |
 |---|---|---|
+| DE-000 | Complete remaining Bubble Tea launcher action flows (mission/binder/edit/setup act paths) | v1.5.1 |
 | DE-001 | GitHub integration consolidation (`wizard/services/github_integration.py`) | v1.5.1 |
 | DE-002 | OS keychain integration (macOS Keychain, Windows Credential Manager) | v1.6 |
 | DE-003 | Secret rotation schedule + audit log | v1.6 |

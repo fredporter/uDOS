@@ -22,12 +22,13 @@ def test_installation_guide_covers_core_and_wizard_profiles() -> None:
     assert "./scripts/demo_story_form_tui.sh" in installation_doc
 
 
-def test_sonic_release_install_guide_exists_and_contains_build_flow() -> None:
-    sonic_doc = (REPO_ROOT / "docs" / "howto" / "SONIC-STANDALONE-RELEASE-AND-INSTALL.md").read_text(
+def test_external_sonic_uhome_integration_guide_exists_and_contains_repo_layout() -> None:
+    sonic_doc = (REPO_ROOT / "docs" / "howto" / "SONIC-UHOME-EXTERNAL-INTEGRATION.md").read_text(
         encoding="utf-8"
     )
-    assert "distribution/alpine-core/build-sonic-stick.sh" in sonic_doc
-    assert "release-readiness" in sonic_doc
+    assert "uDOS-sonic" in sonic_doc
+    assert "uHOME-server" in sonic_doc
+    assert "UDOS_SONIC_ROOT" in sonic_doc
 
 
 def test_public_docs_front_door_highlights_stable_launcher_and_alpine_packaging() -> None:

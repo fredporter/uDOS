@@ -14,8 +14,14 @@ from typing import Callable, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from sonic.core.verify import verify_sonic_ready
 
+from core.services.external_repo_service import (
+    ensure_sonic_python_paths,
+    resolve_sonic_repo_root,
+    resolve_uhome_repo_root,
+    sonic_repo_available,
+    uhome_repo_available,
+)
 from core.services.template_workspace_service import get_template_workspace_service
 from wizard.services.launch_adapters import LaunchAdapterExecution
 from wizard.services.launch_orchestrator import LaunchIntent, get_launch_orchestrator
@@ -255,7 +261,7 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
         build_dir: Optional[str] = Query(None),
         flash_pack: Optional[str] = Query(None),
     ):
-        sonic_root = resolved_repo_root / "sonic"
+        sonic_root = resolve_sonic_repo_root(resolved_repo_root)
         manifest_path = Path(manifest)
         if not manifest_path.is_absolute():
             manifest_path = sonic_root / manifest_path
@@ -267,6 +273,9 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
         elif build_id:
             builds_root = getattr(sonic_builds, "builds_root", resolved_repo_root / "distribution" / "builds")
             resolved_build_dir = Path(builds_root) / build_id
+
+        ensure_sonic_python_paths(resolved_repo_root)
+        from installers.usb.verify import verify_sonic_ready
 
         verification = verify_sonic_ready(
             sonic_root,
@@ -282,10 +291,13 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
 
     @router.get("/sonic/dataset-contract")
     async def sonic_dataset_contract(manifest: str = Query("config/sonic-manifest.json")):
-        sonic_root = resolved_repo_root / "sonic"
+        sonic_root = resolve_sonic_repo_root(resolved_repo_root)
         manifest_path = Path(manifest)
         if not manifest_path.is_absolute():
             manifest_path = sonic_root / manifest_path
+
+        ensure_sonic_python_paths(resolved_repo_root)
+        from installers.usb.verify import verify_sonic_ready
 
         verification = verify_sonic_ready(
             sonic_root,
@@ -353,9 +365,13 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
                 release_readiness = None
         release_signing_alert = _build_release_signing_alert(release_readiness)
         builds_root = Path(getattr(sonic_builds, "builds_root", resolved_repo_root / "distribution" / "builds"))
+        sonic_root = resolve_sonic_repo_root(resolved_repo_root)
+        ensure_sonic_python_paths(resolved_repo_root)
+        from installers.usb.verify import verify_sonic_ready
+
         verification = verify_sonic_ready(
-            resolved_repo_root / "sonic",
-            manifest_path=(resolved_repo_root / "sonic" / "config" / "sonic-manifest.json"),
+            sonic_root,
+            manifest_path=(sonic_root / "config" / "sonic-manifest.json"),
             build_dir=(builds_root / latest_build_id) if latest_build_id else None,
         )
 
@@ -377,6 +393,10 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
             "template_workspace": workspace.component_contract("sonic"),
             "template_workspace_state": workspace.component_snapshot("sonic"),
             "dashboard": {"route": "#sonic", "wizard_gui_hosted": True},
+            "external_repo": {
+                "path": str(sonic_root),
+                "available": sonic_repo_available(resolved_repo_root),
+            },
             "latest_build": latest_build,
             "latest_release_readiness": release_readiness,
             "release_signing_alert": release_signing_alert,
@@ -450,7 +470,12 @@ def create_platform_routes(auth_guard: AuthGuard = None, repo_root: Optional[Pat
     @router.get("/uhome/status")
     async def uhome_status():
         workspace = get_template_workspace_service(resolved_repo_root)
+        uhome_root = resolve_uhome_repo_root(resolved_repo_root)
         return {
+            "external_repo": {
+                "path": str(uhome_root),
+                "available": uhome_repo_available(resolved_repo_root),
+            },
             "presentation": uhome_presentation.get_status(),
             "template_workspace": workspace.component_contract("uhome"),
             "template_workspace_state": workspace.component_snapshot("uhome"),

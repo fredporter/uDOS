@@ -34,6 +34,9 @@ No separate Groovebox GUI runtime is required.
 
 Sonic is independently runnable and install-first for physical provisioning.
 
+For the active boundary direction, Sonic is treated as a companion product/repo rather than
+an internal bundled extension like Empire.
+
 Wizard integrates Sonic as a bridge layer:
 
 - Sonic status/metadata exposed via `/api/platform/sonic/status`

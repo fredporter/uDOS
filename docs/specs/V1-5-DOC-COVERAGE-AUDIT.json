@@ -234,10 +234,10 @@
     "declared_impl_refs": 0
   },
   {
-    "path": "/Users/fredbook/Code/uDOS/docs/decisions/uHOME-spec.md",
+    "path": "/Users/fredbook/Code/uDOS/docs/decisions/v1-5-3-UHOME-KIOSK.md",
     "set": "decisions",
-    "name": "uHOME-spec.md",
-    "status": "active home profile lane",
+    "name": "v1-5-3-UHOME-KIOSK.md",
+    "status": "active external uHOME lane",
     "updated": "2026-03-03",
     "class": "active-v1.5",
     "meta_only": false,
@@ -1001,10 +1001,10 @@
     "declared_impl_refs": 0
   },
   {
-    "path": "/Users/fredbook/Code/uDOS/docs/specs/UHOME-v1.5.md",
+    "path": "/Users/fredbook/Code/uDOS/docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md",
     "set": "specs",
-    "name": "UHOME-v1.5.md",
-    "status": "active",
+    "name": "SONIC-UHOME-EXTERNAL-INTEGRATION.md",
+    "status": "active external integration",
     "updated": "2026-03-03",
     "class": "active-v1.5",
     "meta_only": false,
@@ -1261,9 +1261,9 @@
     "declared_impl_refs": 6
   },
   {
-    "path": "/Users/fredbook/Code/uDOS/docs/features/SONIC-MODULAR-FILE-INDEX.md",
+    "path": "/Users/fredbook/Code/uDOS/docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md",
     "set": "features",
-    "name": "SONIC-MODULAR-FILE-INDEX.md",
+    "name": "SONIC-UHOME-EXTERNAL-INTEGRATION.md",
     "status": "",
     "updated": "",
     "class": "reference",

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Sync HubSpot contacts into Empire."""
+"""Sync HubSpot contacts into Empire.
+
+Manual operator wrapper only.
+Wizard Empire connector routes and services are the canonical runtime surface.
+"""
 
 from __future__ import annotations
 
@@ -10,6 +14,9 @@ from empire.integrations.hubspot import sync_contacts, sync_companies, sync_all,
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Sync HubSpot contacts")
+    parser.epilog = (
+        "Operator wrapper only. Prefer Wizard Empire connector actions for the supported runtime path."
+    )
     parser.add_argument("--token", default=None, help="HubSpot private app token")
     parser.add_argument("--limit", type=int, default=100, help="Page size")
     parser.add_argument("--pages", type=int, default=5, help="Max pages")

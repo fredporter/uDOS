@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Write Empire overview JSON for the UI."""
+"""Write Empire overview JSON for the UI.
+
+Legacy support utility for the standalone web surface.
+Wizard-owned Empire routes are the supported runtime path.
+"""
 
 from __future__ import annotations
 
@@ -13,6 +17,9 @@ from empire.services.storage import DEFAULT_DB_PATH
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Refresh Empire UI overview JSON")
+    parser.epilog = (
+        "Legacy support utility only. The Wizard Empire UI should not depend on this script."
+    )
     parser.add_argument("--db", default=None, help="SQLite DB path")
     parser.add_argument("--out", default=None, help="Output JSON path")
     args = parser.parse_args()

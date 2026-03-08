@@ -163,9 +163,12 @@ def test_empire_extension_status_exposes_official_contract_fields(tmp_path: Path
     status = service.extension_status("empire")
 
     assert status["installed"] is True
-    assert status["enabled"] is True
+    assert status["enabled"] is False
     assert status["configuration_state"] == "partial"
-    assert status["degraded"] is True
+    assert status["degraded"] is False
+    assert status["activation_required"] is True
+    assert status["activation_state"] == "disabled"
     assert status["wizard_route"] == "#empire"
     assert "api-token" in status["missing_prerequisites"]
+    assert "legacy_nested_tree" not in status
     assert status["template_workspace"]["workspace_ref"] == "@memory/bank/typo-workspace"

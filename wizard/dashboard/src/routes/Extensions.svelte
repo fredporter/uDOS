@@ -20,6 +20,28 @@
   let shareResetTimer = null;
   let extensionToggles = {};
 
+  function empireToggleState(ext) {
+    return extensionToggles.empire ?? ext.enabled ?? false;
+  }
+
+  function empireStatusLabel(ext) {
+    const enabled = empireToggleState(ext);
+    if (!ext.present) return "Not installed";
+    if (!enabled) return "Disabled by default";
+    if (empireTokenStatus?.healthy) return "Healthy";
+    if (empireTokenStatus?.configured) return "Configured, health pending";
+    return "Configuration partial";
+  }
+
+  function empireStatusTone(ext) {
+    const enabled = empireToggleState(ext);
+    if (!ext.present) return "text-gray-500";
+    if (!enabled) return "text-amber-300";
+    if (empireTokenStatus?.healthy) return "text-green-400";
+    if (empireTokenStatus?.configured) return "text-amber-300";
+    return "text-rose-300";
+  }
+
   async function loadExtensions() {
     try {
       const res = await apiFetch("/api/extensions/list", {
@@ -310,37 +332,39 @@
                   <div class="flex items-center gap-2 flex-wrap">
                     {#if ext.id === "empire"}
                       <!-- Empire-specific actions -->
+                      <div class="w-full mb-3 rounded border border-amber-800/70 bg-amber-950/40 px-3 py-2 text-xs text-amber-100">
+                        <div class="font-semibold uppercase tracking-[0.14em] text-[10px] text-amber-300">Wizard-Gated</div>
+                        <div class="mt-1">
+                          {#if empireToggleState(ext)}
+                            Empire is active through Wizard Extensions.
+                          {:else}
+                            Empire is bundled but disabled by default. Activate it before opening Empire routes or running business workflows.
+                          {/if}
+                        </div>
+                      </div>
                       <button
-                        class={`px-3 py-1.5 text-white text-sm rounded transition-colors ${extensionToggles.empire ? "bg-gray-700 hover:bg-gray-600" : "bg-amber-600 hover:bg-amber-700"}`}
-                        on:click={() => toggleEmpireEnabled(!extensionToggles.empire)}
+                        class={`px-3 py-1.5 text-white text-sm rounded transition-colors ${empireToggleState(ext) ? "bg-gray-700 hover:bg-gray-600" : "bg-amber-600 hover:bg-amber-700"}`}
+                        on:click|stopPropagation={() => toggleEmpireEnabled(!empireToggleState(ext))}
                       >
-                        {extensionToggles.empire ? "Disable" : "Enable"}
+                        {empireToggleState(ext) ? "Deactivate Empire" : "Activate Empire"}
                       </button>
-                      {#if empireTokenStatus?.configured}
+                      {#if empireToggleState(ext) && empireTokenStatus?.configured}
                         <button
                           class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded transition-colors"
-                          on:click={openEmpireWeb}
+                          on:click|stopPropagation={openEmpireWeb}
                         >
-                            Open Empire
+                          Open Empire
                         </button>
-                      {:else}
+                      {:else if empireToggleState(ext)}
                           <button
                             class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded transition-colors"
-                            on:click={openEmpireWeb}
+                            on:click|stopPropagation={openEmpireWeb}
                           >
                           Open Setup
                           </button>
-                        {/if}
-                      <span class="text-xs text-gray-500">
-                        {#if ext.enabled === false}
-                          ○ Disabled
-                        {:else if empireTokenStatus?.healthy}
-                          ✓ Healthy
-                        {:else if empireTokenStatus?.configured}
-                          ⚠ Configured, health pending
-                        {:else}
-                          ⚠ Configuration partial
-                        {/if}
+                      {/if}
+                      <span class={`text-xs ${empireStatusTone(ext)}`}>
+                        {empireStatusLabel(ext)}
                       </span>
                     {:else if ext.id === "dev"}
                       <button
@@ -380,7 +404,7 @@
     <!-- Info Note -->
     <div class="mt-8 p-4 bg-gray-900 border border-gray-700 rounded-lg">
       <p class="text-gray-400 text-sm">
-        <strong class="text-gray-300">Note:</strong> Official bundled extensions can be installed, enabled, and operated through the standard v1.5 extension surfaces. Empire is now hosted inside the Wizard dashboard.
+        <strong class="text-gray-300">Note:</strong> Official bundled extensions can be installed, enabled, and operated through the standard v1.5 extension surfaces. Empire is bundled as an internal uDOS extension, disabled by default, and activated explicitly through Wizard Extensions.
       </p>
     </div>
   {/if}

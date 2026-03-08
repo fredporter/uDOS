@@ -17,8 +17,21 @@ from wizard.services.empire_webhook_service import get_empire_webhook_service
 
 
 def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
+    def _require_empire_enabled() -> dict[str, Any]:
+        service = get_empire_extension_service()
+        ensure_access = getattr(service, "ensure_enabled_access", None)
+        if callable(ensure_access):
+            error_payload = ensure_access()
+            if error_payload:
+                raise HTTPException(
+                    status_code=int(error_payload.get("http_status", 409)),
+                    detail=error_payload,
+                )
+        return {}
+
     dependencies = [Depends(auth_guard)] if auth_guard else []
     router = APIRouter(prefix="/api/empire", tags=["empire"], dependencies=dependencies)
+    protected = APIRouter(tags=["empire"], dependencies=[*dependencies, Depends(_require_empire_enabled)])
 
     @router.get("/status")
     async def empire_status() -> dict[str, Any]:
@@ -32,14 +45,14 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
     async def empire_health() -> dict[str, Any]:
         return get_empire_extension_service().health_payload()
 
-    @router.get("/overview")
+    @protected.get("/overview")
     async def empire_overview(
         scope: str = Query("master"),
         binder_id: str | None = Query(default=None),
     ) -> dict[str, Any]:
         return get_empire_extension_service().load_overview(scope=scope, binder_id=binder_id)
 
-    @router.get("/records")
+    @protected.get("/records")
     async def empire_records(
         limit: int = Query(50, ge=1, le=500),
         scope: str = Query("master"),
@@ -47,7 +60,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
     ) -> dict[str, Any]:
         return {"records": get_empire_extension_service().list_records(limit=limit, scope=scope, binder_id=binder_id)}
 
-    @router.post("/records/{record_id}/promote")
+    @protected.post("/records/{record_id}/promote")
     async def empire_record_promote(
         record_id: str,
         binder_id: str = Body(..., embed=True),
@@ -60,7 +73,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.get("/records/{record_id}/merge-candidates")
+    @protected.get("/records/{record_id}/merge-candidates")
     async def empire_record_merge_candidates(
         record_id: str,
         limit: int = Query(10, ge=1, le=25),
@@ -70,7 +83,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.post("/records/merge")
+    @protected.post("/records/merge")
     async def empire_record_merge(
         target_record_id: str = Body(...),
         source_record_id: str = Body(...),
@@ -83,7 +96,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.get("/companies")
+    @protected.get("/companies")
     async def empire_companies(
         limit: int = Query(50, ge=1, le=500),
         scope: str = Query("master"),
@@ -91,7 +104,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
     ) -> dict[str, Any]:
         return {"companies": get_empire_extension_service().list_companies(limit=limit, scope=scope, binder_id=binder_id)}
 
-    @router.get("/tasks")
+    @protected.get("/tasks")
     async def empire_tasks(
         limit: int = Query(50, ge=1, le=500),
         scope: str = Query("master"),
@@ -99,7 +112,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
     ) -> dict[str, Any]:
         return {"tasks": get_empire_extension_service().list_tasks(limit=limit, scope=scope, binder_id=binder_id)}
 
-    @router.post("/tasks/{task_id}/review")
+    @protected.post("/tasks/{task_id}/review")
     async def empire_task_review(
         task_id: str,
         scope: str = Body("master"),
@@ -122,7 +135,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.get("/events")
+    @protected.get("/events")
     async def empire_events(
         limit: int = Query(50, ge=1, le=500),
         scope: str = Query("master"),
@@ -130,7 +143,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
     ) -> dict[str, Any]:
         return {"events": get_empire_extension_service().list_events(limit=limit, scope=scope, binder_id=binder_id)}
 
-    @router.get("/sources")
+    @protected.get("/sources")
     async def empire_sources(
         limit: int = Query(50, ge=1, le=500),
         scope: str = Query("master"),
@@ -138,7 +151,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
     ) -> dict[str, Any]:
         return {"sources": get_empire_extension_service().list_sources(limit=limit, scope=scope, binder_id=binder_id)}
 
-    @router.get("/documents")
+    @protected.get("/documents")
     async def empire_documents(
         limit: int = Query(50, ge=1, le=500),
         scope: str = Query("master"),
@@ -146,7 +159,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
     ) -> dict[str, Any]:
         return {"documents": get_empire_extension_service().list_documents(limit=limit, scope=scope, binder_id=binder_id)}
 
-    @router.get("/documents/{document_id}")
+    @protected.get("/documents/{document_id}")
     async def empire_document_detail(
         document_id: str,
         scope: str = Query("master"),
@@ -157,7 +170,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
             raise HTTPException(status_code=404, detail="Document not found")
         return payload
 
-    @router.get("/documents/{document_id}/review-bundle")
+    @protected.get("/documents/{document_id}/review-bundle")
     async def empire_document_review_bundle(
         document_id: str,
         scope: str = Query("master"),
@@ -172,7 +185,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
             raise HTTPException(status_code=404, detail="Document not found")
         return payload
 
-    @router.post("/documents/{document_id}/review")
+    @protected.post("/documents/{document_id}/review")
     async def empire_document_review(
         document_id: str,
         scope: str = Body("master"),
@@ -193,7 +206,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.get("/import/jobs")
+    @protected.get("/import/jobs")
     async def empire_import_jobs(
         limit: int = Query(50, ge=1, le=500),
         scope: str = Query("master"),
@@ -201,7 +214,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
     ) -> dict[str, Any]:
         return {"jobs": get_empire_extension_service().list_import_jobs(limit=limit, scope=scope, binder_id=binder_id)}
 
-    @router.get("/import/jobs/{job_id}")
+    @protected.get("/import/jobs/{job_id}")
     async def empire_import_job_detail(
         job_id: str,
         scope: str = Query("master"),
@@ -212,7 +225,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
             raise HTTPException(status_code=404, detail="Import job not found")
         return payload
 
-    @router.post("/import/path")
+    @protected.post("/import/path")
     async def empire_import_path(
         path: str = Body(...),
         scope: str = Body("master"),
@@ -227,7 +240,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.post("/process/collate")
+    @protected.post("/process/collate")
     async def empire_process_collate(
         document_id: str = Body(...),
         emit_mode: str = Body("task_note"),
@@ -244,18 +257,18 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.get("/templates")
+    @protected.get("/templates")
     async def empire_templates() -> dict[str, Any]:
         return {"templates": get_empire_extension_service().list_templates()}
 
-    @router.get("/templates/read")
+    @protected.get("/templates/read")
     async def empire_template_read(path: str = Query(...)) -> dict[str, Any]:
         try:
             return get_empire_extension_service().read_template(path)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.post("/templates/write")
+    @protected.post("/templates/write")
     async def empire_template_write(
         path: str = Body(...),
         content: str = Body(...),
@@ -265,18 +278,18 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.get("/accounts")
+    @protected.get("/accounts")
     async def empire_accounts() -> dict[str, Any]:
         return get_empire_extension_service().account_status()
 
-    @router.get("/connectors")
+    @protected.get("/connectors")
     async def empire_connectors(
         scope: str = Query("master"),
         binder_id: str | None = Query(default=None),
     ) -> dict[str, Any]:
         return get_empire_extension_service().connector_catalog(scope=scope, binder_id=binder_id)
 
-    @router.post("/connectors/run")
+    @protected.post("/connectors/run")
     async def empire_connectors_run(
         connector: str = Body(...),
         action: str = Body(...),
@@ -295,7 +308,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.get("/sync/jobs")
+    @protected.get("/sync/jobs")
     async def empire_sync_jobs(
         limit: int = Query(25, ge=1, le=500),
         connector: str | None = Query(default=None),
@@ -311,7 +324,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
             )
         }
 
-    @router.get("/sync/jobs/{sync_job_id}")
+    @protected.get("/sync/jobs/{sync_job_id}")
     async def empire_sync_job_detail(
         sync_job_id: str,
         scope: str = Query("master"),
@@ -322,11 +335,11 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
             raise HTTPException(status_code=404, detail="Sync job not found")
         return payload
 
-    @router.get("/webhooks/mappings")
+    @protected.get("/webhooks/mappings")
     async def empire_webhook_mappings(limit: int = Query(50, ge=1, le=500)) -> dict[str, Any]:
         return {"mappings": get_empire_extension_service().list_webhook_mappings(limit=limit)}
 
-    @router.post("/webhooks/mappings")
+    @protected.post("/webhooks/mappings")
     async def empire_webhook_mapping_save(
         mapping_id: str | None = Body(default=None),
         name: str = Body(...),
@@ -357,7 +370,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.post("/webhooks/validate")
+    @protected.post("/webhooks/validate")
     async def empire_webhook_mapping_validate(
         name: str = Body(...),
         source_system: str = Body(...),
@@ -384,11 +397,11 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.get("/webhooks/templates")
+    @protected.get("/webhooks/templates")
     async def empire_webhook_templates() -> dict[str, Any]:
         return {"templates": get_empire_webhook_service().list_webhook_templates()}
 
-    @router.post("/webhooks/preview")
+    @protected.post("/webhooks/preview")
     async def empire_webhook_preview(
         source_system: str = Body(...),
         target_entity: str = Body("contact"),
@@ -407,7 +420,7 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.get("/webhooks/deliveries")
+    @protected.get("/webhooks/deliveries")
     async def empire_webhook_deliveries(
         limit: int = Query(50, ge=1, le=500),
         mapping_id: str | None = Query(default=None),
@@ -419,14 +432,14 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
             )
         }
 
-    @router.post("/webhooks/test/{mapping_id}")
+    @protected.post("/webhooks/test/{mapping_id}")
     async def empire_webhook_test(mapping_id: str, payload: dict[str, Any] = Body(default_factory=dict)) -> dict[str, Any]:
         try:
             return get_empire_webhook_service().test_mapping(mapping_id, payload)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.post("/webhooks/inbound/{mapping_id}")
+    @protected.post("/webhooks/inbound/{mapping_id}")
     async def empire_webhook_inbound(
         mapping_id: str,
         payload: dict[str, Any] = Body(default_factory=dict),
@@ -441,22 +454,23 @@ def create_empire_routes(auth_guard: Optional[Callable] = None) -> APIRouter:
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.post("/webhooks/deliveries/{delivery_id}/retry")
+    @protected.post("/webhooks/deliveries/{delivery_id}/retry")
     async def empire_webhook_retry(delivery_id: str) -> dict[str, Any]:
         try:
             return get_empire_webhook_service().retry_delivery(delivery_id)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.get("/scope")
+    @protected.get("/scope")
     async def empire_scope(scope: str = Query("master"), binder_id: str | None = Query(default=None)) -> dict[str, Any]:
         try:
             return get_empire_scope_service().resolve(scope=scope, binder_id=binder_id)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    @router.get("/scope/binders")
+    @protected.get("/scope/binders")
     async def empire_scope_binders() -> dict[str, Any]:
         return {"binders": get_empire_scope_service().list_binders()}
 
+    router.include_router(protected)
     return router

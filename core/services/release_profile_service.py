@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from core.services.container_catalog_service import get_container_catalog_service
+from core.services.external_repo_service import resolve_sonic_repo_root, sonic_repo_available
 from core.services.logging_api import get_repo_root
 from core.services.template_workspace_service import get_template_workspace_service
 
@@ -162,7 +163,7 @@ DEFAULT_EXTENSIONS: dict[str, dict[str, Any]] = {
     },
     "sonic": {
         "label": "Sonic Screwdriver",
-        "path": "sonic",
+        "path": "../uDOS-sonic",
         "profiles": ["home"],
         "summary": "Standalone provisioning and deployment component aligned with shared library and launch contracts.",
         "category": "utilities",
@@ -333,13 +334,20 @@ class ReleaseProfileService:
         if not meta:
             raise ValueError(f"Unknown extension: {extension_id}")
         catalog_entry = get_container_catalog_service(self.repo_root).get_entry(extension_id)
-        path = self.repo_root / str(meta.get("path", ""))
-        installed = path.exists()
+        if extension_id == "sonic":
+            path = resolve_sonic_repo_root(self.repo_root)
+            installed = sonic_repo_available(self.repo_root)
+        else:
+            path = self.repo_root / str(meta.get("path", ""))
+            installed = path.exists()
         enabled = self._extension_enabled(extension_id, installed)
         configured = installed
         configuration_state = "configured" if installed else "missing"
         healthy = installed and enabled
         degraded = False
+        activation_state = "enabled" if enabled else ("disabled" if installed else "missing")
+        activation_required = installed and not enabled
+        access_error = None if enabled else ("Empire extension is disabled. Enable it from Wizard Extensions before using Empire routes." if installed and extension_id == "empire" else None)
         capabilities: dict[str, bool] = {}
         missing_prerequisites: list[str] = []
         wizard_route = f"#{extension_id}"
@@ -381,10 +389,13 @@ class ReleaseProfileService:
             "available": installed,
             "installed": installed,
             "enabled": enabled,
+            "activation_state": activation_state,
+            "activation_required": activation_required,
             "configured": configured,
             "configuration_state": configuration_state,
             "healthy": healthy,
             "degraded": degraded,
+            "access_error": access_error,
             "wizard_route": meta.get("wizard_route", wizard_route),
             "api_prefix": meta.get("api_prefix"),
             "visibility": meta.get("visibility", "official"),
@@ -524,15 +535,16 @@ class ReleaseProfileService:
         if not installed:
             return False
         if not self.extensions_state_path.exists():
-            return True
+            return False if extension_id == "empire" else True
         try:
             payload = json.loads(self.extensions_state_path.read_text(encoding="utf-8"))
         except json.JSONDecodeError:
-            return True
+            return False if extension_id == "empire" else True
         extension = payload.get(extension_id, {})
         if not isinstance(extension, dict):
-            return True
-        return bool(extension.get("enabled", True))
+            return False if extension_id == "empire" else True
+        default_enabled = False if extension_id == "empire" else True
+        return bool(extension.get("enabled", default_enabled))
 
     def _secret_has_key(self, path: Path, key: str) -> bool:
         if not path.exists():

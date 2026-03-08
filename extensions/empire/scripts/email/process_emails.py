@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""CLI wrapper for Empire email processing."""
+"""CLI wrapper for Empire email processing.
+
+Legacy operator utility.
+This script is not part of the supported Wizard runtime contract.
+"""
 
 from __future__ import annotations
 
@@ -13,6 +17,9 @@ from empire.services.storage import DEFAULT_DB_PATH
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Process emails into tasks + records")
+    parser.epilog = (
+        "Legacy operator utility only. Do not treat this as a canonical Empire runtime entrypoint."
+    )
     parser.add_argument("--in", dest="input_path", required=True, help="Input JSON file")
     parser.add_argument("--db", default=None, help="SQLite DB path")
     parser.add_argument("--out", default=None, help="Output JSON file")

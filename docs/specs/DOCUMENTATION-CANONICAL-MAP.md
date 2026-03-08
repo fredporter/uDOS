@@ -80,19 +80,15 @@ It should not be the long-term home for:
 
 ### Decision
 
-- `docs/decisions/uHOME-spec.md`
-
-### Spec
-
-- `docs/specs/UHOME-v1.5.md`
+- `docs/decisions/v1-5-3-UHOME-KIOSK.md`
 
 ### Supporting decision
 
 - `docs/decisions/HOME-ASSISTANT-BRIDGE.md`
 
-### Sonic integration companion
+### External integration contract
 
-- `sonic/docs/integration-spec.md`
+- `docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md`
 
 ## Current Canonical Open-Box And Sonic Docs
 
@@ -100,14 +96,9 @@ It should not be the long-term home for:
 
 - `docs/howto/WORKSPACE-TRANSFERABILITY.md`
 
-### Sonic standalone release/install
+### Sonic and uHOME local integration
 
-- `docs/howto/SONIC-STANDALONE-RELEASE-AND-INSTALL.md`
-
-### Sonic local-docs entrypoint
-
-- `sonic/docs/howto/standalone-release-and-install.md`
-  - short pointer only
+- `docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md`
 
 ## Current Assessment
 
@@ -244,8 +235,7 @@ Recommended next review targets:
 - `docs/howto/TOOLS-REFERENCE.md` was split into a short overview plus focused category reference pages
 - the retired offline `OK` setup/front-door docs were moved into `docs/.compost/historic/2026-03-04-retired-offline-ok-docs/`
 - active graphics and installation guidance now point directly at the v1.5 setup/runtime docs instead of the retired offline `OK` path
-- `sonic/docs/howto/standalone-release-and-install.md` was reduced to a pointer so Sonic release/install guidance now has one canonical monorepo path
-- `docs/howto/SONIC-STANDALONE-RELEASE-AND-INSTALL.md` now carries the active seed/user catalog split and open-box restore evidence notes
+- `docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md` is now the active local install/integration guide for external Sonic and uHOME repos
 - `docs/howto/WIZARD-PLUGIN-SYSTEM.md` was reduced into a front-door page plus quickstart/reference companions
 - `docs/ARCHITECTURE.md` was reduced into an overview plus detailed integration reference
 - `docs/howto/BINDER-USAGE-GUIDE.md` was reduced into a front-door page plus binder quickstart
@@ -256,7 +246,7 @@ Recommended next review targets:
 - `docs/specs/UCODE-COMMAND-DISPATCH-v1.4.4.md` was removed from the active tree and archived once the shorter active dispatch contract was in place
 - `docs/decisions/uDOS-v1-3.md` was reduced to a short historical architecture snapshot
 - `docs/specs/03-contributions-contract.md` was normalized into a short historical contribution contract
-- `docs/decisions/uHOME-spec.md` was reduced to a short active home-profile decision
+- the old in-repo `uHOME` decision/spec pair was retired once `uHOME-server` became its own repository
 - `docs/decisions/UDOS-VM-REMOTE-DESKTOP-ARCHITECTURE.md` was reduced to a short topology decision
 - `docs/decisions/data-layer-architecture.md` was reduced to a short active data-layer decision
 - `dev/docs/decisions/UDOS-PYTHON-ENVIRONMENTS-DEV-BRIEF.md` is the contributor-facing environment brief

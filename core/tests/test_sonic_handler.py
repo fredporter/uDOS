@@ -2,7 +2,10 @@ import hashlib
 import json
 from pathlib import Path
 
+import pytest
+
 from core.commands.sonic_handler import SonicHandler
+from core.services.external_repo_service import ensure_sonic_python_paths
 from core.services.mode_policy import RuntimeMode
 
 
@@ -17,6 +20,29 @@ class _FakeSonicHandler(SonicHandler):
 
     def _sonic_root(self) -> Path:  # type: ignore[override]
         return self._sonic
+
+
+def _external_sonic_root(repo_root: Path) -> Path:
+    return repo_root.parent / "uDOS-sonic"
+
+
+def _external_sonic_source_root() -> Path:
+    return Path(__file__).resolve().parents[2].parent / "uDOS-sonic"
+
+
+def _mount_external_sonic_code(repo_root: Path, sonic_root: Path) -> None:
+    source_root = _external_sonic_source_root()
+    if not source_root.exists():
+        pytest.skip("external uDOS-sonic repo is not installed beside uDOS")
+    for name in ("core", "installers"):
+        source = source_root / name
+        if not source.exists():
+            pytest.skip(f"external uDOS-sonic repo is missing {name}/")
+        target = sonic_root / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if not target.exists():
+            target.symlink_to(source, target_is_directory=True)
+    ensure_sonic_python_paths(repo_root)
 
 
 def _seed_sonic_dataset(sonic_root: Path) -> None:
@@ -156,7 +182,7 @@ def _seed_image_source_metadata(sonic_root: Path) -> None:
                 "publisher": "uDOS Project",
                 "channel": "stable",
                 "origin_url": "https://github.com/fredporter/uDOS",
-                "artifact_path": "payloads/udos/udos.squashfs",
+                "artifact_path": "memory/sonic/artifacts/payloads/udos/udos.squashfs",
                 "artifact_kind": "squashfs",
                 "license": "Project-local distribution",
                 "tracked_at": "2026-03-02",
@@ -173,7 +199,7 @@ def _seed_image_source_metadata(sonic_root: Path) -> None:
                 "publisher": "Canonical",
                 "channel": "lts",
                 "origin_url": "https://ubuntu.com/download",
-                "artifact_path": "payloads/wizard/ubuntu.iso",
+                "artifact_path": "memory/sonic/artifacts/payloads/wizard/ubuntu.iso",
                 "artifact_kind": "iso",
                 "license": "Ubuntu image redistribution subject to upstream terms",
                 "tracked_at": "2026-03-02",
@@ -190,7 +216,7 @@ def _seed_image_source_metadata(sonic_root: Path) -> None:
                 "publisher": "Microsoft",
                 "channel": "ltsc",
                 "origin_url": "https://www.microsoft.com/software-download",
-                "artifact_path": "payloads/windows/windows10-ltsc.iso",
+                "artifact_path": "memory/sonic/artifacts/payloads/windows/windows10-ltsc.iso",
                 "artifact_kind": "iso",
                 "license": "Windows media redistribution subject to upstream terms",
                 "tracked_at": "2026-03-02",
@@ -201,11 +227,15 @@ def _seed_image_source_metadata(sonic_root: Path) -> None:
     )
 
 
+def _runtime_payloads_root(sonic_root: Path) -> Path:
+    return sonic_root / "memory" / "sonic" / "artifacts" / "payloads"
+
+
 def test_sonic_handler_fallback_when_sonic_missing(tmp_path):
     repo_root = tmp_path / "repo"
     repo_root.mkdir(parents=True, exist_ok=True)
 
-    handler = _FakeSonicHandler(repo_root=repo_root, sonic_root=repo_root / "sonic")
+    handler = _FakeSonicHandler(repo_root=repo_root, sonic_root=_external_sonic_root(repo_root))
     result = handler.handle("SONIC", ["STATUS"])
 
     assert result["status"] == "error"
@@ -214,7 +244,8 @@ def test_sonic_handler_fallback_when_sonic_missing(tmp_path):
 
 def test_sonic_sync_requires_sql(tmp_path):
     repo_root = tmp_path / "repo"
-    sonic_root = repo_root / "sonic"
+    sonic_root = _external_sonic_root(repo_root)
+    _mount_external_sonic_code(repo_root, sonic_root)
     (sonic_root / "datasets").mkdir(parents=True, exist_ok=True)
 
     handler = _FakeSonicHandler(repo_root=repo_root, sonic_root=sonic_root)
@@ -226,7 +257,8 @@ def test_sonic_sync_requires_sql(tmp_path):
 
 def test_sonic_sync_no_force_if_db_exists(tmp_path):
     repo_root = tmp_path / "repo"
-    sonic_root = repo_root / "sonic"
+    sonic_root = _external_sonic_root(repo_root)
+    _mount_external_sonic_code(repo_root, sonic_root)
     datasets = sonic_root / "datasets"
     datasets.mkdir(parents=True, exist_ok=True)
     (datasets / "sonic-devices.sql").write_text("CREATE TABLE devices(id TEXT);\n", encoding="utf-8")
@@ -245,7 +277,8 @@ def test_sonic_sync_no_force_if_db_exists(tmp_path):
 
 def test_sonic_bootstrap_registers_current_machine(tmp_path):
     repo_root = tmp_path / "repo"
-    sonic_root = repo_root / "sonic"
+    sonic_root = _external_sonic_root(repo_root)
+    _mount_external_sonic_code(repo_root, sonic_root)
     datasets = sonic_root / "datasets"
     datasets.mkdir(parents=True, exist_ok=True)
     (datasets / "sonic-devices.sql").write_text("CREATE TABLE devices(id TEXT PRIMARY KEY, vendor TEXT NOT NULL, model TEXT NOT NULL, year INTEGER NOT NULL, bios TEXT NOT NULL, secure_boot TEXT NOT NULL, tpm TEXT NOT NULL, usb_boot TEXT NOT NULL, uefi_native TEXT NOT NULL, reflash_potential TEXT NOT NULL, methods TEXT NOT NULL, last_seen TEXT NOT NULL, windows10_boot TEXT NOT NULL, media_mode TEXT NOT NULL, udos_launcher TEXT NOT NULL, variant TEXT, cpu TEXT, gpu TEXT, ram_gb INTEGER, storage_gb INTEGER, notes TEXT, sources TEXT, wizard_profile TEXT, media_launcher TEXT, settings_template_md TEXT, installers_template_md TEXT, containers_template_md TEXT, drivers_template_md TEXT);\n", encoding="utf-8")
@@ -255,12 +288,13 @@ def test_sonic_bootstrap_registers_current_machine(tmp_path):
     result = handler.handle("SONIC", ["BOOTSTRAP"])
 
     assert result["status"] == "ok"
-    assert result["result"]["device_id"].startswith("local-")
+    assert result["result"]["device_id"].startswith("current-")
 
 
 def test_sonic_submission_commands_queue_and_approve(tmp_path):
     repo_root = tmp_path / "repo"
-    sonic_root = repo_root / "sonic"
+    sonic_root = _external_sonic_root(repo_root)
+    _mount_external_sonic_code(repo_root, sonic_root)
     _seed_full_sonic_dataset(sonic_root)
     handler = _FakeSonicHandler(repo_root=repo_root, sonic_root=sonic_root)
     handler.handle("SONIC", ["SYNC", "--force"])
@@ -289,7 +323,7 @@ def test_sonic_submission_commands_queue_and_approve(tmp_path):
 
 def test_sonic_plan_requires_wizard_mode_when_boundaries_enforced(tmp_path, monkeypatch):
     repo_root = tmp_path / "repo"
-    sonic_root = repo_root / "sonic"
+    sonic_root = _external_sonic_root(repo_root)
     sonic_root.mkdir(parents=True, exist_ok=True)
 
     handler = _FakeSonicHandler(repo_root=repo_root, sonic_root=sonic_root)
@@ -304,7 +338,7 @@ def test_sonic_plan_requires_wizard_mode_when_boundaries_enforced(tmp_path, monk
 
 def test_sonic_run_requires_wizard_mode_when_boundaries_enforced(tmp_path, monkeypatch):
     repo_root = tmp_path / "repo"
-    sonic_root = repo_root / "sonic"
+    sonic_root = _external_sonic_root(repo_root)
     sonic_root.mkdir(parents=True, exist_ok=True)
 
     handler = _FakeSonicHandler(repo_root=repo_root, sonic_root=sonic_root)
@@ -319,9 +353,10 @@ def test_sonic_run_requires_wizard_mode_when_boundaries_enforced(tmp_path, monke
 
 def test_sonic_verify_reports_valid_manifest(tmp_path):
     repo_root = tmp_path / "repo"
-    sonic_root = repo_root / "sonic"
+    sonic_root = _external_sonic_root(repo_root)
+    _mount_external_sonic_code(repo_root, sonic_root)
     config_dir = sonic_root / "config"
-    payloads = sonic_root / "payloads"
+    payloads = _runtime_payloads_root(sonic_root)
     isos = sonic_root / "ISOS"
     config_dir.mkdir(parents=True, exist_ok=True)
     (payloads / "udos").mkdir(parents=True, exist_ok=True)
@@ -342,8 +377,8 @@ def test_sonic_verify_reports_valid_manifest(tmp_path):
         "iso_dir": str(isos),
         "format_mode": "full",
         "partitions": [
-            {"name": "esp", "label": "ESP", "fs": "fat32", "size_gb": 0.5, "payload_dir": "payloads/efi"},
-            {"name": "udos_ro", "label": "UDOS_RO", "fs": "squashfs", "size_gb": 8, "image": "payloads/udos/udos.squashfs"},
+            {"name": "esp", "label": "ESP", "fs": "fat32", "size_gb": 0.5, "payload_dir": "efi"},
+            {"name": "udos_ro", "label": "UDOS_RO", "fs": "squashfs", "size_gb": 8, "image": "udos/udos.squashfs"},
             {"name": "cache", "label": "CACHE", "fs": "ext4", "remainder": True},
         ],
     }
@@ -363,7 +398,8 @@ def test_sonic_verify_reports_valid_manifest(tmp_path):
 
 def test_sonic_run_blocks_invalid_manifest(tmp_path, monkeypatch):
     repo_root = tmp_path / "repo"
-    sonic_root = repo_root / "sonic"
+    sonic_root = _external_sonic_root(repo_root)
+    _mount_external_sonic_code(repo_root, sonic_root)
     config_dir = sonic_root / "config"
     config_dir.mkdir(parents=True, exist_ok=True)
     _seed_full_sonic_dataset(sonic_root)
@@ -395,9 +431,10 @@ def test_sonic_run_blocks_invalid_manifest(tmp_path, monkeypatch):
 
 def test_sonic_run_requires_override_for_manifest_warnings(tmp_path, monkeypatch):
     repo_root = tmp_path / "repo"
-    sonic_root = repo_root / "sonic"
+    sonic_root = _external_sonic_root(repo_root)
+    _mount_external_sonic_code(repo_root, sonic_root)
     config_dir = sonic_root / "config"
-    payloads = sonic_root / "payloads"
+    payloads = _runtime_payloads_root(sonic_root)
     isos = sonic_root / "ISOS"
     config_dir.mkdir(parents=True, exist_ok=True)
     payloads.mkdir(parents=True, exist_ok=True)
@@ -413,7 +450,7 @@ def test_sonic_run_requires_override_for_manifest_warnings(tmp_path, monkeypatch
         "iso_dir": str(isos),
         "format_mode": "full",
         "partitions": [
-            {"name": "udos_ro", "label": "UDOS_RO", "fs": "squashfs", "size_gb": 8, "image": "payloads/udos/udos.squashfs"},
+            {"name": "udos_ro", "label": "UDOS_RO", "fs": "squashfs", "size_gb": 8, "image": "udos/udos.squashfs"},
             {"name": "cache", "label": "CACHE", "fs": "ext4", "remainder": True},
         ],
     }
@@ -436,9 +473,10 @@ def test_sonic_run_requires_override_for_manifest_warnings(tmp_path, monkeypatch
 
 def test_sonic_verify_reports_signed_release_bundle_readiness(tmp_path, monkeypatch):
     repo_root = tmp_path / "repo"
-    sonic_root = repo_root / "sonic"
+    sonic_root = _external_sonic_root(repo_root)
+    _mount_external_sonic_code(repo_root, sonic_root)
     config_dir = sonic_root / "config"
-    payloads = sonic_root / "payloads"
+    payloads = _runtime_payloads_root(sonic_root)
     isos = sonic_root / "ISOS"
     build_dir = repo_root / "distribution" / "builds" / "b1"
     config_dir.mkdir(parents=True, exist_ok=True)
@@ -461,7 +499,7 @@ def test_sonic_verify_reports_signed_release_bundle_readiness(tmp_path, monkeypa
         "iso_dir": str(isos),
         "format_mode": "full",
         "partitions": [
-            {"name": "udos_ro", "label": "UDOS_RO", "fs": "squashfs", "size_gb": 8, "image": "payloads/udos/udos.squashfs"},
+            {"name": "udos_ro", "label": "UDOS_RO", "fs": "squashfs", "size_gb": 8, "image": "udos/udos.squashfs"},
             {"name": "cache", "label": "CACHE", "fs": "ext4", "remainder": True},
         ],
     }
@@ -489,7 +527,7 @@ def test_sonic_verify_reports_signed_release_bundle_readiness(tmp_path, monkeypa
     (build_dir / "checksums.txt.sig").write_text("sig", encoding="utf-8")
 
     monkeypatch.setattr(
-        "sonic.core.verify.verify_detached_signature",
+        "installers.usb.verify.verify_detached_signature",
         lambda payload_path, signature_path, pubkey=None: {
             "present": signature_path.exists(),
             "verified": True,
@@ -506,9 +544,10 @@ def test_sonic_verify_reports_signed_release_bundle_readiness(tmp_path, monkeypa
 
 def test_sonic_verify_blocks_invalid_dataset_contract(tmp_path):
     repo_root = tmp_path / "repo"
-    sonic_root = repo_root / "sonic"
+    sonic_root = _external_sonic_root(repo_root)
+    _mount_external_sonic_code(repo_root, sonic_root)
     config_dir = sonic_root / "config"
-    payloads = sonic_root / "payloads"
+    payloads = _runtime_payloads_root(sonic_root)
     isos = sonic_root / "ISOS"
     config_dir.mkdir(parents=True, exist_ok=True)
     (payloads / "udos").mkdir(parents=True, exist_ok=True)
@@ -560,9 +599,10 @@ def test_sonic_verify_blocks_invalid_dataset_contract(tmp_path):
 
 def test_sonic_verify_blocks_schema_sql_required_mismatch(tmp_path):
     repo_root = tmp_path / "repo"
-    sonic_root = repo_root / "sonic"
+    sonic_root = _external_sonic_root(repo_root)
+    _mount_external_sonic_code(repo_root, sonic_root)
     config_dir = sonic_root / "config"
-    payloads = sonic_root / "payloads"
+    payloads = _runtime_payloads_root(sonic_root)
     isos = sonic_root / "ISOS"
     config_dir.mkdir(parents=True, exist_ok=True)
     (payloads / "udos").mkdir(parents=True, exist_ok=True)
@@ -605,9 +645,10 @@ def test_sonic_verify_blocks_schema_sql_required_mismatch(tmp_path):
 
 def test_sonic_verify_blocks_invalid_seed_row_content(tmp_path):
     repo_root = tmp_path / "repo"
-    sonic_root = repo_root / "sonic"
+    sonic_root = _external_sonic_root(repo_root)
+    _mount_external_sonic_code(repo_root, sonic_root)
     config_dir = sonic_root / "config"
-    payloads = sonic_root / "payloads"
+    payloads = _runtime_payloads_root(sonic_root)
     isos = sonic_root / "ISOS"
     config_dir.mkdir(parents=True, exist_ok=True)
     (payloads / "udos").mkdir(parents=True, exist_ok=True)
@@ -677,9 +718,10 @@ def test_sonic_verify_blocks_invalid_seed_row_content(tmp_path):
 
 def test_sonic_verify_blocks_invalid_media_metadata(tmp_path):
     repo_root = tmp_path / "repo"
-    sonic_root = repo_root / "sonic"
+    sonic_root = _external_sonic_root(repo_root)
+    _mount_external_sonic_code(repo_root, sonic_root)
     config_dir = sonic_root / "config"
-    payloads = sonic_root / "payloads"
+    payloads = _runtime_payloads_root(sonic_root)
     isos = sonic_root / "ISOS"
     config_dir.mkdir(parents=True, exist_ok=True)
     (payloads / "udos").mkdir(parents=True, exist_ok=True)
@@ -700,7 +742,7 @@ def test_sonic_verify_blocks_invalid_media_metadata(tmp_path):
                 "publisher": "Microsoft",
                 "channel": "ltsc",
                 "origin_url": "http://invalid.example",
-                "artifact_path": "payloads/windows/wrong.iso",
+                "artifact_path": "memory/sonic/artifacts/payloads/windows/wrong.iso",
                 "artifact_kind": "img",
                 "license": "Windows media redistribution subject to upstream terms",
                 "tracked_at": "2026-03-02",
@@ -718,7 +760,7 @@ def test_sonic_verify_blocks_invalid_media_metadata(tmp_path):
         "iso_dir": str(isos),
         "format_mode": "full",
         "partitions": [
-            {"name": "udos_ro", "label": "UDOS_RO", "fs": "squashfs", "size_gb": 8, "image": "payloads/udos/udos.squashfs"},
+            {"name": "udos_ro", "label": "UDOS_RO", "fs": "squashfs", "size_gb": 8, "image": "udos/udos.squashfs"},
             {"name": "cache", "label": "CACHE", "fs": "ext4", "remainder": True},
         ],
     }

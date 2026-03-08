@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Fetch Google Places and ingest into Empire."""
+"""Fetch Google Places and ingest into Empire.
+
+Manual operator wrapper only.
+Wizard Empire connector routes and services are the canonical runtime surface.
+"""
 
 from __future__ import annotations
 
@@ -10,6 +14,9 @@ from empire.integrations.google_places import search_and_ingest
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Fetch Google Places and ingest records")
+    parser.epilog = (
+        "Operator wrapper only. Prefer Wizard Empire connector actions for the supported runtime path."
+    )
     parser.add_argument("--api-key", default=None, help="Google Places API key")
     parser.add_argument("--query", required=True, help="Search query")
     parser.add_argument("--location", default="", help="Lat,lng")

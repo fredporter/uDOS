@@ -7,7 +7,9 @@ def _read(path: str) -> str:
 
 def test_v1_4_0_sonic_docker_smoke_gate_exists_and_checks_cli():
     text = _read("tools/ci/check_v1_4_0_sonic_docker_smoke.py")
-    assert "sonic/core/sonic_cli.py" in text
+    assert "uDOS-sonic" in text
+    assert '"installers"' in text
+    assert '"cli.py"' in text
     assert "[sonic-docker-smoke-v1.4.0] PASS" in text
 
 

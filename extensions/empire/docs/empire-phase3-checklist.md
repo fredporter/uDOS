@@ -31,19 +31,19 @@ Exit Criteria
 
 ## Commands
 - Non-strict preflight:
-  `cd /Users/fredbook/Code/uDOS/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/smoke/integration_preflight.py --db data/empire.db`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/smoke/integration_preflight.py --db data/empire.db`
 - Strict preflight:
-  `cd /Users/fredbook/Code/uDOS/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/smoke/integration_preflight.py --db data/empire.db --strict`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/smoke/integration_preflight.py --db data/empire.db --strict`
 - Mocked integration sync smoke (no live APIs):
-  `cd /Users/fredbook/Code/uDOS/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/smoke/integration_no_live_smoke.py`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/smoke/integration_no_live_smoke.py`
 - Configure HubSpot token:
-  `cd /Users/fredbook/Code/uDOS/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/setup/set_hubspot_token.py --token '<value>'`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/setup/set_hubspot_token.py --token '<value>'`
 - Configure Gmail credentials path:
-  `cd /Users/fredbook/Code/uDOS/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/setup/set_google_gmail_credentials_path.py --path '/absolute/path/credentials.json'`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/setup/set_google_gmail_credentials_path.py --path '/absolute/path/credentials.json'`
 - Configure Gmail token path:
-  `cd /Users/fredbook/Code/uDOS/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/setup/set_google_gmail_token_path.py --path '/absolute/path/token.json'`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/setup/set_google_gmail_token_path.py --path '/absolute/path/token.json'`
 - Configure Places API key:
-  `cd /Users/fredbook/Code/uDOS/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/setup/set_google_places_api_key.py --api-key '<value>'`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/setup/set_google_places_api_key.py --api-key '<value>'`
 
 ## Execution Log
 - 2026-02-15: Phase 3 preparation started with integration preflight harness.

@@ -231,8 +231,8 @@
       "package_size": 0,
       "checksum": "",
       "author": "Fred Porter",
-      "homepage": "https://github.com/fredporter/uDOS-vibe",
-      "documentation": "distribution/plugins/sonic/manifest.json",
+      "homepage": "https://github.com/fredporter/uDOS-sonic",
+      "documentation": "docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md",
       "installed": false,
       "installed_version": "",
       "update_available": false,
@@ -242,7 +242,7 @@
         "parted",
         "rsync"
       ],
-      "manifest": "distribution/plugins/sonic/manifest.json"
+      "manifest": ""
     },
     "api": {
       "id": "api",

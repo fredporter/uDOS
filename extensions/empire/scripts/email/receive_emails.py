@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""CLI wrapper for Empire email receive."""
+"""CLI wrapper for Empire email receive.
+
+Legacy operator utility.
+This script is not part of the supported Wizard runtime contract.
+"""
 
 from __future__ import annotations
 
@@ -12,6 +16,9 @@ from empire.services.email_receive import receive_emails
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Receive emails via IMAP")
+    parser.epilog = (
+        "Legacy operator utility only. Do not treat this as a canonical Empire runtime entrypoint."
+    )
     parser.add_argument("--host", required=True)
     parser.add_argument("--user", required=True)
     parser.add_argument("--password", required=True)

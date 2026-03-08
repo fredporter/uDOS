@@ -2,11 +2,16 @@
 """
 Sonic modular plugin verification script.
 
-Tests that all components are properly provisioned and can be imported.
+Tests that the external `uDOS-sonic` integration is properly provisioned.
 """
 
 import sys
 from pathlib import Path
+
+from core.services.external_repo_service import ensure_sonic_python_paths
+
+
+ensure_sonic_python_paths()
 
 
 def test_imports():
@@ -15,37 +20,32 @@ def test_imports():
 
     tests = []
 
-    # Test 1: Schemas
+    # Test 1: External Sonic service
     try:
-        from library.sonic.schemas import (
-            Device, DeviceQuery, DeviceStats,
-            FlashPackSpec, LayoutSpec, PartitionSpec,
-            FormatMode, FilesystemType, PartitionRole,
-            ReflashPotential, USBBootSupport, SyncStatus
-        )
-        print("✅ Schemas module loaded")
-        tests.append(("schemas", True, None))
+        from installers.usb.service import SonicService
+        print("✅ Sonic USB service loaded")
+        tests.append(("service", True, None))
     except Exception as e:
-        print(f"❌ Schemas module failed: {e}")
-        tests.append(("schemas", False, str(e)))
+        print(f"❌ Sonic USB service failed: {e}")
+        tests.append(("service", False, str(e)))
 
-    # Test 2: API
+    # Test 2: Verification
     try:
-        from library.sonic.api import SonicPluginService, get_sonic_service
-        print("✅ API module loaded")
-        tests.append(("api", True, None))
+        from installers.usb.verify import verify_sonic_ready, verify_release_bundle
+        print("✅ Sonic verification module loaded")
+        tests.append(("verify", True, None))
     except Exception as e:
-        print(f"❌ API module failed: {e}")
-        tests.append(("api", False, str(e)))
+        print(f"❌ Sonic verification module failed: {e}")
+        tests.append(("verify", False, str(e)))
 
-    # Test 3: Sync
+    # Test 3: Planner
     try:
-        from library.sonic.sync import DeviceDatabaseSync, get_sync_service
-        print("✅ Sync module loaded")
-        tests.append(("sync", True, None))
+        from installers.usb.plan import write_plan
+        print("✅ Sonic planner module loaded")
+        tests.append(("plan", True, None))
     except Exception as e:
-        print(f"❌ Sync module failed: {e}")
-        tests.append(("sync", False, str(e)))
+        print(f"❌ Sonic planner module failed: {e}")
+        tests.append(("plan", False, str(e)))
 
     # Test 4: Loader
     try:
@@ -114,10 +114,10 @@ def test_api_service():
     print("\n=== Testing API Service ===\n")
 
     try:
-        from library.sonic.api import get_sonic_service
+        from installers.usb.service import SonicService
 
-        api = get_sonic_service()
-        health = api.health()
+        api = SonicService()
+        health = api.get_health()
 
         print("✅ API service instantiated")
         print(f"  Status: {health.get('status')}")
@@ -135,16 +135,15 @@ def test_sync_service():
     print("\n=== Testing Sync Service ===\n")
 
     try:
-        from library.sonic.sync import get_sync_service
+        from installers.usb.service import SonicService
 
-        sync = get_sync_service()
-        status = sync.get_status()
+        sync = SonicService()
+        status = sync.get_db_status()
 
         print("✅ Sync service instantiated")
-        print(f"  DB exists: {status.db_exists}")
-        print(f"  DB path: {status.db_path}")
-        print(f"  Records: {status.record_count}")
-        print(f"  Needs rebuild: {status.needs_rebuild}")
+        print(f"  DB exists: {status.get('artifacts', {}).get('legacy_db_present')}")
+        print(f"  DB path: {status.get('paths', {}).get('legacy_db')}")
+        print(f"  Records: {status.get('summary', {}).get('device_count')}")
 
         return True
     except Exception as e:
@@ -183,14 +182,14 @@ def test_file_structure():
     repo_root = Path(__file__).resolve().parents[1]
 
     expected_files = [
-        "library/sonic/schemas/__init__.py",
-        "library/sonic/api/__init__.py",
-        "library/sonic/sync/__init__.py",
+        "../uDOS-sonic/installers/usb/service.py",
+        "../uDOS-sonic/installers/usb/verify.py",
+        "../uDOS-sonic/installers/usb/plan.py",
         "extensions/sonic_loader.py",
         "wizard/routes/sonic_plugin_routes.py",
         "wizard/services/sonic_plugin_service.py",
-        "core/commands/sonic_plugin_handler.py",
-        "docs/features/SONIC-MODULAR-FILE-INDEX.md",
+        "core/commands/sonic_handler.py",
+        "docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md",
     ]
 
     all_exist = True

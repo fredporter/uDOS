@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""v1.4.0 Sonic Dockerfile smoke gate."""
+"""v1.4.0 Sonic companion-repo CLI smoke gate."""
 
 from __future__ import annotations
 
@@ -8,16 +8,16 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-DOCKERFILE = REPO / "sonic" / "Dockerfile"
+SONIC_REPO = REPO.parent / "uDOS-sonic"
+CLI = SONIC_REPO / "installers" / "usb" / "cli.py"
 
 
 def main() -> int:
-    src = DOCKERFILE.read_text(encoding="utf-8")
-    if "core/sonic_cli.py" not in src:
-        raise RuntimeError("sonic Dockerfile entrypoint is not wired to core/sonic_cli.py")
+    if not CLI.exists():
+        raise RuntimeError(f"external Sonic CLI not found: {CLI}")
 
-    cmd = [sys.executable, "sonic/core/sonic_cli.py", "--help"]
-    proc = subprocess.run(cmd, cwd=str(REPO), capture_output=True, text=True)
+    cmd = [sys.executable, str(CLI), "--help"]
+    proc = subprocess.run(cmd, cwd=str(SONIC_REPO), capture_output=True, text=True)
     if proc.returncode != 0:
         details = (proc.stdout + "\n" + proc.stderr).strip()
         raise RuntimeError(f"sonic CLI smoke failed:\n{details}")

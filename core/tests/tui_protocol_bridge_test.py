@@ -3,7 +3,22 @@ from __future__ import annotations
 import io
 import json
 
-from core.tui.protocol_bridge import UdosProtocolBridge, run_stdio
+from core.tui.protocol_bridge import ProtocolContext, UdosProtocolBridge, run_stdio
+from core.tui.renderer import GridRenderer
+from core.tui.state import GameState
+
+
+class _DispatcherStub:
+    def __init__(self) -> None:
+        self.calls: list[str] = []
+
+    def dispatch(self, command_text: str, parser=None, game_state=None) -> dict:
+        self.calls.append(command_text)
+        return {
+            "status": "success",
+            "message": "stub dispatched",
+            "output": command_text,
+        }
 
 
 def _run_lines(*messages: dict) -> list[dict]:
@@ -20,8 +35,8 @@ def test_protocol_bridge_hello_returns_ready_and_banner() -> None:
     assert packets[0]["value"]["canvas_width"] == 78
     action_labels = [item["label"] for item in packets[0]["value"]["actions"]]
     assert "Wizard Start" in action_labels
-    assert "Enter Dev Mode" in action_labels
-    assert "Plugin Containers" in action_labels
+    assert "Dev Mode Status" in action_labels
+    assert "Wizard Status" in action_labels
     assert "Wizard GUI" in action_labels
     assert "Thin GUI (Direct)" in action_labels
     assert packets[0]["value"]["actions"][0]["job"] == "ucode.command"
@@ -48,6 +63,38 @@ def test_protocol_bridge_run_emits_result_and_done_packets() -> None:
     assert packets[-2]["event"]["status"] == "done"
     assert packets[-1]["type"] == "done"
     assert packets[-1]["ok"] is True
+
+
+def test_protocol_bridge_executes_plain_core_commands_before_guidance() -> None:
+    dispatcher = _DispatcherStub()
+    bridge = UdosProtocolBridge(
+        ProtocolContext(
+            dispatcher=dispatcher,
+            game_state=GameState(),
+            renderer=GridRenderer(),
+        )
+    )
+
+    binder_result = bridge._route_input("BINDER CREATE @binder/new-mission")
+    wizard_result = bridge._route_input("WIZARD START")
+    play_result = bridge._route_input("PLAY STATUS")
+
+    assert dispatcher.calls == [
+        "BINDER CREATE @binder/new-mission",
+        "WIZARD START",
+        "PLAY STATUS",
+    ]
+    assert binder_result["status"] != "error"
+    assert binder_result.get("routing") is None
+    assert "operator_plan" not in binder_result
+
+    assert wizard_result["status"] != "error"
+    assert wizard_result.get("routing") is None
+    assert "operator_plan" not in wizard_result
+
+    assert play_result["status"] != "error"
+    assert play_result.get("routing") is None
+    assert "operator_plan" not in play_result
 
 
 def test_protocol_bridge_formats_workflow_state_events() -> None:
@@ -127,6 +174,23 @@ def test_protocol_bridge_formats_helper_events() -> None:
 
     titles = [event["title"] for event in events if event.get("kind") == "block"]
     assert "FORMAT HELPER" in titles
+
+
+def test_protocol_bridge_adds_summary_block_when_result_has_no_output_text() -> None:
+    bridge = UdosProtocolBridge()
+
+    events = bridge._result_to_events(
+        {
+            "status": "ok",
+            "message": "Wizard Server not running",
+            "mode": "user",
+            "flags": {"offline": True},
+        }
+    )
+
+    summary = next(event for event in events if event.get("title") == "RESULT SUMMARY")
+    assert "message: Wizard Server not running" in summary["lines"]
+    assert "mode: user" in summary["lines"]
 
 
 def test_protocol_bridge_slash_route_uses_bash_fallback_when_dispatch_fails() -> None:

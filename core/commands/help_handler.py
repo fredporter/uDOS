@@ -322,7 +322,7 @@ class HelpHandler(BaseCommandHandler, HandlerLoggingMixin, InteractiveMenuMixin)
             "description": "Sonic Screwdriver status, dataset sync, and USB planning",
             "usage": "SONIC <STATUS|SYNC|VERIFY|PLAN|RUN|HELP>",
             "example": "SONIC SYNC --force",
-            "notes": "SYNC rebuilds local device DB from sonic/datasets SQL. Wizard parity endpoints live under /api/sonic/sync/*.",
+            "notes": "SYNC rebuilds the local device DB from the external uDOS-sonic dataset SQL. Wizard parity endpoints live under /api/sonic/sync/*.",
             "category": "System & Maintenance",
             "syntax": "SONIC STATUS | SONIC SYNC [--force] | SONIC VERIFY [--manifest path] | SONIC PLAN [flags] | SONIC RUN [flags] --confirm",
         },

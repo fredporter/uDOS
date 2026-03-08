@@ -12,6 +12,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"udos/tui/internal/primitives"
+	"udos/tui/internal/protocol"
 	"udos/tui/internal/render"
 )
 
@@ -67,7 +68,7 @@ func TestHomeEnterRunsFirstStartupCommand(t *testing.T) {
 	if updated.lastJob != "ucode.command" {
 		t.Fatalf("expected lastJob ucode.command, got %s", updated.lastJob)
 	}
-	if updated.lastCommand != "BINDER CREATE @binder/new-mission" {
+	if updated.lastCommand != "UCODE TEMPLATE LIST missions" {
 		t.Fatalf("unexpected lastCommand: %s", updated.lastCommand)
 	}
 }
@@ -128,6 +129,28 @@ func TestHomeNumericShortcutOpensCustomCommandMode(t *testing.T) {
 	}
 }
 
+func TestHomeSetupAndConfigItemsRouteToStableStatusHandlers(t *testing.T) {
+	m := newTestModel(t)
+
+	next, _ := m.runSelection(primitives.MenuItem{Value: "ucode.command:SETUP --profile"})
+	updated := next.(Model)
+	if updated.mode != modeRunner {
+		t.Fatalf("expected setup selection to enter modeRunner, got %s", updated.mode)
+	}
+	if updated.lastCommand != "SETUP --profile" {
+		t.Fatalf("unexpected setup command: %s", updated.lastCommand)
+	}
+
+	next, _ = m.runSelection(primitives.MenuItem{Value: "ucode.command:CONFIG SHOW"})
+	updated = next.(Model)
+	if updated.mode != modeRunner {
+		t.Fatalf("expected config selection to enter modeRunner, got %s", updated.mode)
+	}
+	if updated.lastCommand != "CONFIG SHOW" {
+		t.Fatalf("unexpected config command: %s", updated.lastCommand)
+	}
+}
+
 func TestHomeWizardShortcutRunsWizardStart(t *testing.T) {
 	m := newTestModel(t)
 	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("w"), Alt: true})
@@ -140,14 +163,14 @@ func TestHomeWizardShortcutRunsWizardStart(t *testing.T) {
 	}
 }
 
-func TestHomeDevShortcutRunsDevPlan(t *testing.T) {
+func TestHomeDevShortcutRunsDevStatus(t *testing.T) {
 	m := newTestModel(t)
 	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("d"), Alt: true})
 	updated := next.(Model)
 	if updated.mode != modeRunner {
 		t.Fatalf("expected modeRunner, got %s", updated.mode)
 	}
-	if updated.lastCommand != "DEV PLAN" {
+	if updated.lastCommand != "DEV STATUS" {
 		t.Fatalf("unexpected lastCommand: %s", updated.lastCommand)
 	}
 }
@@ -359,6 +382,27 @@ func TestRenderHomeMenuIncludesPredictiveCommandBlock(t *testing.T) {
 	view := m.renderHomeMenu()
 	if !strings.Contains(view, "PREDICTIVE COMMAND") {
 		t.Fatalf("expected predictive command block in home menu")
+	}
+}
+
+func TestRenderRunnerContentPrefersOutputOverTrailingProgress(t *testing.T) {
+	m := newTestModel(t)
+	m.theme.CanvasWidth = 80
+	m.mode = modeRunner
+	m.events = []protocol.Event{
+		{Kind: "log", Message: "Local docs query result"},
+		{Kind: "rule"},
+		{Kind: "block", Title: "OUTPUT", Lines: []string{"Actual command output"}},
+		{Kind: "progress", Label: "cmd", Current: 0, Total: 1, Status: "running"},
+		{Kind: "progress", Label: "cmd", Current: 1, Total: 1, Status: "done"},
+	}
+
+	view := m.renderRunnerContent()
+	if !strings.Contains(view, "OUTPUT") {
+		t.Fatalf("expected output block to remain visible")
+	}
+	if !strings.Contains(view, "Actual command output") {
+		t.Fatalf("expected rendered output lines to remain visible")
 	}
 }
 

@@ -94,6 +94,6 @@ Thin GUI does not redefine:
 ## Related
 
 - `docs/decisions/UDOS-ALPINE-THIN-GUI-RUNTIME-SPEC.md`
-- `docs/specs/UHOME-v1.5.md`
+- `docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md`
 - `docs/specs/3DWORLD-EXTENSION-CONTRACT-v1.5.md`
 - `extensions/thin-gui/README.md`

@@ -3,7 +3,7 @@
 Goal: performance and resilience hardening before live data.
 
 ## Scope
-- Empire private extension only.
+- Empire internal extension only.
 - Hardening includes non-web checks plus web build validation.
 
 ## Checklist
@@ -30,13 +30,13 @@ Exit Criteria
 
 ## Commands
 - Start API for perf baseline:
-  `cd /Users/fredbook/Code/uDOS/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 -m uvicorn empire.api.server:app --host 127.0.0.1 --port 8991`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 -m uvicorn empire.api.server:app --host 127.0.0.1 --port 8991`
 - Run perf baseline:
-  `cd /Users/fredbook/Code/uDOS/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/smoke/api_perf_baseline.py --base-url http://127.0.0.1:8991 --iterations 25`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/smoke/api_perf_baseline.py --base-url http://127.0.0.1:8991 --iterations 25`
 - Run DB backup/restore sanity:
-  `cd /Users/fredbook/Code/uDOS/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/smoke/db_backup_restore_sanity.py --db data/empire.db`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/smoke/db_backup_restore_sanity.py --db data/empire.db`
 - Run web build regression:
-  `cd /Users/fredbook/Code/uDOS/empire/web && npm install && npm run build`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire/web && npm install && npm run build`
 
 ## Execution Log
 - 2026-02-15: Phase 4 started; hardening scripts added.

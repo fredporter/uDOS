@@ -128,7 +128,7 @@
     },
     "sonic": {
       "label": "Sonic Screwdriver",
-      "path": "sonic",
+      "path": "../uDOS-sonic",
       "profiles": ["home"],
       "summary": "Standalone provisioning and deployment component aligned with shared library and launch contracts.",
       "category": "utilities",

@@ -131,7 +131,7 @@ def test_release_readiness_reports_ready_when_checksums_and_signatures_match(tmp
 
     svc = SonicBuildService(repo_root=repo)
     monkeypatch.setattr(
-        "sonic.core.verify.verify_detached_signature",
+        "installers.usb.verify.verify_detached_signature",
         lambda _payload, _sig, pubkey=None: {"present": True, "verified": True, "detail": "test"},
     )
     readiness = svc.get_release_readiness("b2")
@@ -214,7 +214,7 @@ def test_release_readiness_reports_unverified_signatures_when_pubkey_missing(tmp
 
 def test_start_build_uses_packaging_manifest_default_profile(tmp_path, monkeypatch):
     repo = tmp_path / "repo"
-    build_script = repo / "distribution" / "alpine-core" / "build-sonic-stick.sh"
+    build_script = repo.parent / "uDOS-sonic" / "distribution" / "alpine-core" / "build-sonic-stick.sh"
     build_dir = repo / "distribution" / "builds" / "b5"
     build_script.parent.mkdir(parents=True, exist_ok=True)
     build_dir.mkdir(parents=True, exist_ok=True)
@@ -268,7 +268,7 @@ def test_start_build_uses_packaging_manifest_default_profile(tmp_path, monkeypat
 
 def test_start_build_prefers_template_workspace_default_profile(tmp_path, monkeypatch):
     repo = tmp_path / "repo"
-    build_script = repo / "distribution" / "alpine-core" / "build-sonic-stick.sh"
+    build_script = repo.parent / "uDOS-sonic" / "distribution" / "alpine-core" / "build-sonic-stick.sh"
     build_dir = repo / "distribution" / "builds" / "b6"
     build_script.parent.mkdir(parents=True, exist_ok=True)
     build_dir.mkdir(parents=True, exist_ok=True)

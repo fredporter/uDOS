@@ -1,15 +1,19 @@
-"""Canonical Sonic API adapters for route payloads and query coercion."""
+"""Canonical Sonic API adapters for Wizard route payloads."""
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 from typing import Any
 
-from library.sonic.schemas import (
-    DeviceQuery,
-    ReflashPotential,
-    USBBootSupport,
-    normalize_usb_boot,
-)
+_USB_BOOT_ALIASES = {
+    "yes": "native",
+    "native": "native",
+    "uefi_only": "uefi_only",
+    "legacy_only": "legacy_only",
+    "mixed": "mixed",
+    "none": "none",
+    "no": "none",
+}
 
 
 def build_device_query(
@@ -25,13 +29,11 @@ def build_device_query(
     year_max: int | None,
     limit: int,
     offset: int,
-) -> DeviceQuery:
-    reflash_enum = ReflashPotential(reflash_potential) if reflash_potential else None
-    usb_enum = normalize_usb_boot(usb_boot)
-    return DeviceQuery(
+) -> Any:
+    return SimpleNamespace(
         vendor=vendor,
-        reflash_potential=reflash_enum,
-        usb_boot=usb_enum,
+        reflash_potential=reflash_potential,
+        usb_boot=_normalize_usb_boot_value(usb_boot),
         uefi_native=uefi_native,
         windows10_boot=windows10_boot,
         media_mode=media_mode,
@@ -46,6 +48,8 @@ def build_device_query(
 def to_device_payload(device: Any) -> dict[str, Any]:
     if hasattr(device, "to_dict"):
         payload = dict(device.to_dict())
+    elif hasattr(device, "__dict__") and not isinstance(device, dict):
+        payload = dict(vars(device))
     elif isinstance(device, dict):
         payload = dict(device)
     else:
@@ -65,6 +69,17 @@ def to_device_list_payload(*, devices: list[Any], limit: int, offset: int) -> di
 
 
 def to_stats_payload(stats: Any) -> dict[str, Any]:
+    if isinstance(stats, dict):
+        return {
+            "total_devices": int(stats.get("total_devices", 0)),
+            "by_vendor": dict(stats.get("by_vendor", {})),
+            "by_reflash_potential": dict(stats.get("by_reflash_potential", {})),
+            "by_windows10_boot": dict(stats.get("by_windows10_boot", {})),
+            "by_media_mode": dict(stats.get("by_media_mode", {})),
+            "usb_boot_capable": int(stats.get("usb_boot_capable", 0)),
+            "uefi_native_capable": int(stats.get("uefi_native_capable", 0)),
+            "last_updated": stats.get("last_updated"),
+        }
     return {
         "total_devices": int(getattr(stats, "total_devices", 0)),
         "by_vendor": dict(getattr(stats, "by_vendor", {})),
@@ -78,6 +93,21 @@ def to_stats_payload(stats: Any) -> dict[str, Any]:
 
 
 def to_sync_status_payload(status: Any) -> dict[str, Any]:
+    if isinstance(status, dict):
+        return {
+            "last_sync": status.get("last_sync"),
+            "db_path": status.get("db_path", ""),
+            "db_exists": bool(status.get("db_exists", False)),
+            "record_count": int(status.get("record_count", 0)),
+            "schema_version": status.get("schema_version"),
+            "needs_rebuild": bool(status.get("needs_rebuild", False)),
+            "errors": list(status.get("errors", [])),
+            "seed_db_path": status.get("seed_db_path"),
+            "user_db_path": status.get("user_db_path"),
+            "seed_record_count": status.get("seed_record_count"),
+            "user_record_count": status.get("user_record_count"),
+            "current_machine_registered": status.get("current_machine_registered"),
+        }
     return {
         "last_sync": getattr(status, "last_sync", None),
         "db_path": getattr(status, "db_path", ""),
@@ -95,9 +125,7 @@ def to_sync_status_payload(status: Any) -> dict[str, Any]:
 
 
 def _normalize_usb_boot_value(value: Any) -> str | None:
-    normalized = normalize_usb_boot(value)
-    if isinstance(normalized, USBBootSupport):
-        return normalized.value
     if value is None:
         return None
-    return str(value)
+    normalized = _USB_BOOT_ALIASES.get(str(value).strip().lower())
+    return normalized if normalized is not None else str(value)

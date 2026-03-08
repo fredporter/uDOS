@@ -139,6 +139,12 @@ def ensure_schema(db_path: Path = DEFAULT_DB_PATH) -> None:
             )
             """
         )
+        _ensure_column(conn, "tasks", "source_ref", "TEXT")
+        _ensure_column(conn, "tasks", "record_id", "TEXT")
+        _ensure_column(conn, "tasks", "task_type", "TEXT")
+        _ensure_column(conn, "tasks", "due_hint", "TEXT")
+        _ensure_column(conn, "tasks", "review_status", "TEXT")
+        _ensure_column(conn, "tasks", "metadata", "TEXT")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_tasks_review_status ON tasks(review_status)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_tasks_source ON tasks(source)")
@@ -285,12 +291,6 @@ def ensure_schema(db_path: Path = DEFAULT_DB_PATH) -> None:
         )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_mapping ON webhook_deliveries(mapping_id)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_status ON webhook_deliveries(status)")
-        _ensure_column(conn, "tasks", "source_ref", "TEXT")
-        _ensure_column(conn, "tasks", "record_id", "TEXT")
-        _ensure_column(conn, "tasks", "task_type", "TEXT")
-        _ensure_column(conn, "tasks", "due_hint", "TEXT")
-        _ensure_column(conn, "tasks", "review_status", "TEXT")
-        _ensure_column(conn, "tasks", "metadata", "TEXT")
 
 
 def upsert_record(

@@ -17,7 +17,7 @@ the v1.5 release cut.
 | `docs/decisions/udos-teletext-theme.md` | supporting theme reference | implemented for TUI lane | `core/tui/ui_elements.py`, `core/tui/renderer.py`, `core/tests/tui_protocol_bridge_test.py` |
 | `docs/decisions/uDOS-v1-3.md` | historical snapshot | no v1.5 implementation gate | historical by decision status |
 | `docs/decisions/UDOS-VM-REMOTE-DESKTOP-ARCHITECTURE.md` | active non-blocking platform reference | non-blocking and aligned | `wizard/routes/home_assistant_routes.py`, `wizard/tests/home_assistant_routes_test.py`, `wizard/tests/uhome_platform_presentation_test.py` |
-| `docs/decisions/uHOME-spec.md` | active home profile lane | implemented for v1.5 release lane | `docs/specs/UHOME-v1.5.md`, `core/tests/sonic_uhome_bundle_test.py`, `wizard/tests/home_assistant_routes_test.py`, `wizard/tests/uhome_presentation_service_test.py` |
+| `docs/decisions/v1-5-3-UHOME-KIOSK.md` | uHOME kiosk/controller lane in separate repo | integrated through Wizard-facing routes and docs | `docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md`, `wizard/tests/home_assistant_routes_test.py`, `wizard/tests/uhome_presentation_service_test.py` |
 | `docs/decisions/v1-5-logic-assist-final-spec.md` | supporting narrative | partially promoted; non-gating remainder | promoted runtime surfaces: `core/ulogic/`, `core/tests/ulogic_runtime_test.py`, `wizard/services/logic_assist_service.py`, `wizard/tests/logic_assist_service_test.py` |
 | `docs/decisions/v1-5-logic-input-handler.md` | active v1.5 runtime contract | implemented | `core/tui/ucode.py` routing contract, `core/tests/ucode_tui_v15_routing_test.py`, `core/tests/test_input_router.py` |
 | `docs/decisions/v1-5-offline-assist.md` | supporting scaffold | implemented where promoted into canonical runtime | `core/ulogic/parser.py`, `core/ulogic/runtime.py`, `core/ulogic/script_sandbox.py`, `core/tests/ulogic_parser_test.py`, `core/tests/ulogic_runtime_test.py` |
@@ -46,7 +46,7 @@ Command group 1:
   core/tests/workflow_scheduler_test.py \
   core/tests/workflow_handler_test.py \
   core/tests/v1_5_stable_signoff_test.py \
-  core/tests/sonic_uhome_bundle_test.py \
+  wizard/tests/home_assistant_routes_test.py \
   wizard/tests/workflow_routes_test.py \
   wizard/tests/platform_launch_session_routes_test.py \
   wizard/tests/renderer_routes_test.py \

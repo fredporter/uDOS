@@ -7,9 +7,32 @@ import re
 from pathlib import Path
 from typing import Any
 
-from library.sonic.schemas import Device, ReflashPotential, USBBootSupport
+from core.services.external_repo_service import resolve_sonic_repo_root
+
 from wizard.services.path_utils import get_repo_root
 from wizard.services.sonic_adapters import to_device_payload
+
+_USB_BOOT_VALUES = ["legacy_only", "mixed", "native", "none", "uefi_only"]
+_REFLASH_VALUES = ["high", "low", "medium", "unknown"]
+
+
+def _sample_value_for_property(name: str, schema: dict[str, Any]) -> Any:
+    enum = schema.get("enum")
+    if isinstance(enum, list) and enum:
+        return enum[0]
+    if schema.get("type") == "integer":
+        return 0
+    if schema.get("type") == "array":
+        return []
+    if schema.get("format") == "date":
+        return "2026-01-25"
+    if name == "id":
+        return "sample-device"
+    if name == "vendor":
+        return "sample-vendor"
+    if name == "model":
+        return "sample-model"
+    return ""
 
 _CREATE_TABLE_PATTERN = re.compile(
     r"CREATE\s+TABLE\s+devices\s*\((?P<body>.*?)\)\s*;",
@@ -63,12 +86,13 @@ def _load_json_schema(path: Path) -> dict[str, Any]:
         "enum_reflash_potential": sorted(
             str(v) for v in properties.get("reflash_potential", {}).get("enum", [])
         ),
+        "properties_map": dict(properties),
     }
 
 
 def evaluate_sonic_schema_contract(repo_root: Path | None = None) -> dict[str, Any]:
     root = repo_root or get_repo_root()
-    datasets = root / "sonic" / "datasets"
+    datasets = resolve_sonic_repo_root(root) / "datasets"
     sql_path = datasets / "sonic-devices.sql"
     json_path = datasets / "sonic-devices.schema.json"
 
@@ -102,8 +126,8 @@ def evaluate_sonic_schema_contract(repo_root: Path | None = None) -> dict[str, A
 
     usb_schema = json_contract["enum_usb_boot"]
     reflash_schema = json_contract["enum_reflash_potential"]
-    usb_py = sorted(member.value for member in USBBootSupport)
-    reflash_py = sorted(member.value for member in ReflashPotential)
+    usb_py = sorted(_USB_BOOT_VALUES)
+    reflash_py = sorted(_REFLASH_VALUES)
 
     if usb_schema != usb_py:
         issues.append("usb_boot_enum_mismatch_between_json_schema_and_python")
@@ -111,13 +135,7 @@ def evaluate_sonic_schema_contract(repo_root: Path | None = None) -> dict[str, A
         issues.append("reflash_potential_enum_mismatch_between_json_schema_and_python")
 
     adapter_sample = to_device_payload(
-        Device(
-            id="sample-device",
-            vendor="sample-vendor",
-            model="sample-model",
-            usb_boot=USBBootSupport.NATIVE,
-            reflash_potential=ReflashPotential.UNKNOWN,
-        )
+        {name: _sample_value_for_property(name, dict(schema or {})) for name, schema in json_contract.get("properties_map", {}).items()}
     )
     adapter_keys = set(adapter_sample.keys())
     missing_sql_columns_in_adapter = sorted(sql_columns - adapter_keys)
@@ -125,7 +143,7 @@ def evaluate_sonic_schema_contract(repo_root: Path | None = None) -> dict[str, A
         issues.append("adapter_payload_missing_sql_columns")
 
     adapter_legacy_usb = to_device_payload({"id": "x", "vendor": "v", "model": "m", "usb_boot": "yes"})
-    adapter_usb_normalized = adapter_legacy_usb.get("usb_boot") == USBBootSupport.NATIVE.value
+    adapter_usb_normalized = adapter_legacy_usb.get("usb_boot") == "native"
     if not adapter_usb_normalized:
         issues.append("adapter_usb_boot_legacy_normalization_failed")
 

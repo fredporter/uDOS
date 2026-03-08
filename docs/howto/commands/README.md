@@ -50,7 +50,7 @@ See:
 
 - `docs/howto/commands/wizard.md`
 - `docs/howto/MANAGED-WIZARD-OPERATIONS.md`
-- `docs/howto/SONIC-STANDALONE-RELEASE-AND-INSTALL.md`
+- `docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md`
 
 ## Dev Mode Boundary
 

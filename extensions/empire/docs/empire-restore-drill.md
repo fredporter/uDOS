@@ -9,7 +9,7 @@ Prerequisites
 
 Procedure
 1. Run backup/restore sanity script:
-   `cd /Users/fredbook/Code/uDOS/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/smoke/db_backup_restore_sanity.py --db data/empire.db`
+   `cd /Users/fredbook/Code/uDOS/extensions/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 scripts/smoke/db_backup_restore_sanity.py --db data/empire.db`
 2. Confirm output contains:
    - `PASS backup=...`
    - `PASS restore=...`

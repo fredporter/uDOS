@@ -3,14 +3,14 @@
 Goal: establish test baseline and defect inventory.
 
 ## Scope
-- Private Empire extension only
+- Internal Empire extension only
 - Must remain separate from public uDOS paths
 - Compatibility with uDOS core is required
 
 ## Checklist
 
 Baseline
-- [ ] Confirm Empire submodule clean and on expected commit
+- [ ] Confirm Empire extension tree is present and on expected working state
 - [x] Verify Empire API start (local)
 - [ ] Verify Empire web build/start (local)
 
@@ -70,4 +70,4 @@ Defect triage setup
 
 Known blockers / follow-up
 - Web build/start still pending for Phase 1 completion.
-- Submodule working tree is currently not clean due to generated Phase 1 data artifacts (`data/raw`, `data/normalized`, and updated `data/empire.db`).
+- Extension working tree is currently not clean due to generated Phase 1 data artifacts (`data/raw`, `data/normalized`, and updated `data/empire.db`).

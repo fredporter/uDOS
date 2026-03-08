@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from core.services.external_repo_service import resolve_sonic_repo_root
 from core.services.path_service import get_repo_root
 from core.services.system_capability_service import get_system_capability_service
 
@@ -113,7 +114,7 @@ class SonicDeviceStorageService:
 
     def __init__(self, repo_root: Path | None = None) -> None:
         self.repo_root = Path(repo_root or get_repo_root())
-        self.sonic_root = self.repo_root / "sonic"
+        self.sonic_root = resolve_sonic_repo_root(self.repo_root)
         self.dataset_root = self.sonic_root / "datasets"
         self.memory_root = self.repo_root / "memory" / "sonic"
         self.submissions_root = self.memory_root / "submissions"

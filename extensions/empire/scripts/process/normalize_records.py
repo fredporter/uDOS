@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""CLI entry for Empire record normalization."""
+"""CLI entry for Empire record normalization.
+
+Legacy operator utility.
+This script is not part of the supported Wizard runtime contract.
+"""
 
 from __future__ import annotations
 
@@ -11,6 +15,9 @@ from empire.services.normalization_service import write_normalized
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Normalize raw JSONL records")
+    parser.epilog = (
+        "Legacy operator utility only. Do not treat this as a canonical Empire runtime entrypoint."
+    )
     parser.add_argument("--in", dest="input_path", required=True, help="Raw JSONL path")
     parser.add_argument("--out", required=True, help="Normalized JSONL path")
     parser.add_argument("--db", default=None, help="Optional SQLite DB path")

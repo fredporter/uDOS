@@ -36,8 +36,8 @@
       "rollback_or_recovery": {
         "mode": "rollback-token",
         "evidence": [
-          "core/tests/sonic_uhome_bundle_test.py::test_plan_includes_rollback_commit_step",
-          "docs/specs/UHOME-v1.5.md"
+          "wizard/tests/home_assistant_routes_test.py",
+          "docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md"
         ]
       },
       "demo_coverage": [

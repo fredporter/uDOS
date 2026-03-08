@@ -18,11 +18,12 @@ logger = get_logger("empire-extension", category="extensions")
 class EmpireExtensionService:
     """Resolve Empire extension state and provide canonical helper operations."""
 
+    DEFAULT_ENABLED = False
+
     def __init__(self, repo_root: Path | None = None) -> None:
         self.repo_root = repo_root or get_repo_root()
         self.extensions_root = self.repo_root / "extensions"
         self.extension_root = self.extensions_root / "empire"
-        self.legacy_nested_root = self.extension_root / "empire"
         self.data_root = self.extension_root / "data"
         self.config_root = self.extension_root / "config"
         self.templates_root = self.extension_root / "templates"
@@ -46,7 +47,7 @@ class EmpireExtensionService:
         return self.extension_root.is_dir() and all(path.exists() for path in required)
 
     def _load_state(self) -> dict[str, dict[str, Any]]:
-        default = {"empire": {"enabled": self.extension_installed()}}
+        default = {"empire": {"enabled": self.DEFAULT_ENABLED}}
         if not self.state_path.exists():
             self._save_state(default)
             return default
@@ -60,9 +61,9 @@ class EmpireExtensionService:
             return default
         extension_state = payload.get("empire")
         if not isinstance(extension_state, dict):
-            payload["empire"] = {"enabled": self.extension_installed()}
+            payload["empire"] = {"enabled": self.DEFAULT_ENABLED}
         if "enabled" not in payload["empire"]:
-            payload["empire"]["enabled"] = self.extension_installed()
+            payload["empire"]["enabled"] = self.DEFAULT_ENABLED
         return payload
 
     def _save_state(self, state: dict[str, dict[str, Any]]) -> None:
@@ -74,6 +75,35 @@ class EmpireExtensionService:
 
     def enabled(self) -> bool:
         return bool(self._load_state().get("empire", {}).get("enabled", False))
+
+    def activation_state(self) -> str:
+        if not self.extension_installed():
+            return "missing"
+        if not self.enabled():
+            return "disabled"
+        return "enabled"
+
+    def access_error(self) -> str | None:
+        if not self.extension_installed():
+            return "Empire extension is not installed."
+        if not self.enabled():
+            return "Empire extension is disabled. Enable it from Wizard Extensions before using Empire routes."
+        return None
+
+    def ensure_enabled_access(self) -> dict[str, Any] | None:
+        message = self.access_error()
+        if message is None:
+            return None
+        status = self.status_payload()
+        error_code = "extension_missing" if not status["installed"] else "extension_disabled"
+        http_status = 503 if error_code == "extension_missing" else 409
+        return {
+            "status": "error",
+            "error": error_code,
+            "message": message,
+            "http_status": http_status,
+            "extension": status,
+        }
 
     def set_enabled(self, enabled: bool) -> dict[str, Any]:
         state = self._load_state()
@@ -197,8 +227,6 @@ class EmpireExtensionService:
             missing.append("database")
         if self.configuration_state() != "configured":
             missing.append("api-token")
-        if self.legacy_nested_root.exists():
-            missing.append("legacy-nested-tree")
         return missing
 
     def _database_ok(self) -> bool:
@@ -227,12 +255,18 @@ class EmpireExtensionService:
     def status_payload(self) -> dict[str, Any]:
         installed = self.extension_installed()
         enabled = self.enabled() if installed else False
+        activation_state = "missing"
+        access_error = None
+        if installed:
+            activation_state = "enabled" if enabled else "disabled"
+            if not enabled:
+                access_error = "Empire extension is disabled. Enable it from Wizard Extensions before using Empire routes."
+        else:
+            access_error = "Empire extension is not installed."
         configuration_state = self.configuration_state()
         configured = configuration_state == "configured"
         healthy = installed and enabled and self._database_ok()
-        degraded = (installed and enabled and not healthy) or (
-            installed and configuration_state != "configured"
-        )
+        degraded = installed and enabled and (not healthy or configuration_state != "configured")
         return {
             "extension_id": "empire",
             "kind": "official",
@@ -240,14 +274,16 @@ class EmpireExtensionService:
             "installed": installed,
             "available": installed,
             "enabled": enabled,
+            "activation_state": activation_state,
+            "activation_required": installed and not enabled,
             "configured": configured,
             "configuration_state": configuration_state,
             "healthy": healthy,
             "degraded": degraded,
+            "access_error": access_error,
             "version": self._version(),
             "path": str(self.extension_root),
             "wizard_route": "#empire",
-            "legacy_nested_tree": self.legacy_nested_root.exists(),
             "db_path": str(self.db_path),
             "capabilities": self.capabilities(),
             "missing_prerequisites": self.missing_prerequisites(),

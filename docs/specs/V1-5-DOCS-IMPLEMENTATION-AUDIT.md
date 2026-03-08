@@ -46,7 +46,7 @@ Machine-readable inventory: `docs/specs/V1-5-DOC-COVERAGE-AUDIT.json`
 | `docs/decisions/udos-teletext-theme.md` | `decisions` | `deferred/supporting` | `active supporting theme reference` | `yes` |
 | `docs/decisions/uDOS-v1-3.md` | `decisions` | `deferred/supporting` | `historical snapshot` | `yes` |
 | `docs/decisions/UDOS-VM-REMOTE-DESKTOP-ARCHITECTURE.md` | `decisions` | `deferred/supporting` | `active but non-blocking platform reference` | `yes` |
-| `docs/decisions/uHOME-spec.md` | `decisions` | `active-v1.5` | `active home profile lane` | `yes` |
+| `docs/decisions/v1-5-3-UHOME-KIOSK.md` | `decisions` | `active-v1.5.3` | `active external uHOME lane` | `yes` |
 | `docs/decisions/v1-5-creator-blocker-matrix.md` | `decisions` | `redirect` | `-` | `yes` |
 | `docs/decisions/v1-5-logic-assist-final-spec.md` | `decisions` | `deferred/supporting` | `active supporting narrative` | `yes` |
 | `docs/decisions/v1-5-logic-input-handler.md` | `decisions` | `active-v1.5` | `active` | `yes` |
@@ -68,7 +68,7 @@ Machine-readable inventory: `docs/specs/V1-5-DOC-COVERAGE-AUDIT.json`
 | `docs/features/MOOD-FACTORS-SPEC.md` | `features` | `reference` | `-` | `yes` |
 | `docs/features/packaging-dependency-map.md` | `features` | `reference` | `-` | `yes` |
 | `docs/features/PROMPT-PARSER-REFERENCE.md` | `features` | `reference` | `-` | `yes` |
-| `docs/features/SONIC-MODULAR-FILE-INDEX.md` | `features` | `reference` | `-` | `yes` |
+| `docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md` | `howto` | `active` | `external companion repo integration` | `yes` |
 | `docs/features/SQL-RUNNER-GUIDE.md` | `features` | `reference` | `-` | `yes` |
 | `docs/features/THEME-LAYER-MAPPING.md` | `features` | `reference` | `-` | `yes` |
 | `docs/features/TODO-RENDERER-REFERENCE.md` | `features` | `reference` | `-` | `yes` |
@@ -120,7 +120,6 @@ Machine-readable inventory: `docs/specs/V1-5-DOC-COVERAGE-AUDIT.json`
 | `docs/specs/UCODE-DISPATCH-CONTRACT.md` | `specs` | `active-v1.5` | `active command-dispatch contract` | `yes` |
 | `docs/specs/UCODE-PROMPT-SPEC.md` | `specs` | `active-v1.5` | `-` | `yes` |
 | `docs/specs/UCODE-SELECTOR-INTEGRATION-BRIEF.md` | `specs` | `deferred/supporting` | `active supporting brief` | `yes` |
-| `docs/specs/UHOME-v1.5.md` | `specs` | `active-v1.5` | `active` | `yes` |
 | `docs/specs/V1-5-DECISION-IMPLEMENTATION-AUDIT.md` | `specs` | `deferred/supporting` | `release-ready with documented deferred lanes` | `yes` |
 | `docs/specs/V1-5-DOCS-IMPLEMENTATION-AUDIT.md` | `specs` | `redirect` | `completed` | `yes` |
 | `docs/specs/V1-5-FREEZE-SUMMARY.md` | `specs` | `active-v1.5` | `stable` | `yes` |

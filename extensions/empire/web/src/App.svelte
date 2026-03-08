@@ -21,7 +21,7 @@
 
   const fallbackLines = [
     "[system] Empire overview not loaded yet",
-    "[system] Run: python scripts/process/refresh_overview.py"
+    "[system] Activate Empire in Wizard Extensions, then refresh connectors or load sample data"
   ];
 
   async function loadData() {

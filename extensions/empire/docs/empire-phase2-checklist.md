@@ -3,7 +3,7 @@
 Goal: stability and UX polish on current scope.
 
 ## Scope (current pass)
-- Empire private extension only.
+- Empire internal extension only.
 - Non-web stabilization first (web tests deferred by request).
 - Compatibility with uDOS core preserved.
 
@@ -26,13 +26,13 @@ Operational
 
 ## Smoke Commands
 - Start API (no-token mode):
-  `cd /Users/fredbook/Code/uDOS/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 -m uvicorn empire.api.server:app --host 127.0.0.1 --port 8991`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && PYTHONPATH=/Users/fredbook/Code/uDOS python3 -m uvicorn empire.api.server:app --host 127.0.0.1 --port 8991`
 - Smoke run (no-token mode):
-  `cd /Users/fredbook/Code/uDOS/empire && python3 scripts/smoke/api_smoke.py --base-url http://127.0.0.1:8991`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && python3 scripts/smoke/api_smoke.py --base-url http://127.0.0.1:8991`
 - Start API (token mode):
-  `cd /Users/fredbook/Code/uDOS/empire && EMPIRE_API_TOKEN=phase2token PYTHONPATH=/Users/fredbook/Code/uDOS python3 -m uvicorn empire.api.server:app --host 127.0.0.1 --port 8991`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && EMPIRE_API_TOKEN=phase2token PYTHONPATH=/Users/fredbook/Code/uDOS python3 -m uvicorn empire.api.server:app --host 127.0.0.1 --port 8991`
 - Smoke run (token mode + auth assertions):
-  `cd /Users/fredbook/Code/uDOS/empire && python3 scripts/smoke/api_smoke.py --base-url http://127.0.0.1:8991 --token phase2token --expect-auth`
+  `cd /Users/fredbook/Code/uDOS/extensions/empire && python3 scripts/smoke/api_smoke.py --base-url http://127.0.0.1:8991 --token phase2token --expect-auth`
 
 ## Execution Log
 - 2026-02-15: Phase 2 commenced with API hardening and smoke automation.

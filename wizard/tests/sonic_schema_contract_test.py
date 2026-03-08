@@ -6,7 +6,7 @@ from wizard.services.sonic_schema_contract import evaluate_sonic_schema_contract
 
 
 def _write_contract_files(tmp_path, *, sql_required_year: bool) -> None:
-    datasets = tmp_path / "sonic" / "datasets"
+    datasets = tmp_path.parent / "uDOS-sonic" / "datasets"
     datasets.mkdir(parents=True, exist_ok=True)
     sql = f"""
 CREATE TABLE devices (

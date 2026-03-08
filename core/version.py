@@ -19,6 +19,8 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 
+from core.services.external_repo_service import resolve_sonic_repo_root
+
 # Component paths relative to project root
 COMPONENT_PATHS = {
     "core": "core/version.json",
@@ -26,7 +28,7 @@ COMPONENT_PATHS = {
     "wizard": "wizard/version.json",
     "knowledge": "knowledge/version.json",
     "transport": "extensions/transport/version.json",
-    "sonic": "sonic/version.json",
+    "sonic": None,
 }
 
 # Legacy paths - ARCHIVED 2026-01-05 (no longer used)
@@ -61,7 +63,10 @@ def load_version(component: str) -> Optional[Dict[str, Any]]:
     if component not in COMPONENT_PATHS:
         return None
 
-    version_path = get_project_root() / COMPONENT_PATHS[component]
+    if component == "sonic":
+        version_path = resolve_sonic_repo_root(get_project_root()) / "version.json"
+    else:
+        version_path = get_project_root() / str(COMPONENT_PATHS[component])
 
     if not version_path.exists():
         return None

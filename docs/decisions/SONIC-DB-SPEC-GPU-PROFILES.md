@@ -70,5 +70,5 @@ For v1.5, this decision governs:
 
 - `docs/STATUS.md`
 - `docs/decisions/UDOS-ALPINE-THIN-GUI-RUNTIME-SPEC.md`
-- `docs/decisions/uHOME-spec.md`
-- `docs/specs/UHOME-v1.5.md`
+- `docs/decisions/v1-5-3-UHOME-KIOSK.md`
+- `docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md`

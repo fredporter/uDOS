@@ -75,16 +75,6 @@ class _Schemas:
             self.kwargs = kwargs
 
 
-class _Enums:
-    class ReflashPotential:
-        def __new__(cls, value):
-            return value
-
-    class USBBootSupport:
-        def __new__(cls, value):
-            return value
-
-
 def test_sonic_plugin_alias_routes_are_removed(monkeypatch):
     monkeypatch.delenv("UDOS_SONIC_ENABLE_LEGACY_ALIASES", raising=False)
     sync = _Sync()
@@ -94,9 +84,6 @@ def test_sonic_plugin_alias_routes_are_removed(monkeypatch):
         "load_sonic_plugin",
         lambda repo_root=None: {"api": type("X", (), {"get_sonic_service": lambda self: _API()})(), "sync": type("Y", (), {"get_sync_service": lambda self: sync})(), "schemas": _Schemas},
     )
-
-    # Route module imports enums from library.sonic.schemas in /devices handler.
-    monkeypatch.setitem(__import__("sys").modules, "library.sonic.schemas", _Enums)
 
     app = FastAPI()
     app.include_router(sonic_routes.create_sonic_plugin_routes(auth_guard=None))
@@ -136,8 +123,6 @@ def test_sonic_plugin_alias_routes_ignore_compatibility_override(monkeypatch):
         "load_sonic_plugin",
         lambda repo_root=None: {"api": type("X", (), {"get_sonic_service": lambda self: _API()})(), "sync": type("Y", (), {"get_sync_service": lambda self: sync})(), "schemas": _Schemas},
     )
-    monkeypatch.setitem(__import__("sys").modules, "library.sonic.schemas", _Enums)
-
     app = FastAPI()
     app.include_router(sonic_routes.create_sonic_plugin_routes(auth_guard=None))
     client = TestClient(app)

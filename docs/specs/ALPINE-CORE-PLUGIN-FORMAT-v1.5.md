@@ -38,6 +38,6 @@ It is the canonical public contract for:
 
 - `docs/INSTALLATION.md`
 - `docs/howto/BARE-METAL-Alpine-Install.md`
-- `docs/howto/SONIC-STANDALONE-RELEASE-AND-INSTALL.md`
+- `docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md`
 - `docs/specs/PACKAGING-RELEASE-CONTRACT-v1.5.md`
 - `docs/features/alpine-core.md`

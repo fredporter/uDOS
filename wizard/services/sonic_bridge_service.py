@@ -10,11 +10,13 @@ from pathlib import Path
 from typing import Dict, Any, List
 import json
 
+from core.services.external_repo_service import resolve_sonic_repo_root
+
 
 class SonicBridgeService:
     def __init__(self, repo_root: Path | None = None):
         self.repo_root = repo_root or Path(__file__).resolve().parent.parent.parent
-        self.sonic_root = self.repo_root / "sonic"
+        self.sonic_root = resolve_sonic_repo_root(self.repo_root)
 
     def _read_version(self) -> str | None:
         path = self.sonic_root / "version.json"

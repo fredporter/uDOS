@@ -1,83 +1,63 @@
-# Sonic Screwdriver Device Database
+# Sonic Datasets
 
-Wizard Server integration for the Sonic Screwdriver device catalog.
+Wizard integrates with the Sonic device catalog from the external
+`uDOS-sonic` repository.
 
-## Overview
+Canonical companion repo:
 
-The `/sonic/datasets` folder in the public `sonic` submodule contains:
+- `../uDOS-sonic`
 
-- `sonic-devices.table.md` - Primary Markdown table (human-editable)
-- `sonic-devices.schema.json` - JSON Schema for validation
-- `sonic-devices.sql` - SQLite schema + seed data
-- `version.json` - Dataset component version metadata
+Optional override:
 
-Runtime database location:
+- `UDOS_SONIC_ROOT`
+
+## Dataset files
+
+Wizard expects these files under the external Sonic repo:
+
+- `datasets/sonic-devices.schema.json`
+- `datasets/sonic-devices.sql`
+- `datasets/version.json`
+
+## Runtime database layout
+
+The external Sonic runtime owns the local database artifacts:
+
 - `memory/sonic/seed/sonic-devices.seed.db`
 - `memory/sonic/user/sonic-devices.user.db`
-- `memory/sonic/sonic-devices.db` (compatibility mirror)
-- Schema version: `1.1`
+- `memory/sonic/sonic-devices.db`
 
-## API Endpoints
-
-Core endpoints:
+## Wizard API
 
 - `GET /api/sonic/health`
 - `GET /api/sonic/schema`
+- `GET /api/sonic/schema/contract`
 - `GET /api/sonic/devices`
 - `GET /api/sonic/devices/{device_id}`
 - `GET /api/sonic/stats`
-
-Device DB endpoints:
-
 - `GET /api/sonic/sync/status`
 - `POST /api/sonic/sync/rebuild`
 - `POST /api/sonic/sync/export`
-- `GET /api/sonic/db/status` (alias)
-- `POST /api/sonic/db/rebuild` (alias)
-- `GET /api/sonic/db/export` (alias)
-- `POST /api/sonic/sync` (alias)
-- `POST /api/sonic/rescan` (alias)
-- `POST /api/sonic/rebuild` (alias)
-- `GET /api/sonic/export` (alias)
 - `POST /api/sonic/bootstrap/current`
 
-## Query Filters (`GET /api/sonic/devices`)
+## Platform API
 
-- `vendor` - Vendor name filter
-- `reflash_potential` - `high`, `medium`, `low`, `unknown`
-- `usb_boot` - `native`, `uefi_only`, `legacy_only`, `mixed`, `none`
-  - compatibility aliases accepted during transition: `yes -> native`, `no -> none`, `unknown -> none`
-- `uefi_native` - `works`, `issues`, `unknown`
-- `windows10_boot` - `none`, `install`, `wtg`, `unknown`
-- `media_mode` - `none`, `htpc`, `retro`, `unknown`
-- `udos_launcher` - `none`, `basic`, `advanced`, `unknown`
-- `year_min`
-- `year_max`
-- `limit` - results per page (1-1000)
-- `offset` - pagination offset
+- `GET /api/platform/sonic/status`
+- `GET /api/platform/sonic/verify`
+- `GET /api/platform/sonic/dataset-contract`
+- `GET /api/platform/sonic/gui/summary`
 
-## Building the Database
+## Rebuild flow
 
-```bash
-mkdir -p memory/sonic
-sqlite3 memory/sonic/seed/sonic-devices.seed.db < sonic/datasets/sonic-devices.sql
-```
-
-The local user overlay is managed separately in
-`memory/sonic/user/sonic-devices.user.db`. That layer stores current-machine
-bootstrap records and user-added devices without mutating the distributed seed
-catalog.
-
-Or rebuild via API:
+Use the external dataset SQL through Wizard:
 
 ```bash
 curl -X POST -H "Authorization: Bearer $DEVICE_TOKEN" \
-  "${WIZARD_BASE_URL}/api/sonic/db/rebuild"
+  "${WIZARD_BASE_URL}/api/sonic/sync/rebuild"
 ```
 
-## References
+## Related docs
 
-- `sonic/datasets/README.md`
+- `docs/howto/SONIC-UHOME-EXTERNAL-INTEGRATION.md`
 - `wizard/routes/sonic_plugin_routes.py`
-- `library/sonic/api/__init__.py`
-- `library/sonic/sync/__init__.py`
+- `wizard/routes/platform_routes.py`

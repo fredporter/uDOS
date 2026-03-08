@@ -51,7 +51,7 @@ def test_publish_service_provider_availability(tmp_path):
 
 def test_publish_provider_registry_and_module_gate(tmp_path):
     repo_root = tmp_path
-    (repo_root / "sonic").mkdir(parents=True, exist_ok=True)
+    (repo_root.parent / "uDOS-sonic").mkdir(parents=True, exist_ok=True)
     service = PublishService(repo_root=repo_root)
 
     registry = service.get_provider_registry()
